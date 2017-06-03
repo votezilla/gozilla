@@ -41,6 +41,11 @@ func loadPage(title string) (*Page, error) {
 	return &Page{Title: title, Body: body}, nil
 }
 
+func topHandler(w http.ResponseWriter, r *http.Request) {
+	p := &Page{Title: "", Body: []byte("")}
+	renderTemplate(w, "top", p)
+}
+
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	log.Printf("viewHandler")
 	
@@ -101,7 +106,8 @@ func init() {
 	log.Printf("init")
 	
 	var err error
-	templates, err = template.ParseFiles("templates/edit.html",
+	templates, err = template.ParseFiles("templates/top.html",
+	                                     "templates/edit.html",
                                          "templates/view.html")
 	if err != nil {
 	    log.Fatal(err)
@@ -110,6 +116,10 @@ func init() {
 
 func main() {
 	log.Printf("main")
+	
+	http.HandleFunc("/", topHandler)
+	
+	log.Printf("main0");
 
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	
