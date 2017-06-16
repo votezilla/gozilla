@@ -18,28 +18,6 @@ var (
 	debug = true
 )
 
-/*
-1. Anonymous structs
-Grouped globals
-var config struct {
-    APIKey      string
-    OAuthConfig oauth.Config
-}
-
-config.APIKey = "BADC0C0A"
-Template data
-data := struct {
-    Title string
-    Users []*User
-}{
-    title,
-    users,
-}
-err := tmpl.Execute(w, data)
-
-map[string]interface{}
-*/
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // render template files
@@ -56,14 +34,14 @@ func parseTemplateFiles() {
 	}
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) { //p *Page) {
+func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	log.Printf("renderTemplate: " + tmpl + ".html")
 	
 	if debug {
 		parseTemplateFiles()
 	}
 
-	err := templates.ExecuteTemplate(w, tmpl + ".html", data) //p)
+	err := templates.ExecuteTemplate(w, tmpl + ".html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
