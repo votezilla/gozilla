@@ -3,19 +3,19 @@
 package main
 
 import (
-	"html/template"
-	"log"
-	"net/http"
+    "html/template"
+    "log"
+    "net/http"
 )
 
 type Page struct {
-	Title string
-	Body  []byte
+    Title string
+    Body  []byte
 }
 
 var (
-	templates *template.Template = nil
-	debug = true
+    templates *template.Template = nil
+        debug = true
 )
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,27 +24,27 @@ var (
 //
 ///////////////////////////////////////////////////////////////////////////////
 func parseTemplateFiles() {
-	var err error
-	templates, err = template.ParseFiles("templates/frontPage.html",
-	                                     "templates/forgotPassword.html",
-	                                     "templates/login.html",
+    var err error
+    templates, err = template.ParseFiles("templates/frontPage.html",
+                                         "templates/forgotPassword.html",
+                                         "templates/login.html",
                                          "templates/register.html")
-	if err != nil {
-		log.Fatal(err)
-	}
+    if err != nil {
+        log.Fatal(err)
+    }
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	log.Printf("renderTemplate: " + tmpl + ".html")
-	
-	if debug {
-		parseTemplateFiles()
-	}
+    log.Printf("renderTemplate: " + tmpl + ".html")
+    
+    if debug {
+        parseTemplateFiles()
+    }
 
-	err := templates.ExecuteTemplate(w, tmpl + ".html", data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+    err := templates.ExecuteTemplate(w, tmpl + ".html", data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
 }
 
 
@@ -54,8 +54,8 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func frontPageHandler(w http.ResponseWriter, r *http.Request) {
-	var args struct{}
-	renderTemplate(w, "frontPage", args)
+    var args struct{}
+    renderTemplate(w, "frontPage", args)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -64,12 +64,12 @@ func frontPageHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	var args struct{}
-	renderTemplate(w, "login", &args)
+    var args struct{}
+    renderTemplate(w, "login", &args)
 }
 
 func postLoginHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", http.StatusFound)
+    http.Redirect(w, r, "/", http.StatusFound)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -78,13 +78,13 @@ func postLoginHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
-	var args struct{}
-	
-	renderTemplate(w, "forgotPassword", args)
+    var args struct{}
+    
+    renderTemplate(w, "forgotPassword", args)
 }
 
 func postForgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", http.StatusFound)
+    http.Redirect(w, r, "/", http.StatusFound)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -93,12 +93,12 @@ func postForgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-	var args struct{}
-	renderTemplate(w, "register", args)
+    var args struct{}
+    renderTemplate(w, "register", args)
 }
 
 func postRegisterHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", http.StatusFound)
+    http.Redirect(w, r, "/", http.StatusFound)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,27 +107,27 @@ func postRegisterHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func init() {
-	log.Printf("init")
-	
-	parseTemplateFiles()
+    log.Printf("init")
+    
+    parseTemplateFiles()
 }
 
 func main() {
-	log.Printf("main")
-	
-	http.HandleFunc("/",				frontPageHandler)
+    log.Printf("main")
+    
+    http.HandleFunc("/",                frontPageHandler)
 
-	http.HandleFunc("/login/",			loginHandler)
-	http.HandleFunc("/forgotPassword/",	forgotPasswordHandler)
-	http.HandleFunc("/register/",		registerHandler)
-	
-	http.HandleFunc("/postLogin/",			postLoginHandler)
-	http.HandleFunc("/postForgotPassword/",	postForgotPasswordHandler)
-	http.HandleFunc("/postRegister/",		postRegisterHandler)
-	
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+    http.HandleFunc("/login/",            loginHandler)
+    http.HandleFunc("/forgotPassword/",    forgotPasswordHandler)
+    http.HandleFunc("/register/",        registerHandler)
+    
+    http.HandleFunc("/postLogin/",            postLoginHandler)
+    http.HandleFunc("/postForgotPassword/",    postForgotPasswordHandler)
+    http.HandleFunc("/postRegister/",        postRegisterHandler)
+    
+    http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
         
-	http.ListenAndServe(":8080", nil)
-	
-	log.Printf("Listening on http://localhost:8080...")
-}	
+    http.ListenAndServe(":8080", nil)
+    
+    log.Printf("Listening on http://localhost:8080...")
+}    
