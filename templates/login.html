@@ -1,5 +1,6 @@
 <b>Login</b>
 <br><br>
+<!--
 <form method="post" action="/postLogin">
 	<table border="0">
 		<tr>
@@ -11,7 +12,12 @@
 			<td><input type="password" name="password" size="20"></td>
 		</tr>
 	</table>
+
 	<br>
 	<input type="submit" value="login">
 </form>
+-->
+
+{{ .FormHTML | safeHTML }}
+
 <a href="/forgotPassword">Forgot your password?</a><br><br>
