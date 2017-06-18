@@ -1,23 +1,18 @@
-<b>Login</b>
-<br><br>
-<!--
-<form method="post" action="/postLogin">
-	<table border="0">
-		<tr>
-			<td>username:</td>
-			<td><input type="text" name="username" size="20" autocorrect="off" spellcheck="false" autocapitalize="off" autofocus="true"></td>
-		</tr>
-		<tr>
-			<td>password:</td>
-			<td><input type="password" name="password" size="20"></td>
-		</tr>
-	</table>
+<h1>Front page</h1>
 
-	<br>
-	<input type="submit" value="login">
-</form>
--->
+<html>
+<head>
+	<meta name="referrer" content="origin">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="/static/style.css">
+	<link rel="shortcut icon" href="favicon.ico">
+	<title>New Links | Hacker News</title>
+</head>
+<body>
+	<b>Login</b>
+	<br><br>
 
-{{ .FormHTML | safeHTML }}
+	{{ .FormHTML | safeHTML }}
 
-<a href="/forgotPassword">Forgot your password?</a><br><br>
+	<a href="/forgotPassword">Forgot your password?</a><br><br>
+</body>

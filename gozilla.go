@@ -5,28 +5,33 @@ package main
 import (
     "bytes"
     "github.com/bluele/gforms"
+    "fmt"
     "html/template"
     "log"
     "net/http"    
 )
 
-type LoginForm struct {
-    Username string  `gforms:"username"`
-    Password float32 `gforms:"password"`
-}
-
 var (
     userForm gforms.Form
 
+    // form template for auto-generating HTML for a form, in table-based layout
     tplText = `
 <form method="post">
-  {{range $i, $field := .Fields}}
-    <label>{{$field.GetName}}: </label>{{$field.Html | safeHTML}}
-      {{range $ei, $err := $field.Errors}}
-        <label class="error">{{$err}}</label>
-      {{end}}
-    <br />
-  {{end}}<input type="submit">
+  <table border="0">
+    {{range $i, $field := .Fields}}
+      <tr>
+        <td>{{$field.GetName}}:</td>
+        <td>
+          {{$field.Html | safeHTML}}
+          {{range $ei, $err := $field.Errors}}
+            <label class="error">{{$err}}</label>
+          {{end}}
+        </td>
+      </tr>
+    {{end}}
+  </table>
+  <br>
+  <input type="submit" value="create account">
 </form>`
 )
 
@@ -54,7 +59,9 @@ func check(err error) {
 func parseTemplateFiles() {
     var err error
     
-    t := template.New("").Funcs(template.FuncMap { "safeHTML": func(x string) interface{} { log.Printf("safeHTML\n"); return template.HTML(x) } })
+    t := template.New("").Funcs(
+        template.FuncMap { 
+            "safeHTML": func(x string) interface{} { return template.HTML(x) }})
 
     templates, err = t.ParseFiles("templates/frontPage.html",
                                   "templates/forgotPassword.html",
@@ -97,41 +104,47 @@ func frontPageHandler(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////
 func loginHandler(w http.ResponseWriter, r *http.Request) {
     var args struct{
-        //formHTML bytes.Buffer
         FormHTML string
     }
-    //renderTemplate(w, "login", &args)
+    
+    type LoginData struct {
+        Username string `gforms:"username"`
+        Password string `gforms:"password"`
+    }
     
     userForm = gforms.DefineForm(gforms.NewFields(
         gforms.NewTextField(
-            "name",
+            "username",
             gforms.Validators{
                 gforms.Required(),
                 gforms.MaxLengthValidator(32),
             },
+            gforms.TextInputWidget(map[string]string{
+                "autocorrect": "off",
+                "spellcheck": "false",
+                "autocapitalize": "off",
+                "autofocus": "true",
+            }),
         ),
-        gforms.NewFloatField(
-            "weight",
-            gforms.Validators{},
+        gforms.NewTextField(
+            "password",
+            gforms.Validators{
+                gforms.Required(),
+                gforms.MinLengthValidator(4),
+                gforms.MaxLengthValidator(16),
+            },
+            gforms.PasswordInputWidget(map[string]string{}),
         ),
     ))
 
-    //var err error
     tpl := template.New("tpl").Funcs(
             template.FuncMap { 
-                "safeHTML": func(x string) interface{} { log.Printf("safeHTML\n"); return template.HTML(x) }},)
+                "safeHTML": func(x string) interface{} { return template.HTML(x) }})
     tpl, _ = tpl.Parse(tplText)
 
-    //tpl := template.Must(template.New("tpl").Parse(tplText))
-    log.Printf("tpl: %v\n", tpl)
-   // log.Printf("tpl: %s\n", string(tpl))
-    
     form := userForm(r)
     
-    if r.Method != "POST" {
-        //tpl.Execute(w, form)
-        //return
-        
+    if r.Method != "POST" || !form.IsValid() { // handle GET, or invalid form data...    
         var formHTML bytes.Buffer
         
         check(tpl.Execute(&formHTML, form))
@@ -139,16 +152,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         args.FormHTML = formHTML.String()
         
         log.Printf("processed form buffer: %s\n", args.FormHTML)
-    }
-    
-    log.Printf("form: %v\n", form)
-    
-    //renderTemplate(w, "login", &form)
-    renderTemplate(w, "login", args)
-}
+        
+        log.Printf("form: %v\n", form)
 
-func postLoginHandler(w http.ResponseWriter, r *http.Request) {
-    http.Redirect(w, r, "/", http.StatusFound)
+        renderTemplate(w, "login", args)
+    } else { // handle POST, with valid data...
+        loginData := LoginData{}
+        form.MapTo(&loginData)
+        fmt.Fprintf(w, "loginData ok: %v", loginData)
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -162,10 +174,6 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
     renderTemplate(w, "forgotPassword", args)
 }
 
-func postForgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
-    http.Redirect(w, r, "/", http.StatusFound)
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // register
@@ -174,10 +182,6 @@ func postForgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 func registerHandler(w http.ResponseWriter, r *http.Request) {
     var args struct{}
     renderTemplate(w, "register", args)
-}
-
-func postRegisterHandler(w http.ResponseWriter, r *http.Request) {
-    http.Redirect(w, r, "/", http.StatusFound)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -196,13 +200,9 @@ func main() {
     
     http.HandleFunc("/",                frontPageHandler)
 
-    http.HandleFunc("/login/",            loginHandler)
-    http.HandleFunc("/forgotPassword/",    forgotPasswordHandler)
-    http.HandleFunc("/register/",        registerHandler)
-    
-    http.HandleFunc("/postLogin/",            postLoginHandler)
-    http.HandleFunc("/postForgotPassword/",    postForgotPasswordHandler)
-    http.HandleFunc("/postRegister/",        postRegisterHandler)
+    http.HandleFunc("/login/",          loginHandler)
+    http.HandleFunc("/forgotPassword/", forgotPasswordHandler)
+    http.HandleFunc("/register/",       registerHandler)
     
     http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
         
