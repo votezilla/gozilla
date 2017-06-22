@@ -1,6 +1,6 @@
 <form method="post">
   <table border="0">
-    {{range $i, $field := .Fields}}
+    {{range $i, $field := .Form.Fields}}
       <tr>
         <td>{{$field.GetName}}:</td>
         <td>
@@ -13,5 +13,5 @@
     {{end}}
   </table>
   <br>
-  <input type="submit" value="create account">
+  <input type="submit" value="{{.SubmitText}}">
 </form>

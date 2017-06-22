@@ -18,6 +18,11 @@ var (
     debug = true
 )
 
+type TableForm struct {
+    Form       *gforms.FormInstance
+    SubmitText string
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // utility functions
@@ -165,8 +170,62 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-    var args struct{}
-    executeTemplate(w, "register", args)
+    var args struct{
+        FormHTML string
+    }
+    
+    type LoginData struct {
+        Username string `gforms:"username"`
+        Password string `gforms:"password"`
+    }
+    
+    userForm := gforms.DefineForm(gforms.NewFields(
+        gforms.NewTextField(
+            "username",
+            gforms.Validators{
+                gforms.Required(),
+                gforms.MaxLengthValidator(32),
+            },
+            gforms.TextInputWidget(map[string]string{
+                "autocorrect": "off",
+                "spellcheck": "false",
+                "autocapitalize": "off",
+                "autofocus": "true",
+            }),
+        ),
+        gforms.NewTextField(
+            "password",
+            gforms.Validators{
+                gforms.Required(),
+                gforms.MinLengthValidator(4),
+                gforms.MaxLengthValidator(16),
+            },
+            gforms.PasswordInputWidget(map[string]string{}),
+        ),
+    ))
+     
+    tableForm := TableForm{
+        userForm(r),
+        "Register",
+    }
+    
+    if r.Method == "GET" || !tableForm.Form.IsValid() { // handle GET, or invalid form data from POST...    
+        var formHTML bytes.Buffer
+        
+        renderTemplate(&formHTML, "tableForm", tableForm)
+
+        args.FormHTML = formHTML.String()
+        
+        log.Printf("processed form buffer: %s\n", args.FormHTML)
+        
+        log.Printf("form: %v\n", tableForm.Form)
+
+        executeTemplate(w, "register", args)
+    } else if r.Method == "POST" { // handle POST, with valid data...
+        loginData := LoginData{}
+        tableForm.Form.MapTo(&loginData)
+        fmt.Fprintf(w, "loginData ok: %v", loginData)
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

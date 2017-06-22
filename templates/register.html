@@ -1,28 +1,14 @@
-<h1>Front page</h1>
-
 <html>
 <head>
 	<meta name="referrer" content="origin">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" type="text/css" href="/static/style.css">
 	<link rel="shortcut icon" href="favicon.ico">
-	<title>New Links | Hacker News</title>
+	<title>Votezilla | Register</title>
 </head>
 <body>
-	<b>Register</b>
+	<h1>Register</h1>
 	<br><br>
-	<form method="post" action="/postRegister">
-		<table border="0">
-			<tr>
-				<td>username:</td>
-				<td><input type="text" name="username" size="20" autocorrect="off" spellcheck="false" autocapitalize="off" autofocus="true"></td>
-			</tr>
-			<tr>
-				<td>password:</td>
-				<td><input type="password" name="password" size="20"></td>
-			</tr>
-		</table>
-		<br>
-		<input type="submit" value="create account">
-	</form>
+
+	{{ .FormHTML | safeHTML }}
 </body>
