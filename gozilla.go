@@ -7,36 +7,14 @@ import (
     "github.com/bluele/gforms"
     "fmt"
     "html/template"
+    "io"
     "log"
     "net/http"    
 )
 
 var (
-    userForm gforms.Form
-
-    // form template for auto-generating HTML for a form, in table-based layout
-    tplText = `
-<form method="post">
-  <table border="0">
-    {{range $i, $field := .Fields}}
-      <tr>
-        <td>{{$field.GetName}}:</td>
-        <td>
-          {{$field.Html | safeHTML}}
-          {{range $ei, $err := $field.Errors}}
-            <label class="error">{{$err}}</label>
-          {{end}}
-        </td>
-      </tr>
-    {{end}}
-  </table>
-  <br>
-  <input type="submit" value="create account">
-</form>`
-)
-
-var (
     templates *template.Template = nil
+    
     debug = true
 )
 
@@ -66,21 +44,33 @@ func parseTemplateFiles() {
     templates, err = t.ParseFiles("templates/frontPage.html",
                                   "templates/forgotPassword.html",
                                   "templates/login.html",
-                                  "templates/register.html")
+                                  "templates/register.html",
+                                  "templates/tableForm.html")
 
     if err != nil {
         log.Fatal(err)
     }
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-    log.Printf("renderTemplate: " + tmpl + ".html")
+func renderTemplate(w io.Writer, templateName string, data interface{}) {
+    log.Printf("renderTemplate: " + templateName + ".html")
     
     if debug {
         parseTemplateFiles()
     }
 
-    err := templates.ExecuteTemplate(w, tmpl + ".html", data)
+    err := templates.ExecuteTemplate(w, templateName + ".html", data)
+    check(err)
+}
+
+func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
+    log.Printf("executeTemplate: " + templateName + ".html")
+    
+    if debug {
+        parseTemplateFiles()
+    }
+
+    err := templates.ExecuteTemplate(w, templateName + ".html", data)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
     }
@@ -94,7 +84,7 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 ///////////////////////////////////////////////////////////////////////////////
 func frontPageHandler(w http.ResponseWriter, r *http.Request) {
     var args struct{}
-    renderTemplate(w, "frontPage", args)
+    executeTemplate(w, "frontPage", args)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,7 +102,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         Password string `gforms:"password"`
     }
     
-    userForm = gforms.DefineForm(gforms.NewFields(
+    userForm := gforms.DefineForm(gforms.NewFields(
         gforms.NewTextField(
             "username",
             gforms.Validators{
@@ -136,27 +126,22 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
             gforms.PasswordInputWidget(map[string]string{}),
         ),
     ))
-
-    tpl := template.New("tpl").Funcs(
-            template.FuncMap { 
-                "safeHTML": func(x string) interface{} { return template.HTML(x) }})
-    tpl, _ = tpl.Parse(tplText)
-
+    
     form := userForm(r)
     
-    if r.Method != "POST" || !form.IsValid() { // handle GET, or invalid form data...    
+    if r.Method == "GET" || !form.IsValid() { // handle GET, or invalid form data from POST...    
         var formHTML bytes.Buffer
-        
-        check(tpl.Execute(&formHTML, form))
-        
+    
+        renderTemplate(&formHTML, "tableForm", form)
+
         args.FormHTML = formHTML.String()
         
         log.Printf("processed form buffer: %s\n", args.FormHTML)
         
         log.Printf("form: %v\n", form)
 
-        renderTemplate(w, "login", args)
-    } else { // handle POST, with valid data...
+        executeTemplate(w, "login", args)
+    } else if r.Method == "POST" { // handle POST, with valid data...
         loginData := LoginData{}
         form.MapTo(&loginData)
         fmt.Fprintf(w, "loginData ok: %v", loginData)
@@ -171,7 +156,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
     var args struct{}
     
-    renderTemplate(w, "forgotPassword", args)
+    executeTemplate(w, "forgotPassword", args)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,7 +166,7 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////
 func registerHandler(w http.ResponseWriter, r *http.Request) {
     var args struct{}
-    renderTemplate(w, "register", args)
+    executeTemplate(w, "register", args)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
