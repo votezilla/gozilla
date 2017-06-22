@@ -12,6 +12,11 @@
       </tr>
     {{end}}
   </table>
+  {{if .AdditionalError}}
+	<br>
+	<label class="error">{{.AdditionalError}}</label>
+	<br>
+  {{end}}
   <br>
   <input type="submit" value="{{.SubmitText}}">
 </form>

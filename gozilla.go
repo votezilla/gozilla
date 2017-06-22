@@ -19,8 +19,9 @@ var (
 )
 
 type TableForm struct {
-    Form       *gforms.FormInstance
-    SubmitText string
+    Form            *gforms.FormInstance
+    SubmitText      string
+    AdditionalError string
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -174,9 +175,61 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         FormHTML string
     }
     
+    /*
+    GENDER:
+      Are you:
+        - Male
+        - Female
+        - Other _____
+
+    PARTY IDENTIFICATION:
+      Do you usually think of yourself as a:
+        - Republican
+        - Democrat
+        - Independent
+       (pewresearch)
+
+    ETHNICITY / RACE:
+      How would you describe yourself?
+        - Hispanic, Latino, or Spanish
+        - American Indian or Alaska Native
+        - Asian
+        - Black or African American
+        - Native Hawaiian or Other Pacific Islander
+        - White
+        - Other: _____
+     (Store as a bitmap + string)
+
+    MARITAL STATUS:
+      What is your marital status?
+        - Single (Never Married)
+        - Divorced or Separated
+        - Widowed
+        - Married or Domestic Partnership
+        (pewresearch)
+
+    EDUCATION:
+        What is the highest degree or level of school you have completed? (If you're currently enrolled in school, please indicate the highest degree you have received.)
+        - Less than a high school diploma
+        - High school degree or equivalent
+        - Some college, but no degree
+        - College graduate
+        - Postgraduate study
+
+    SKIP - I get to ask this later!!!:
+     Income - this has to be corrected by household size and relative income of your region.
+            - can roughly be deduced from education, anyways
+     Religion - can ask that later
+     Union Membership
+
+    MAYBE:
+    What is your zip code... vs what is your address?
+    */
+    
     type LoginData struct {
         Username string `gforms:"username"`
         Password string `gforms:"password"`
+        ConfirmPassword string `gforms:"confirm password"`
     }
     
     userForm := gforms.DefineForm(gforms.NewFields(
@@ -202,30 +255,56 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
             },
             gforms.PasswordInputWidget(map[string]string{}),
         ),
+        gforms.NewTextField(
+            "confirm password",
+            gforms.Validators{},
+            gforms.PasswordInputWidget(map[string]string{}),
+        ),
     ))
-     
+    
+    form := userForm(r)
+    
     tableForm := TableForm{
-        userForm(r),
+        form,
         "Register",
+        "",
     }
     
-    if r.Method == "GET" || !tableForm.Form.IsValid() { // handle GET, or invalid form data from POST...    
-        var formHTML bytes.Buffer
-        
-        renderTemplate(&formHTML, "tableForm", tableForm)
-
-        args.FormHTML = formHTML.String()
-        
-        log.Printf("processed form buffer: %s\n", args.FormHTML)
-        
-        log.Printf("form: %v\n", tableForm.Form)
-
-        executeTemplate(w, "register", args)
-    } else if r.Method == "POST" { // handle POST, with valid data...
+    valid := form.IsValid()
+    
+    if r.Method == "POST" && valid {
         loginData := LoginData{}
-        tableForm.Form.MapTo(&loginData)
-        fmt.Fprintf(w, "loginData ok: %v", loginData)
-    }
+        
+        log.Printf("pw: %s confirm_pw: %s", 
+            form.Data["password"].RawStr, 
+            form.Data["confirm password"].RawStr)
+        
+        // Non-matching passwords
+        if form.Data["password"].RawStr != form.Data["confirm password"].RawStr {
+            log.Printf("passwords do not match!!!")
+            
+            tableForm.AdditionalError = "Passwords must match"
+            valid = false
+        } else { // Passwords match, everything is good - register the user
+            form.MapTo(&loginData)
+        
+            fmt.Fprintf(w, "loginData ok: %v", loginData)
+            return            
+        }
+    }  
+    
+    // handle GET, or invalid form data from POST...    
+    var formHTML bytes.Buffer
+
+    renderTemplate(&formHTML, "tableForm", tableForm)
+
+    args.FormHTML = formHTML.String()
+
+    log.Printf("processed form buffer: %s\n", args.FormHTML)
+
+    log.Printf("form: %v\n", form)
+
+    executeTemplate(w, "register", args)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
