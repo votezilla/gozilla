@@ -270,9 +270,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         "",
     }
     
-    valid := form.IsValid()
-    
-    if r.Method == "POST" && valid {
+    if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
         loginData := LoginData{}
         
         log.Printf("pw: %s confirm_pw: %s", 
@@ -281,30 +279,25 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         
         // Non-matching passwords
         if form.Data["password"].RawStr != form.Data["confirm password"].RawStr {
-            log.Printf("passwords do not match!!!")
-            
             tableForm.AdditionalError = "Passwords must match"
             valid = false
         } else { // Passwords match, everything is good - register the user
             form.MapTo(&loginData)
-        
             fmt.Fprintf(w, "loginData ok: %v", loginData)
             return            
         }
     }  
     
     // handle GET, or invalid form data from POST...    
-    var formHTML bytes.Buffer
+    {
+        var formHTML bytes.Buffer
 
-    renderTemplate(&formHTML, "tableForm", tableForm)
+        renderTemplate(&formHTML, "tableForm", tableForm)
 
-    args.FormHTML = formHTML.String()
+        args.FormHTML = formHTML.String()
 
-    log.Printf("processed form buffer: %s\n", args.FormHTML)
-
-    log.Printf("form: %v\n", form)
-
-    executeTemplate(w, "register", args)
+        executeTemplate(w, "register", args)
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
