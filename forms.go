@@ -417,12 +417,15 @@ var (
 
 // Forms
 var (
-	registerForm = gforms.DefineForm(gforms.NewFields(
+	registerForm1 = gforms.DefineForm(gforms.NewFields(
+		// -- Page 1 --
 		// basic data
 		username,
 		password,
 		confirmPassword,
-
+	))
+	registerForm2 = gforms.DefineForm(gforms.NewFields(
+		// -- Page 2 --
 		// name
 		name,	
 		
