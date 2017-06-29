@@ -1,0 +1,168 @@
+Great article on writing demographic questions!: https://www.surveygizmo.com/survey-blog/how-to-write-better-demographic-questions/
+Pew Research:                                   http://www.pewresearch.org/files/2015/03/Demographic-Questions-Web-and-Mail-English-3-20-2015.pdf
+
+CREATE SCHEMA votezilla;
+
+CREATE TYPE Address AS (
+    Address     VARCHAR(100),
+    Address2       VARCHAR(100),
+    City           VARCHAR(50),
+    State         VARCHAR(2)
+);
+
+CREATE TYPE Gender AS ENUM (
+    'Male',
+    'Female',
+    'Other'
+);
+
+CREATE TYPE Race AS ENUM (
+    'White',           -- White (Non-Hispanic) 
+    'Black',           -- Black (Non-Hispanic) 
+    'Latino',         -- Hispanic or Latino 
+    'Asian',           -- Asian (Non-Hispanic) 
+    'American indian', -- American Indian or Alaska Native (Non-Hispanic) 
+    'Multiracial',   
+    'Other',
+    'Prefer not to answer'
+)                  
+                        
+                          
+CREATE TYPE PoliticalParty AS ENUM (
+    'Democratic Party',
+    'Republican Party',
+    'Libertarian Party',
+    'Green Party',
+    'Constitution Party',
+    'Other',
+    'Prefer not to answer'
+)
+
+CREATE TYPE Income AS ENUM (
+    'Lower',    -- '<$50,000',
+    'Middle',   -- '$50,000-$100,000',
+    'Upper'  -- '$100,000 & over'
+    'Prefer not to answer'
+)
+
+CREATE TYPE Education AS ENUM (
+    'High school dropout',
+    'High School/GED',
+    'Vocational certificate',
+    'Associates',
+    'Bachelors',
+    'Masters',
+    'Doctorate',
+    'Prefer not to answer'
+)
+
+--------------- <== CONTINUE HERE ---------------
+
+
+
+
+CREATE TYPE Demograhic AS ( 
+    YearBorn       YearBorn,
+    
+    Gender       Gender,
+    OtherGender VARCHAR(40)
+    
+    MarriageStatus MarriageStatus,
+    
+    Education     Education,
+    
+    Party         PoliticalParty,
+    OtherParty   VARCHAR(40),
+    
+    Race           Race,
+    OtherRace     VARCHAR(40),
+)
+
+CREATE TYPE Contact AS (
+    Email
+
+    Phone
+        
+    ZipCode   
+)
+
+CREATE TYPE Name AS (
+    First           VARCHAR(50) NOT NULL,
+    Last            VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE votezilla.User (
+    Id              SERIAL PRIMARY KEY,   
+    Username        VARCHAR(40) UNIQUE NOT NULL,    -- UNIQUE implies an index
+    PasswordHash    BIGINT[4] NOT NULL              -- Store a 256-byte hash of the password   
+)
+
+--
+
+CREATE TABLE Customer
+CustomerId INTEGER PRIMARY KEY AUTO-INC
+Address
+Address2
+City
+State
+ZipCode
+(order least to most intrusive)
+DOB (for age - just month and year.. or wait probablybneed day to for bkgd check)
+PoliticalParty
+Race
+Religion
+Gender
+Marital Status
+Highest College Degree
+Income (/ yr)
+
+CREATE TABLE Post
+PostID INTEGER PRIMARY KEY AUTO-INC
+DateTime
+Title VARCHAR
+
+CREATE TABLE LinkPost EXTENDS Post
+LinkURL VARCHAR
+
+CREATE TABLE BlogPost EXTENDS Post
+Blog VARCHAR
+
+CREATE TABLE PollPost EXTENDS Post
+Question VARCHAR
+
+CREATE TABLE Choice
+Id
+PollId
+Text
+
+CREATE TABLE Vote
+Id
+CustomerId
+Date
+
+CREATE TABLE Comment
+CommentID INTEGER PRIMARY KEY AUTO-INC
+DateTime
+PostId FOREIGN KEY Post
+CustomerId FOREIGN KEY Customer
+ParentId FOREIGN KEY Comment
+PrevRevisionId FOREIGN KEY Comment
+Text VARCHAR(10,000)
+MaterializedPath (4b,4b,2b,2b,2b,2b = 64 bits, so can use bitwise math!)  If stored MSB order, you can sort by it!
+Tombstone BOOL
+Checkbox - They have to consent to the public data lookup.
+INDEX ParentId
+INDEX MaterializedPath
+
+CREATE TABLE Like
+Direction: 1 or -1
+CustomerId
+
+T PostLike E Like
+PostId
+
+same forCommentLike
+
+
+TODO:
+create ancestor to Post and Comment, don't know the name, that has an Id and a datetime.

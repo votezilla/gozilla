@@ -4,7 +4,12 @@ package main
 
 import (
     "bytes"
+    "crypto/sha256"
+    "database/sql"
+    "encoding/binary"
+    "flag"    
     "github.com/bluele/gforms"
+    "github.com/lib/pq"
     "fmt"
     "html/template"
     "io"
@@ -14,9 +19,13 @@ import (
 )
 
 var (
-    templates *template.Template = nil
+    db          *sql.DB
+    templates   *template.Template
+    err         error
     
-    debug = true
+    debug       string
+    
+    dbSalt = "SALT" // Database salt, for storing passwords safe from database leaks.
 )
 
 type TableForm struct {
@@ -34,6 +43,14 @@ func check(err error) {
     if err != nil {
         log.Fatal(err)
     }
+}
+
+func printVal(label string, v interface{}) {
+	log.Printf("%s: %v", label, v)
+}
+
+func printValX(label string, v interface{}) {
+	log.Printf("%s: %x", label, v)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,7 +79,7 @@ func parseTemplateFiles() {
 func renderTemplate(w io.Writer, templateName string, data interface{}) {
     log.Printf("renderTemplate: " + templateName + ".html")
     
-    if debug {
+    if debug != "" {
         parseTemplateFiles()
     }
 
@@ -73,7 +90,7 @@ func renderTemplate(w io.Writer, templateName string, data interface{}) {
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
     log.Printf("executeTemplate: " + templateName + ".html")
     
-    if debug {
+    if debug != "" {
         parseTemplateFiles()
     }
 
@@ -185,19 +202,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         FormHTML string
     }
     
-    type LoginData struct {
-        Username                string `gforms:"username"`
-        Password                string `gforms:"password"`
-        
-        //Demographics
-        Gender                  string `gforms:"are you"`
-        Party                   string `gforms:"do you usually think of yourself as a"`
-    }
-    
-    form := registerForm1(r)
-    
-    log.Printf("%v -> %s", form, reflect.TypeOf(form))
-    
+    form := RegisterForm(r)
     tableForm := TableForm{
         form,
         "Register",
@@ -205,30 +210,60 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
     }
     
     if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
-        loginData := LoginData{}
-        
-        log.Printf("pw: %s confirm_pw: %s", 
-            form.Data["password"].RawStr, 
-            form.Data["confirm password"].RawStr)
-        
         // Non-matching passwords
-        if form.Data["password"].RawStr != form.Data["confirm password"].RawStr {
+        if !MatchingPasswords(form) {
             tableForm.AdditionalError = "Passwords must match"
         } else { 
-            // Passwords match, everything is good - register the user
-            form.MapTo(&loginData)
+            // Passwords match, everything is good - Register the user
+            
+            // Parse POST data into "data".
+            data := RegisterData{}
+            form.MapTo(&data)
+            
+            // Use a hashed password for security.
+            printVal("data.Password + dbSalt", data.Password + dbSalt)
+            printVal("[]byte(data.Password + dbSalt)", []byte(data.Password + dbSalt))
+            
+            passwordHash := sha256.Sum256([]byte(data.Password + dbSalt))
+            printVal("passwordHash:", passwordHash) 
+            
+            var passwordHashInts[4]int64
+            err:= binary.Read(bytes.NewBuffer(passwordHash[:]), binary.LittleEndian, &passwordHashInts)
+            check(err)
+            printVal("passwordHashInts", passwordHashInts)
+            
+   			// SHIT, GOTTA SEND VERIFICATION EMAIL... USER DOESN'T GET CREATED UNTIL EMAIL GETS VERIFIED
+   
+            // INSERT IT FOR NOW, TODO: VERIFY EMAIL AND SET emailverified=True when email is verified
+            
+            // Works: INSERT INTO votezilla.user(username,passwordhash) VALUES('asmith', '{798798,-8980,2323,6546}');
+            printVal("db", db)
+            
+            var lastInsertId int
+            err = db.QueryRow(
+                "INSERT INTO votezilla.user(username,passwordhash) VALUES ($1, $2) returning id;", 
+                data.Username, 
+                pq.Array(passwordHashInts),
+            ).Scan(&lastInsertId)
+            check(err)
+            fmt.Println("lastInsertId =", lastInsertId)
+            
             fmt.Fprintf(w, "form: %+v", form)
-            fmt.Fprintf(w, "loginData: %+v", loginData)
+            fmt.Fprintf(w, "data: %+v", data)
+            
+            
+            // Set logged-in cookie
+            
             return    
+    
         }
     }  
     
     // handle GET, or invalid form data from POST...    
     {
         var formHTML bytes.Buffer
-
+        
         renderTemplate(&formHTML, "tableForm", tableForm)
-
         args.FormHTML = formHTML.String()
 
         executeTemplate(w, "register", args)
@@ -244,11 +279,49 @@ func init() {
     log.Printf("init")
     
     parseTemplateFiles()
+ 
 }
 
 func main() {
     log.Printf("main")
     
+       
+    // Grab command line flags
+    f1 := flag.String("dbname",     "votezilla", "Database to connect to")      ; 
+    f2 := flag.String("dbuser",     "",          "Database user")               ; 
+    f3 := flag.String("dbpassword", "",          "Database password")           ; 
+    f4 := flag.String("dbsalt",     "",          "Database salt (for security)"); 
+    f5 := flag.String("debug",      "",          "debug=true for development")  ; 
+    flag.Parse()
+    
+    dbName      := *f1
+    dbUser      := *f2
+    dbPassword  := *f3
+    dbSalt       = *f4
+    debug        = *f5
+
+    fmt.Println("dbName", dbName)
+    fmt.Println("dbUser", dbUser)
+    fmt.Println("dbPassword", dbPassword)
+    fmt.Println("dbSalt", dbSalt)
+    fmt.Println("debug", debug)
+
+    // Connect to database
+    dbInfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
+        dbUser, dbPassword, dbName)  
+
+    fmt.Printf("dbInfo: %s", dbInfo)
+
+    db, err = sql.Open("postgres", dbInfo)
+    fmt.Println("err:", err)
+    check(err)
+    
+    printVal("db", db)
+    
+    if db != nil {
+        defer db.Close()
+    }
+
     http.HandleFunc("/",                frontPageHandler)
 
     http.HandleFunc("/login/",  loginHandler)

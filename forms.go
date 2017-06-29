@@ -5,7 +5,7 @@ import (
     "github.com/bluele/gforms"
 )
 
-// Fields
+// === FIELDS ===
 var (
     username = gforms.NewTextField(
         "username",
@@ -24,16 +24,29 @@ var (
         "password",
         gforms.Validators{
             gforms.Required(),
-            gforms.MinLengthValidator(4),
-            gforms.MaxLengthValidator(16),
+            gforms.MinLengthValidator(8),
+            gforms.MaxLengthValidator(40),
+            gforms.PasswordStrengthValidator(3), // Require strong password.
         },
         gforms.PasswordInputWidget(map[string]string{}),
     )
     confirmPassword = gforms.NewTextField(
         "confirm password",
-        gforms.Validators{},
+        gforms.Validators{
+            gforms.FieldMatchValidator("password"),
+        },
         gforms.PasswordInputWidget(map[string]string{}),
     )
+    rememberMe = gforms.NewTextField(
+        "remember me",
+        gforms.Validators{},
+        gforms.CheckboxMultipleWidget(
+            map[string]string{},
+            func() gforms.CheckboxOptions { return gforms.StringCheckboxOptions([][]string{
+                {"Remember me on this computer (uncheck if a shared computer)", "R", "false", "false"},
+            })},
+        ),
+    )    
     
     // Demographics
     name = gforms.NewTextField(
@@ -320,7 +333,7 @@ var (
         ),
     )
     zipCode = gforms.NewTextField(
-        "zip code",
+        "postal / zip code",
         gforms.Validators{
             gforms.Required(),
             gforms.MinLengthValidator(5),
@@ -359,6 +372,7 @@ var (
                 {"Republican",  "R", "false", "false"},
                 {"Democrat",    "D", "false", "false"},
                 {"Independent", "I", "false", "false"},
+                {"Other",       "O", "false", "false"},
             })},
         ),
     )
@@ -415,17 +429,54 @@ var (
     )
 )
 
-// Forms
+// === FORM POST DATA ===
+type LoginData struct {
+    Username                string `gforms:"username"`
+    Password                string `gforms:"password"`
+    RememberMe              string `gforms:"remember me"`
+}
+
+type RegisterData struct {
+    Username                string `gforms:"username"`
+    Password                string `gforms:"password"`
+}
+
+type DemographicData struct {
+    Name                    string `gforms:"full name"`
+
+    // location
+    Country                 string `gforms:"country"`
+    ZipCode                 string `gforms:"postal / zip code"`
+    City                    string `gforms:"city"`
+
+    // demographic
+    BirthYear               string `gforms:"year of birth"`
+    Gender                  string `gforms:"gender"`
+    Party                   string `gforms:"party"`
+    Race                    string `gforms:"race / ethnicity"`
+    Marital                 string `gforms:"marital status"`
+    Schooling               string `gforms:"furthest schooling completed"`
+}
+
+// === USEFUL FUNCTIONS ===
+func MatchingPasswords(form *gforms.FormInstance) bool {
+    return form.Data["password"].RawStr == form.Data["confirm password"].RawStr
+} 
+
+// === FORMS ===
 var (
-    registerForm1 = gforms.DefineForm(gforms.NewFields(
-        // -- Page 1 --
-        // basic data
+    LoginForm = gforms.DefineForm(gforms.NewFields(
         username,
+        password,
+        rememberMe,
+    ))
+    RegisterForm = gforms.DefineForm(gforms.NewFields(
+        username,
+        //TODO: add email field here!!!
         password,
         confirmPassword,
     ))
-    registerForm2 = gforms.DefineForm(gforms.NewFields(
-        // -- Page 2 --
+    DemographicForm = gforms.DefineForm(gforms.NewFields(
         // name
         name,   
         
@@ -443,3 +494,5 @@ var (
         schooling,      
     ))
 ) // var
+
+ 
