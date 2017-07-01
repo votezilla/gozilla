@@ -5,7 +5,7 @@
         <td>{{$field.GetName}}:</td> <!-- Note: * I could add a GetLabel here, to have separate name vs label
                                                 * Also (potentially) need logic for required asterisk.  -->
         <td>
-          {{$field.Html | safeHTML}}
+          {{$field.Html}}
           {{range $ei, $err := $field.Errors}}
             <label class="error">{{$err}}</label>
           {{end}}

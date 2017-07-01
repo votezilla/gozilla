@@ -11,7 +11,7 @@ var (
         "username",
         gforms.Validators{
             gforms.Required(),
-            gforms.MaxLengthValidator(32),
+            gforms.MaxLengthValidator(40),
         },
         gforms.TextInputWidget(map[string]string{
             "autocorrect": "off",
@@ -20,6 +20,18 @@ var (
             "autofocus": "true",
         }),
     )
+    email = gforms.NewTextField(
+        "email",
+        gforms.Validators{
+            gforms.Required(),
+            gforms.MaxLengthValidator(345),
+        },
+        gforms.TextInputWidget(map[string]string{
+            "autocorrect": "off",
+            "spellcheck": "false",
+            "autocapitalize": "off",
+        }),
+    )    
     password = gforms.NewTextField(
         "password",
         gforms.Validators{
@@ -432,6 +444,7 @@ var (
 // === FORM POST DATA ===
 type LoginData struct {
     Username                string `gforms:"username"`
+    Email                   string `gforms:"email"`
     Password                string `gforms:"password"`
     RememberMe              string `gforms:"remember me"`
 }
@@ -472,11 +485,11 @@ var (
     ))
     RegisterForm = gforms.DefineForm(gforms.NewFields(
         username,
-        //TODO: add email field here!!!
+        email,
         password,
         confirmPassword,
     ))
-    DemographicForm = gforms.DefineForm(gforms.NewFields(
+    PersonalInfoForm = gforms.DefineForm(gforms.NewFields(
         // name
         name,   
         

@@ -1,614 +1,603 @@
-<h1>Front page</h1>
+{{define "body"}}
+<center>
+	<a href="/login">login</a> &nbsp; <a href="/register">register</a>
 
-<html>
-<head>
-	<meta name="referrer" content="origin">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="/static/style.css">
-	<link rel="shortcut icon" href="favicon.ico">
-	<title>New Links | Hacker News</title>
-</head>
-<body>
-	<center>
-		<a href="/login">login</a> &nbsp; <a href="/register">register</a>
-
-		<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
-			<tr>
-				<td bgcolor="#ff6600">
-					<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
-						<tr>
-							<td style="width:18px;padding-right:4px"><a href="http://www.ycombinator.com"><img src="y18.gif" width="18" height="18" style="border:1px white solid;"></a></td>
-							<td style="line-height:12pt; height:10px;"><span class="pagetop"><b class="hnname"><a href="news">Hacker News</a></b>
-								<span class="topsel"><a href="newest">new</a></span> | <a href="newcomments">comments</a> | <a href="show">show</a> | <a href="ask">ask</a> | <a href="jobs">jobs</a> | <a href="submit">submit</a>				</span>
-							</td>
-							<td style="text-align:right;padding-right:4px;"><span class="pagetop">
-								<a href="login?goto=newest">login</a>
-								</span>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr style="height:10px"></tr>
-			<tr>
-				<td>
-					<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
-						<tr class='athing' id='14569339'>
-							<td align="right" valign="top" class="title"><span class="rank">1.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569339' href='vote?id=14569339&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.ua-foundation.org/open-access-challenge-monitoring-policy-compliance/" class="storylink" rel="nofollow">Open Access and the challenge of monitoring policy compliance</a><span class="sitebit comhead"> (<a href="from?site=ua-foundation.org"><span class="sitestr">ua-foundation.org</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569339">1 point</span> by <a href="user?id=unitedacademics" class="hnuser">unitedacademics</a> <span class="age"><a href="item?id=14569339">0 minutes ago</a></span> <span id="unv_14569339"></span> | <a href="hide?id=14569339&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Open%20Access%20and%20the%20challenge%20of%20monitoring%20policy%20compliance&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Open%20Access%20and%20the%20challenge%20of%20monitoring%20policy%20compliance">web</a> | <a href="item?id=14569339">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569336'>
-							<td align="right" valign="top" class="title"><span class="rank">2.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569336' href='vote?id=14569336&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.searchtrack.co/guide/462/smart-contracts-and-ethereum-explained" class="storylink" rel="nofollow">Learn About These Tech Buzzwords 'Smart Contracts' and 'Ethereum'</a><span class="sitebit comhead"> (<a href="from?site=searchtrack.co"><span class="sitestr">searchtrack.co</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569336">1 point</span> by <a href="user?id=utkarshs12" class="hnuser">utkarshs12</a> <span class="age"><a href="item?id=14569336">0 minutes ago</a></span> <span id="unv_14569336"></span> | <a href="hide?id=14569336&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Learn%20About%20These%20Tech%20Buzzwords%20'Smart%20Contracts'%20and%20'Ethereum'&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Learn%20About%20These%20Tech%20Buzzwords%20'Smart%20Contracts'%20and%20'Ethereum'">web</a> | <a href="item?id=14569336">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569327'>
-							<td align="right" valign="top" class="title"><span class="rank">3.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569327' href='vote?id=14569327&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.nasdaq.com/press-release/us-dept-of-energy-taps-hewlett-packard-enterprises-machine-research-project-to-design-memory-drive-20170615-01009" class="storylink" rel="nofollow">DoE Taps HPE’s Machine Research Project to Design Memory-Driven Supercomputer</a><span class="sitebit comhead"> (<a href="from?site=nasdaq.com"><span class="sitestr">nasdaq.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569327">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569327">1 minute ago</a></span> <span id="unv_14569327"></span> | <a href="hide?id=14569327&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=DoE%20Taps%20HPE%E2%80%99s%20Machine%20Research%20Project%20to%20Design%20Memory-Driven%20Supercomputer&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=DoE%20Taps%20HPE%E2%80%99s%20Machine%20Research%20Project%20to%20Design%20Memory-Driven%20Supercomputer">web</a> | <a href="item?id=14569327">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569322'>
-							<td align="right" valign="top" class="title"><span class="rank">4.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569322' href='vote?id=14569322&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.newsbtc.com/2017/06/13/insurex-announce-crowdsale-blockchain-based-marketplace-insurance-products/" class="storylink" rel="nofollow">Ethereum project</a><span class="sitebit comhead"> (<a href="from?site=newsbtc.com"><span class="sitestr">newsbtc.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569322">1 point</span> by <a href="user?id=WoodyWood" class="hnuser">WoodyWood</a> <span class="age"><a href="item?id=14569322">2 minutes ago</a></span> <span id="unv_14569322"></span> | <a href="hide?id=14569322&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Ethereum%20project&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Ethereum%20project">web</a> | <a href="item?id=14569322">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569318'>
-							<td align="right" valign="top" class="title"><span class="rank">5.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569318' href='vote?id=14569318&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="item?id=14569318" class="storylink">How do you write specs/requirements/design documentation?</a></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569318">1 point</span> by <a href="user?id=morghus" class="hnuser">morghus</a> <span class="age"><a href="item?id=14569318">2 minutes ago</a></span> <span id="unv_14569318"></span> | <a href="hide?id=14569318&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=How%20do%20you%20write%20specs%2Frequirements%2Fdesign%20documentation%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=How%20do%20you%20write%20specs%2Frequirements%2Fdesign%20documentation%3F">web</a> | <a href="item?id=14569318">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569307'>
-							<td align="right" valign="top" class="title"><span class="rank">6.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569307' href='vote?id=14569307&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.cs.tufts.edu/~nr/cs257/archive/don-knuth/empirical-fortran.pdf" class="storylink" rel="nofollow">An Empirical Study of Fortran Programs – Don Knuth (1971) [pdf]</a><span class="sitebit comhead"> (<a href="from?site=tufts.edu"><span class="sitestr">tufts.edu</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569307">2 points</span> by <a href="user?id=tjalfi" class="hnuser">tjalfi</a> <span class="age"><a href="item?id=14569307">3 minutes ago</a></span> <span id="unv_14569307"></span> | <a href="hide?id=14569307&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=An%20Empirical%20Study%20of%20Fortran%20Programs%20%E2%80%93%20Don%20Knuth&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=An%20Empirical%20Study%20of%20Fortran%20Programs%20%E2%80%93%20Don%20Knuth">web</a> | <a href="item?id=14569307">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569304'>
-							<td align="right" valign="top" class="title"><span class="rank">7.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569304' href='vote?id=14569304&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.econotimes.com/Sense-Introduces-Skill-for-Amazon-Alexa-to-Monitor-Home-Energy-Use-755176" class="storylink" rel="nofollow">Sense home energy monitor now integrates with Amazon Alexa</a><span class="sitebit comhead"> (<a href="from?site=econotimes.com"><span class="sitestr">econotimes.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569304">2 points</span> by <a href="user?id=fivetimesfast" class="hnuser">fivetimesfast</a> <span class="age"><a href="item?id=14569304">3 minutes ago</a></span> <span id="unv_14569304"></span> | <a href="hide?id=14569304&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Sense%20home%20energy%20monitor%20now%20integrates%20with%20Amazon%20Alexa&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Sense%20home%20energy%20monitor%20now%20integrates%20with%20Amazon%20Alexa">web</a> | <a href="item?id=14569304">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569300'>
-							<td align="right" valign="top" class="title"><span class="rank">8.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569300' href='vote?id=14569300&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://www.theverge.com/2017/6/15/15807788/le-mans-electric-car-24-hours-panoz-gt-ev" class="storylink" rel="nofollow">This electric racecar could run in next year’s 24 Hours of Le Mans</a><span class="sitebit comhead"> (<a href="from?site=theverge.com"><span class="sitestr">theverge.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569300">1 point</span> by <a href="user?id=artsandsci" class="hnuser">artsandsci</a> <span class="age"><a href="item?id=14569300">4 minutes ago</a></span> <span id="unv_14569300"></span> | <a href="hide?id=14569300&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=This%20electric%20racecar%20could%20run%20in%20next%20year%E2%80%99s%2024%20Hours%20of%20Le%20Mans&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=This%20electric%20racecar%20could%20run%20in%20next%20year%E2%80%99s%2024%20Hours%20of%20Le%20Mans">web</a> | <a href="item?id=14569300">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569292'>
-							<td align="right" valign="top" class="title"><span class="rank">9.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569292' href='vote?id=14569292&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://techcrunch.com/2017/06/16/foodpocalypse" class="storylink" rel="nofollow">Other grocery stocks plummet as Amazon buys Whole Foods for $13.7B</a><span class="sitebit comhead"> (<a href="from?site=techcrunch.com"><span class="sitestr">techcrunch.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569292">1 point</span> by <a href="user?id=janober" class="hnuser">janober</a> <span class="age"><a href="item?id=14569292">4 minutes ago</a></span> <span id="unv_14569292"></span> | <a href="hide?id=14569292&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Other%20grocery%20stocks%20plummet%20as%20Amazon%20buys%20Whole%20Foods%20for%20%2413.7B&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Other%20grocery%20stocks%20plummet%20as%20Amazon%20buys%20Whole%20Foods%20for%20%2413.7B">web</a> | <a href="item?id=14569292">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569266'>
-							<td align="right" valign="top" class="title"><span class="rank">10.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569266' href='vote?id=14569266&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://tools.ietf.org/html/draft-thomson-postel-was-wrong-01" class="storylink" rel="nofollow">Rethinking Postel's Principle: Protocol Decay and Consequences</a><span class="sitebit comhead"> (<a href="from?site=ietf.org"><span class="sitestr">ietf.org</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569266">1 point</span> by <a href="user?id=KirinDave" class="hnuser">KirinDave</a> <span class="age"><a href="item?id=14569266">7 minutes ago</a></span> <span id="unv_14569266"></span> | <a href="hide?id=14569266&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Rethinking%20Postel's%20Principle%3A%20Protocol%20Decay%20and%20Consequences&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Rethinking%20Postel's%20Principle%3A%20Protocol%20Decay%20and%20Consequences">web</a> | <a href="item?id=14569266">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569254'>
-							<td align="right" valign="top" class="title"><span class="rank">11.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569254' href='vote?id=14569254&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://arstechnica.com/information-technology/2017/06/us-doe-the-machine-exascale-supercomputer/" class="storylink" rel="nofollow">US gov’t taps the Machine to beat China to exascale supercomputing</a><span class="sitebit comhead"> (<a href="from?site=arstechnica.com"><span class="sitestr">arstechnica.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569254">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569254">7 minutes ago</a></span> <span id="unv_14569254"></span> | <a href="hide?id=14569254&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=US%20gov%E2%80%99t%20taps%20the%20Machine%20to%20beat%20China%20to%20exascale%20supercomputing&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=US%20gov%E2%80%99t%20taps%20the%20Machine%20to%20beat%20China%20to%20exascale%20supercomputing">web</a> | <a href="item?id=14569254">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569247'>
-							<td align="right" valign="top" class="title"><span class="rank">12.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569247' href='vote?id=14569247&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://www.newscientist.com/article/2134740-deepmind-now-learns-from-human-preferences-just-like-a-toddler/" class="storylink" rel="nofollow">DeepMind now learns from human preferences – just like a toddler</a><span class="sitebit comhead"> (<a href="from?site=newscientist.com"><span class="sitestr">newscientist.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569247">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569247">9 minutes ago</a></span> <span id="unv_14569247"></span> | <a href="hide?id=14569247&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=DeepMind%20now%20learns%20from%20human%20preferences%20%E2%80%93%20just%20like%20a%20toddler&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=DeepMind%20now%20learns%20from%20human%20preferences%20%E2%80%93%20just%20like%20a%20toddler">web</a> | <a href="item?id=14569247">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569234'>
-							<td align="right" valign="top" class="title"><span class="rank">13.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569234' href='vote?id=14569234&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://fivethirtyeight.com/features/why-is-trump-causing-chaos-in-washington-but-not-in-the-stock-market/?ex_cid=538twitter" class="storylink" rel="nofollow">Why Is Trump Causing Chaos in Washington but Not in the Stock Market?</a><span class="sitebit comhead"> (<a href="from?site=fivethirtyeight.com"><span class="sitestr">fivethirtyeight.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569234">2 points</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569234">10 minutes ago</a></span> <span id="unv_14569234"></span> | <a href="hide?id=14569234&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Why%20Is%20Trump%20Causing%20Chaos%20in%20Washington%20but%20Not%20in%20the%20Stock%20Market%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Why%20Is%20Trump%20Causing%20Chaos%20in%20Washington%20but%20Not%20in%20the%20Stock%20Market%3F">web</a> | <a href="item?id=14569234">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569217'>
-							<td align="right" valign="top" class="title"><span class="rank">14.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569217' href='vote?id=14569217&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-890-algorithmic-lower-bounds-fun-with-hardness-proofs-fall-2014/lecture-videos/lecture-16-np-and-pspace-video-games/" class="storylink" rel="nofollow">[MIT 6.890] Lecture 16: NP and PSPACE Video Games</a><span class="sitebit comhead"> (<a href="from?site=mit.edu"><span class="sitestr">mit.edu</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569217">1 point</span> by <a href="user?id=Solheim" class="hnuser">Solheim</a> <span class="age"><a href="item?id=14569217">11 minutes ago</a></span> <span id="unv_14569217"></span> | <a href="hide?id=14569217&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=%5BMIT%206.890%5D%20Lecture%2016%3A%20NP%20and%20PSPACE%20Video%20Games&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=%5BMIT%206.890%5D%20Lecture%2016%3A%20NP%20and%20PSPACE%20Video%20Games">web</a> | <a href="item?id=14569217">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569213'>
-							<td align="right" valign="top" class="title"><span class="rank">15.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569213' href='vote?id=14569213&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://www.inc.com/justin-bariso/elon-musk-sent-an-extraordinary-email-to-employees-and-taught-a-major-lesson-in.html" class="storylink" rel="nofollow">Elon Musk's Email to Tesla Employees Is a Master Class in Emotional Intelligence</a><span class="sitebit comhead"> (<a href="from?site=inc.com"><span class="sitestr">inc.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569213">3 points</span> by <a href="user?id=devy" class="hnuser">devy</a> <span class="age"><a href="item?id=14569213">12 minutes ago</a></span> <span id="unv_14569213"></span> | <a href="hide?id=14569213&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Elon%20Musk's%20Email%20to%20Tesla%20Employees%20Is%20a%20Master%20Class%20in%20Emotional%20Intelligence&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Elon%20Musk's%20Email%20to%20Tesla%20Employees%20Is%20a%20Master%20Class%20in%20Emotional%20Intelligence">web</a> | <a href="item?id=14569213">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569211'>
-							<td align="right" valign="top" class="title"><span class="rank">16.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569211' href='vote?id=14569211&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://mherman.org/blog/2017/05/11/developing-microservices-node-react-docker#.WUPpNztHNfY.hackernews" class="storylink" rel="nofollow">Manage a fleet of microservices locally with Docker</a><span class="sitebit comhead"> (<a href="from?site=mherman.org"><span class="sitestr">mherman.org</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569211">2 points</span> by <a href="user?id=mjhea0" class="hnuser">mjhea0</a> <span class="age"><a href="item?id=14569211">12 minutes ago</a></span> <span id="unv_14569211"></span> | <a href="hide?id=14569211&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Manage%20a%20fleet%20of%20microservices%20locally%20with%20Docker&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Manage%20a%20fleet%20of%20microservices%20locally%20with%20Docker">web</a> | <a href="item?id=14569211">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569181'>
-							<td align="right" valign="top" class="title"><span class="rank">17.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569181' href='vote?id=14569181&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://www.nature.com/articles/n-12446262?WT.mc_id=TWT_NatureNews&amp;sf88908366=1" class="storylink" rel="nofollow">The ‘time machine’ reconstructing ancient Venice’s social networks</a><span class="sitebit comhead"> (<a href="from?site=nature.com"><span class="sitestr">nature.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569181">1 point</span> by <a href="user?id=ohjeez" class="hnuser">ohjeez</a> <span class="age"><a href="item?id=14569181">15 minutes ago</a></span> <span id="unv_14569181"></span> | <a href="hide?id=14569181&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=The%20%E2%80%98time%20machine%E2%80%99%20reconstructing%20ancient%20Venice%E2%80%99s%20social%20networks&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=The%20%E2%80%98time%20machine%E2%80%99%20reconstructing%20ancient%20Venice%E2%80%99s%20social%20networks">web</a> | <a href="item?id=14569181">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569180'>
-							<td align="right" valign="top" class="title"><span class="rank">18.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569180' href='vote?id=14569180&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://thenewstack.io/typescript-getting-popular/" class="storylink" rel="nofollow">Why TypeScript Is Growing More Popular</a><span class="sitebit comhead"> (<a href="from?site=thenewstack.io"><span class="sitestr">thenewstack.io</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569180">1 point</span> by <a href="user?id=fagnerbrack" class="hnuser">fagnerbrack</a> <span class="age"><a href="item?id=14569180">15 minutes ago</a></span> <span id="unv_14569180"></span> | <a href="hide?id=14569180&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Why%20TypeScript%20Is%20Growing%20More%20Popular&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Why%20TypeScript%20Is%20Growing%20More%20Popular">web</a> | <a href="item?id=14569180">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569162'>
-							<td align="right" valign="top" class="title"><span class="rank">19.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569162' href='vote?id=14569162&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://slashdot.org/submission/7136179/tableau-drops-crowd-favorite-data-viz-awards-because-china-bans-twitter-voting" class="storylink" rel="nofollow">Tableau Drops 'Crowd Favorite' Data Viz Awards Because China Bans Twitter Voting</a><span class="sitebit comhead"> (<a href="from?site=slashdot.org"><span class="sitestr">slashdot.org</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569162">1 point</span> by <a href="user?id=theodpHN" class="hnuser">theodpHN</a> <span class="age"><a href="item?id=14569162">16 minutes ago</a></span> <span id="unv_14569162"></span> | <a href="hide?id=14569162&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Tableau%20Drops%20'Crowd%20Favorite'%20Data%20Viz%20Awards%20Because%20China%20Bans%20Twitter%20Voting&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Tableau%20Drops%20'Crowd%20Favorite'%20Data%20Viz%20Awards%20Because%20China%20Bans%20Twitter%20Voting">web</a> | <a href="item?id=14569162">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569154'>
-							<td align="right" valign="top" class="title"><span class="rank">20.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569154' href='vote?id=14569154&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="item?id=14569154" class="storylink">Ask HN: Where to find co-developers for side projects?</a></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569154">3 points</span> by <a href="user?id=Liberator" class="hnuser">Liberator</a> <span class="age"><a href="item?id=14569154">17 minutes ago</a></span> <span id="unv_14569154"></span> | <a href="hide?id=14569154&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Ask%20HN%3A%20Where%20to%20find%20co-developers%20for%20side%20projects%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Ask%20HN%3A%20Where%20to%20find%20co-developers%20for%20side%20projects%3F">web</a> | <a href="item?id=14569154">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569149'>
-							<td align="right" valign="top" class="title"><span class="rank">21.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569149' href='vote?id=14569149&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://www.edsurge.com/news/2017-06-15-what-s-at-stake-in-president-trump-s-order-to-revamp-apprenticeship-programs" class="storylink" rel="nofollow">What’s at Stake in President Trump’s Order to Revamp Apprenticeship Programs</a><span class="sitebit comhead"> (<a href="from?site=edsurge.com"><span class="sitestr">edsurge.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569149">1 point</span> by <a href="user?id=jyosim2" class="hnuser">jyosim2</a> <span class="age"><a href="item?id=14569149">17 minutes ago</a></span> <span id="unv_14569149"></span> | <a href="hide?id=14569149&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=What%E2%80%99s%20at%20Stake%20in%20President%20Trump%E2%80%99s%20Order%20to%20Revamp%20Apprenticeship%20Programs&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=What%E2%80%99s%20at%20Stake%20in%20President%20Trump%E2%80%99s%20Order%20to%20Revamp%20Apprenticeship%20Programs">web</a> | <a href="item?id=14569149">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569138'>
-							<td align="right" valign="top" class="title"><span class="rank">22.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569138' href='vote?id=14569138&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.economist.com/news/leaders/21722841-latest-frenzy-tulipmania-gold-rush-or-dotcom-boom-what-if-bitcoin-bubble?fsrc=scn/tw/te/rfd/pe" class="storylink" rel="nofollow">What if the Bitcoin bubble bursts?</a><span class="sitebit comhead"> (<a href="from?site=economist.com"><span class="sitestr">economist.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569138">3 points</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569138">18 minutes ago</a></span> <span id="unv_14569138"></span> | <a href="hide?id=14569138&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=What%20if%20the%20Bitcoin%20bubble%20bursts%3F&ssort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=What%20if%20the%20Bitcoin%20bubble%20bursts%3F">web</a> | <a href="item?id=14569138">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569133'>
-							<td align="right" valign="top" class="title"><span class="rank">23.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569133' href='vote?id=14569133&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://blogs.technet.microsoft.com/exchange/2017/06/13/net-framework-4-7-and-exchange-server/" class="storylink" rel="nofollow">Exchange Server does not support .NET Framework 4.7 yet</a><span class="sitebit comhead"> (<a href="from?site=microsoft.com"><span class="sitestr">microsoft.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569133">2 points</span> by <a href="user?id=joshyeager" class="hnuser">joshyeager</a> <span class="age"><a href="item?id=14569133">19 minutes ago</a></span> <span id="unv_14569133"></span> | <a href="hide?id=14569133&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Exchange%20Server%20does%20not%20support%20.NET%20Framework%204.7%20yet&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Exchange%20Server%20does%20not%20support%20.NET%20Framework%204.7%20yet">web</a> | <a href="item?id=14569133">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569127'>
-							<td align="right" valign="top" class="title"><span class="rank">24.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569127' href='vote?id=14569127&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.bbc.com/capital/story/20170614-the-new-subtle-ways-the-rich-signal-their-wealth" class="storylink" rel="nofollow">The new, subtle ways the rich signal their wealth</a><span class="sitebit comhead"> (<a href="from?site=bbc.com"><span class="sitestr">bbc.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569127">1 point</span> by <a href="user?id=miraj" class="hnuser">miraj</a> <span class="age"><a href="item?id=14569127">20 minutes ago</a></span> <span id="unv_14569127"></span> | <a href="hide?id=14569127&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=The%20new%2C%20subtle%20ways%20the%20rich%20signal%20their%20wealth&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=The%20new%2C%20subtle%20ways%20the%20rich%20signal%20their%20wealth">web</a> | <a href="item?id=14569127">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569124'>
-							<td align="right" valign="top" class="title"><span class="rank">25.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569124' href='vote?id=14569124&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://arstechnica.com/science/2017/06/report-reveals-years-of-suffering-death-from-therapies-for-chronic-lyme/" class="storylink" rel="nofollow">Report reveals years of suffering, death from therapies for “chronic Lyme”</a><span class="sitebit comhead"> (<a href="from?site=arstechnica.com"><span class="sitestr">arstechnica.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569124">1 point</span> by <a href="user?id=cpncrunch" class="hnuser">cpncrunch</a> <span class="age"><a href="item?id=14569124">20 minutes ago</a></span> <span id="unv_14569124"></span> | <a href="hide?id=14569124&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Report%20reveals%20years%20of%20suffering%2C%20death%20from%20therapies%20for%20%E2%80%9Cchronic%20Lyme%E2%80%9D&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Report%20reveals%20years%20of%20suffering%2C%20death%20from%20therapies%20for%20%E2%80%9Cchronic%20Lyme%E2%80%9D">web</a> | <a href="item?id=14569124">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569123'>
-							<td align="right" valign="top" class="title"><span class="rank">26.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569123' href='vote?id=14569123&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://acklenavenue.com/agile/development/2017/06/12/Agile-In-Title-Only.html" class="storylink" rel="nofollow">Is your company AITO?</a><span class="sitebit comhead"> (<a href="from?site=acklenavenue.com"><span class="sitestr">acklenavenue.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569123">1 point</span> by <a href="user?id=matthewphillip" class="hnuser">matthewphillip</a> <span class="age"><a href="item?id=14569123">20 minutes ago</a></span> <span id="unv_14569123"></span> | <a href="hide?id=14569123&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Is%20your%20company%20AITO%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Is%20your%20company%20AITO%3F">web</a> | <a href="item?id=14569123">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569118'>
-							<td align="right" valign="top" class="title"><span class="rank">27.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569118' href='vote?id=14569118&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://gotowebsecurity.com/malicious-file-upload-what-is-it-and-how-to-fix/" class="storylink" rel="nofollow">What Is Malicious File Upload and How You Can Fix It?</a><span class="sitebit comhead"> (<a href="from?site=gotowebsecurity.com"><span class="sitestr">gotowebsecurity.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569118">1 point</span> by <a href="user?id=nirmalkant" class="hnuser">nirmalkant</a> <span class="age"><a href="item?id=14569118">20 minutes ago</a></span> <span id="unv_14569118"></span> | <a href="hide?id=14569118&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=What%20Is%20Malicious%20File%20Upload%20and%20How%20You%20Can%20Fix%20It%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=What%20Is%20Malicious%20File%20Upload%20and%20How%20You%20Can%20Fix%20It%3F">web</a> | <a href="item?id=14569118">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569113'>
-							<td align="right" valign="top" class="title"><span class="rank">28.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569113' href='vote?id=14569113&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://medium.com/enigma-shards/guardian-ft-etc-share-their-internet-encryption-keys-with-many-6c5d5a311d84" class="storylink" rel="nofollow">Guardian, FT, etc. share their internet encryption keys with many</a><span class="sitebit comhead"> (<a href="from?site=medium.com"><span class="sitestr">medium.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569113">1 point</span> by <a href="user?id=dc352" class="hnuser">dc352</a> <span class="age"><a href="item?id=14569113">21 minutes ago</a></span> <span id="unv_14569113"></span> | <a href="hide?id=14569113&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Guardian%2C%20FT%2C%20etc.%20share%20their%20internet%20encryption%20keys%20with%20many&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Guardian%2C%20FT%2C%20etc.%20share%20their%20internet%20encryption%20keys%20with%20many">web</a> | <a href="item?id=14569113">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569101'>
-							<td align="right" valign="top" class="title"><span class="rank">29.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569101' href='vote?id=14569101&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="https://dev.to/kathryngrayson/share-your-experiences-with-impostor-syndrome" class="storylink" rel="nofollow">Share Your Experiences with Impostor Syndrome</a><span class="sitebit comhead"> (<a href="from?site=dev.to"><span class="sitestr">dev.to</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569101">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569101">22 minutes ago</a></span> <span id="unv_14569101"></span> | <a href="hide?id=14569101&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Share%20Your%20Experiences%20with%20Impostor%20Syndrome&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Share%20Your%20Experiences%20with%20Impostor%20Syndrome">web</a> | <a href="item?id=14569101">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class='athing' id='14569100'>
-							<td align="right" valign="top" class="title"><span class="rank">30.</span></td>
-							<td valign="top" class="votelinks">
-								<center>
-									<a id='up_14569100' href='vote?id=14569100&amp;how=up&amp;goto=newest'>
-										<div class='votearrow' title='upvote'></div>
-									</a>
-								</center>
-							</td>
-							<td class="title"><a href="http://www.kdnuggets.com/2017/02/top-r-packages-machine-learning.html" class="storylink" rel="nofollow">Top R Packages for Machine Learning</a><span class="sitebit comhead"> (<a href="from?site=kdnuggets.com"><span class="sitestr">kdnuggets.com</span></a>)</span></td>
-						</tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="subtext">
-								<span class="score" id="score_14569100">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569100">22 minutes ago</a></span> <span id="unv_14569100"></span> | <a href="hide?id=14569100&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Top%20R%20Packages%20for%20Machine%20Learning&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Top%20R%20Packages%20for%20Machine%20Learning">web</a> | <a href="item?id=14569100">discuss</a>
-							</td>
-						</tr>
-						<tr class="spacer" style="height:5px"></tr>
-						<tr class="morespace" style="height:10px"></tr>
-						<tr>
-							<td colspan="2"></td>
-							<td class="title"><a href="newest?next=14569097&amp;n=31" class="morelink" rel="nofollow">More</a></td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<img src="s.gif" height="10" width="0">
-					<table width="100%" cellspacing="0" cellpadding="1">
-						<tr>
-							<td bgcolor="#ff6600"></td>
-						</tr>
-					</table>
-					<br>
-					<center>
-						<span class="yclinks"><a href="newsguidelines.html">Guidelines</a>
-						| <a href="newsfaq.html">FAQ</a>
-						| <a href="mailto:hn@ycombinator.com">Support</a>
-						| <a href="https://github.com/HackerNews/API">API</a>
-						| <a href="security.html">Security</a>
-						| <a href="lists">Lists</a>
-						| <a href="bookmarklet.html">Bookmarklet</a>
-						| <a href="dmca.html">DMCA</a>
-						| <a href="http://www.ycombinator.com/apply/">Apply to YC</a>
-						| <a href="mailto:hn@ycombinator.com">Contact</a></span><br><br>
-						<form method="get" action="//hn.algolia.com/">Search:
-							<input type="text" name="q" value="" size="17" autocorrect="off" spellcheck="false" autocapitalize="off" autocomplete="false">
-						</form>
-					</center>
-				</td>
-			</tr>
-		</table>
-	</center>
-</body>
+	<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
+		<tr>
+			<td bgcolor="#ff6600">
+				<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+					<tr>
+						<td style="width:18px;padding-right:4px"><a href="http://www.ycombinator.com"><img src="y18.gif" width="18" height="18" style="border:1px white solid;"></a></td>
+						<td style="line-height:12pt; height:10px;"><span class="pagetop"><b class="hnname"><a href="news">Hacker News</a></b>
+							<span class="topsel"><a href="newest">new</a></span> | <a href="newcomments">comments</a> | <a href="show">show</a> | <a href="ask">ask</a> | <a href="jobs">jobs</a> | <a href="submit">submit</a>				</span>
+						</td>
+						<td style="text-align:right;padding-right:4px;"><span class="pagetop">
+							<a href="login?goto=newest">login</a>
+							</span>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr style="height:10px"></tr>
+		<tr>
+			<td>
+				<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
+					<tr class='athing' id='14569339'>
+						<td align="right" valign="top" class="title"><span class="rank">1.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569339' href='vote?id=14569339&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.ua-foundation.org/open-access-challenge-monitoring-policy-compliance/" class="storylink" rel="nofollow">Open Access and the challenge of monitoring policy compliance</a><span class="sitebit comhead"> (<a href="from?site=ua-foundation.org"><span class="sitestr">ua-foundation.org</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569339">1 point</span> by <a href="user?id=unitedacademics" class="hnuser">unitedacademics</a> <span class="age"><a href="item?id=14569339">0 minutes ago</a></span> <span id="unv_14569339"></span> | <a href="hide?id=14569339&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Open%20Access%20and%20the%20challenge%20of%20monitoring%20policy%20compliance&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Open%20Access%20and%20the%20challenge%20of%20monitoring%20policy%20compliance">web</a> | <a href="item?id=14569339">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569336'>
+						<td align="right" valign="top" class="title"><span class="rank">2.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569336' href='vote?id=14569336&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.searchtrack.co/guide/462/smart-contracts-and-ethereum-explained" class="storylink" rel="nofollow">Learn About These Tech Buzzwords 'Smart Contracts' and 'Ethereum'</a><span class="sitebit comhead"> (<a href="from?site=searchtrack.co"><span class="sitestr">searchtrack.co</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569336">1 point</span> by <a href="user?id=utkarshs12" class="hnuser">utkarshs12</a> <span class="age"><a href="item?id=14569336">0 minutes ago</a></span> <span id="unv_14569336"></span> | <a href="hide?id=14569336&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Learn%20About%20These%20Tech%20Buzzwords%20'Smart%20Contracts'%20and%20'Ethereum'&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Learn%20About%20These%20Tech%20Buzzwords%20'Smart%20Contracts'%20and%20'Ethereum'">web</a> | <a href="item?id=14569336">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569327'>
+						<td align="right" valign="top" class="title"><span class="rank">3.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569327' href='vote?id=14569327&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.nasdaq.com/press-release/us-dept-of-energy-taps-hewlett-packard-enterprises-machine-research-project-to-design-memory-drive-20170615-01009" class="storylink" rel="nofollow">DoE Taps HPE’s Machine Research Project to Design Memory-Driven Supercomputer</a><span class="sitebit comhead"> (<a href="from?site=nasdaq.com"><span class="sitestr">nasdaq.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569327">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569327">1 minute ago</a></span> <span id="unv_14569327"></span> | <a href="hide?id=14569327&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=DoE%20Taps%20HPE%E2%80%99s%20Machine%20Research%20Project%20to%20Design%20Memory-Driven%20Supercomputer&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=DoE%20Taps%20HPE%E2%80%99s%20Machine%20Research%20Project%20to%20Design%20Memory-Driven%20Supercomputer">web</a> | <a href="item?id=14569327">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569322'>
+						<td align="right" valign="top" class="title"><span class="rank">4.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569322' href='vote?id=14569322&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.newsbtc.com/2017/06/13/insurex-announce-crowdsale-blockchain-based-marketplace-insurance-products/" class="storylink" rel="nofollow">Ethereum project</a><span class="sitebit comhead"> (<a href="from?site=newsbtc.com"><span class="sitestr">newsbtc.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569322">1 point</span> by <a href="user?id=WoodyWood" class="hnuser">WoodyWood</a> <span class="age"><a href="item?id=14569322">2 minutes ago</a></span> <span id="unv_14569322"></span> | <a href="hide?id=14569322&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Ethereum%20project&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Ethereum%20project">web</a> | <a href="item?id=14569322">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569318'>
+						<td align="right" valign="top" class="title"><span class="rank">5.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569318' href='vote?id=14569318&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="item?id=14569318" class="storylink">How do you write specs/requirements/design documentation?</a></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569318">1 point</span> by <a href="user?id=morghus" class="hnuser">morghus</a> <span class="age"><a href="item?id=14569318">2 minutes ago</a></span> <span id="unv_14569318"></span> | <a href="hide?id=14569318&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=How%20do%20you%20write%20specs%2Frequirements%2Fdesign%20documentation%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=How%20do%20you%20write%20specs%2Frequirements%2Fdesign%20documentation%3F">web</a> | <a href="item?id=14569318">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569307'>
+						<td align="right" valign="top" class="title"><span class="rank">6.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569307' href='vote?id=14569307&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.cs.tufts.edu/~nr/cs257/archive/don-knuth/empirical-fortran.pdf" class="storylink" rel="nofollow">An Empirical Study of Fortran Programs – Don Knuth (1971) [pdf]</a><span class="sitebit comhead"> (<a href="from?site=tufts.edu"><span class="sitestr">tufts.edu</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569307">2 points</span> by <a href="user?id=tjalfi" class="hnuser">tjalfi</a> <span class="age"><a href="item?id=14569307">3 minutes ago</a></span> <span id="unv_14569307"></span> | <a href="hide?id=14569307&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=An%20Empirical%20Study%20of%20Fortran%20Programs%20%E2%80%93%20Don%20Knuth&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=An%20Empirical%20Study%20of%20Fortran%20Programs%20%E2%80%93%20Don%20Knuth">web</a> | <a href="item?id=14569307">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569304'>
+						<td align="right" valign="top" class="title"><span class="rank">7.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569304' href='vote?id=14569304&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.econotimes.com/Sense-Introduces-Skill-for-Amazon-Alexa-to-Monitor-Home-Energy-Use-755176" class="storylink" rel="nofollow">Sense home energy monitor now integrates with Amazon Alexa</a><span class="sitebit comhead"> (<a href="from?site=econotimes.com"><span class="sitestr">econotimes.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569304">2 points</span> by <a href="user?id=fivetimesfast" class="hnuser">fivetimesfast</a> <span class="age"><a href="item?id=14569304">3 minutes ago</a></span> <span id="unv_14569304"></span> | <a href="hide?id=14569304&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Sense%20home%20energy%20monitor%20now%20integrates%20with%20Amazon%20Alexa&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Sense%20home%20energy%20monitor%20now%20integrates%20with%20Amazon%20Alexa">web</a> | <a href="item?id=14569304">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569300'>
+						<td align="right" valign="top" class="title"><span class="rank">8.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569300' href='vote?id=14569300&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://www.theverge.com/2017/6/15/15807788/le-mans-electric-car-24-hours-panoz-gt-ev" class="storylink" rel="nofollow">This electric racecar could run in next year’s 24 Hours of Le Mans</a><span class="sitebit comhead"> (<a href="from?site=theverge.com"><span class="sitestr">theverge.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569300">1 point</span> by <a href="user?id=artsandsci" class="hnuser">artsandsci</a> <span class="age"><a href="item?id=14569300">4 minutes ago</a></span> <span id="unv_14569300"></span> | <a href="hide?id=14569300&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=This%20electric%20racecar%20could%20run%20in%20next%20year%E2%80%99s%2024%20Hours%20of%20Le%20Mans&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=This%20electric%20racecar%20could%20run%20in%20next%20year%E2%80%99s%2024%20Hours%20of%20Le%20Mans">web</a> | <a href="item?id=14569300">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569292'>
+						<td align="right" valign="top" class="title"><span class="rank">9.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569292' href='vote?id=14569292&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://techcrunch.com/2017/06/16/foodpocalypse" class="storylink" rel="nofollow">Other grocery stocks plummet as Amazon buys Whole Foods for $13.7B</a><span class="sitebit comhead"> (<a href="from?site=techcrunch.com"><span class="sitestr">techcrunch.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569292">1 point</span> by <a href="user?id=janober" class="hnuser">janober</a> <span class="age"><a href="item?id=14569292">4 minutes ago</a></span> <span id="unv_14569292"></span> | <a href="hide?id=14569292&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Other%20grocery%20stocks%20plummet%20as%20Amazon%20buys%20Whole%20Foods%20for%20%2413.7B&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Other%20grocery%20stocks%20plummet%20as%20Amazon%20buys%20Whole%20Foods%20for%20%2413.7B">web</a> | <a href="item?id=14569292">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569266'>
+						<td align="right" valign="top" class="title"><span class="rank">10.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569266' href='vote?id=14569266&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://tools.ietf.org/html/draft-thomson-postel-was-wrong-01" class="storylink" rel="nofollow">Rethinking Postel's Principle: Protocol Decay and Consequences</a><span class="sitebit comhead"> (<a href="from?site=ietf.org"><span class="sitestr">ietf.org</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569266">1 point</span> by <a href="user?id=KirinDave" class="hnuser">KirinDave</a> <span class="age"><a href="item?id=14569266">7 minutes ago</a></span> <span id="unv_14569266"></span> | <a href="hide?id=14569266&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Rethinking%20Postel's%20Principle%3A%20Protocol%20Decay%20and%20Consequences&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Rethinking%20Postel's%20Principle%3A%20Protocol%20Decay%20and%20Consequences">web</a> | <a href="item?id=14569266">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569254'>
+						<td align="right" valign="top" class="title"><span class="rank">11.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569254' href='vote?id=14569254&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://arstechnica.com/information-technology/2017/06/us-doe-the-machine-exascale-supercomputer/" class="storylink" rel="nofollow">US gov’t taps the Machine to beat China to exascale supercomputing</a><span class="sitebit comhead"> (<a href="from?site=arstechnica.com"><span class="sitestr">arstechnica.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569254">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569254">7 minutes ago</a></span> <span id="unv_14569254"></span> | <a href="hide?id=14569254&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=US%20gov%E2%80%99t%20taps%20the%20Machine%20to%20beat%20China%20to%20exascale%20supercomputing&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=US%20gov%E2%80%99t%20taps%20the%20Machine%20to%20beat%20China%20to%20exascale%20supercomputing">web</a> | <a href="item?id=14569254">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569247'>
+						<td align="right" valign="top" class="title"><span class="rank">12.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569247' href='vote?id=14569247&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://www.newscientist.com/article/2134740-deepmind-now-learns-from-human-preferences-just-like-a-toddler/" class="storylink" rel="nofollow">DeepMind now learns from human preferences – just like a toddler</a><span class="sitebit comhead"> (<a href="from?site=newscientist.com"><span class="sitestr">newscientist.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569247">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569247">9 minutes ago</a></span> <span id="unv_14569247"></span> | <a href="hide?id=14569247&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=DeepMind%20now%20learns%20from%20human%20preferences%20%E2%80%93%20just%20like%20a%20toddler&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=DeepMind%20now%20learns%20from%20human%20preferences%20%E2%80%93%20just%20like%20a%20toddler">web</a> | <a href="item?id=14569247">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569234'>
+						<td align="right" valign="top" class="title"><span class="rank">13.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569234' href='vote?id=14569234&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://fivethirtyeight.com/features/why-is-trump-causing-chaos-in-washington-but-not-in-the-stock-market/?ex_cid=538twitter" class="storylink" rel="nofollow">Why Is Trump Causing Chaos in Washington but Not in the Stock Market?</a><span class="sitebit comhead"> (<a href="from?site=fivethirtyeight.com"><span class="sitestr">fivethirtyeight.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569234">2 points</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569234">10 minutes ago</a></span> <span id="unv_14569234"></span> | <a href="hide?id=14569234&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Why%20Is%20Trump%20Causing%20Chaos%20in%20Washington%20but%20Not%20in%20the%20Stock%20Market%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Why%20Is%20Trump%20Causing%20Chaos%20in%20Washington%20but%20Not%20in%20the%20Stock%20Market%3F">web</a> | <a href="item?id=14569234">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569217'>
+						<td align="right" valign="top" class="title"><span class="rank">14.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569217' href='vote?id=14569217&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-890-algorithmic-lower-bounds-fun-with-hardness-proofs-fall-2014/lecture-videos/lecture-16-np-and-pspace-video-games/" class="storylink" rel="nofollow">[MIT 6.890] Lecture 16: NP and PSPACE Video Games</a><span class="sitebit comhead"> (<a href="from?site=mit.edu"><span class="sitestr">mit.edu</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569217">1 point</span> by <a href="user?id=Solheim" class="hnuser">Solheim</a> <span class="age"><a href="item?id=14569217">11 minutes ago</a></span> <span id="unv_14569217"></span> | <a href="hide?id=14569217&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=%5BMIT%206.890%5D%20Lecture%2016%3A%20NP%20and%20PSPACE%20Video%20Games&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=%5BMIT%206.890%5D%20Lecture%2016%3A%20NP%20and%20PSPACE%20Video%20Games">web</a> | <a href="item?id=14569217">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569213'>
+						<td align="right" valign="top" class="title"><span class="rank">15.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569213' href='vote?id=14569213&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://www.inc.com/justin-bariso/elon-musk-sent-an-extraordinary-email-to-employees-and-taught-a-major-lesson-in.html" class="storylink" rel="nofollow">Elon Musk's Email to Tesla Employees Is a Master Class in Emotional Intelligence</a><span class="sitebit comhead"> (<a href="from?site=inc.com"><span class="sitestr">inc.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569213">3 points</span> by <a href="user?id=devy" class="hnuser">devy</a> <span class="age"><a href="item?id=14569213">12 minutes ago</a></span> <span id="unv_14569213"></span> | <a href="hide?id=14569213&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Elon%20Musk's%20Email%20to%20Tesla%20Employees%20Is%20a%20Master%20Class%20in%20Emotional%20Intelligence&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Elon%20Musk's%20Email%20to%20Tesla%20Employees%20Is%20a%20Master%20Class%20in%20Emotional%20Intelligence">web</a> | <a href="item?id=14569213">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569211'>
+						<td align="right" valign="top" class="title"><span class="rank">16.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569211' href='vote?id=14569211&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://mherman.org/blog/2017/05/11/developing-microservices-node-react-docker#.WUPpNztHNfY.hackernews" class="storylink" rel="nofollow">Manage a fleet of microservices locally with Docker</a><span class="sitebit comhead"> (<a href="from?site=mherman.org"><span class="sitestr">mherman.org</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569211">2 points</span> by <a href="user?id=mjhea0" class="hnuser">mjhea0</a> <span class="age"><a href="item?id=14569211">12 minutes ago</a></span> <span id="unv_14569211"></span> | <a href="hide?id=14569211&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Manage%20a%20fleet%20of%20microservices%20locally%20with%20Docker&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Manage%20a%20fleet%20of%20microservices%20locally%20with%20Docker">web</a> | <a href="item?id=14569211">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569181'>
+						<td align="right" valign="top" class="title"><span class="rank">17.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569181' href='vote?id=14569181&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://www.nature.com/articles/n-12446262?WT.mc_id=TWT_NatureNews&amp;sf88908366=1" class="storylink" rel="nofollow">The ‘time machine’ reconstructing ancient Venice’s social networks</a><span class="sitebit comhead"> (<a href="from?site=nature.com"><span class="sitestr">nature.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569181">1 point</span> by <a href="user?id=ohjeez" class="hnuser">ohjeez</a> <span class="age"><a href="item?id=14569181">15 minutes ago</a></span> <span id="unv_14569181"></span> | <a href="hide?id=14569181&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=The%20%E2%80%98time%20machine%E2%80%99%20reconstructing%20ancient%20Venice%E2%80%99s%20social%20networks&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=The%20%E2%80%98time%20machine%E2%80%99%20reconstructing%20ancient%20Venice%E2%80%99s%20social%20networks">web</a> | <a href="item?id=14569181">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569180'>
+						<td align="right" valign="top" class="title"><span class="rank">18.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569180' href='vote?id=14569180&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://thenewstack.io/typescript-getting-popular/" class="storylink" rel="nofollow">Why TypeScript Is Growing More Popular</a><span class="sitebit comhead"> (<a href="from?site=thenewstack.io"><span class="sitestr">thenewstack.io</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569180">1 point</span> by <a href="user?id=fagnerbrack" class="hnuser">fagnerbrack</a> <span class="age"><a href="item?id=14569180">15 minutes ago</a></span> <span id="unv_14569180"></span> | <a href="hide?id=14569180&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Why%20TypeScript%20Is%20Growing%20More%20Popular&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Why%20TypeScript%20Is%20Growing%20More%20Popular">web</a> | <a href="item?id=14569180">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569162'>
+						<td align="right" valign="top" class="title"><span class="rank">19.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569162' href='vote?id=14569162&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://slashdot.org/submission/7136179/tableau-drops-crowd-favorite-data-viz-awards-because-china-bans-twitter-voting" class="storylink" rel="nofollow">Tableau Drops 'Crowd Favorite' Data Viz Awards Because China Bans Twitter Voting</a><span class="sitebit comhead"> (<a href="from?site=slashdot.org"><span class="sitestr">slashdot.org</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569162">1 point</span> by <a href="user?id=theodpHN" class="hnuser">theodpHN</a> <span class="age"><a href="item?id=14569162">16 minutes ago</a></span> <span id="unv_14569162"></span> | <a href="hide?id=14569162&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Tableau%20Drops%20'Crowd%20Favorite'%20Data%20Viz%20Awards%20Because%20China%20Bans%20Twitter%20Voting&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Tableau%20Drops%20'Crowd%20Favorite'%20Data%20Viz%20Awards%20Because%20China%20Bans%20Twitter%20Voting">web</a> | <a href="item?id=14569162">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569154'>
+						<td align="right" valign="top" class="title"><span class="rank">20.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569154' href='vote?id=14569154&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="item?id=14569154" class="storylink">Ask HN: Where to find co-developers for side projects?</a></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569154">3 points</span> by <a href="user?id=Liberator" class="hnuser">Liberator</a> <span class="age"><a href="item?id=14569154">17 minutes ago</a></span> <span id="unv_14569154"></span> | <a href="hide?id=14569154&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Ask%20HN%3A%20Where%20to%20find%20co-developers%20for%20side%20projects%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Ask%20HN%3A%20Where%20to%20find%20co-developers%20for%20side%20projects%3F">web</a> | <a href="item?id=14569154">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569149'>
+						<td align="right" valign="top" class="title"><span class="rank">21.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569149' href='vote?id=14569149&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://www.edsurge.com/news/2017-06-15-what-s-at-stake-in-president-trump-s-order-to-revamp-apprenticeship-programs" class="storylink" rel="nofollow">What’s at Stake in President Trump’s Order to Revamp Apprenticeship Programs</a><span class="sitebit comhead"> (<a href="from?site=edsurge.com"><span class="sitestr">edsurge.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569149">1 point</span> by <a href="user?id=jyosim2" class="hnuser">jyosim2</a> <span class="age"><a href="item?id=14569149">17 minutes ago</a></span> <span id="unv_14569149"></span> | <a href="hide?id=14569149&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=What%E2%80%99s%20at%20Stake%20in%20President%20Trump%E2%80%99s%20Order%20to%20Revamp%20Apprenticeship%20Programs&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=What%E2%80%99s%20at%20Stake%20in%20President%20Trump%E2%80%99s%20Order%20to%20Revamp%20Apprenticeship%20Programs">web</a> | <a href="item?id=14569149">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569138'>
+						<td align="right" valign="top" class="title"><span class="rank">22.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569138' href='vote?id=14569138&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.economist.com/news/leaders/21722841-latest-frenzy-tulipmania-gold-rush-or-dotcom-boom-what-if-bitcoin-bubble?fsrc=scn/tw/te/rfd/pe" class="storylink" rel="nofollow">What if the Bitcoin bubble bursts?</a><span class="sitebit comhead"> (<a href="from?site=economist.com"><span class="sitestr">economist.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569138">3 points</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569138">18 minutes ago</a></span> <span id="unv_14569138"></span> | <a href="hide?id=14569138&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=What%20if%20the%20Bitcoin%20bubble%20bursts%3F&ssort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=What%20if%20the%20Bitcoin%20bubble%20bursts%3F">web</a> | <a href="item?id=14569138">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569133'>
+						<td align="right" valign="top" class="title"><span class="rank">23.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569133' href='vote?id=14569133&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://blogs.technet.microsoft.com/exchange/2017/06/13/net-framework-4-7-and-exchange-server/" class="storylink" rel="nofollow">Exchange Server does not support .NET Framework 4.7 yet</a><span class="sitebit comhead"> (<a href="from?site=microsoft.com"><span class="sitestr">microsoft.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569133">2 points</span> by <a href="user?id=joshyeager" class="hnuser">joshyeager</a> <span class="age"><a href="item?id=14569133">19 minutes ago</a></span> <span id="unv_14569133"></span> | <a href="hide?id=14569133&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Exchange%20Server%20does%20not%20support%20.NET%20Framework%204.7%20yet&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Exchange%20Server%20does%20not%20support%20.NET%20Framework%204.7%20yet">web</a> | <a href="item?id=14569133">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569127'>
+						<td align="right" valign="top" class="title"><span class="rank">24.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569127' href='vote?id=14569127&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.bbc.com/capital/story/20170614-the-new-subtle-ways-the-rich-signal-their-wealth" class="storylink" rel="nofollow">The new, subtle ways the rich signal their wealth</a><span class="sitebit comhead"> (<a href="from?site=bbc.com"><span class="sitestr">bbc.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569127">1 point</span> by <a href="user?id=miraj" class="hnuser">miraj</a> <span class="age"><a href="item?id=14569127">20 minutes ago</a></span> <span id="unv_14569127"></span> | <a href="hide?id=14569127&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=The%20new%2C%20subtle%20ways%20the%20rich%20signal%20their%20wealth&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=The%20new%2C%20subtle%20ways%20the%20rich%20signal%20their%20wealth">web</a> | <a href="item?id=14569127">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569124'>
+						<td align="right" valign="top" class="title"><span class="rank">25.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569124' href='vote?id=14569124&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://arstechnica.com/science/2017/06/report-reveals-years-of-suffering-death-from-therapies-for-chronic-lyme/" class="storylink" rel="nofollow">Report reveals years of suffering, death from therapies for “chronic Lyme”</a><span class="sitebit comhead"> (<a href="from?site=arstechnica.com"><span class="sitestr">arstechnica.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569124">1 point</span> by <a href="user?id=cpncrunch" class="hnuser">cpncrunch</a> <span class="age"><a href="item?id=14569124">20 minutes ago</a></span> <span id="unv_14569124"></span> | <a href="hide?id=14569124&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Report%20reveals%20years%20of%20suffering%2C%20death%20from%20therapies%20for%20%E2%80%9Cchronic%20Lyme%E2%80%9D&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Report%20reveals%20years%20of%20suffering%2C%20death%20from%20therapies%20for%20%E2%80%9Cchronic%20Lyme%E2%80%9D">web</a> | <a href="item?id=14569124">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569123'>
+						<td align="right" valign="top" class="title"><span class="rank">26.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569123' href='vote?id=14569123&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://acklenavenue.com/agile/development/2017/06/12/Agile-In-Title-Only.html" class="storylink" rel="nofollow">Is your company AITO?</a><span class="sitebit comhead"> (<a href="from?site=acklenavenue.com"><span class="sitestr">acklenavenue.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569123">1 point</span> by <a href="user?id=matthewphillip" class="hnuser">matthewphillip</a> <span class="age"><a href="item?id=14569123">20 minutes ago</a></span> <span id="unv_14569123"></span> | <a href="hide?id=14569123&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Is%20your%20company%20AITO%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Is%20your%20company%20AITO%3F">web</a> | <a href="item?id=14569123">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569118'>
+						<td align="right" valign="top" class="title"><span class="rank">27.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569118' href='vote?id=14569118&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://gotowebsecurity.com/malicious-file-upload-what-is-it-and-how-to-fix/" class="storylink" rel="nofollow">What Is Malicious File Upload and How You Can Fix It?</a><span class="sitebit comhead"> (<a href="from?site=gotowebsecurity.com"><span class="sitestr">gotowebsecurity.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569118">1 point</span> by <a href="user?id=nirmalkant" class="hnuser">nirmalkant</a> <span class="age"><a href="item?id=14569118">20 minutes ago</a></span> <span id="unv_14569118"></span> | <a href="hide?id=14569118&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=What%20Is%20Malicious%20File%20Upload%20and%20How%20You%20Can%20Fix%20It%3F&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=What%20Is%20Malicious%20File%20Upload%20and%20How%20You%20Can%20Fix%20It%3F">web</a> | <a href="item?id=14569118">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569113'>
+						<td align="right" valign="top" class="title"><span class="rank">28.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569113' href='vote?id=14569113&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://medium.com/enigma-shards/guardian-ft-etc-share-their-internet-encryption-keys-with-many-6c5d5a311d84" class="storylink" rel="nofollow">Guardian, FT, etc. share their internet encryption keys with many</a><span class="sitebit comhead"> (<a href="from?site=medium.com"><span class="sitestr">medium.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569113">1 point</span> by <a href="user?id=dc352" class="hnuser">dc352</a> <span class="age"><a href="item?id=14569113">21 minutes ago</a></span> <span id="unv_14569113"></span> | <a href="hide?id=14569113&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Guardian%2C%20FT%2C%20etc.%20share%20their%20internet%20encryption%20keys%20with%20many&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Guardian%2C%20FT%2C%20etc.%20share%20their%20internet%20encryption%20keys%20with%20many">web</a> | <a href="item?id=14569113">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569101'>
+						<td align="right" valign="top" class="title"><span class="rank">29.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569101' href='vote?id=14569101&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="https://dev.to/kathryngrayson/share-your-experiences-with-impostor-syndrome" class="storylink" rel="nofollow">Share Your Experiences with Impostor Syndrome</a><span class="sitebit comhead"> (<a href="from?site=dev.to"><span class="sitestr">dev.to</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569101">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569101">22 minutes ago</a></span> <span id="unv_14569101"></span> | <a href="hide?id=14569101&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Share%20Your%20Experiences%20with%20Impostor%20Syndrome&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Share%20Your%20Experiences%20with%20Impostor%20Syndrome">web</a> | <a href="item?id=14569101">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class='athing' id='14569100'>
+						<td align="right" valign="top" class="title"><span class="rank">30.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569100' href='vote?id=14569100&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.kdnuggets.com/2017/02/top-r-packages-machine-learning.html" class="storylink" rel="nofollow">Top R Packages for Machine Learning</a><span class="sitebit comhead"> (<a href="from?site=kdnuggets.com"><span class="sitestr">kdnuggets.com</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569100">1 point</span> by <a href="user?id=rbanffy" class="hnuser">rbanffy</a> <span class="age"><a href="item?id=14569100">22 minutes ago</a></span> <span id="unv_14569100"></span> | <a href="hide?id=14569100&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Top%20R%20Packages%20for%20Machine%20Learning&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Top%20R%20Packages%20for%20Machine%20Learning">web</a> | <a href="item?id=14569100">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+					<tr class="morespace" style="height:10px"></tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="title"><a href="newest?next=14569097&amp;n=31" class="morelink" rel="nofollow">More</a></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<img src="s.gif" height="10" width="0">
+				<table width="100%" cellspacing="0" cellpadding="1">
+					<tr>
+						<td bgcolor="#ff6600"></td>
+					</tr>
+				</table>
+				<br>
+				<center>
+					<span class="yclinks"><a href="newsguidelines.html">Guidelines</a>
+					| <a href="newsfaq.html">FAQ</a>
+					| <a href="mailto:hn@ycombinator.com">Support</a>
+					| <a href="https://github.com/HackerNews/API">API</a>
+					| <a href="security.html">Security</a>
+					| <a href="lists">Lists</a>
+					| <a href="bookmarklet.html">Bookmarklet</a>
+					| <a href="dmca.html">DMCA</a>
+					| <a href="http://www.ycombinator.com/apply/">Apply to YC</a>
+					| <a href="mailto:hn@ycombinator.com">Contact</a></span><br><br>
+					<form method="get" action="//hn.algolia.com/">Search:
+						<input type="text" name="q" value="" size="17" autocorrect="off" spellcheck="false" autocapitalize="off" autocomplete="false">
+					</form>
+				</center>
+			</td>
+		</tr>
+	</table>
+</center>
 <script type='text/javascript' src='hn.js?t7bmj4qFsjfrTe8ELyRy'></script>
-</html>
+{{end}}

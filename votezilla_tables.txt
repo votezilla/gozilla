@@ -95,6 +95,8 @@ CREATE TABLE votezilla.User (
     Id              SERIAL PRIMARY KEY,   
     Username        VARCHAR(40) UNIQUE NOT NULL,    -- UNIQUE implies an index
     PasswordHash    BIGINT[4] NOT NULL              -- Store a 256-byte hash of the password   
+    Email           VARCHAR(345) UNIQUE NOT NULL    -- UNIQUE implies an index
+    VerifiedEmail   BOOL DEFAULT False;
 )
 
 --
