@@ -55,7 +55,7 @@ var (
         gforms.CheckboxMultipleWidget(
             map[string]string{},
             func() gforms.CheckboxOptions { return gforms.StringCheckboxOptions([][]string{
-                {"Remember me on this computer (uncheck if a shared computer)", "R", "false", "false"},
+                {"Stay logged in (uncheck if a shared computer)", "R", "false", "false"},
             })},
         ),
     )    

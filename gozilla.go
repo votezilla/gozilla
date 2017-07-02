@@ -28,14 +28,15 @@ var (
 
 type TableForm struct {
 	Form			*gforms.FormInstance
-	SubmitText	  string
+	CallToAction	string
 	AdditionalError string
 }
 
 type FormArgs struct{
-	FormHTML		string
+	Forms			[]TableForm
 	Title			string
 	Introduction	string
+	Footer			string
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,23 +116,20 @@ func parseTemplateFiles() {
 	templates["test_index"] = template.Must(template.ParseFiles(T("test_base"), T("test_index")))
 	templates["frontPage"] = template.Must(template.ParseFiles(T("base"), T("frontPage")))
 	templates["form"]	   = template.Must(template.ParseFiles(T("base"), T("form")))
-	templates["tableForm"] = template.Must(template.ParseFiles(T("tableForm")))
 
-	printVal("templates", templates)
-	printVal(`templates["test_index"]`, templates["test_index"])
-	printVal(`templates["frontPage"]`, templates["frontPage"])
-	printVal(`templates["form"]`, templates["form"])
+//	printVal("templates", templates)
+//	printVal(`templates["test_index"]`, templates["test_index"])
+//	printVal(`templates["frontPage"]`, templates["frontPage"])
+//	printVal(`templates["form"]`, templates["form"])
 }
 
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
 	log.Printf("executeTemplate: " + templateName)
 	
-//	if debug != "" {
-//		parseTemplateFiles()
-//	}
+	if debug != "" {
+		parseTemplateFiles()
+	}
 
-	//err := templates.ExecuteTemplate(w, templateName + ".html", data)
-//	printVal("templates[templateName]", templates[templateName])
 	err := templates[templateName].Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -142,11 +140,10 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 func renderTemplate(w io.Writer, templateName string, data interface{}) {
 	log.Printf("renderTemplate: " + templateName)
 	
-//	if debug != "" {
-//		parseTemplateFiles()
-//	}
+	if debug != "" {
+		parseTemplateFiles()
+	}
 
-	printVal("templates[templateName]", templates[templateName])
 	err := templates[templateName].Execute(w, data)
 	check(err)
 }
@@ -192,20 +189,19 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////
 func loginHandler(w http.ResponseWriter, r *http.Request) {	
 	form := LoginForm(r)
-	tableForm := TableForm{
-		form,
-		"Login",
-		"",
-	}
-	
+
 	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
 	}
+	
 	// handle GET, or invalid form data from POST...	
 	{	
-		var args FormArgs
-		args.FormHTML = getFormHtml(tableForm)
-		args.Title = "Login"
-
+		args := FormArgs {
+			Title: "Login",
+			Footer: `<a href="/forgotPassword">Forgot your password?</a>`,
+			Forms: []TableForm{{
+				Form: form,
+				CallToAction: "Login",
+		}}}
 		executeTemplate(w, "form", args)
 	}
 }
@@ -227,9 +223,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	
 	form := RegisterForm(r)
 	tableForm := TableForm{
-		form,
-		"Register",
-		"",
+		Form: form,
+		CallToAction: "Register",
 	}
 	
 	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
@@ -280,11 +275,12 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	}  
 	
 	// handle GET, or invalid form data from POST...	
-	{	
-		var args FormArgs
-		args.FormHTML = getFormHtml(tableForm)
-		args.Title = "Register"
-
+	{		
+		args := FormArgs {
+			Title: "Register",
+			Forms: []TableForm{
+				tableForm,
+		}}
 		executeTemplate(w, "form", args)
 	}
 }
@@ -297,20 +293,20 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	form := PersonalInfoForm(r)
-	tableForm := TableForm{
-		form,
-		"Submit",
-		"",
+	
+	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
 	}
 	
 	// handle GET, or invalid form data from POST...	
 	{
-		var args FormArgs
-		args.FormHTML = getFormHtml(tableForm)
-		args.Title = "Voter Information"
-		args.Introduction = `Please answer a few questions so we can verify you are a real person.<br><br>
-This also helps ensure that all citizens have a vote and a voice.`
-
+		args := FormArgs {
+			Title: "Voter Information",
+			Introduction: `Please answer a few questions so we can verify you are a real person.<br><br>
+This also helps ensure that all citizens have a vote and a voice.`,
+			Forms: []TableForm{{
+				Form: form,
+				CallToAction: "Submit",
+		}}}
 		executeTemplate(w, "form", args)
 	}
 }
@@ -339,6 +335,7 @@ func main() {
 	fmt.Println("debug", debug)
    
 	openDatabase(dbName, dbUser, dbPassword)
+	defer closeDatabase()
 
 	http.HandleFunc("/",				frontPageHandler)
 	http.HandleFunc("/test/",			testHandler)
@@ -352,7 +349,5 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 	
 	log.Printf("Listening on http://localhost:8080...")
-	
-	defer closeDatabase()
 }
 

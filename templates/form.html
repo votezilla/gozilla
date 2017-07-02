@@ -2,5 +2,29 @@
 <h1>{{ .Title }}</h1>
 <h4>{{ .Introduction }}</h4>
 <br><br>
-{{ .FormHTML }}
+{{range $_, $form := .Forms}}
+	<form method="post">
+		<table border="0">
+		{{range $_, $field := $form.Form.Fields}}
+			<tr>
+				<td>{{$field.GetName}}:</td>
+				<td>
+					{{$field.Html}}
+					{{range $_, $err := $field.Errors}}
+						<label class="error">{{$err}}</label>
+					{{end}}
+				</td>
+			</tr>
+		{{end}}
+		</table>
+		{{if $form.AdditionalError}}
+		<br>
+		<label class="error">{{$form.AdditionalError}}</label>
+		<br>
+		{{end}}
+		<br>
+		<input type="submit" value="{{$form.CallToAction}}">
+	</form>
+{{end}}
+{{ .Footer }}
 {{end}}
