@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 	<title>{{ .Title }} - votezilla</title>
@@ -9,6 +10,11 @@
 <body>
 	{{ template "body" . }}
 </body>
+{{if .Script}}
+	<script>
+		{{.Script}}
+	</script>
+{{end}}
 </html>
 
 

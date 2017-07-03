@@ -344,17 +344,11 @@ var (
             })},
         ),
     )
-    zipCode = gforms.NewTextField(
-        "postal / zip code",
+    location = gforms.NewTextField(
+        "location",
         gforms.Validators{
             gforms.Required(),
             gforms.MinLengthValidator(5),
-            gforms.MaxLengthValidator(10),
-    })
-    city = gforms.NewTextField(
-        "city",
-        gforms.Validators{
-            gforms.Required(),
             gforms.MaxLengthValidator(60),
     })
     gender = gforms.NewTextField(
@@ -396,10 +390,10 @@ var (
         gforms.CheckboxMultipleWidget(
             map[string]string{},
             func() gforms.CheckboxOptions { return gforms.StringCheckboxOptions([][]string{
-                {"Hispanic, Latino, or Spanish",              "H", "false", "false"},
                 {"American Indian or Alaska Native",          "I", "false", "false"},
                 {"Asian",                                     "A", "false", "false"},
                 {"Black or African American",                 "B", "false", "false"},
+                {"Hispanic, Latino, or Spanish",              "H", "false", "false"},
                 {"Native Hawaiian or Other Pacific Islander", "P", "false", "false"},
                 {"White",                                     "W", "false", "false"},
                 {"Other",                                     "O", "false", "false"},
@@ -458,8 +452,7 @@ type RegisterDetailsData struct {
 
     // location
     Country                 string `gforms:"country"`
-    ZipCode                 string `gforms:"postal / zip code"`
-    City                    string `gforms:"city"`
+    Location                string `gforms:"location"`
 
     // demographic
     BirthYear               string `gforms:"year of birth"`
@@ -484,8 +477,7 @@ var (
     RegisterDetailsForm = gforms.DefineForm(gforms.NewFields(
         // location
         country,
-        zipCode,
-        city,
+        location,
 
         // demographic
         birthYear,

@@ -7,7 +7,7 @@
 		<table border="0">
 		{{range $_, $field := $form.Form.Fields}}
 			<tr>
-				<td>{{$field.GetName}}:</td>
+				<td id="{{$field.GetName}} label">{{$field.GetName}}:</td>
 				<td>{{$field.Html}}
 					{{range $_, $err := $field.Errors}}<label class="error">{{$err}}</label>{{end}}
 				</td>

@@ -37,6 +37,7 @@ type FormArgs struct{
 	Title			string
 	Introduction	string
 	Footer			string
+	Script			string
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -311,7 +312,12 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		args := FormArgs {
 			Title: "Voter Information",
 			Introduction: "A good voting system ensures everyone is represented.<br>" +
-			              "Your information is confidential",
+			              "Your information is confidential.",
+			//TODO: Aweseom, it works!!!  TODO: base text (zip code VS city VS city, state) based on country code.
+			Script:`
+				countryField = document.getElementsByName("country")[0];
+				locationLabel = document.getElementById("location label");
+				countryField.onchange = function() { locationLabel.childNodes[0].nodeValue="zip code:"; }`,
 			Forms: []TableForm{{
 				Form: form,
 				CallToAction: "Submit",
