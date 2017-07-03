@@ -23,8 +23,9 @@ var (
     email = gforms.NewTextField(
         "email",
         gforms.Validators{
+			gforms.EmailValidator(),
             gforms.Required(),
-            gforms.MaxLengthValidator(345),
+            gforms.MaxLengthValidator(345),          
         },
         gforms.TextInputWidget(map[string]string{
             "autocorrect": "off",
@@ -40,7 +41,6 @@ var (
             gforms.MaxLengthValidator(40),
             gforms.PasswordStrengthValidator(3), // Require strong password.
         },
-        gforms.PasswordInputWidget(map[string]string{}),
     )
     confirmPassword = gforms.NewTextField(
         "confirm password",
@@ -443,18 +443,17 @@ var (
 
 // === FORM POST DATA ===
 type LoginData struct {
-    Username                string `gforms:"username"`
     Email                   string `gforms:"email"`
     Password                string `gforms:"password"`
     RememberMe              string `gforms:"remember me"`
 }
 
 type RegisterData struct {
-    Username                string `gforms:"username"`
+    Email                	string `gforms:"email"`
     Password                string `gforms:"password"`
 }
 
-type DemographicData struct {
+type RegisterDetailsData struct {
     Name                    string `gforms:"full name"`
 
     // location
@@ -471,28 +470,18 @@ type DemographicData struct {
     Schooling               string `gforms:"furthest schooling completed"`
 }
 
-// === USEFUL FUNCTIONS ===
-func MatchingPasswords(form *gforms.FormInstance) bool {
-    return form.Data["password"].RawStr == form.Data["confirm password"].RawStr
-} 
-
 // === FORMS ===
 var (
     LoginForm = gforms.DefineForm(gforms.NewFields(
-        username,
+        email,
         password,
         rememberMe,
     ))
     RegisterForm = gforms.DefineForm(gforms.NewFields(
-        username,
         email,
         password,
-        confirmPassword,
     ))
-    PersonalInfoForm = gforms.DefineForm(gforms.NewFields(
-        // name
-        name,   
-        
+    RegisterDetailsForm = gforms.DefineForm(gforms.NewFields(
         // location
         country,
         zipCode,

@@ -1,103 +1,37 @@
 Great article on writing demographic questions!: https://www.surveygizmo.com/survey-blog/how-to-write-better-demographic-questions/
-Pew Research:                                   http://www.pewresearch.org/files/2015/03/Demographic-Questions-Web-and-Mail-English-3-20-2015.pdf
+Pew Research:                                    http://www.pewresearch.org/files/2015/03/Demographic-Questions-Web-and-Mail-English-3-20-2015.pdf
 
 CREATE SCHEMA votezilla;
 
-CREATE TYPE Address AS (
-    Address     VARCHAR(100),
-    Address2       VARCHAR(100),
-    City           VARCHAR(50),
-    State         VARCHAR(2)
-);
 
-CREATE TYPE Gender AS ENUM (
-    'Male',
-    'Female',
-    'Other'
-);
-
-CREATE TYPE Race AS ENUM (
-    'White',           -- White (Non-Hispanic) 
-    'Black',           -- Black (Non-Hispanic) 
-    'Latino',         -- Hispanic or Latino 
-    'Asian',           -- Asian (Non-Hispanic) 
-    'American indian', -- American Indian or Alaska Native (Non-Hispanic) 
-    'Multiracial',   
-    'Other',
-    'Prefer not to answer'
-)                  
-                        
-                          
-CREATE TYPE PoliticalParty AS ENUM (
-    'Democratic Party',
-    'Republican Party',
-    'Libertarian Party',
-    'Green Party',
-    'Constitution Party',
-    'Other',
-    'Prefer not to answer'
-)
-
-CREATE TYPE Income AS ENUM (
-    'Lower',    -- '<$50,000',
-    'Middle',   -- '$50,000-$100,000',
-    'Upper'  -- '$100,000 & over'
-    'Prefer not to answer'
-)
-
-CREATE TYPE Education AS ENUM (
-    'High school dropout',
-    'High School/GED',
-    'Vocational certificate',
-    'Associates',
-    'Bachelors',
-    'Masters',
-    'Doctorate',
-    'Prefer not to answer'
-)
-
---------------- <== CONTINUE HERE ---------------
-
-
-
-
-CREATE TYPE Demograhic AS ( 
-    YearBorn       YearBorn,
-    
-    Gender       Gender,
-    OtherGender VARCHAR(40)
-    
-    MarriageStatus MarriageStatus,
-    
-    Education     Education,
-    
-    Party         PoliticalParty,
-    OtherParty   VARCHAR(40),
-    
-    Race           Race,
-    OtherRace     VARCHAR(40),
-)
-
-CREATE TYPE Contact AS (
-    Email
-
-    Phone
-        
-    ZipCode   
-)
-
-CREATE TYPE Name AS (
-    First           VARCHAR(50) NOT NULL,
-    Last            VARCHAR(50) NOT NULL
-)
 
 CREATE TABLE votezilla.User (
     Id              SERIAL PRIMARY KEY,   
-    Username        VARCHAR(40) UNIQUE NOT NULL,    -- UNIQUE implies an index
-    PasswordHash    BIGINT[4] NOT NULL              -- Store a 256-byte hash of the password   
-    Email           VARCHAR(345) UNIQUE NOT NULL    -- UNIQUE implies an index
-    VerifiedEmail   BOOL DEFAULT False;
+    Email           TEXT        UNIQUE NOT NULL     -- UNIQUE implies an index
+    PasswordHash    BIGINT[4]   NOT NULL            -- Store a 256-byte hash of the password   
+    
+    Username        TEXT        UNIQUE,             -- UNIQUE implies an index
+    Name            TEXT,
+    
+    VerifiedEmail   BOOL        DEFAULT False;
+    
+    // Details
+    Country         TEXT;
+    ZipCode         TEXT;
+    City            TEXT;
+    
+    BirthYear       INT;
+    Gender          TEXT;
+    Party           TEXT;
+    Race            TEXT;
+    Marital         TEXT;
+    Schooling       TEXT;
+    
+    OtherGender     TEXT;
+    OtherParty      TEXT;
+    OtherRace       TEXT;
 )
+
 
 --
 

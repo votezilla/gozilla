@@ -1,6 +1,6 @@
 {{define "body"}}
-<h1>{{ .Title }}</h1>
-<h4>{{ .Introduction }}</h4>
+<h1>{{.Title}}</h1>
+<h4>{{.Introduction}}</h4>
 <br><br>
 {{range $_, $form := .Forms}}
 	<form method="post">
@@ -8,11 +8,8 @@
 		{{range $_, $field := $form.Form.Fields}}
 			<tr>
 				<td>{{$field.GetName}}:</td>
-				<td>
-					{{$field.Html}}
-					{{range $_, $err := $field.Errors}}
-						<label class="error">{{$err}}</label>
-					{{end}}
+				<td>{{$field.Html}}
+					{{range $_, $err := $field.Errors}}<label class="error">{{$err}}</label>{{end}}
 				</td>
 			</tr>
 		{{end}}
@@ -26,5 +23,5 @@
 		<input type="submit" value="{{$form.CallToAction}}">
 	</form>
 {{end}}
-{{ .Footer }}
+{{.Footer}}
 {{end}}

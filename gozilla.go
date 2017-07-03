@@ -23,7 +23,7 @@ var (
 	
 	debug	 	string
 	
-	dbSalt = "SALT" // Database salt, for storing passwords safe from database leaks.
+	dbSalt		= "SALT" // Database salt, for storing passwords safe from database leaks.
 )
 
 type TableForm struct {
@@ -226,54 +226,41 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		Form: form,
 		CallToAction: "Register",
 	}
-	
-	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
-		// Non-matching passwords
-		if !MatchingPasswords(form) {
-			tableForm.AdditionalError = "Passwords must match"
-		} else { 
-			// Passwords match, everything is good - Register the user
-			
-			// Parse POST data into "data".
-			data := RegisterData{}
-			form.MapTo(&data)
-			
-			// Use a hashed password for security.
-			
-			passwordHash := sha256.Sum256([]byte(data.Password + dbSalt))
-			
-			var passwordHashInts[4]int64
-			err:= binary.Read(bytes.NewBuffer(passwordHash[:]), binary.LittleEndian, &passwordHashInts)
-			printVal("err", err)
-			check(err)
-			
-			// TODO: GOTTA SEND VERIFICATION EMAIL... USER DOESN'T GET CREATED UNTIL EMAIL GETS VERIFIED
-			// INSERT IT FOR NOW, TODO: VERIFY EMAIL AND SET emailverified=True when email is verified
-			
-			// Works: INSERT INTO votezilla.user(username,passwordhash) VALUES('asmith', '{798798,-8980,2323,6546}');
-			printVal("db", db)
-			
-			printVal("data.Username", data.Username)
-			printVal("passwordHashInts", passwordHashInts)
-			
-			var lastInsertId int
-			err = db.QueryRow(
-				"INSERT INTO votezilla.user(username,passwordhash) VALUES ($1, $2) returning id;", 
-				data.Username, 
-				pq.Array(passwordHashInts),
-			).Scan(&lastInsertId)
-			printVal("err", err)
-			fmt.Println("lastInsertId =", lastInsertId)
-			check(err)
-			
-			fmt.Println("next line")
-			http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)   
-			
-			return	
-	
-		}
+
+	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
+		// Parse POST data into "data".
+		data := RegisterData{}
+		form.MapTo(&data)
+
+		// Use a hashed password for security.
+		passwordHash := sha256.Sum256([]byte(data.Password + dbSalt))
+		var passwordHashInts[4]int64
+		err:= binary.Read(bytes.NewBuffer(passwordHash[:]), binary.LittleEndian, &passwordHashInts)
+
+
+		// TODO: CHECK FOR DUPLICATE USERNAME OR EMAIL
+		// TODO: GOTTA SEND VERIFICATION EMAIL... USER DOESN'T GET CREATED UNTIL EMAIL GETS VERIFIED
+		// INSERT IT FOR NOW, TODO: VERIFY EMAIL AND SET emailverified=True when email is verified
+
+		// Works: INSERT INTO votezilla.user(username,passwordhash) VALUES('asmith', '{798798,-8980,2323,6546}');
+		printVal("db", db)
+
+		var lastInsertId int
+		err = db.QueryRow(
+			"INSERT INTO votezilla.User(Email,PasswordHash) VALUES ($1, $2) returning id;", 
+			data.Email,
+			pq.Array(passwordHashInts),
+		).Scan(&lastInsertId)
+		printVal("err", err)
+		fmt.Println("lastInsertId =", lastInsertId)
+		check(err)
+
+		fmt.Println("next line")
+		http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)   
+
+		return	
 	}  
-	
+
 	// handle GET, or invalid form data from POST...	
 	{		
 		args := FormArgs {
@@ -292,17 +279,39 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////
 func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	
-	form := PersonalInfoForm(r)
+	form := RegisterDetailsForm(r)
 	
 	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
-	}
+
+	/*	// Passwords match, everything is good - Register the user
+
+		// Parse POST data into "data".
+		data := RegisterDetailsData{}
+		form.MapTo(&data)
+
+		var lastInsertId int
+		err = db.QueryRow(
+			"UPDATE votezilla.user(username,passwordhash,email) VALUES ($1, $2, $3) returning id;", 
+			data.Username, 
+			pq.Array(passwordHashInts),
+			data.Email,
+		).Scan(&lastInsertId)
+		printVal("err", err)
+		fmt.Println("lastInsertId =", lastInsertId)
+		check(err)
+
+		fmt.Println("next line")
+		http.Redirect(w, r, "/registerDone", http.StatusSeeOther)   
+	*/
+		return	
+	} 
 	
 	// handle GET, or invalid form data from POST...	
 	{
 		args := FormArgs {
 			Title: "Voter Information",
-			Introduction: `Please answer a few questions so we can verify you are a real person.<br><br>
-This also helps ensure that all citizens have a vote and a voice.`,
+			Introduction: "A good voting system ensures everyone is represented.<br>" +
+			              "Your information is confidential",
 			Forms: []TableForm{{
 				Form: form,
 				CallToAction: "Submit",
