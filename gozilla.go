@@ -8,7 +8,6 @@ import (
 	"encoding/binary"
 	"flag"	
 	"fmt"
-	"github.com/bluele/gforms"
 	"github.com/lib/pq"
 	"io"
 	"log"
@@ -25,20 +24,6 @@ var (
 	
 	dbSalt		= "SALT" // Database salt, for storing passwords safe from database leaks.
 )
-
-type TableForm struct {
-	Form			*gforms.FormInstance
-	CallToAction	string
-	AdditionalError string
-}
-
-type FormArgs struct{
-	Forms			[]TableForm
-	Title			string
-	Introduction	string
-	Footer			string
-	Script			string
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -114,14 +99,14 @@ func parseTemplateFiles() {
 	}
 
 	templates = make(map[string]*template.Template)
-	templates["test_index"] = template.Must(template.ParseFiles(T("test_base"), T("test_index")))
-	templates["frontPage"] = template.Must(template.ParseFiles(T("base"), T("frontPage")))
-	templates["form"]	   = template.Must(template.ParseFiles(T("base"), T("form")))
-
-//	printVal("templates", templates)
-//	printVal(`templates["test_index"]`, templates["test_index"])
-//	printVal(`templates["frontPage"]`, templates["frontPage"])
-//	printVal(`templates["form"]`, templates["form"])
+	
+	// HTML templates
+	templates["test_index"]		= template.Must(template.ParseFiles(T("test_base"), T("test_index")))
+	templates["frontPage"]		= template.Must(template.ParseFiles(T("base"), T("frontPage")))
+	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form")))
+	
+	// Javascript snippets
+	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
 }
 
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
@@ -238,7 +223,6 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		var passwordHashInts[4]int64
 		err:= binary.Read(bytes.NewBuffer(passwordHash[:]), binary.LittleEndian, &passwordHashInts)
 
-
 		// TODO: CHECK FOR DUPLICATE USERNAME OR EMAIL
 		// TODO: GOTTA SEND VERIFICATION EMAIL... USER DOESN'T GET CREATED UNTIL EMAIL GETS VERIFIED
 		// INSERT IT FOR NOW, TODO: VERIFY EMAIL AND SET emailverified=True when email is verified
@@ -284,12 +268,22 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
 
-	/*	// Passwords match, everything is good - Register the user
+		// Passwords match, everything is good - Register the user
 
 		// Parse POST data into "data".
 		data := RegisterDetailsData{}
 		form.MapTo(&data)
+		
+		fmt.Fprintf(w, "<br><p>country: %+v</p>", data.Country)
+		
+		fmt.Fprintf(w, "<br>races: %T - %+v", data.Races, data.Races)
+		for k, v := range data.Races {
+			fmt.Fprintf(w, "<br>%v -> %v", k, v)
+		}
+		
+		fmt.Fprintf(w, "<br><p>data: %+v</p>", data)
 
+	/*
 		var lastInsertId int
 		err = db.QueryRow(
 			"UPDATE votezilla.user(username,passwordhash,email) VALUES ($1, $2, $3) returning id;", 
@@ -304,26 +298,73 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("next line")
 		http.Redirect(w, r, "/registerDone", http.StatusSeeOther)   
 	*/
+	
 		return	
 	} 
 	
 	// handle GET, or invalid form data from POST...	
 	{
+		// render registerDetailsScript template
+		var scriptString string
+		{
+			scriptData := struct {
+				CountriesWithStates			map[string]bool
+				CountriesWithPostalCodes	map[string]bool
+			}{
+			    CountriesWithStates,
+			    CountriesWithPostalCodes,
+			}
+			
+			var scriptHTML bytes.Buffer
+			renderTemplate(&scriptHTML, "registerDetailsScript", scriptData)
+			scriptString = scriptHTML.String()
+		}
+		
 		args := FormArgs {
 			Title: "Voter Information",
 			Introduction: "A good voting system ensures everyone is represented.<br>" +
 			              "Your information is confidential.",
-			//TODO: Aweseom, it works!!!  TODO: base text (zip code VS city VS city, state) based on country code.
-			Script:`
-				countryField = document.getElementsByName("country")[0];
-				locationLabel = document.getElementById("location label");
-				countryField.onchange = function() { locationLabel.childNodes[0].nodeValue="zip code:"; }`,
+			Script: scriptString,
 			Forms: []TableForm{{
 				Form: form,
 				CallToAction: "Submit",
 		}}}
 		executeTemplate(w, "form", args)
 	}
+	
+	// Debug info:
+	form.IsValid()
+	data := RegisterDetailsData{}
+	form.MapTo(&data)
+	
+	fmt.Fprintf(w, "<br>races: %T - %+v", data.Races, data.Races)
+	for k, v := range data.Races {
+	    fmt.Fprintf(w, "<br>%v -> %v", k, v)
+	}	
+	
+	fmt.Fprintf(w, "<br>data: %T - %+v", data, data)
+
+	fmt.Fprintf(w, "<br>r: %+v", r)
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// TODO: get user's ip address
+//       1) To log in the database when user is first created.
+//		 2) To set their location in registerDetails and save them time.
+// USING: https://play.golang.org/p/Z6ATIhL_IM
+//        https://stackoverflow.com/questions/27234861/correct-way-of-getting-clients-ip-addresses-from-http-request-golang
+//
+// (WAIT TIL TESTING FROM AWS, OTHERWISE IT'S LOCALHOST, BASICALLY MEANINGLESS)
+//
+///////////////////////////////////////////////////////////////////////////////
+func ipHandler(w http.ResponseWriter, r *http.Request) {
+	remoteAddr	 := r.RemoteAddr
+	forwardedFor := r.Header.Get("X-Forwarded-For")
+	
+	fmt.Fprintf(w, "<p>remote addr: %s</p>", remoteAddr)
+	fmt.Fprintf(w, "<p>forwarded for: %s</p>", forwardedFor)
+	fmt.Fprintf(w, "<br><p>r: %+v</p>", r)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -358,6 +399,7 @@ func main() {
 	http.HandleFunc("/forgotPassword/", forgotPasswordHandler)
 	http.HandleFunc("/register/",		registerHandler)
 	http.HandleFunc("/registerDetails/",registerDetailsHandler)
+	http.HandleFunc("/ip/",				ipHandler)
 	
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 		

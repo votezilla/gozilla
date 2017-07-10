@@ -2,19 +2,19 @@
 <h1>{{.Title}}</h1>
 <h4>{{.Introduction}}</h4>
 <br><br>
-{{range $_, $form := .Forms}}
+{{range $_, $form := .Forms -}}
 	<form method="post">
 		<table border="0">
-		{{range $_, $field := $form.Form.Fields}}
+		{{- range $_, $field := $form.Form.Fields}}
 			<tr>
 				<td id="{{$field.GetName}} label">{{$field.GetName}}:</td>
-				<td>{{$field.Html}}
-					{{range $_, $err := $field.Errors}}<label class="error">{{$err}}</label>{{end}}
+				<td>{{$field.Html -}}
+					{{range $_, $err := $field.Errors}}<label class="error">{{$err}}</label>{{end -}}
 				</td>
 			</tr>
-		{{end}}
+		{{- end}}
 		</table>
-		{{if $form.AdditionalError}}
+		{{- if $form.AdditionalError -}}
 		<br>
 		<label class="error">{{$form.AdditionalError}}</label>
 		<br>
@@ -22,6 +22,6 @@
 		<br>
 		<input type="submit" value="{{$form.CallToAction}}">
 	</form>
-{{end}}
+{{- end -}}
 {{.Footer}}
-{{end}}
+{{- end}}

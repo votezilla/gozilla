@@ -2,7 +2,7 @@
 package main
 
 import (
-    "github.com/bluele/gforms"
+    "github.com/votezilla/gforms"
 )
 
 // === FIELDS ===
@@ -382,8 +382,8 @@ var (
             })},
         ),
     )
-    race = gforms.NewTextField(
-        "race / ethnicity",
+    race = gforms.NewMultipleTextField(
+		"race / ethnicity",
         gforms.Validators{
             gforms.Required(),
         },
@@ -435,6 +435,15 @@ var (
     )
 )
 
+// === COUNTRY DATA ===
+var (
+	// https://en.m.wikipedia.org/wiki/Federated_state
+	CountriesWithStates = map[string]bool{"AE":true,"AR":true,"AT":true,"AU":true,"BA":true,"BE":true,"BR":true,"CA":true,"CH":true,"DE":true,"ET":true,"FM":true,"IN":true,"IQ":true,"KM":true,"KN":true,"MX":true,"MY":true,"NG":true,"NP":true,"PK":true,"RU":true,"SD":true,"SO":true,"SS":true,"US":true,"VE":true}
+	
+	// https://www.ups.com/worldshiphelp/WS16/ENU/AppHelp/Codes/Countries_Territories_Requiring_Postal_Codes.htm
+	CountriesWithPostalCodes = map[string]bool{"A2":true,"AM":true,"AR":true,"AT":true,"AU":true,"AZ":true,"BA":true,"BD":true,"BE":true,"BG":true,"BN":true,"BR":true,"BY":true,"CA":true,"CH":true,"CN":true,"CS":true,"CY":true,"CZ":true,"DE":true,"DK":true,"DZ":true,"EE":true,"EN":true,"ES":true,"FI":true,"FO":true,"FR":true,"GB":true,"GE":true,"GG":true,"GL":true,"GR":true,"GU":true,"HO":true,"HR":true,"HU":true,"IC":true,"ID":true,"IL":true,"IN":true,"IT":true,"JE":true,"JP":true,"KG":true,"KO":true,"KR":true,"KZ":true,"LI":true,"LK":true,"LT":true,"LU":true,"LV":true,"M3":true,"ME":true,"MG":true,"MH":true,"MK":true,"MN":true,"MQ":true,"MX":true,"MY":true,"NB":true,"NL":true,"NO":true,"NT":true,"NZ":true,"PH":true,"PK":true,"PL":true,"PO":true,"PR":true,"PT":true,"RE":true,"RU":true,"SA":true,"SE":true,"SF":true,"SG":true,"SI":true,"SK":true,"SX":true,"TH":true,"TJ":true,"TM":true,"TN":true,"TR":true,"TU":true,"TW":true,"UA":true,"US":true,"UV":true,"UY":true,"UZ":true,"VA":true,"VI":true,"VL":true,"VN":true,"WL":true,"YA":true,"YT":true,"ZA":true}
+)
+
 // === FORM POST DATA ===
 type LoginData struct {
     Email                   string `gforms:"email"`
@@ -458,7 +467,7 @@ type RegisterDetailsData struct {
     BirthYear               string `gforms:"year of birth"`
     Gender                  string `gforms:"gender"`
     Party                   string `gforms:"party"`
-    Race                    string `gforms:"race / ethnicity"`
+    Races					[]string `gforms:"race / ethnicity"`
     Marital                 string `gforms:"marital status"`
     Schooling               string `gforms:"furthest schooling completed"`
 }
@@ -475,6 +484,9 @@ var (
         password,
     ))
     RegisterDetailsForm = gforms.DefineForm(gforms.NewFields(
+        // name
+        name,
+        
         // location
         country,
         location,
@@ -489,4 +501,17 @@ var (
     ))
 ) // var
 
- 
+// === FORM TYPES ===
+type TableForm struct {
+	Form			*gforms.FormInstance
+	CallToAction	string
+	AdditionalError string
+}
+
+type FormArgs struct{
+	Forms			[]TableForm
+	Title			string
+	Introduction	string
+	Footer			string
+	Script			string
+}

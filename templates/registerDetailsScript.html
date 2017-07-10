@@ -1,0 +1,33 @@
+function hasState(countryCode) {
+	switch (countryCode) {
+	{{range $country, $_ := .CountriesWithStates -}}
+		case "{{$country}}": return true;
+	{{end -}}
+	}
+	return false;
+}
+
+function hasPostalCode(countryCode) {
+	switch (countryCode) {
+	{{range $country, $_ := .CountriesWithPostalCodes -}}
+		case "{{$country}}": return true;
+	{{end -}}
+	}
+	return false;
+}
+
+// Update location label to appropriate zip code / city / city, state depending on the country.
+countryField  = document.getElementsByName("country")[0];
+locationLabel = document.getElementById("location label");
+
+countryField.onchange = function() {
+	// TODO: lookup country from the country selecter, then call hasPostalCode and hasState to determine label!!!
+	var country = countryField.value;
+
+	if (hasPostalCode(country))
+		locationLabel.childNodes[0].nodeValue="zip code:";
+	else if (hasState(country))
+		locationLabel.childNodes[0].nodeValue="city, state:";
+	else
+		locationLabel.childNodes[0].nodeValue="city:";
+}
