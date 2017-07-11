@@ -175,7 +175,7 @@ type LoginData struct {
 
 type RegisterData struct {
     Email                	string `gforms:"email"`
-    Userame					string `gforms:"username"`
+    Username				string `gforms:"username"`
     Password                string `gforms:"password"`
 }
 
@@ -235,6 +235,7 @@ type TableForm struct {
 type FormArgs struct{
 	Forms			[]TableForm
 	Title			string
+	Congrats		string
 	Introduction	string
 	Footer			string
 	Script			string

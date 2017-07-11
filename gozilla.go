@@ -29,9 +29,15 @@ var (
 // utility functions
 //
 ///////////////////////////////////////////////////////////////////////////////
+func assert(ok bool) {
+    if !ok {
+        panic("Assert failed!")
+    }
+}
+
 func check(err error) {
     if err != nil {
-        log.Fatal(err)
+        panic(err)
     }
 }
 
@@ -46,7 +52,6 @@ func printVal(label string, v interface{}) {
 func printValX(label string, v interface{}) {
 	log.Printf("%s: %x", label, v)
 }
-
 
 func parseCommandLineFlags() (string, string, string, string, string) {
 	// Grab command line flags
@@ -204,6 +209,24 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 // register
 //
 ///////////////////////////////////////////////////////////////////////////////
+func DbInsert(query string, values ...interface{}) (int, error) {
+	var lastInsertId int
+	err = db.QueryRow(
+		query,
+		values...
+	).Scan(&lastInsertId)
+	check(err)
+	
+	return lastInsertId, err
+}
+
+func DbQuery(query string, values ...interface{}) (*sql.Rows, error) {
+	rows, err := db.Query(query, values...)
+	check(err)
+	
+	return rows, err
+}
+
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	
 	form := RegisterForm(r)
@@ -220,7 +243,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		// Use a hashed password for security.
 		passwordHash := sha256.Sum256([]byte(data.Password + dbSalt))
 		var passwordHashInts[4]int64
-		err:= binary.Read(bytes.NewBuffer(passwordHash[:]), binary.LittleEndian, &passwordHashInts)
+		err := binary.Read(bytes.NewBuffer(passwordHash[:]), binary.LittleEndian, &passwordHashInts)
+		check(err)
 
 		// TODO: CHECK FOR DUPLICATE USERNAME OR EMAIL
 		// TODO: GOTTA SEND VERIFICATION EMAIL... USER DOESN'T GET CREATED UNTIL EMAIL GETS VERIFIED
@@ -228,21 +252,35 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Works: INSERT INTO votezilla.user(username,passwordhash) VALUES('asmith', '{798798,-8980,2323,6546}');
 		printVal("db", db)
+		
+		// Check for duplicate email
+		rows, _ := DbQuery("SELECT * FROM votezilla.User WHERE Email = $1;", data.Email)
+		if rows.Next() {
+			fmt.Println("That email is taken... have you registered already?")
+			
+			field, err := form.GetField("email")
+			assert(err)
+			field.SetErrors([]string{"That email is taken... have you registered already?"})
+        } else { 
+        	// Check for duplicate username
+			rows, _ = DbQuery("SELECT * FROM votezilla.User WHERE Username = $1;", data.Username)
+			if rows.Next() {
+				fmt.Println("That username is taken... try another one.  Or, have you registered already?")
+				field, err := form.GetField("username")
+				assert(err)
+				field.SetErrors([]string{"That username is taken... try another one.  Or, have you registered already?"})
+			} else {
+				// Add new user to the database        
+				DbInsert("INSERT INTO votezilla.User(Email, Username, PasswordHash) VALUES ($1, $2, $3) returning id;", 
+					data.Email,
+					data.Username,
+					pq.Array(passwordHashInts))
+				fmt.Println("successfully inserted a record")
 
-		var lastInsertId int
-		err = db.QueryRow(
-			"INSERT INTO votezilla.User(Email,PasswordHash) VALUES ($1, $2) returning id;", 
-			data.Email,
-			pq.Array(passwordHashInts),
-		).Scan(&lastInsertId)
-		printVal("err", err)
-		fmt.Println("lastInsertId =", lastInsertId)
-		check(err)
-
-		fmt.Println("next line")
-		http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)   
-
-		return	
+				http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)
+				return	
+			}
+		}
 	}  
 
 	// handle GET, or invalid form data from POST...	
@@ -319,8 +357,14 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			scriptString = scriptHTML.String()
 		}
 		
+		congrats := ""
+		if r.Method == "GET" {
+			congrats = "Congrats for registering"
+		}
+		
 		args := FormArgs {
 			Title: "Voter Information",
+			Congrats: congrats,
 			Introduction: "A good voting system ensures everyone is represented.<br>" +
 			              "Your information is confidential.",
 			Script: scriptString,
