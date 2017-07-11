@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"bytes"
 	"crypto/sha256"

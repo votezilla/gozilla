@@ -9,7 +9,7 @@
 			<tr>
 				<td id="{{$field.GetName}} label">{{$field.GetName}}:</td>
 				<td>{{$field.Html -}}
-					{{range $_, $err := $field.Errors}}<label class="error">{{$err}}</label>{{end -}}
+					{{range $_, $err := $field.Errors}}<label class="error"> {{$err}}</label>{{end -}}
 				</td>
 			</tr>
 		{{- end}}
