@@ -1,0 +1,4 @@
+TODO: 
+ - validate that dropdown are not '-'.
+ - validate birthdate
+ - validate zip code / city / city,state
