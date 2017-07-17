@@ -1,21 +1,17 @@
+// gozilla.go
 package main
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"database/sql"
-	"encoding/binary"
 	"flag"	
 	"fmt"
 	"github.com/lib/pq"
-	"io"
 	"log"
 	"net/http"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML
 )
 
 var (
-	db			*sql.DB
 	templates   map[string]*template.Template
 	err		 	error
 	
@@ -26,125 +22,20 @@ var (
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// utility functions
+// flags
 //
 ///////////////////////////////////////////////////////////////////////////////
-func assert(ok bool) {
-    if !ok {
-        panic("Assert failed!")
-    }
-}
-
-func check(err error) {
-    if err != nil {
-        panic(err)
-    }
-}
-
-func print(text string) {
-	log.Println(text)
-}
-
-func printVal(label string, v interface{}) {
-	log.Printf("%s: %v", label, v)
-}
-
-func printValX(label string, v interface{}) {
-	log.Printf("%s: %x", label, v)
-}
-
 func parseCommandLineFlags() (string, string, string, string, string) {
 	// Grab command line flags
-	f1 := flag.String("dbname",		"votezilla", "Database to connect to")	  ; 
-	f2 := flag.String("dbuser",		"",		  "Database user")			   ; 
-	f3 := flag.String("dbpassword", "",		  "Database password")		   ; 
-	f4 := flag.String("dbsalt",		"",		  "Database salt (for security)"); 
-	f5 := flag.String("debug",		"",		  "debug=true for development")  ; 
+	f1 := flag.String("dbname",		"votezilla",	"Database to connect to")	  ; 
+	f2 := flag.String("dbuser",		"",				"Database user")			   ; 
+	f3 := flag.String("dbpassword", "",				"Database password")		   ; 
+	f4 := flag.String("dbsalt",		"",				"Database salt (for security)"); 
+	f5 := flag.String("debug",		"",				"debug=true for development")  ; 
 	flag.Parse()
 	
 	return *f1, *f2, *f3, *f4, *f5
 }
-
-func openDatabase(dbName, dbUser, dbPassword string) {
-	print("openDatabase")
-	
-	// Connect to database
-	dbInfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
-		dbUser, dbPassword, dbName)  
-
-	fmt.Printf("dbInfo: %s", dbInfo)
-
-	db, err = sql.Open("postgres", dbInfo)
-	fmt.Println("err:", err)
-	check(err)
-	
-	printVal("db", db)
-}
-
-func closeDatabase() {
-	print("closeDatabase")
-	
-	if db != nil {
-		defer db.Close()
-	}
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// render template files
-//
-///////////////////////////////////////////////////////////////////////////////
-func parseTemplateFiles() {
-	log.Println(1)
-
-	T := func(page string) string {
-		return "templates/" + page + ".html"
-	}
-
-	templates = make(map[string]*template.Template)
-	
-	// HTML templates
-	templates["test_index"]		= template.Must(template.ParseFiles(T("test_base"), T("test_index")))
-	templates["frontPage"]		= template.Must(template.ParseFiles(T("base"), T("frontPage")))
-	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form")))
-	
-	// Javascript snippets
-	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
-}
-
-func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
-	log.Printf("executeTemplate: " + templateName)
-	
-	if debug != "" {
-		parseTemplateFiles()
-	}
-
-	err := templates[templateName].Execute(w, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-// writes to io.Writer instead of http.ResponseWriter
-func renderTemplate(w io.Writer, templateName string, data interface{}) {
-	log.Printf("renderTemplate: " + templateName)
-	
-	if debug != "" {
-		parseTemplateFiles()
-	}
-
-	err := templates[templateName].Execute(w, data)
-	check(err)
-}
-
-// Render the table form, return the HTML string
-func getFormHtml(tableForm TableForm) string {
-	var formHTML bytes.Buffer
-	renderTemplate(&formHTML, "tableForm", tableForm)
-	return formHTML.String()
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -161,6 +52,11 @@ func frontPageHandler(w http.ResponseWriter, r *http.Request) {
 	executeTemplate(w, "frontPage", args)
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// test
+//
+///////////////////////////////////////////////////////////////////////////////
 func testHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("testHandler")
 	
@@ -209,26 +105,8 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 // register
 //
 ///////////////////////////////////////////////////////////////////////////////
-func DbInsert(query string, values ...interface{}) (int, error) {
-	var lastInsertId int
-	err = db.QueryRow(
-		query,
-		values...
-	).Scan(&lastInsertId)
-	check(err)
-	
-	return lastInsertId, err
-}
-
-func DbQuery(query string, values ...interface{}) (*sql.Rows, error) {
-	rows, err := db.Query(query, values...)
-	check(err)
-	
-	return rows, err
-}
-
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-	
+
 	form := RegisterForm(r)
 	tableForm := TableForm{
 		Form: form,
@@ -241,21 +119,16 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		form.MapTo(&data)
 
 		// Use a hashed password for security.
-		passwordHash := sha256.Sum256([]byte(data.Password + dbSalt))
-		var passwordHashInts[4]int64
-		err := binary.Read(bytes.NewBuffer(passwordHash[:]), binary.LittleEndian, &passwordHashInts)
-		check(err)
+		passwordHashInts := GetPasswordHash256(data.Password, dbSalt)
 
-		// TODO: CHECK FOR DUPLICATE USERNAME OR EMAIL
-		// TODO: GOTTA SEND VERIFICATION EMAIL... USER DOESN'T GET CREATED UNTIL EMAIL GETS VERIFIED
-		// INSERT IT FOR NOW, TODO: VERIFY EMAIL AND SET emailverified=True when email is verified
+		// TODO: Gotta send verification email... user doesn't get created until email gets verified.
+		// TODO: Verify email and set emailverified=True when email is verified
 
 		// Works: INSERT INTO votezilla.user(username,passwordhash) VALUES('asmith', '{798798,-8980,2323,6546}');
 		printVal("db", db)
 		
 		// Check for duplicate email
-		rows, _ := DbQuery("SELECT * FROM votezilla.User WHERE Email = $1;", data.Email)
-		if rows.Next() {
+		if !DbUnique("SELECT * FROM votezilla.User WHERE Email = $1;", data.Email) {
 			fmt.Println("That email is taken... have you registered already?")
 			
 			field, err := form.GetField("email")
@@ -263,20 +136,21 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 			field.SetErrors([]string{"That email is taken... have you registered already?"})
         } else { 
         	// Check for duplicate username
-			rows, _ = DbQuery("SELECT * FROM votezilla.User WHERE Username = $1;", data.Username)
-			if rows.Next() {
+			if !DbUnique("SELECT * FROM votezilla.User WHERE Username = $1;", data.Username) {
 				fmt.Println("That username is taken... try another one.  Or, have you registered already?")
 				field, err := form.GetField("username")
 				assert(err)
 				field.SetErrors([]string{"That username is taken... try another one.  Or, have you registered already?"})
 			} else {
 				// Add new user to the database        
-				DbInsert("INSERT INTO votezilla.User(Email, Username, PasswordHash) VALUES ($1, $2, $3) returning id;", 
+				userId := DbInsert(
+					"INSERT INTO votezilla.User(Email, Username, PasswordHash) VALUES ($1, $2, $3) returning id;", 
 					data.Email,
 					data.Username,
 					pq.Array(passwordHashInts))
-				fmt.Println("successfully inserted a record")
-
+				
+				CreateSession(w, r, userId, data.RememberMe)
+				
 				http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)
 				return	
 			}
@@ -300,8 +174,15 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	
 	form := RegisterDetailsForm(r)
+	
+	userId, ok := GetSessionUserId(r)			
+	if !ok { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		log.Printf("secure cookie not found")
+		http.Redirect(w, r, "/register", http.StatusSeeOther)
+		return
+	}
 	
 	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
 
@@ -319,23 +200,42 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		
 		fmt.Fprintf(w, "<br><p>data: %+v</p>", data)
-
-	/*
-		var lastInsertId int
-		err = db.QueryRow(
-			"UPDATE votezilla.user(username,passwordhash,email) VALUES ($1, $2, $3) returning id;", 
-			data.Username, 
-			pq.Array(passwordHashInts),
-			data.Email,
-		).Scan(&lastInsertId)
-		printVal("err", err)
-		fmt.Println("lastInsertId =", lastInsertId)
-		check(err)
-
-		fmt.Println("next line")
-		http.Redirect(w, r, "/registerDone", http.StatusSeeOther)   
-	*/
+		
+		printVal("userId", userId)
+		
+		log.Println(`UPDATE votezilla.User
+				SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
+				= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
+				WHERE Id = $1`, 
+			userId,
+			data.Name,
+			data.Country,
+			data.Location, // TODO: remove ZipCode and City, add Location
+			data.BirthYear,
+			data.Gender,
+			data.Party,
+			pq.Array(data.Races), // TODO: change Race to Races[]
+			data.Marital,
+			data.Schooling)
 	
+		// Update the user record with registration details.
+		DbQuery(
+			`UPDATE votezilla.User
+				SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
+				= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
+				WHERE Id = $1`, 
+			userId,
+			data.Name,
+			data.Country,
+			data.Location, // TODO: remove ZipCode and City, add Location
+			data.BirthYear,
+			data.Gender,
+			data.Party,
+			pq.Array(data.Races), // TODO: change Race to Races[]
+			data.Marital,
+			data.Schooling)
+		
+		http.Redirect(w, r, "/registerDone", http.StatusSeeOther)   
 		return	
 	} 
 	
@@ -390,6 +290,11 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<br>r: %+v", r)
 }
 
+func registerDoneHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, `<h2>Congrats, you just registered</h2>
+					<script>alert('Congrats, you just registered')</script>`)
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // TODO: get user's ip address
@@ -412,6 +317,19 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// handler wrapper - Each request should refresh the session.
+//
+///////////////////////////////////////////////////////////////////////////////
+func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		RefreshSession(w, r)
+		
+		handler(w, r)
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // program entry
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -426,23 +344,20 @@ func main() {
 	
 	var dbName, dbUser, dbPassword string
 	dbName, dbUser, dbPassword, dbSalt, debug = parseCommandLineFlags()
-  
-	fmt.Println("dbName", dbName)
-	fmt.Println("dbUser", dbUser)
-	fmt.Println("dbPassword", dbPassword)
-	fmt.Println("dbSalt", dbSalt)
-	fmt.Println("debug", debug)
    
-	openDatabase(dbName, dbUser, dbPassword)
-	defer closeDatabase()
+	OpenDatabase(dbName, dbUser, dbPassword)
+	defer CloseDatabase()
+	
+	InitSecurity("very-secret", "a-lot-secret-hah") // TODO: pass in thru flags
 
-	http.HandleFunc("/",				frontPageHandler)
-	http.HandleFunc("/test/",			testHandler)
-	http.HandleFunc("/login/",			loginHandler)
-	http.HandleFunc("/forgotPassword/", forgotPasswordHandler)
-	http.HandleFunc("/register/",		registerHandler)
-	http.HandleFunc("/registerDetails/",registerDetailsHandler)
-	http.HandleFunc("/ip/",				ipHandler)
+	http.HandleFunc("/",				hwrap(frontPageHandler))
+	http.HandleFunc("/test/",			hwrap(testHandler))
+	http.HandleFunc("/login/",			hwrap(loginHandler))
+	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
+	http.HandleFunc("/register/",		hwrap(registerHandler))
+	http.HandleFunc("/registerDetails/",hwrap(registerDetailsHandler))
+	http.HandleFunc("/registerDone/",	hwrap(registerDoneHandler))
+	http.HandleFunc("/ip/",				hwrap(ipHandler))
 	
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 		

@@ -32,7 +32,19 @@ var (
             "spellcheck": "false",
             "autocapitalize": "off",
         }),
-    )      
+    )
+    emailOrUsername = gforms.NewTextField(
+		"email or username",
+		gforms.Validators{
+			gforms.Required(),
+			gforms.MaxLengthValidator(345),
+		},
+		gforms.TextInputWidget(map[string]string{
+			"autocorrect": "off",
+			"spellcheck": "false",
+			"autocapitalize": "off",
+		}),
+    )
     password = gforms.NewTextField(
         "password",
         gforms.Validators{
@@ -168,15 +180,16 @@ var (
 
 // === FORM POST DATA ===
 type LoginData struct {
-    Email                   string `gforms:"email"`
+    EmailOrUsername         string `gforms:"email or username"`
     Password                string `gforms:"password"`
-    RememberMe              string `gforms:"remember me"`
+    RememberMe              bool   `gforms:"remember me"`
 }
 
 type RegisterData struct {
     Email                	string `gforms:"email"`
     Username				string `gforms:"username"`
     Password                string `gforms:"password"`
+    RememberMe              bool   `gforms:"remember me"`
 }
 
 type RegisterDetailsData struct {
@@ -198,7 +211,7 @@ type RegisterDetailsData struct {
 // === FORMS ===
 var (
     LoginForm = gforms.DefineForm(gforms.NewFields(
-        email,
+        emailOrUsername,
         password,
         rememberMe,
     ))
@@ -206,6 +219,7 @@ var (
         email,
         username,
         password,
+        rememberMe,
     ))
     RegisterDetailsForm = gforms.DefineForm(gforms.NewFields(
         // name

@@ -7,30 +7,38 @@ CREATE SCHEMA votezilla;
 
 CREATE TABLE votezilla.User (
     Id              SERIAL PRIMARY KEY,   
-    Email           TEXT        UNIQUE NOT NULL     -- UNIQUE implies an index
-    PasswordHash    BIGINT[4]   NOT NULL            -- Store a 256-byte hash of the password   
+    Email           TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
+    Username        TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
+    PasswordHash    BIGINT[4]   UNIQUE NOT NULL, -- Store a 256-byte hash of the password   
     
-    Username        TEXT        UNIQUE,             -- UNIQUE implies an index
     Name            TEXT,
     
-    VerifiedEmail   BOOL        DEFAULT False;
-    
     // Details
-    Country         TEXT;
-    ZipCode         TEXT;
-    City            TEXT;
+    Country         TEXT,
+    Location		TEXT,
     
-    BirthYear       INT;
-    Gender          TEXT;
-    Party           TEXT;
-    Race            TEXT;
-    Marital         TEXT;
-    Schooling       TEXT;
+    BirthYear       INT,
+    Gender          TEXT,
+    Party           TEXT,
+    Race            TEXT,
+    Marital         TEXT,
+    Schooling       TEXT,
     
-    OtherGender     TEXT;
-    OtherParty      TEXT;
-    OtherRace       TEXT;
-)
+    // Details - other field
+    OtherGender     TEXT,
+    OtherParty      TEXT,
+    OtherRace       TEXT,
+    
+    // Verification status
+    VerifiedEmail   BOOL        DEFAULT False
+);
+
+CREATE TABLE votezilla.Session (
+	Id				BIGINT		PRIMARY KEY UNIQUE NOT NULL,
+	SecureCookie 	BIGINT[3]	NOT NULL,
+	UserId       	INTEGER		NOT NULL,
+	Expiration 		TIMESTAMP	NOT NULL
+);
 
 
 --
