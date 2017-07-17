@@ -10,6 +10,7 @@ can use frame within div for swooshing login pop-ups
 Preventing XSRF:
 
 OK KEEP IT SIMPLE:
+*) ?: this can be simplified by just using the secure cookie, no Session database at all!
 *) onLoseFocus should delete secure cookie, onGainFocus should renew it, via JavaScript: 
 	http://www.elated.com/articles/javascript-and-cookies/
 	https://stackoverflow.com/questions/7389328/detect-if-browser-tab-has-focus

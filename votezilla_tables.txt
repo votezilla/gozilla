@@ -33,13 +33,6 @@ CREATE TABLE votezilla.User (
     VerifiedEmail   BOOL        DEFAULT False
 );
 
-CREATE TABLE votezilla.Session (
-	Id				BIGINT		PRIMARY KEY UNIQUE NOT NULL,
-	SecureCookie 	BIGINT[3]	NOT NULL,
-	UserId       	INTEGER		NOT NULL,
-	Expiration 		TIMESTAMP	NOT NULL
-);
-
 
 --
 
