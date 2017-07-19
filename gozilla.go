@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"	
 	"fmt"
 	"github.com/lib/pq"
@@ -309,7 +310,26 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(resp.Body)
 	check(err)
 	
+	type News struct {
+		Status	string
+		Source	string
+		SortBy	string
+		Articles []struct {
+			Author		string
+			Title		string
+			Description	string
+			Url			string
+			UrlToImage	string
+			PublishedAt	string
+		}
+	}
+	
+	var news News
+	err = json.Unmarshal(body, &news)
+	check(err)
+	
 	fmt.Fprintf(w, string(body))
+	fmt.Fprintf(w, "\n\nNews: %#v", news)
 }
 
 
