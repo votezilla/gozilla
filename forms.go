@@ -2,7 +2,10 @@
 package main
 
 import (
+	"errors"
     "github.com/votezilla/gforms"
+	"strconv"
+	"time"
 )
 
 // === FIELDS ===
@@ -21,7 +24,7 @@ var (
             "autocapitalize": "off",
         }),
     )
-    username = gforms.NewTextField(
+    username = gforms.NewTextField( // TODO: validate the username does not contain the '@' symbol, and is not a substring of the email.
         "username",
         gforms.Validators{
             gforms.Required(),
@@ -79,19 +82,33 @@ var (
         gforms.Validators{
             gforms.Required(),
             gforms.MaxLengthValidator(100),
-            gforms.FullNameValidator(),
+            gforms.RegexpValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe')."),
         },
         gforms.TextInputWidget(map[string]string{
             "autocorrect": "off",
             "spellcheck": "false",
         }),
     )
-    birthYear = gforms.NewTextField( //NewFloatField(
+    birthYear = gforms.NewTextField( //TODO: validate date
         "year of birth",
         gforms.Validators{
             gforms.Required(),
             gforms.MinLengthValidator(4),
             gforms.MaxLengthValidator(4),
+            gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
+				printVal(`fo.Data`, fo.Data)
+				year, err := strconv.Atoi(fo.Data["year of birth"].RawStr)
+				if err != nil {
+					return errors.New("Please enter a valid year.")
+				}
+				currentYear := time.Now().Year()
+				age := currentYear - year // true age would be either this expression, or this minus 1
+				if age < 0 || age > 200 {
+					return errors.New("Please enter the year you were born.")
+				} else {
+					return nil
+				}
+			}),
     })
     country = gforms.NewTextField(
         "country",
@@ -100,11 +117,20 @@ var (
         },
         gforms.SelectWidgetEasy(countries),
     )
-    location = gforms.NewTextField(
+    location = gforms.NewTextField( // TODO: validate countries with a state to have ',', add JS to set location to US by default... eventually base it on the user's IP address.
         "location",
         gforms.Validators{
             gforms.Required(),
             gforms.MaxLengthValidator(60),
+            gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
+				printVal("fo.Data", fo.Data)
+				if fo.Data["country"].RawStr == "US" {
+					rvl := gforms.RegexpValidator(`^\d{5}(?:[-\s]\d{4})?$`, "Invalid zip code")
+					return rvl.Validate(fi, fo)
+				} else {
+					return nil // Only validating US zip codes for now
+				}
+			}),
     })
     gender = gforms.NewTextField(
         "gender",

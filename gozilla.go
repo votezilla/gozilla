@@ -6,6 +6,7 @@ import (
 	"flag"	
 	"fmt"
 	"github.com/lib/pq"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML
@@ -297,6 +298,23 @@ func registerDoneHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// display news
+//
+///////////////////////////////////////////////////////////////////////////////
+func newsHandler(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get("https://newsapi.org/v1/articles?source=the-next-web&sortBy=latest&apiKey=1ff33b5f808b474384aa5fde75844e6b")
+	check(err)
+	defer resp.Body.Close()
+	
+	body, err := ioutil.ReadAll(resp.Body)
+	check(err)
+	
+	fmt.Fprintf(w, string(body))
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // TODO: get user's ip address
 //       1) To log in the database when user is first created.
 //		 2) To set their location in registerDetails and save them time.
@@ -358,6 +376,7 @@ func main() {
 	http.HandleFunc("/registerDetails/",hwrap(registerDetailsHandler))
 	http.HandleFunc("/registerDone/",	hwrap(registerDoneHandler))
 	http.HandleFunc("/ip/",				hwrap(ipHandler))
+	http.HandleFunc("/news/",			hwrap(newsHandler))
 	
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 		

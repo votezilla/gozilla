@@ -20,8 +20,7 @@ function hasPostalCode(countryCode) {
 countryField  = document.getElementsByName("country")[0];
 locationLabel = document.getElementById("location label");
 
-countryField.onchange = function() {
-	// TODO: lookup country from the country selecter, then call hasPostalCode and hasState to determine label!!!
+countryField.onchange = function() {  // TODO: set location to default to 'US' via JavaScript.
 	var country = countryField.value;
 
 	if (hasPostalCode(country))
