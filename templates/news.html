@@ -1,0 +1,83 @@
+{{define "body"}}
+<center>
+	<a href="/login">login</a> &nbsp; <a href="/register">register</a>
+
+	<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
+		<tr>
+			<td bgcolor="#ff6600">
+				<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+					<tr>
+						<td style="width:18px;padding-right:4px"><a href="http://www.ycombinator.com"><img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;"></a></td>
+						<td style="line-height:12pt; height:10px;"><span class="pagetop"><b class="hnname"><a href="news">Hacker News</a></b>
+							<span class="topsel"><a href="newest">new</a></span> | <a href="newcomments">comments</a> | <a href="show">show</a> | <a href="ask">ask</a> | <a href="jobs">jobs</a> | <a href="submit">submit</a>				</span>
+						</td>
+						<td style="text-align:right;padding-right:4px;"><span class="pagetop">
+							<a href="login?goto=newest">login</a>
+							</span>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr style="height:10px"></tr>
+		<tr>
+			<td>
+				<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
+
+					<tr class='athing' id='14569339'>
+						<td align="right" valign="top" class="title"><span class="rank">1.</span></td>
+						<td valign="top" class="votelinks">
+							<center>
+								<a id='up_14569339' href='vote?id=14569339&amp;how=up&amp;goto=newest'>
+									<div class='votearrow' title='upvote'></div>
+								</a>
+							</center>
+						</td>
+						<td class="title"><a href="http://www.ua-foundation.org/open-access-challenge-monitoring-policy-compliance/" class="storylink" rel="nofollow">Open Access and the challenge of monitoring policy compliance</a><span class="sitebit comhead"> (<a href="from?site=ua-foundation.org"><span class="sitestr">ua-foundation.org</span></a>)</span></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="subtext">
+							<span class="score" id="score_14569339">1 point</span> by <a href="user?id=unitedacademics" class="hnuser">unitedacademics</a> <span class="age"><a href="item?id=14569339">0 minutes ago</a></span> <span id="unv_14569339"></span> | <a href="hide?id=14569339&amp;goto=newest">hide</a> | <a href="https://hn.algolia.com/?query=Open%20Access%20and%20the%20challenge%20of%20monitoring%20policy%20compliance&sort=byDate&dateRange=all&type=story&storyText=false&prefix&page=0" class="hnpast">past</a> | <a href="https://www.google.com/search?q=Open%20Access%20and%20the%20challenge%20of%20monitoring%20policy%20compliance">web</a> | <a href="item?id=14569339">discuss</a>
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+
+					<tr class="morespace" style="height:10px"></tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="title"><a href="newest?next=14569097&amp;n=31" class="morelink" rel="nofollow">More</a></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<img src="/static/s.gif" height="10" width="0">
+				<table width="100%" cellspacing="0" cellpadding="1">
+					<tr>
+						<td bgcolor="#ff6600"></td>
+					</tr>
+				</table>
+				<br>
+				<center>
+					<span class="yclinks"><a href="newsguidelines.html">Guidelines</a>
+					| <a href="newsfaq.html">FAQ</a>
+					| <a href="mailto:hn@ycombinator.com">Support</a>
+					| <a href="https://github.com/HackerNews/API">API</a>
+					| <a href="security.html">Security</a>
+					| <a href="lists">Lists</a>
+					| <a href="bookmarklet.html">Bookmarklet</a>
+					| <a href="dmca.html">DMCA</a>
+					| <a href="http://www.ycombinator.com/apply/">Apply to YC</a>
+					| <a href="mailto:hn@ycombinator.com">Contact</a></span><br><br>
+					<form method="get" action="//hn.algolia.com/">Search:
+						<input type="text" name="q" value="" size="17" autocorrect="off" spellcheck="false" autocapitalize="off" autocomplete="false">
+					</form>
+				</center>
+			</td>
+		</tr>
+	</table>
+</center>
+<script type='text/javascript' src='/static/hn.js?t7bmj4qFsjfrTe8ELyRy'></script>
+{{end}}

@@ -54,16 +54,16 @@ func parseTemplateFiles() {
 	templates = make(map[string]*template.Template)
 	
 	// HTML templates
-	templates["test_index"]		= template.Must(template.ParseFiles(T("test_base"), T("test_index")))
-	templates["frontPage"]		= template.Must(template.ParseFiles(T("base"), T("frontPage")))
 	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form")))
+	templates["frontPage"]		= template.Must(template.ParseFiles(T("base"), T("frontPage")))
+	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("news")))
 	
 	// Javascript snippets
 	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
 }
 
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
-	log.Printf("executeTemplate: " + templateName)
+	//log.Printf("executeTemplate: " + templateName)
 	
 	if flags.debug != "" {
 		parseTemplateFiles()
@@ -77,7 +77,7 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 
 // writes to io.Writer instead of http.ResponseWriter
 func renderTemplate(w io.Writer, templateName string, data interface{}) {
-	log.Printf("renderTemplate: " + templateName)
+	//log.Printf("renderTemplate: " + templateName)
 	
 	if flags.debug != "" {
 		parseTemplateFiles()

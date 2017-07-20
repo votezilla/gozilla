@@ -17,7 +17,11 @@ var (
 	err		 	error
 )
 
-
+// Template arguments for webpage template.
+type PageArgs struct {
+	Title			string
+	Script			string
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -27,26 +31,11 @@ var (
 func frontPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("frontPageHandler")
 	
-	var args struct {
-		Title string
+	args := PageArgs {
+		Title: "votezilla",
 	}
 	args.Title = "votezilla"
 	executeTemplate(w, "frontPage", args)
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// test
-//
-///////////////////////////////////////////////////////////////////////////////
-func testHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("testHandler")
-	
-	var args struct {
-		Title string
-	}
-	args.Title = "votezilla"
-	executeTemplate(w, "test_index", args)
 }
 
 
@@ -64,12 +53,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// handle GET, or invalid form data from POST...	
 	{	
 		args := FormArgs {
-			Title: "Login",
+			PageArgs: PageArgs{Title: "Login"},
 			Footer: `<a href="/forgotPassword">Forgot your password?</a>`,
 			Forms: []TableForm{{
 				Form: form,
 				CallToAction: "Login",
-		}}}
+			}}}
 		executeTemplate(w, "form", args)
 	}
 }
@@ -142,7 +131,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	// handle GET, or invalid form data from POST...	
 	{		
 		args := FormArgs {
-			Title: "Register",
+			PageArgs: PageArgs{Title: "Register"},
 			Forms: []TableForm{
 				tableForm,
 		}}
@@ -245,11 +234,12 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		
 		args := FormArgs {
-			Title: "Voter Information",
+			PageArgs: PageArgs{
+				Title: "Voter Information",
+				Script: scriptString},
 			Congrats: congrats,
 			Introduction: "A good voting system ensures everyone is represented.<br>" +
 			              "Your information is confidential.",
-			Script: scriptString,
 			Forms: []TableForm{{
 				Form: form,
 				CallToAction: "Submit",
@@ -308,7 +298,12 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &news)
 	check(err)
 	
-	fmt.Fprintf(w, string(body))
+	args := PageArgs {
+		Title: "votezilla - News",
+	}
+	executeTemplate(w, "news", args)
+	
+	//fmt.Fprintf(w, string(body))
 	fmt.Fprintf(w, "\n\nNews: %#v", news)
 }
 
@@ -368,7 +363,6 @@ func main() {
 	InitSecurity()
 
 	http.HandleFunc("/",				hwrap(frontPageHandler))
-	http.HandleFunc("/test/",			hwrap(testHandler))
 	http.HandleFunc("/login/",			hwrap(loginHandler))
 	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
 	http.HandleFunc("/register/",		hwrap(registerHandler))

@@ -265,18 +265,18 @@ var (
     ))
 ) // var
 
-// === FORM TYPES ===
+// === TYPES ===
 type TableForm struct {
 	Form			*gforms.FormInstance
 	CallToAction	string
 	AdditionalError string
 }
 
-type FormArgs struct{
+// Template arguments for form webpage template.
+type FormArgs struct {
+	PageArgs
 	Forms			[]TableForm
-	Title			string
 	Congrats		string
 	Introduction	string
 	Footer			string
-	Script			string
 }
