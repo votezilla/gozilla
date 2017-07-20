@@ -265,7 +265,7 @@ var (
     ))
 ) // var
 
-// === TYPES ===
+// === FORM TYPES ===
 type TableForm struct {
 	Form			*gforms.FormInstance
 	CallToAction	string

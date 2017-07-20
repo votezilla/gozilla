@@ -23,9 +23,10 @@
 		<tr>
 			<td>
 				<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
-
+				{{- range $i, $article := .Articles}}
 					<tr class='athing' id='14569339'>
-						<td align="right" valign="top" class="title"><span class="rank">1.</span></td>
+						<td rowspan="3"><a href="{{$article.Url}}" class="storylink" rel="nofollow"><img src="{{$article.UrlToImage}}" height="50" width="50"></a></td>
+						<td align="right" valign="top" class="title"><span class="rank">{{$article.Index}}.</span></td>
 						<td valign="top" class="votelinks">
 							<center>
 								<a id='up_14569339' href='vote?id=14569339&amp;how=up&amp;goto=newest'>
@@ -33,7 +34,7 @@
 								</a>
 							</center>
 						</td>
-						<td class="title"><a href="http://www.ua-foundation.org/open-access-challenge-monitoring-policy-compliance/" class="storylink" rel="nofollow">Open Access and the challenge of monitoring policy compliance</a><span class="sitebit comhead"> (<a href="from?site=ua-foundation.org"><span class="sitestr">ua-foundation.org</span></a>)</span></td>
+						<td class="title"><a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a><span class="sitebit comhead"> (<a href="from?site={{$article.Host}}"><span class="sitestr">{{$article.Host}}</span></a>)</span></td>
 					</tr>
 					<tr>
 						<td colspan="2"></td>
@@ -42,7 +43,7 @@
 						</td>
 					</tr>
 					<tr class="spacer" style="height:5px"></tr>
-
+				{{- end}}
 					<tr class="morespace" style="height:10px"></tr>
 					<tr>
 						<td colspan="2"></td>

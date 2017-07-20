@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML
 )
 
@@ -270,9 +271,12 @@ func registerDoneHandler(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////
 //
 // display news
+// TODO: santize (html- and url-escape the arguments)
+//       use a caching, resizing image proxy for the images.
 //
 ///////////////////////////////////////////////////////////////////////////////
 func newsHandler(w http.ResponseWriter, r *http.Request) {
+	// Note: I should be passing in category, language, and country parameters.
 	resp, err := http.Get("https://newsapi.org/v1/articles?source=the-next-web&sortBy=latest&apiKey=1ff33b5f808b474384aa5fde75844e6b")
 	check(err)
 	defer resp.Body.Close()
@@ -280,28 +284,54 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(resp.Body)
 	check(err)
 	
-	type News struct {
-		Status	string
-		Source	string
-		SortBy	string
-		Articles []struct {
-			Author		string
-			Title		string
-			Description	string
-			Url			string
-			UrlToImage	string
-			PublishedAt	string
-		}
+	// Parse the News API json.
+	type Article struct {
+		Author		string
+		Title		string
+		Description	string
+		Url			string
+		UrlToImage	string
+		PublishedAt	string
 	}
-	
+	type News struct {
+		Status		string
+		Source		string
+		SortBy		string
+		Articles	[]Article
+	}
 	var news News
 	err = json.Unmarshal(body, &news)
 	check(err)
 	
-	args := PageArgs {
-		Title: "votezilla - News",
+	// Prepare the news article information.
+	type ArticleArg struct {
+		Article
+		Index		int
+		Host		string
 	}
-	executeTemplate(w, "news", args)
+	articleArgs := make([]ArticleArg, len(news.Articles))
+	for i, article := range news.Articles {
+		// Copy the article information.
+		articleArgs[i].Article		= article
+	
+		// Set the index
+		articleArgs[i].Index = i + 1
+		
+		// Parse the hostname.
+		u, err := url.Parse(article.Url)
+		check(err)
+		articleArgs[i].Host	= u.Host
+	}
+	
+	// Render the news articles.
+	newsArgs := struct {
+		PageArgs
+		Articles	[]ArticleArg
+	}{
+		PageArgs: PageArgs{Title: "votezilla - News"},
+		Articles: articleArgs,
+	}
+	executeTemplate(w, "news", newsArgs)
 	
 	//fmt.Fprintf(w, string(body))
 	fmt.Fprintf(w, "\n\nNews: %#v", news)
