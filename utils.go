@@ -65,7 +65,7 @@ func parseTemplateFiles() {
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
 	log.Printf("executeTemplate: " + templateName)
 	
-	if debug != "" {
+	if flags.debug != "" {
 		parseTemplateFiles()
 	}
 
@@ -79,7 +79,7 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 func renderTemplate(w io.Writer, templateName string, data interface{}) {
 	log.Printf("renderTemplate: " + templateName)
 	
-	if debug != "" {
+	if flags.debug != "" {
 		parseTemplateFiles()
 	}
 

@@ -11,12 +11,12 @@ var (
 )
 	
 // Open database.
-func OpenDatabase(dbName, dbUser, dbPassword string) {
+func OpenDatabase() {
 	print("OpenDatabase")
 	
 	// Connect to database
 	dbInfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
-		dbUser, dbPassword, dbName)  
+		flags.dbUser, flags.dbPassword, flags.dbName)  
 
 	fmt.Printf("dbInfo: %s", dbInfo)
 

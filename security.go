@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
-	"fmt"
 	"github.com/gorilla/securecookie"
 	"net/http"
 	"strconv"
@@ -29,20 +28,17 @@ func packInt256(buffer []byte) (q int256) {
 }    	
 
 // Hashes password with salt into [4]int64 and returns result.
-func GetPasswordHash256(password, salt string) int256 {
-	passwordHash := sha256.Sum256([]byte(password + dbSalt))
+func GetPasswordHash256(password string) int256 {
+	passwordHash := sha256.Sum256([]byte(password + flags.dbSalt))
 	return packInt256(passwordHash[:])
 }
 
 // Sets a secure browser cookie.
 func setCookie(w http.ResponseWriter, r *http.Request, name string, value string, expiration time.Time, encrypt bool) {
-	fmt.Printf("setCookie %s -> %s\n", name, value)
-	
 	if encrypt {
 		encrypted, err := cookieCypher.Encode(name, value)
 		value = encrypted
 		check(err)
-		fmt.Printf("setCookie encrypting to %s\n", value)
 	}
 
 	cookie := http.Cookie {
@@ -55,14 +51,11 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 		Path	: "/",
 	}
 
-	printVal("setCookie - cookie", cookie)
-
 	http.SetCookie(w, &cookie)
 }
 
 // Gets a secure cookie
 func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
-	print("getCookie")
 	cookie, err := r.Cookie(name)
 	if err != nil { // likely ErrNoCookie
 		return "", err
@@ -70,9 +63,6 @@ func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
 	
 	if encrypted {
 		var decoded string
-		fmt.Printf("getCookie - decoding cookie name:'%s' cookie.Value:'%s'",
-			name,
-			cookie.Value)
 		err := cookieCypher.Decode(name, cookie.Value, &decoded)
 		check(err)
 		return decoded, err
@@ -102,24 +92,17 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userId int, rememberM
 
 // Returns the User.Id if the secure cookie exists, ok=false otherwise.
 func GetSessionUserId(r *http.Request) (id int, ok bool) {
-	print("\nGetSessionUserId")
-	
 	cookie, err := getCookie(r, kUserId, true)
-	if err != nil { // missing or forged cookie
-		fmt.Println("Cookie dos not exist", err)
+	if err != nil { // Missing or forged cookie
 		return -1, false
 	}
-	
-	fmt.Printf("cookie: '%s'\n", cookie)
 	
 	userId, err := strconv.Atoi(cookie)
-	
-	if err != nil {
-		fmt.Println("Cannot parse cookie", err)
+
+	if err != nil { // Cannot parse cookie
 		return -1, false
 	}
 	
-	fmt.Printf("useId: %d\n", userId) 
 	return userId, true
 }
 
@@ -136,6 +119,6 @@ func RefreshSession(w http.ResponseWriter, r *http.Request) {
 }
 
 // Should be called from init()
-func InitSecurity(hashKey, blockKey string) {
-	cookieCypher = securecookie.New([]byte(hashKey), []byte(blockKey))	
+func InitSecurity() {
+	cookieCypher = securecookie.New([]byte(flags.secureCookieHashKey), []byte(flags.secureCookieBlockKey))	
 }

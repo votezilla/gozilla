@@ -4,7 +4,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"flag"	
 	"fmt"
 	"github.com/lib/pq"
 	"io/ioutil"
@@ -16,28 +15,9 @@ import (
 var (
 	templates   map[string]*template.Template
 	err		 	error
-	
-	debug	 	string
-	
-	dbSalt		= "SALT" // Database salt, for storing passwords safe from database leaks.
 )
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// flags
-//
-///////////////////////////////////////////////////////////////////////////////
-func parseCommandLineFlags() (string, string, string, string, string) {
-	// Grab command line flags
-	f1 := flag.String("dbname",		"votezilla",	"Database to connect to")	  ; 
-	f2 := flag.String("dbuser",		"",				"Database user")			   ; 
-	f3 := flag.String("dbpassword", "",				"Database password")		   ; 
-	f4 := flag.String("dbsalt",		"",				"Database salt (for security)"); 
-	f5 := flag.String("debug",		"",				"debug=true for development")  ; 
-	flag.Parse()
-	
-	return *f1, *f2, *f3, *f4, *f5
-}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -47,7 +27,7 @@ func parseCommandLineFlags() (string, string, string, string, string) {
 func frontPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("frontPageHandler")
 	
-	var args struct{
+	var args struct {
 		Title string
 	}
 	args.Title = "votezilla"
@@ -62,7 +42,7 @@ func frontPageHandler(w http.ResponseWriter, r *http.Request) {
 func testHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("testHandler")
 	
-	var args struct{
+	var args struct {
 		Title string
 	}
 	args.Title = "votezilla"
@@ -121,7 +101,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		form.MapTo(&data)
 
 		// Use a hashed password for security.
-		passwordHashInts := GetPasswordHash256(data.Password, dbSalt)
+		passwordHashInts := GetPasswordHash256(data.Password)
 
 		// TODO: Gotta send verification email... user doesn't get created until email gets verified.
 		// TODO: Verify email and set emailverified=True when email is verified
@@ -380,13 +360,12 @@ func init() {
 func main() {
 	log.Printf("main")
 	
-	var dbName, dbUser, dbPassword string
-	dbName, dbUser, dbPassword, dbSalt, debug = parseCommandLineFlags()
+	parseCommandLineFlags()
    
-	OpenDatabase(dbName, dbUser, dbPassword)
+	OpenDatabase()
 	defer CloseDatabase()
 	
-	InitSecurity("very-secret", "a-lot-secret-hah") // TODO: pass in thru flags
+	InitSecurity()
 
 	http.HandleFunc("/",				hwrap(frontPageHandler))
 	http.HandleFunc("/test/",			hwrap(testHandler))
