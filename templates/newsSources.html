@@ -1,0 +1,18 @@
+{{define "body"}}
+<h1>News sources</h1>
+<div class="callout callout-info">
+	<p style="margin-bottom:0"><strong>News API</strong> can provide live headlines from 70 sources. Click for more details.</p>
+</div>
+<div class="sources-container row" style="margin-bottom:40px; ">
+		<div class="col-md-6 source">
+			{{- range $_, $source := .NewsSources}}
+				<img alt="{{$source.Name}}" class="icon" src="{{$source.ImageUrl}}" />
+				<div class="name" title="{{$source.Name}}">
+					{{$source.Name}}
+				</div>
+				<div><kbd title="id: {{$source.Id}}">{{$source.Id}}</kbd></div>
+			{{end -}}
+		</div>
+</div>
+{{end}}
+
