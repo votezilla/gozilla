@@ -41,6 +41,7 @@ type ArticleArg struct {
 	Article
 	Index		int
 	Host		string
+	Category	string
 }
 
 var (
@@ -379,6 +380,9 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		u, err := url.Parse(article.Url)
 		check(err)
 		articleArgs[i].Host	= u.Host
+		
+		// TODO: Set the category from the source category, and get the sources from the /sources News API call.
+		articleArgs[i].Category = "sports"
 	}
 	mutex.RUnlock()
 	
