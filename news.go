@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/url"
 	"math/rand"
+	"sync"
+	"time"
 )
 
 // A news source to request the news from.
@@ -42,12 +44,10 @@ type ArticleArg struct {
 }
 
 var (
-//	Nums = []int{6, 7, 8}
-//	
-//	Source = NewsSource{
-//		"ABC News (AU)",
-//		"https://icons.better-idea.org/icon?url=http://www.abc.net.au/news&size=70..120..200",
-//		"abc-news-au"}
+	// newsServer populates the articles.
+	newsServerRunning = false
+	mutex = &sync.RWMutex{}
+	articles []Article
 	
 	NewsSources = []NewsSource{
 		{"ABC News (AU)",
@@ -300,25 +300,44 @@ func fetchNews(newsSource string, c chan []Article) {
 	c <- news.Articles
 	//close(c)
 }
+
+// Every 5 minutes, fetches the latest news.
+func newsServer() {
+	newsServerRunning = true
+	defer func(){newsServerRunning = false}()
+	
+	for {
+		print("========================================")
+		print("============ FETCHING NEWS =============")
+		print("========================================\n")
+		
+		c := make(chan []Article)
+
+		go fetchNews("bbc-news", c)
+		go fetchNews("the-next-web", c)
+
+		newArticles := <-c
+		newArticles = append(newArticles, <-c...)
+		
+		mutex.Lock()
+		articles = newArticles
+		mutex.Unlock()
+		
+		printVal("artices", articles)
+	
+		time.Sleep(5 * time.Minute)
+	}
+}
+
 func newsHandler(w http.ResponseWriter, r *http.Request) {
-	c := make(chan []Article)
+	if (!newsServerRunning) {
+		go newsServer()
+	}
 	
-	go fetchNews("bbc-news", c)
-	go fetchNews("the-next-web", c)
-	
-	var articles []Article
-	articles = <-c
-	articles = append(articles, <-c...)
-	
-	printVal("artices", articles)
-	
-	//dest := make([]int, len(src))
 	perm := rand.Perm(len(articles))
-	//for i, v := range perm {
-	//    dest[v] = src[i]
-	//}
 	
 	articleArgs := make([]ArticleArg, len(articles))
+	mutex.RLock()
 	for i, _ := range articles {
 		article := articles[perm[i]] // shuffle the article order (to mix between sources)
 		
@@ -332,7 +351,8 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		u, err := url.Parse(article.Url)
 		check(err)
 		articleArgs[i].Host	= u.Host
-	}	
+	}
+	mutex.RUnlock()
 	
 	// Render the news articles.
 	newsArgs := struct {
@@ -347,6 +367,13 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, string(body))
 	//fmt.Fprintf(w, "\n\nNews: %#v", news)
 }
+
+func InitNews() {
+	if (!newsServerRunning) {
+		go newsServer()
+	}	
+}
+
 /*
 A goroutine is a lightweight thread managed by the Go runtime.
 

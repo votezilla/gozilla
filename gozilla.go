@@ -314,11 +314,13 @@ func main() {
 	
 	parseCommandLineFlags()
    
+	InitNews()
+	
 	OpenDatabase()
-	defer CloseDatabase()
+	defer CloseDatabase()	
 	
 	InitSecurity()
-
+	
 	http.HandleFunc("/",				hwrap(frontPageHandler))
 	http.HandleFunc("/login/",			hwrap(loginHandler))
 	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
