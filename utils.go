@@ -31,7 +31,7 @@ func print(text string) {
 }
 
 func printVal(label string, v interface{}) {
-	log.Printf("%s: %v", label, v)
+	log.Printf("%s: %#v", label, v)
 }
 
 func printValX(label string, v interface{}) {

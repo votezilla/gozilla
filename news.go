@@ -6,16 +6,17 @@ import (
 	"net/http"
 	"io/ioutil"
 	"net/url"
-	//"text/template" // Faster than "html/template", and less of a pain for safeHTML
+	"math/rand"
 )
 
+// A news source to request the news from.
 type NewsSource struct {
 	Name		string
 	ImageUrl	string
 	Id			string
 }
 
-// JSON format of an article, also used to render the article in HTML.
+// JSON-parsed format of an article.
 type Article struct {
 	Author		string
 	Title		string
@@ -23,6 +24,14 @@ type Article struct {
 	Url			string
 	UrlToImage	string
 	PublishedAt	string
+}
+
+// JSON-parsed format of a news request.
+type News struct {
+	Status		string
+	Source		string
+	SortBy		string
+	Articles	[]Article
 }
 
 // For rendering the news article information.
@@ -260,6 +269,84 @@ var (
 //       use a caching, resizing image proxy for the images.
 //
 //////////////////////////////////////////////////////////////////////////////
+func fetchNews(newsSource string, c chan []Article) {
+	// Note: I should be passing in category, language, and country parameters.
+	newsRequestUrl := "https://newsapi.org/v1/articles"
+	//newsRequestUrl += "?sortBy=latest"
+	newsRequestUrl += "?apiKey=" + flags.newsAPIKey //1ff33b5f808b474384aa5fde75844e6b
+	newsRequestUrl += "&source=" + newsSource //the-next-web&
+	
+	printVal("newsRequestUrl", newsRequestUrl)
+	
+	resp, err := http.Get(newsRequestUrl)
+	check(err)
+	defer resp.Body.Close()
+	
+	body, err := ioutil.ReadAll(resp.Body)
+	check(err)
+	
+	// Parse the News API json.
+	var news News
+	err = json.Unmarshal(body, &news)
+	check(err)
+	
+	// News request returned an error.
+	if news.Status != "ok" {
+		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, body)
+		c <- []Article{}
+		return
+	}
+	
+	c <- news.Articles
+	//close(c)
+}
+func newsHandler(w http.ResponseWriter, r *http.Request) {
+	c := make(chan []Article)
+	
+	go fetchNews("bbc-news", c)
+	go fetchNews("the-next-web", c)
+	
+	var articles []Article
+	articles = <-c
+	articles = append(articles, <-c...)
+	
+	printVal("artices", articles)
+	
+	//dest := make([]int, len(src))
+	perm := rand.Perm(len(articles))
+	//for i, v := range perm {
+	//    dest[v] = src[i]
+	//}
+	
+	articleArgs := make([]ArticleArg, len(articles))
+	for i, _ := range articles {
+		article := articles[perm[i]] // shuffle the article order (to mix between sources)
+		
+		// Copy the article information.
+		articleArgs[i].Article		= article
+
+		// Set the index
+		articleArgs[i].Index = i + 1
+
+		// Parse the hostname.
+		u, err := url.Parse(article.Url)
+		check(err)
+		articleArgs[i].Host	= u.Host
+	}	
+	
+	// Render the news articles.
+	newsArgs := struct {
+		PageArgs
+		Articles	[]ArticleArg
+	}{
+		PageArgs: PageArgs{Title: "votezilla - News"},
+		Articles: articleArgs,
+	}
+	executeTemplate(w, "news", newsArgs)
+	
+	//fmt.Fprintf(w, string(body))
+	//fmt.Fprintf(w, "\n\nNews: %#v", news)
+}
 /*
 A goroutine is a lightweight thread managed by the Go runtime.
 
@@ -354,64 +441,6 @@ func main() {
 	}
 }
 */
-func fetchNews(newsSource string) []ArticleArg {
-	// Note: I should be passing in category, language, and country parameters.
-	newsRequestUrl := "https://newsapi.org/v1/articles"
-	newsRequestUrl += "?sortBy=latest"
-	newsRequestUrl += "&apiKey=" + flags.newsAPIKey //1ff33b5f808b474384aa5fde75844e6b
-	newsRequestUrl += "&source=" + newsSource //the-next-web&
-	
-	resp, err := http.Get(newsRequestUrl)
-	check(err)
-	defer resp.Body.Close()
-	
-	body, err := ioutil.ReadAll(resp.Body)
-	check(err)
-	
-	// Parse the News API json.
-	type News struct {
-		Status		string
-		Source		string
-		SortBy		string
-		Articles	[]Article
-	}
-	var news News
-	err = json.Unmarshal(body, &news)
-	check(err)
-	
-	articleArgs := make([]ArticleArg, len(news.Articles))
-	for i, article := range news.Articles {
-		// Copy the article information.
-		articleArgs[i].Article		= article
-	
-		// Set the index
-		articleArgs[i].Index = i + 1
-		
-		// Parse the hostname.
-		u, err := url.Parse(article.Url)
-		check(err)
-		articleArgs[i].Host	= u.Host
-	}	
-	
-	return articleArgs
-}
-func newsHandler(w http.ResponseWriter, r *http.Request) {
-	articleArgs := fetchNews("the-next-web")
-	
-	// Render the news articles.
-	newsArgs := struct {
-		PageArgs
-		Articles	[]ArticleArg
-	}{
-		PageArgs: PageArgs{Title: "votezilla - News"},
-		Articles: articleArgs,
-	}
-	executeTemplate(w, "news", newsArgs)
-	
-	//fmt.Fprintf(w, string(body))
-	//fmt.Fprintf(w, "\n\nNews: %#v", news)
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // display news sources
