@@ -49,7 +49,7 @@ var (
 	mutex = &sync.RWMutex{}
 	articles []Article
 	
-	NewsSources = []NewsSource{
+	newsSources = []NewsSource{
 		{"ABC News (AU)",
 		"https://icons.better-idea.org/icon?url=http://www.abc.net.au/news&size=70..120..200",
 		"abc-news-au"},
@@ -262,11 +262,10 @@ var (
 		"wirtschafts-woche"},
 	}
 )
+
 //////////////////////////////////////////////////////////////////////////////
 //
-// display news
-// TODO: santize (html- and url-escape the arguments)
-//       use a caching, resizing image proxy for the images.
+// fetches news articles from a single source
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchNews(newsSource string, c chan []Article) {
@@ -298,10 +297,13 @@ func fetchNews(newsSource string, c chan []Article) {
 	}
 	
 	c <- news.Articles
-	//close(c)
 }
 
-// Every 5 minutes, fetches the latest news.
+//////////////////////////////////////////////////////////////////////////////
+//
+// news server - On startup, and every 5 minutes, fetches the latest news.
+//
+//////////////////////////////////////////////////////////////////////////////
 func newsServer() {
 	newsServerRunning = true
 	defer func(){newsServerRunning = false}()
@@ -312,23 +314,47 @@ func newsServer() {
 		print("========================================\n")
 		
 		c := make(chan []Article)
-
-		go fetchNews("bbc-news", c)
-		go fetchNews("the-next-web", c)
-
-		newArticles := <-c
-		newArticles = append(newArticles, <-c...)
+		timeout := time.After(5 * time.Second)
 		
+		printVal("len(newsSources)", len(newsSources))
+		
+		for _, newsSource := range newsSources {
+			printVal("Fetching article from", newsSource.Id)
+			go fetchNews(newsSource.Id, c)
+		}
+		
+		newArticles := []Article{}
+		numSourcesFetched := 0
+		fetchNewsLoop: for {
+			select {
+				case newArticlesFetched := <-c:
+					newArticles = append(newArticles, newArticlesFetched...)
+					numSourcesFetched++
+					fmt.Printf("New articles fetched, #%d\n", numSourcesFetched)
+				case <- timeout:
+					print("Timeout!")
+					break fetchNewsLoop
+			}
+		}
+	
+		print("Copying new articles")
 		mutex.Lock()
 		articles = newArticles
 		mutex.Unlock()
-		
-		printVal("artices", articles)
+		print("New articles copied")
 	
+		print("Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// display news
+// TODO: santize (html- and url-escape the arguments)
+// TODO: use a caching, resizing image proxy for the images.
+//
+//////////////////////////////////////////////////////////////////////////////
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	if (!newsServerRunning) {
 		go newsServer()
@@ -336,9 +362,11 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	perm := rand.Perm(len(articles))
 	
-	articleArgs := make([]ArticleArg, len(articles))
+	numArticlesToDisplay := min(100, len(articles))
+	
+	articleArgs := make([]ArticleArg, numArticlesToDisplay)
 	mutex.RLock()
-	for i, _ := range articles {
+	for i := 0; i < numArticlesToDisplay; i++ {
 		article := articles[perm[i]] // shuffle the article order (to mix between sources)
 		
 		// Copy the article information.
@@ -363,114 +391,13 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		Articles: articleArgs,
 	}
 	executeTemplate(w, "news", newsArgs)
-	
-	//fmt.Fprintf(w, string(body))
-	//fmt.Fprintf(w, "\n\nNews: %#v", news)
 }
 
-func InitNews() {
-	if (!newsServerRunning) {
-		go newsServer()
-	}	
-}
 
-/*
-A goroutine is a lightweight thread managed by the Go runtime.
-
-go f(x, y, z)
-starts a new goroutine running
-
-f(x, y, z)
-
----
-
-func sum(s []int, c chan int) {
-	sum := 0
-	for _, v := range s {
-		sum += v
-	}
-	c <- sum // send sum to c
-	
-}
-
-func main() {
-	s := []int{7, 2, 8, -9, 4, 0}
-
-	c := make(chan int)
-	go sum(s[:len(s)/2], c)
-	go sum(s[len(s)/2:], c)
-	x, y := <-c, <-c // receive from c
-
-	fmt.Println(x, y, x+y)
-}
-
----
-
-func fibonacci(n int, c chan int) {
-	x, y := 0, 1
-	for i := 0; i < n; i++ {
-		c <- x
-		x, y = y, x+y
-	}
-	close(c)
-}
-
-func main() {
-	c := make(chan int, 10)
-	go fibonacci(cap(c), c)
-	for i := range c {
-		fmt.Println(i)
-	}
-}
----
-
-
-func fibonacci(c, quit chan int) {
-	x, y := 0, 1
-	for {
-		select {
-		case c <- x:
-			x, y = y, x+y
-		case <-quit:
-			fmt.Println("quit")
-			return
-		}
-	}
-}
-
-func main() {
-	c := make(chan int)
-	quit := make(chan int)
-	go func() {
-		for i := 0; i < 10; i++ {
-			fmt.Println(<-c)
-		}
-		quit <- 0
-	}()
-	fibonacci(c, quit)
-}
----
-
-func main() {
-	tick := time.Tick(100 * time.Millisecond)
-	boom := time.After(500 * time.Millisecond)
-	for {
-		select {
-		case <-tick:
-			fmt.Println("tick.")
-		case <-boom:
-			fmt.Println("BOOM!")
-			return
-		default:
-			fmt.Println("    .")
-			time.Sleep(50 * time.Millisecond)
-		}
-	}
-}
-*/
 ///////////////////////////////////////////////////////////////////////////////
 //
-// display news sources
+// display news sources - TODO: checkboxes so user can pick 
+//                        which news sources they want to see.
 //
 ///////////////////////////////////////////////////////////////////////////////
 func newsSourcesHandler(w http.ResponseWriter, r *http.Request) {
@@ -479,8 +406,19 @@ func newsSourcesHandler(w http.ResponseWriter, r *http.Request) {
 		NewsSources []NewsSource
 	}{
 		PageArgs: PageArgs{Title: "News Sources"},
-		NewsSources: NewsSources,
+		NewsSources: newsSources,
 	}
 	fmt.Println("newsSourcesArgs: %#v\n", newsSourcesArgs)
 	executeTemplate(w, "newsSources", newsSourcesArgs)	
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// init news - starts the news server
+//
+///////////////////////////////////////////////////////////////////////////////
+func InitNews() {
+	if (!newsServerRunning) {
+		go newsServer()
+	}	
 }

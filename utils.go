@@ -38,6 +38,12 @@ func printValX(label string, v interface{}) {
 	log.Printf("%s: %x", label, v)
 }
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
