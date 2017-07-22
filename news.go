@@ -200,12 +200,19 @@ func fetchNews(newsSource string, c chan []Article) {
 	printVal("newsRequestUrl", newsRequestUrl)
 	
 	resp, err := httpGet(newsRequestUrl)
-	
-	check(err)
+	if err != nil {
+		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
+		c <- []Article{}
+		return
+	}
 	defer resp.Body.Close()
 	
 	body, err := ioutil.ReadAll(resp.Body)
-	check(err)
+	if err != nil {
+		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
+		c <- []Article{}
+		return
+	}
 	
 	// Parse the News API json.
 	var news struct {
@@ -215,7 +222,11 @@ func fetchNews(newsSource string, c chan []Article) {
 		Articles	[]Article
 	}
 	err = json.Unmarshal(body, &news)
-	check(err)
+	if err != nil {
+		fmt.Printf("Error fetching news from '%s': '%s' '%s'\n", newsSource, err, body)
+		c <- []Article{}
+		return
+	}
 	
 	// News request returned an error.
 	if news.Status != "ok" {
@@ -228,11 +239,14 @@ func fetchNews(newsSource string, c chan []Article) {
 		// Set the news source
 		news.Articles[i].NewsSourceId = newsSource
 		
-		// Parse the hostname.
+		// Parse the hostname.  TODO: parse away the "www."
 		u, err := url.Parse(news.Articles[i].Url)
-		check(err)
-		news.Articles[i].Host = u.Host
-
+		if err != nil {
+			news.Articles[i].Host = "Error parsing hostname"
+		} else {
+			news.Articles[i].Host = u.Host
+		}
+		
 		// Set the category, language, and country.
 		news.Articles[i].Category = newsSources[newsSource].Category
 		news.Articles[i].Language = newsSources[newsSource].Language
