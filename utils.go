@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML	
+	"time"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,4 +100,12 @@ func getFormHtml(tableForm TableForm) string {
 	var formHTML bytes.Buffer
 	renderTemplate(&formHTML, "tableForm", tableForm)
 	return formHTML.String()
+}
+
+// http.Get with a 5 second timeout.
+func httpGet(url string) (*http.Response, error){
+	var netClient = &http.Client{
+	  Timeout: 5 * time.Second,
+	}
+	return netClient.Get(url)
 }
