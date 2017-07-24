@@ -13,7 +13,7 @@ CREATE TABLE votezilla.User (
     
     Name            TEXT,
     
-    // Details
+    -- Details
     Country         TEXT,
     Location		TEXT,
     
@@ -24,12 +24,12 @@ CREATE TABLE votezilla.User (
     Marital         TEXT,
     Schooling       TEXT,
     
-    // Details - other field
+    -- Details - other field
     OtherGender     TEXT,
     OtherParty      TEXT,
     OtherRace       TEXT,
     
-    // Verification status
+    -- Verification status
     VerifiedEmail   BOOL        DEFAULT False
 );
 
