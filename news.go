@@ -131,6 +131,16 @@ var (
 	}
 )
 
+// TODO: implement news debug output functions
+func newsPrint(s string) {
+}
+
+func newsPrintVal(s string, val interface{}) {
+}
+
+func newsPrintf(format string, args... interface{}) {
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // fetches news sources
@@ -143,7 +153,7 @@ func fetchNewsSources() bool {
 	newsRequestUrl := "https://newsapi.org/v1/sources"
 	newsRequestUrl += "?apiKey=" + flags.newsAPIKey
 	
-	printVal("newsRequestUrl", newsRequestUrl)
+	newsPrintVal("newsRequestUrl", newsRequestUrl)
 	
 	resp, err := httpGet(newsRequestUrl)
 	check(err)
@@ -152,7 +162,7 @@ func fetchNewsSources() bool {
 	body, err := ioutil.ReadAll(resp.Body)
 	check(err)
 	
-	printVal("body", string(body))
+	newsPrintVal("body", string(body))
 	
 	// Parse the News Sources json.
 	var newsSourcesResp struct {
@@ -164,14 +174,14 @@ func fetchNewsSources() bool {
 	
 	// News request returned an error.
 	if newsSourcesResp.Status != "ok" {
-		fmt.Printf("Error fetching news sources: '%s'\n", body)
+		newsPrintf("Error fetching news sources: '%s'\n", body)
 		return false
 	}
 	
 	// Copy news source data to newsSources.
 	newsSources = NewsSources{}
 	for _, newsSource := range newsSourcesResp.Sources {
-		printVal("newsSource", newsSource)
+		newsPrintVal("newsSource", newsSource)
 		newsSources[newsSource.Id] = newsSource	
 	}
 	
@@ -197,11 +207,11 @@ func fetchNews(newsSource string, c chan []Article) {
 	newsRequestUrl += "?apiKey=" + flags.newsAPIKey
 	newsRequestUrl += "&source=" + newsSource
 	
-	printVal("newsRequestUrl", newsRequestUrl)
+	newsPrintVal("newsRequestUrl", newsRequestUrl)
 	
 	resp, err := httpGet(newsRequestUrl)
 	if err != nil {
-		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
+		newsPrintf("Error fetching news from '%s': '%s'\n", newsSource, err)
 		c <- []Article{}
 		return
 	}
@@ -209,7 +219,7 @@ func fetchNews(newsSource string, c chan []Article) {
 	
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
+		newsPrintf("Error fetching news from '%s': '%s'\n", newsSource, err)
 		c <- []Article{}
 		return
 	}
@@ -223,14 +233,14 @@ func fetchNews(newsSource string, c chan []Article) {
 	}
 	err = json.Unmarshal(body, &news)
 	if err != nil {
-		fmt.Printf("Error fetching news from '%s': '%s' '%s'\n", newsSource, err, body)
+		newsPrintf("Error fetching news from '%s': '%s' '%s'\n", newsSource, err, body)
 		c <- []Article{}
 		return
 	}
 	
 	// News request returned an error.
 	if news.Status != "ok" {
-		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, body)
+		newsPrintf("Error fetching news from '%s': '%s'\n", newsSource, body)
 		c <- []Article{}
 		return
 	}
@@ -265,24 +275,25 @@ func newsServer() {
 	newsServerRunning = true
 	defer func(){newsServerRunning = false}()
 	
-	print("newsServer - fetchNewsSources")
+	newsPrint("newsServer - fetchNewsSources")
 	ok := fetchNewsSources()
 	if !ok {
 		return
 	}
 	
 	for {
-		print("========================================")
-		print("============ FETCHING NEWS =============")
-		print("========================================\n")
+		newsPrint("========================================")
+		newsPrint("============ FETCHING NEWS =============")
+		newsPrint("========================================\n")
 		
 		c := make(chan []Article)
 		timeout := time.After(5 * time.Second)
 		
-		printVal("len(newsSources)", len(newsSources))
+		newsPrintVal("len(newsSources)", len(newsSources))
 		
 		for _, newsSource := range newsSources {
-			printVal("Fetching article from", newsSource.Id)
+			newsPrintVal("Fetching article from", newsSource.Id)
+			
 			go fetchNews(newsSource.Id, c)
 		}
 		
@@ -293,20 +304,21 @@ func newsServer() {
 				case newArticlesFetched := <-c:
 					newArticles = append(newArticles, newArticlesFetched...)
 					numSourcesFetched++
-					fmt.Printf("New articles fetched, #%d\n", numSourcesFetched)
+					
+					newsPrintVal("New articles fetched", numSourcesFetched)
 				case <- timeout:
-					print("Timeout!")
+					newsPrint("Timeout!")
 					break fetchNewsLoop
 			}
 		}
 	
-		print("Copying new articles")
+		newsPrint("Copying new articles")
 		mutex.Lock()
 		articles = newArticles
 		mutex.Unlock()
-		print("New articles copied")
+		newsPrint("New articles copied")
 	
-		print("Sleeping 5 minutes")
+		newsPrint("Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)
 	}
 }
@@ -341,12 +353,18 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	mutex.RUnlock()
 	
+	// Get the username.
+	userId := GetSession(r)
+	username := getUsername(userId)
+
 	// Render the news articles.
 	newsArgs := struct {
 		PageArgs
+		Username	string
 		Articles	[]ArticleArg
 	}{
 		PageArgs: PageArgs{Title: "votezilla - News"},
+		Username: username,
 		Articles: articleArgs,
 	}
 	executeTemplate(w, "news", newsArgs)

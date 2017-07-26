@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -62,7 +63,6 @@ func parseTemplateFiles() {
 	
 	// HTML templates
 	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form")))
-	templates["frontPage"]		= template.Must(template.ParseFiles(T("base"), T("frontPage")))
 	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("news")))
 	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
 	
@@ -100,6 +100,12 @@ func getFormHtml(tableForm TableForm) string {
 	var formHTML bytes.Buffer
 	renderTemplate(&formHTML, "tableForm", tableForm)
 	return formHTML.String()
+}
+
+// Serves the specified HTML string as a webpage.
+func serveHTML(w http.ResponseWriter, html string) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprintf(w, html)
 }
 
 // http.Get with a 5 second timeout.

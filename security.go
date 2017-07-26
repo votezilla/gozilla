@@ -87,23 +87,46 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userId int, rememberM
 		expiration = shortExpiration()
 	}
 	
+	printVal("CreateSession userId", userId)
+	
 	setCookie(w, r, kUserId, strconv.Itoa(userId), expiration, true)
 }
 
+func DestroySession(w http.ResponseWriter, r *http.Request) {
+	print("DestroySession")
+	
+	setCookie(w, r, kUserId, "", time.Now(), false)
+}
+
 // Returns the User.Id if the secure cookie exists, ok=false otherwise.
-func GetSessionUserId(r *http.Request) (id int, ok bool) {
+func GetSession(r *http.Request) (userId int) {
+	// Get userId.
 	cookie, err := getCookie(r, kUserId, true)
 	if err != nil { // Missing or forged cookie
-		return -1, false
+		return -1
 	}
-	
-	userId, err := strconv.Atoi(cookie)
-
+	userId, err = strconv.Atoi(cookie)
 	if err != nil { // Cannot parse cookie
-		return -1, false
+		return -1
 	}
 	
-	return userId, true
+	return userId
+}
+
+// Get username from userId.
+func getUsername(userId int) string {		
+	username := ""
+	if userId != -1 {
+		rows := DbQuery("SELECT Username FROM votezilla.User WHERE Id = $1;", userId)
+		defer rows.Close()
+		if rows.Next() {
+			err := rows.Scan(&username)
+			check(err)	
+		}
+		check(rows.Err())
+	}
+	printVal("username", username)
+	return username
 }
 
 func RefreshSession(w http.ResponseWriter, r *http.Request) {

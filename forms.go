@@ -4,7 +4,8 @@ package main
 import (
 	"errors"
     "github.com/votezilla/gforms"
-	"strconv"
+    "strconv"
+	"strings"
 	"time"
 )
 
@@ -28,13 +29,27 @@ var (
         "username",
         gforms.Validators{
             gforms.Required(),
+            gforms.MinLengthValidator(4),
             gforms.MaxLengthValidator(50),
+        	gforms.RegexpValidator(`^[^@]+$`, "Username cannot contain the '@' symbol."),
+			gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
+				if strings.Contains(fo.Data["email"].RawStr, fo.Data["username"].RawStr) {
+					return errors.New("Username cannot be contained in the email.")
+				}
+    			return nil
+			}),
         },
         gforms.TextInputWidget(map[string]string{
             "autocorrect": "off",
             "spellcheck": "false",
             "autocapitalize": "off",
         }),
+    )
+    password = gforms.NewTextField( // TODO: get rid of validators for entry form
+        "password",
+        gforms.Validators{
+            gforms.Required(),
+        },
     )
     emailOrUsername = gforms.NewTextField(
 		"email or username",
@@ -48,14 +63,14 @@ var (
 			"autocapitalize": "off",
 		}),
     )
-    password = gforms.NewTextField(
-        "password",
-        gforms.Validators{
-            gforms.Required(),
-            gforms.MinLengthValidator(8),
-            gforms.MaxLengthValidator(40),
-            gforms.PasswordStrengthValidator(3), // Require strong password.
-        },
+    createPassword = gforms.NewTextField( // TODO: get rid of validators for entry form
+		"password",
+		gforms.Validators{
+			gforms.Required(),
+			gforms.MinLengthValidator(8),
+			gforms.MaxLengthValidator(40),
+			gforms.PasswordStrengthValidator(3), // Require strong password.
+		},
     )
     // Not currently used.  Keep code in case I decide to re-enable later.
     //confirmPassword = gforms.NewTextField(
@@ -244,7 +259,7 @@ var (
     RegisterForm = gforms.DefineForm(gforms.NewFields(
         email,
         username,
-        password,
+        createPassword,
         rememberMe,
     ))
     RegisterDetailsForm = gforms.DefineForm(gforms.NewFields(
@@ -280,3 +295,4 @@ type FormArgs struct {
 	Introduction	string
 	Footer			string
 }
+

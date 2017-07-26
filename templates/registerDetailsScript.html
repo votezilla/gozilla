@@ -30,3 +30,7 @@ countryField.onchange = function() {  // TODO: set location to default to 'US' v
 	else
 		locationLabel.childNodes[0].nodeValue="city:";
 }
+
+// TODO: get default country from the IP, and set locationLabel accordingly.
+countryField.value = "US"
+locationLabel.childNodes[0].nodeValue="zip code:";

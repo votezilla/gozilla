@@ -3,10 +3,12 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
 	"log"
 	"net/http"
+	"strings"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML
 )
 
@@ -21,21 +23,6 @@ type PageArgs struct {
 	Script			string
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// frontPage
-//
-///////////////////////////////////////////////////////////////////////////////
-func frontPageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("frontPageHandler")
-	
-	args := PageArgs {
-		Title: "votezilla",
-	}
-	args.Title = "votezilla"
-	executeTemplate(w, "frontPage", args)
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -43,13 +30,62 @@ func frontPageHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func loginHandler(w http.ResponseWriter, r *http.Request) {	
+	userId := GetSession(r)
+	assert(userId == -1) // User must not be already logged in!
+	
 	form := LoginForm(r)
-
+	
 	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
+		// Parse POST data.
+		data := LoginData{}
+		form.MapTo(&data)
+		
+		var rows *sql.Rows
+		if strings.Contains(data.EmailOrUsername, "@") {
+			rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " + 
+							"FROM votezilla.User WHERE Email = $1;", 
+							data.EmailOrUsername)
+		} else {
+			rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " + 
+							"FROM votezilla.User WHERE Username = $1;", 
+							data.EmailOrUsername)
+		}
+		
+		var userId int
+		var passwordHashInts int256			
+
+		defer rows.Close()
+		if !rows.Next() {
+			field, err := form.GetField("email or username")
+			assert(err)
+			field.SetErrors([]string{"That email does not exist. Do you need to register?"})
+		} else {
+			err := rows.Scan(&userId, &passwordHashInts[0], &passwordHashInts[1], &passwordHashInts[2], &passwordHashInts[3]);
+			check(err)
+			check(rows.Err())
+			fmt.Printf("User found! - id: '%d' passwordHashInts: %#v\n", userId, passwordHashInts)	
+		
+			passwordHash := GetPasswordHash256(data.Password)		
+			if  passwordHash[0] != passwordHashInts[0] ||
+				passwordHash[1] != passwordHashInts[1] ||
+				passwordHash[2] != passwordHashInts[2] ||
+				passwordHash[3] != passwordHashInts[3] {
+
+				field, err := form.GetField("password")
+				assert(err)
+				field.SetErrors([]string{"Invalid password.  Forgot password?"})	
+			} else {		
+				CreateSession(w, r, userId, data.RememberMe)
+
+				serveHTML(w, `<h2>Successfully logged in</h2>
+								  <script>alert('Successfully logged in')</script>`)
+				return		// TODO: add redirect here!!!
+			}
+		}
 	}
 	
 	// handle GET, or invalid form data from POST...	
-	{	
+	{
 		args := FormArgs {
 			PageArgs: PageArgs{Title: "Login"},
 			Footer: `<a href="/forgotPassword">Forgot your password?</a>`,
@@ -59,6 +95,18 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			}}}
 		executeTemplate(w, "form", args)
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// logout
+//
+///////////////////////////////////////////////////////////////////////////////
+func logoutHandler(w http.ResponseWriter, r *http.Request) {	
+	DestroySession(w, r)
+	
+	serveHTML(w, `<h2>Successfully logged out</h2>
+				  <script>alert('Successfully logged out')</script>`)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +131,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
-		// Parse POST data into "data".
+		// Parse POST data.
 		data := RegisterData{}
 		form.MapTo(&data)
 
@@ -92,12 +140,9 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 		// TODO: Gotta send verification email... user doesn't get created until email gets verified.
 		// TODO: Verify email and set emailverified=True when email is verified
-
-		// Works: INSERT INTO votezilla.user(username,passwordhash) VALUES('asmith', '{798798,-8980,2323,6546}');
-		printVal("db", db)
 		
 		// Check for duplicate email
-		if !DbUnique("SELECT * FROM votezilla.User WHERE Email = $1;", data.Email) {
+		if DbExists("SELECT * FROM votezilla.User WHERE Email = $1;", data.Email) {
 			fmt.Println("That email is taken... have you registered already?")
 			
 			field, err := form.GetField("email")
@@ -105,20 +150,32 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 			field.SetErrors([]string{"That email is taken... have you registered already?"})
         } else { 
         	// Check for duplicate username
-			if !DbUnique("SELECT * FROM votezilla.User WHERE Username = $1;", data.Username) {
+			if DbExists("SELECT * FROM votezilla.User WHERE Username = $1;", data.Username) {
 				fmt.Println("That username is taken... try another one.  Or, have you registered already?")
 				field, err := form.GetField("username")
 				assert(err)
 				field.SetErrors([]string{"That username is taken... try another one.  Or, have you registered already?"})
 			} else {
-				// Add new user to the database        
+				// Add new user to the database   
+				fmt.Printf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
 				userId := DbInsert(
-					"INSERT INTO votezilla.User(Email, Username, PasswordHash) VALUES ($1, $2, $3) returning id;", 
+					"INSERT INTO votezilla.User(Email, Username, PasswordHash) " +
+						"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;", 
 					data.Email,
 					data.Username,
-					pq.Array(passwordHashInts))
+					passwordHashInts[0],
+					passwordHashInts[1],
+					passwordHashInts[2],
+					passwordHashInts[3])
 				
+				// Create session (encrypted userId).
 				CreateSession(w, r, userId, data.RememberMe)
+				// Set "RememberMe" cookie
+				if data.RememberMe {
+					setCookie(w, r, "RememberMe", "true", longExpiration(), false)
+				} else {
+					setCookie(w, r, "RememberMe", "false", longExpiration(), false)
+				}
 				
 				http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)
 				return	
@@ -127,7 +184,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	}  
 
 	// handle GET, or invalid form data from POST...	
-	{		
+	{
 		args := FormArgs {
 			PageArgs: PageArgs{Title: "Register"},
 			Forms: []TableForm{
@@ -145,8 +202,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	form := RegisterDetailsForm(r)
 	
-	userId, ok := GetSessionUserId(r)			
-	if !ok { // Secure cookie not found.  Either session expired, or someone is hacking.
+	userId := GetSession(r)			
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		log.Printf("secure cookie not found")
 		http.Redirect(w, r, "/register", http.StatusSeeOther)
@@ -161,31 +218,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		data := RegisterDetailsData{}
 		form.MapTo(&data)
 		
-		fmt.Fprintf(w, "<br><p>country: %+v</p>", data.Country)
-		
-		fmt.Fprintf(w, "<br>races: %T - %+v", data.Races, data.Races)
-		for k, v := range data.Races {
-			fmt.Fprintf(w, "<br>%v -> %v", k, v)
-		}
-		
-		fmt.Fprintf(w, "<br><p>data: %+v</p>", data)
-		
 		printVal("userId", userId)
-		
-		log.Println(`UPDATE votezilla.User
-				SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
-				= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
-				WHERE Id = $1`, 
-			userId,
-			data.Name,
-			data.Country,
-			data.Location, // TODO: remove ZipCode and City, add Location
-			data.BirthYear,
-			data.Gender,
-			data.Party,
-			pq.Array(data.Races), // TODO: change Race to Races[]
-			data.Marital,
-			data.Schooling)
 	
 		// Update the user record with registration details.
 		DbQuery(
@@ -228,7 +261,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		
 		congrats := ""
 		if r.Method == "GET" {
-			congrats = "Congrats for registering"
+			congrats = "Congrats for registering" // Congrats for registering... now enter more information.
 		}
 		
 		args := FormArgs {
@@ -244,25 +277,11 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		}}}
 		executeTemplate(w, "form", args)
 	}
-	
-	// Debug info:
-	form.IsValid()
-	data := RegisterDetailsData{}
-	form.MapTo(&data)
-	
-	fmt.Fprintf(w, "<br>races: %T - %+v", data.Races, data.Races)
-	for k, v := range data.Races {
-	    fmt.Fprintf(w, "<br>%v -> %v", k, v)
-	}	
-	
-	fmt.Fprintf(w, "<br>data: %T - %+v", data, data)
-
-	fmt.Fprintf(w, "<br>r: %+v", r)
 }
 
 func registerDoneHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `<h2>Congrats, you just registered</h2>
-					<script>alert('Congrats, you just registered')</script>`)
+	serveHTML(w, `<h2>Congrats, you just registered</h2>
+			      <script>alert('Congrats, you just registered')</script>`)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -321,14 +340,14 @@ func main() {
 	
 	InitSecurity()
 	
-	http.HandleFunc("/",				hwrap(frontPageHandler))
+	http.HandleFunc("/",				hwrap(newsHandler))
 	http.HandleFunc("/login/",			hwrap(loginHandler))
+	http.HandleFunc("/logout/",			hwrap(logoutHandler))
 	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
 	http.HandleFunc("/register/",		hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",hwrap(registerDetailsHandler))
 	http.HandleFunc("/registerDone/",	hwrap(registerDoneHandler))
 	http.HandleFunc("/ip/",				hwrap(ipHandler))
-	http.HandleFunc("/news/",			hwrap(newsHandler))
 	http.HandleFunc("/newsSources/",	hwrap(newsSourcesHandler))
 	
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))

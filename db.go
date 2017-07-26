@@ -54,9 +54,9 @@ func DbQuery(query string, values ...interface{}) *sql.Rows {
 	return rows
 }
 
-// Executes a query, and TRUE if it returned no rows.
+// Executes a query, and TRUE if it returned any row.
 // Panics on error
-func DbUnique(query string, values ...interface{}) bool {
+func DbExists(query string, values ...interface{}) bool {
 	rows := DbQuery(query, values...)
-	return !rows.Next()
+	return rows.Next()
 }
