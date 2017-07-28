@@ -18,6 +18,8 @@ OK KEEP IT SIMPLE:
 5) Setup HTTPS!!!  (Easy - http://www.kaihag.com/https-and-go/ )
 6) Can test XSRF security with two votezillas running on different servers (without HTTPS)
 7) I'm not a bot
+8) How to secure postgres:
+	https://www.digitalocean.com/community/tutorials/how-to-secure-postgresql-on-an-ubuntu-vps
 
 https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet
 
@@ -51,8 +53,3 @@ Once you've identified the source origin (from either the Origin or Referer head
 
 * Use the session in addition.
 
-
-
-
-Eventually...
-- Implement HTTPS
