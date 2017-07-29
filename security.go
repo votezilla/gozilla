@@ -125,7 +125,7 @@ func getUsername(userId int) string {
 		}
 		check(rows.Err())
 	}
-	printVal("username", username)
+	//printVal("username", username)
 	return username
 }
 

@@ -174,7 +174,7 @@ func fetchNewsSources() bool {
 	
 	// News request returned an error.
 	if newsSourcesResp.Status != "ok" {
-		newsPrintf("Error fetching news sources: '%s'\n", body)
+		fmt.Printf("Error fetching news sources: '%s'\n", body)
 		return false
 	}
 	
@@ -211,7 +211,7 @@ func fetchNews(newsSource string, c chan []Article) {
 	
 	resp, err := httpGet(newsRequestUrl)
 	if err != nil {
-		newsPrintf("Error fetching news from '%s': '%s'\n", newsSource, err)
+		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
 		c <- []Article{}
 		return
 	}
@@ -219,7 +219,7 @@ func fetchNews(newsSource string, c chan []Article) {
 	
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		newsPrintf("Error fetching news from '%s': '%s'\n", newsSource, err)
+		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
 		c <- []Article{}
 		return
 	}
@@ -233,14 +233,14 @@ func fetchNews(newsSource string, c chan []Article) {
 	}
 	err = json.Unmarshal(body, &news)
 	if err != nil {
-		newsPrintf("Error fetching news from '%s': '%s' '%s'\n", newsSource, err, body)
+		fmt.Printf("Error fetching news from '%s': '%s' '%s'\n", newsSource, err, body)
 		c <- []Article{}
 		return
 	}
 	
 	// News request returned an error.
 	if news.Status != "ok" {
-		newsPrintf("Error fetching news from '%s': '%s'\n", newsSource, body)
+		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, body)
 		c <- []Article{}
 		return
 	}
@@ -275,7 +275,7 @@ func newsServer() {
 	newsServerRunning = true
 	defer func(){newsServerRunning = false}()
 	
-	newsPrint("newsServer - fetchNewsSources")
+	print("newsServer - fetchNewsSources")
 	ok := fetchNewsSources()
 	if !ok {
 		return
@@ -312,13 +312,13 @@ func newsServer() {
 			}
 		}
 	
-		newsPrint("Copying new articles")
+		print("Copying new articles")
 		mutex.Lock()
 		articles = newArticles
 		mutex.Unlock()
-		newsPrint("New articles copied")
+		print("New articles copied")
 	
-		newsPrint("Sleeping 5 minutes")
+		print("Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)
 	}
 }
@@ -335,24 +335,25 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		go newsServer()
 		time.Sleep(2 * time.Second)
 	}
-	
-	perm := rand.Perm(len(articles))
-	
+
 	numArticlesToDisplay := min(50, len(articles))
 	
 	articleArgs := make([]ArticleArg, numArticlesToDisplay)
+	
+	perm := rand.Perm(len(articles))
+	
 	mutex.RLock()
 	for i := 0; i < numArticlesToDisplay; i++ {
 		article := articles[perm[i]] // shuffle the article order (to mix between sources)
-		
+
 		// Copy the article information.
-		articleArgs[i].Article		= article
+		articleArgs[i].Article = article
 
 		// Set the index
 		articleArgs[i].Index = i + 1
 	}
 	mutex.RUnlock()
-	
+
 	// Get the username.
 	userId := GetSession(r)
 	username := getUsername(userId)
