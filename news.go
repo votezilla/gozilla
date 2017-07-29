@@ -133,12 +133,15 @@ var (
 
 // TODO: implement news debug output functions
 func newsPrint(s string) {
+	print(s)
 }
 
 func newsPrintVal(s string, val interface{}) {
+	printVal(s, val)
 }
 
 func newsPrintf(format string, args... interface{}) {
+	fmt.Printf(format, args...)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -152,17 +155,23 @@ func fetchNewsSources() bool {
 	// Note: I should be passing in category, language, and country parameters.
 	newsRequestUrl := "https://newsapi.org/v1/sources"
 	newsRequestUrl += "?apiKey=" + flags.newsAPIKey
+	newsRequestUrl += "&language=en" // TODO: handle news source language selection.
+	newsRequestUrl += "&country=us"  // TODO: handle news source country selection.
 	
 	newsPrintVal("newsRequestUrl", newsRequestUrl)
 	
-	resp, err := httpGet(newsRequestUrl)
-	check(err)
+	resp, err := httpGet(newsRequestUrl, 10.0)
+	if err != nil {
+		printVal("fetchNewsSources request err", err)
+		return false
+	}
 	defer resp.Body.Close()
 	
 	body, err := ioutil.ReadAll(resp.Body)
-	check(err)
-	
-	newsPrintVal("body", string(body))
+	if err != nil {
+		printVal("fetchNewsSources read err", err)
+		return false
+	}
 	
 	// Parse the News Sources json.
 	var newsSourcesResp struct {
@@ -170,7 +179,10 @@ func fetchNewsSources() bool {
 		Sources	[]NewsSource
 	}
 	err = json.Unmarshal(body, &newsSourcesResp)
-	check(err)
+	if err != nil {
+		printVal("fetchNewsSources unmarshall err", err)
+		return false
+	}
 	
 	// News request returned an error.
 	if newsSourcesResp.Status != "ok" {
@@ -178,18 +190,13 @@ func fetchNewsSources() bool {
 		return false
 	}
 	
-	// Copy news source data to newsSources.
+	// Copy news source data to newsSources, and assign icon.
 	newsSources = NewsSources{}
 	for _, newsSource := range newsSourcesResp.Sources {
-		newsPrintVal("newsSource", newsSource)
-		newsSources[newsSource.Id] = newsSource	
-	}
-	
-	// Set news source icons.  (No longer part of API, so have to set manually.)
-	for source, icon := range newsSourceIcons {
-		tmp := newsSources[source]
-		tmp.Icon = icon
-		newsSources[source] = tmp
+		//newsPrintVal("newsSource", newsSource)
+		newsSource.Icon = newsSourceIcons[newsSource.Id]
+		
+		newsSources[newsSource.Id] = newsSource
 	}
 	
 	return true
@@ -201,6 +208,7 @@ func fetchNewsSources() bool {
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchNews(newsSource string, c chan []Article) {
+	// Site: https://newsapi.org/
 	// Note: I should be passing in category, language, and country parameters.
 	newsRequestUrl := "https://newsapi.org/v1/articles"
 	//newsRequestUrl += "?sortBy=latest"
@@ -209,7 +217,7 @@ func fetchNews(newsSource string, c chan []Article) {
 	
 	newsPrintVal("newsRequestUrl", newsRequestUrl)
 	
-	resp, err := httpGet(newsRequestUrl)
+	resp, err := httpGet(newsRequestUrl, 5.0)
 	if err != nil {
 		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
 		c <- []Article{}

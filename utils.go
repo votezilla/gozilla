@@ -109,10 +109,10 @@ func serveHTML(w http.ResponseWriter, html string) {
 	fmt.Fprintf(w, html)
 }
 
-// http.Get with a 5 second timeout.
-func httpGet(url string) (*http.Response, error){
+// http.Get with a 'timeout'-second timeout.
+func httpGet(url string, timeout float32) (*http.Response, error){
 	var netClient = &http.Client{
-	  Timeout: 5 * time.Second,
+	  Timeout: time.Duration(timeout) * time.Second,
 	}
 	return netClient.Get(url)
 }
