@@ -343,6 +343,8 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		go newsServer()
 		time.Sleep(2 * time.Second)
 	}
+	
+	RefreshSession(w, r)
 
 	numArticlesToDisplay := min(50, len(articles))
 	
@@ -391,6 +393,8 @@ func newsSourcesHandler(w http.ResponseWriter, r *http.Request) {
 		go newsServer()
 		time.Sleep(2 * time.Second)
 	}
+	
+	RefreshSession(w, r)
 	
 	newsSourcesArgs := struct {
 		PageArgs

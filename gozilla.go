@@ -74,7 +74,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 				field, err := form.GetField("password")
 				assert(err)
 				field.SetErrors([]string{"Invalid password.  Forgot password?"})	
-			} else {		
+			} else {				
 				CreateSession(w, r, userId, data.RememberMe)
 
 				serveHTML(w, `<h2>Successfully logged in</h2>
@@ -200,6 +200,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
+	
 	form := RegisterDetailsForm(r)
 	
 	userId := GetSession(r)			
@@ -280,6 +282,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func registerDoneHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
 	serveHTML(w, `<h2>Congrats, you just registered</h2>
 			      <script>alert('Congrats, you just registered')</script>`)
 }
@@ -311,7 +314,9 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		RefreshSession(w, r)
+		if flags.debug != "" {
+			printVal("Handling request from: ", formatRequest(r))
+		}
 		
 		handler(w, r)
 	}
@@ -340,15 +345,15 @@ func main() {
 	
 	InitSecurity()
 	
-	http.HandleFunc("/",				hwrap(newsHandler))
-	http.HandleFunc("/login/",			hwrap(loginHandler))
-	http.HandleFunc("/logout/",			hwrap(logoutHandler))
+	http.HandleFunc("/",                hwrap(newsHandler))
+	http.HandleFunc("/login/",          hwrap(loginHandler))
+	http.HandleFunc("/logout/",         hwrap(logoutHandler))
 	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
-	http.HandleFunc("/register/",		hwrap(registerHandler))
+	http.HandleFunc("/register/",       hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",hwrap(registerDetailsHandler))
-	http.HandleFunc("/registerDone/",	hwrap(registerDoneHandler))
-	http.HandleFunc("/ip/",				hwrap(ipHandler))
-	http.HandleFunc("/newsSources/",	hwrap(newsSourcesHandler))
+	http.HandleFunc("/registerDone/",   hwrap(registerDoneHandler))
+	http.HandleFunc("/ip/",             hwrap(ipHandler))
+	http.HandleFunc("/newsSources/",    hwrap(newsSourcesHandler))
 	
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 		

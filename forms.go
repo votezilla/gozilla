@@ -80,16 +80,10 @@ var (
     //    },
     //    gforms.PasswordInputWidget(map[string]string{}),
     //)
-    rememberMe = gforms.NewTextField(
-        "remember me",
+    rememberMe = gforms.NewBooleanField(
+		"remember me",
         gforms.Validators{},
-        gforms.CheckboxMultipleWidget(
-            map[string]string{},
-            func() gforms.CheckboxOptions { return gforms.StringCheckboxOptions([][]string{
-                {"Stay logged in (uncheck if a shared computer)", "R", "false", "false"},
-            })},
-        ),
-    )    
+	)
     
     // Demographics
     name = gforms.NewTextField(

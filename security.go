@@ -18,7 +18,8 @@ var (
 )
 
 const (
-	kUserId = "UserId"
+	kUserId		= "UserId"
+	kRememberMe	= "RememberMe"
 )
 
 func packInt256(buffer []byte) (q int256) {
@@ -50,11 +51,14 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 		HttpOnly: true,  // Prevent XSFR attacks. 
 		Path	: "/",
 	}
+	
+	printVal("setCookie", cookie)
+	printVal("  expiration", expiration.Format(time.UnixDate))
 
 	http.SetCookie(w, &cookie)
 }
 
-// Gets a secure cookie
+// Gets a secure cookie value.
 func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
 	cookie, err := r.Cookie(name)
 	if err != nil { // likely ErrNoCookie
@@ -64,20 +68,46 @@ func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
 	if encrypted {
 		var decoded string
 		err := cookieCypher.Decode(name, cookie.Value, &decoded)
-		check(err)
+		if err != nil {
+			return "", err
+		}
 		return decoded, err
 	} else {
 		return cookie.Value, nil
 	}
 }
 
+// Refreshes a cookie by potentially extending its expiration.
+func refreshCookie(w http.ResponseWriter, r *http.Request, name string, expiration time.Time) {
+	print("RefreshCookie")
+	
+	cookieVal, err := getCookie(r, name, false)
+	
+	printVal("  cookieVal", cookieVal)
+	printVal("  err", err)
+	
+	if err != nil { // likely ErrNoCookie
+		print("  No cookie found to refresh")
+		setCookie(w, r, name, cookieVal, expiration, false)
+	}
+	
+	printVal("  Setting expiration to", expiration.Format(time.UnixDate))
+	
+	cookie, err := r.Cookie(name)
+	if err != nil { // likely ErrNoCookie
+		return
+	}
+	
+		
+	cookie.Expires = expiration
+	http.SetCookie(w, cookie)
+}
+
 func longExpiration()  time.Time { return time.Now().Add(365 * 24 * time.Hour) }
 func shortExpiration() time.Time { return time.Now().Add(10 * time.Minute) }
 
 // Creates a secure session for Username.
-// If RememberMe, remember cookie forever.  Otherwise, terminate cookie when browser closes.
-// Returns true if successful.
-// Panics on error.
+// If RememberMe, remember cookie for one year.  Otherwise, terminate cookie when browser closes.
 func CreateSession(w http.ResponseWriter, r *http.Request, userId int, rememberMe bool) {
 	// Set expiration time
 	var expiration time.Time
@@ -88,14 +118,22 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userId int, rememberM
 	}
 	
 	printVal("CreateSession userId", userId)
+	printVal("              rememberMe", rememberMe)
+	printVal("              expiration", expiration.Format(time.UnixDate))
 	
 	setCookie(w, r, kUserId, strconv.Itoa(userId), expiration, true)
+	if rememberMe {
+		setCookie(w, r, kRememberMe, "true", expiration, false)
+	} else {
+		setCookie(w, r, kRememberMe, "false", expiration, false)
+	}
 }
 
 func DestroySession(w http.ResponseWriter, r *http.Request) {
 	print("DestroySession")
 	
 	setCookie(w, r, kUserId, "", time.Now(), false)
+	setCookie(w, r, kRememberMe, "", time.Now(), false)
 }
 
 // Returns the User.Id if the secure cookie exists, ok=false otherwise.
@@ -125,20 +163,30 @@ func getUsername(userId int) string {
 		}
 		check(rows.Err())
 	}
-	//printVal("username", username)
+	
 	return username
 }
 
 func RefreshSession(w http.ResponseWriter, r *http.Request) {
-	// Get and set the cookie.  It's already encrypted.  Don't bother decrypting and re-encrypting it.
+	print("RefreshSession")
 	
-	cookie, err := getCookie(r, kUserId, false)
-	if err != nil { // likely ErrNoCookie
-		return
+	rememberMeCookie, _ := getCookie(r, kRememberMe, false)
+	printVal("  rememberMeCookie", rememberMeCookie)
+	
+	if rememberMeCookie == "true" {
+		print("  rememberMeCookie == true")
+	} else {
+		print("  rememberMeCookie == false")
 	}
+
+	if rememberMeCookie == "true" {
+		print("  RememberMe = true!")
+		return // Don't refresh the cookie if rememberMe is set - it lasts for a year.
+	}
+
 	
 	// Refresh by extending the expiration by 10 minutes.
-	setCookie(w, r, kUserId, cookie, shortExpiration(), false)
+	refreshCookie(w, r, kUserId, shortExpiration())
 }
 
 // Should be called from init()
