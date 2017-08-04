@@ -29,18 +29,63 @@ func check(err error) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// logging
+//
+///////////////////////////////////////////////////////////////////////////////
+type PrintMask uint
+const (
+	nw_		= PrintMask(1 << 0)
+	go_		= PrintMask(1 << 1)
+	sc_		= PrintMask(1 << 2)
+	db_ 	= PrintMask(1 << 3)
+	fo_		= PrintMask(1 << 4)
+	
+	all_	= PrintMask((1 << 5) - 1)
+)
+
 func print(text string) {
 	log.Println(text)
+}
+func pr(mask PrintMask, text string) {
+	if (mask & flags.printMask) != 0 {
+		print(text)
+	}
+}
+
+func printf(format string, args... interface{}) {
+	log.Printf(format, args...)
+}
+func prf(mask PrintMask, format string, args... interface{}) {
+	if (mask & flags.printMask) != 0 {
+		printf(format, args...)
+	}	
 }
 
 func printVal(label string, v interface{}) {
 	log.Printf("%s: %#v", label, v)
 }
+func prVal(mask PrintMask, label string, v interface{}) {
+	if (mask & flags.printMask) != 0 {
+		printVal(label, v)
+	}
+}
 
 func printValX(label string, v interface{}) {
 	log.Printf("%s: %x", label, v)
 }
+func prValX(mask PrintMask, label string, v interface{}) {
+	if (mask & flags.printMask) != 0 {
+		printValX(label, v)
+	}
+}
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// math
+//
+///////////////////////////////////////////////////////////////////////////////
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -54,8 +99,6 @@ func min(a, b int) int {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func parseTemplateFiles() {
-	log.Println(1)
-
 	T := func(page string) string {
 		return "templates/" + page + ".html"
 	}
@@ -72,7 +115,7 @@ func parseTemplateFiles() {
 }
 
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
-	//log.Printf("executeTemplate: " + templateName)
+	//pr("executeTemplate: " + templateName)
 	
 	if flags.debug != "" {
 		parseTemplateFiles()
@@ -87,7 +130,7 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 
 // writes to io.Writer instead of http.ResponseWriter
 func renderTemplate(w io.Writer, templateName string, data interface{}) {
-	//log.Printf("renderTemplate: " + templateName)
+	//pr("renderTemplate: " + templateName)
 	
 	if flags.debug != "" {
 		parseTemplateFiles()

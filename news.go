@@ -131,26 +131,13 @@ var (
 	}
 )
 
-// TODO: implement news debug output functions
-func newsPrint(s string) {
-	print(s)
-}
-
-func newsPrintVal(s string, val interface{}) {
-	printVal(s, val)
-}
-
-func newsPrintf(format string, args... interface{}) {
-	fmt.Printf(format, args...)
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // fetches news sources
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchNewsSources() bool {
-	print("fetchNewsSources")
+	pr(nw_, "fetchNewsSources")
 	
 	// Note: I should be passing in category, language, and country parameters.
 	newsRequestUrl := "https://newsapi.org/v1/sources"
@@ -158,18 +145,18 @@ func fetchNewsSources() bool {
 	newsRequestUrl += "&language=en" // TODO: handle news source language selection.
 	newsRequestUrl += "&country=us"  // TODO: handle news source country selection.
 	
-	newsPrintVal("newsRequestUrl", newsRequestUrl)
+	prVal(nw_, "newsRequestUrl", newsRequestUrl)
 	
 	resp, err := httpGet(newsRequestUrl, 10.0)
 	if err != nil {
-		printVal("fetchNewsSources request err", err)
+		prVal(nw_, "fetchNewsSources request err", err)
 		return false
 	}
 	defer resp.Body.Close()
 	
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		printVal("fetchNewsSources read err", err)
+		prVal(nw_, "fetchNewsSources read err", err)
 		return false
 	}
 	
@@ -180,20 +167,19 @@ func fetchNewsSources() bool {
 	}
 	err = json.Unmarshal(body, &newsSourcesResp)
 	if err != nil {
-		printVal("fetchNewsSources unmarshall err", err)
+		prVal(nw_, "fetchNewsSources unmarshall err", err)
 		return false
 	}
 	
 	// News request returned an error.
 	if newsSourcesResp.Status != "ok" {
-		fmt.Printf("Error fetching news sources: '%s'\n", body)
+		prf(nw_, "Error fetching news sources: '%s'\n", body)
 		return false
 	}
 	
 	// Copy news source data to newsSources, and assign icon.
 	newsSources = NewsSources{}
 	for _, newsSource := range newsSourcesResp.Sources {
-		//newsPrintVal("newsSource", newsSource)
 		newsSource.Icon = newsSourceIcons[newsSource.Id]
 		
 		newsSources[newsSource.Id] = newsSource
@@ -215,11 +201,11 @@ func fetchNews(newsSource string, c chan []Article) {
 	newsRequestUrl += "?apiKey=" + flags.newsAPIKey
 	newsRequestUrl += "&source=" + newsSource
 	
-	newsPrintVal("newsRequestUrl", newsRequestUrl)
+	prVal(nw_, "newsRequestUrl", newsRequestUrl)
 	
 	resp, err := httpGet(newsRequestUrl, 5.0)
 	if err != nil {
-		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
+		prf(nw_, "Error fetching news from '%s': '%s'\n", newsSource, err)
 		c <- []Article{}
 		return
 	}
@@ -227,7 +213,7 @@ func fetchNews(newsSource string, c chan []Article) {
 	
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, err)
+		prf(nw_, "Error fetching news from '%s': '%s'\n", newsSource, err)
 		c <- []Article{}
 		return
 	}
@@ -241,14 +227,14 @@ func fetchNews(newsSource string, c chan []Article) {
 	}
 	err = json.Unmarshal(body, &news)
 	if err != nil {
-		fmt.Printf("Error fetching news from '%s': '%s' '%s'\n", newsSource, err, body)
+		prf(nw_, "Error fetching news from '%s': '%s' '%s'\n", newsSource, err, body)
 		c <- []Article{}
 		return
 	}
 	
 	// News request returned an error.
 	if news.Status != "ok" {
-		fmt.Printf("Error fetching news from '%s': '%s'\n", newsSource, body)
+		prf(nw_, "Error fetching news from '%s': '%s'\n", newsSource, body)
 		c <- []Article{}
 		return
 	}
@@ -283,24 +269,24 @@ func newsServer() {
 	newsServerRunning = true
 	defer func(){newsServerRunning = false}()
 	
-	print("newsServer - fetchNewsSources")
+	pr(nw_, "newsServer - fetchNewsSources")
 	ok := fetchNewsSources()
 	if !ok {
 		return
 	}
 	
 	for {
-		newsPrint("========================================")
-		newsPrint("============ FETCHING NEWS =============")
-		newsPrint("========================================\n")
+		pr(nw_, "========================================")
+		pr(nw_, "============ FETCHING NEWS =============")
+		pr(nw_, "========================================\n")
 		
 		c := make(chan []Article)
 		timeout := time.After(5 * time.Second)
 		
-		newsPrintVal("len(newsSources)", len(newsSources))
+		prVal(nw_, "len(newsSources)", len(newsSources))
 		
 		for _, newsSource := range newsSources {
-			newsPrintVal("Fetching article from", newsSource.Id)
+			prVal(nw_, "Fetching article from", newsSource.Id)
 			
 			go fetchNews(newsSource.Id, c)
 		}
@@ -313,20 +299,20 @@ func newsServer() {
 					newArticles = append(newArticles, newArticlesFetched...)
 					numSourcesFetched++
 					
-					newsPrintVal("New articles fetched", numSourcesFetched)
+					prVal(nw_, "New articles fetched", numSourcesFetched)
 				case <- timeout:
-					newsPrint("Timeout!")
+					pr(nw_, "Timeout!")
 					break fetchNewsLoop
 			}
 		}
 	
-		print("Copying new articles")
+		pr(nw_, "Copying new articles")
 		mutex.Lock()
 		articles = newArticles
 		mutex.Unlock()
-		print("New articles copied")
+		pr(nw_, "New articles copied")
 	
-		print("Sleeping 5 minutes")
+		pr(nw_, "Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)
 	}
 }

@@ -12,23 +12,23 @@ var (
 	
 // Open database.
 func OpenDatabase() {
-	print("OpenDatabase")
+	pr(db_, "OpenDatabase")
 	
 	// Connect to database
 	dbInfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
 		flags.dbUser, flags.dbPassword, flags.dbName)  
 
-	fmt.Printf("dbInfo: %s", dbInfo)
+	prf(db_, "dbInfo: %s", dbInfo)
 
 	db, err = sql.Open("postgres", dbInfo)
 	check(err)
 	
-	printVal("db", db)
+	prVal(db_, "db", db)
 }
 
 // Close database.
 func CloseDatabase() {
-	print("CloseDatabase")
+	pr(db_, "CloseDatabase")
 	
 	if db != nil {
 		defer db.Close()

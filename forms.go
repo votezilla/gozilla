@@ -106,7 +106,6 @@ var (
             gforms.MinLengthValidator(4),
             gforms.MaxLengthValidator(4),
             gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
-				printVal(`fo.Data`, fo.Data)
 				year, err := strconv.Atoi(fo.Data["year of birth"].RawStr)
 				if err != nil {
 					return errors.New("Please enter a valid year.")
@@ -133,7 +132,7 @@ var (
             gforms.Required(),
             gforms.MaxLengthValidator(60),
             gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
-				printVal("fo.Data", fo.Data)
+				prVal(fo_, "fo.Data", fo.Data)
 				if fo.Data["country"].RawStr == "US" {
 					rvl := gforms.RegexpValidator(`^\d{5}(?:[-\s]\d{4})?$`, "Invalid zip code")
 					return rvl.Validate(fi, fo)

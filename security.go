@@ -52,8 +52,8 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 		Path	: "/",
 	}
 	
-	printVal("setCookie", cookie)
-	printVal("  expiration", expiration.Format(time.UnixDate))
+	prVal(sc_, "setCookie", cookie)
+	prVal(sc_, "  expiration", expiration.Format(time.UnixDate))
 
 	http.SetCookie(w, &cookie)
 }
@@ -79,19 +79,19 @@ func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
 
 // Refreshes a cookie by potentially extending its expiration.
 func refreshCookie(w http.ResponseWriter, r *http.Request, name string, expiration time.Time) {
-	print("RefreshCookie")
+	pr(sc_, "RefreshCookie")
 	
 	cookieVal, err := getCookie(r, name, false)
 	
-	printVal("  cookieVal", cookieVal)
-	printVal("  err", err)
+	prVal(sc_, "  cookieVal", cookieVal)
+	prVal(sc_, "  err", err)
 	
 	if err != nil { // likely ErrNoCookie
-		print("  No cookie found to refresh")
+		pr(sc_, "  No cookie found to refresh")
 		setCookie(w, r, name, cookieVal, expiration, false)
 	}
 	
-	printVal("  Setting expiration to", expiration.Format(time.UnixDate))
+	prVal(sc_, "  Setting expiration to", expiration.Format(time.UnixDate))
 	
 	cookie, err := r.Cookie(name)
 	if err != nil { // likely ErrNoCookie
@@ -117,9 +117,9 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userId int, rememberM
 		expiration = shortExpiration()
 	}
 	
-	printVal("CreateSession userId", userId)
-	printVal("              rememberMe", rememberMe)
-	printVal("              expiration", expiration.Format(time.UnixDate))
+	prVal(sc_, "CreateSession userId", userId)
+	prVal(sc_, "              rememberMe", rememberMe)
+	prVal(sc_, "              expiration", expiration.Format(time.UnixDate))
 	
 	setCookie(w, r, kUserId, strconv.Itoa(userId), expiration, true)
 	if rememberMe {
@@ -130,7 +130,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userId int, rememberM
 }
 
 func DestroySession(w http.ResponseWriter, r *http.Request) {
-	print("DestroySession")
+	pr(sc_, "DestroySession")
 	
 	setCookie(w, r, kUserId, "", time.Now(), false)
 	setCookie(w, r, kRememberMe, "", time.Now(), false)
@@ -168,19 +168,19 @@ func getUsername(userId int) string {
 }
 
 func RefreshSession(w http.ResponseWriter, r *http.Request) {
-	print("RefreshSession")
+	pr(sc_, "RefreshSession")
 	
 	rememberMeCookie, _ := getCookie(r, kRememberMe, false)
-	printVal("  rememberMeCookie", rememberMeCookie)
+	prVal(sc_, "  rememberMeCookie", rememberMeCookie)
 	
 	if rememberMeCookie == "true" {
-		print("  rememberMeCookie == true")
+		pr(sc_, "  rememberMeCookie == true")
 	} else {
-		print("  rememberMeCookie == false")
+		pr(sc_, "  rememberMeCookie == false")
 	}
 
 	if rememberMeCookie == "true" {
-		print("  RememberMe = true!")
+		pr(sc_, "  RememberMe = true!")
 		return // Don't refresh the cookie if rememberMe is set - it lasts for a year.
 	}
 

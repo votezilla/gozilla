@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
-	"log"
 	"net/http"
 	"strings"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML
@@ -63,7 +62,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			err := rows.Scan(&userId, &passwordHashInts[0], &passwordHashInts[1], &passwordHashInts[2], &passwordHashInts[3]);
 			check(err)
 			check(rows.Err())
-			fmt.Printf("User found! - id: '%d' passwordHashInts: %#v\n", userId, passwordHashInts)	
+			prf(go_, "User found! - id: '%d' passwordHashInts: %#v\n", userId, passwordHashInts)	
 		
 			passwordHash := GetPasswordHash256(data.Password)		
 			if  passwordHash[0] != passwordHashInts[0] ||
@@ -143,7 +142,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		
 		// Check for duplicate email
 		if DbExists("SELECT * FROM votezilla.User WHERE Email = $1;", data.Email) {
-			fmt.Println("That email is taken... have you registered already?")
+			pr(go_, "That email is taken... have you registered already?")
 			
 			field, err := form.GetField("email")
 			assert(err)
@@ -151,13 +150,13 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         } else { 
         	// Check for duplicate username
 			if DbExists("SELECT * FROM votezilla.User WHERE Username = $1;", data.Username) {
-				fmt.Println("That username is taken... try another one.  Or, have you registered already?")
+				pr(go_, "That username is taken... try another one.  Or, have you registered already?")
 				field, err := form.GetField("username")
 				assert(err)
 				field.SetErrors([]string{"That username is taken... try another one.  Or, have you registered already?"})
 			} else {
 				// Add new user to the database   
-				fmt.Printf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
+				prf(go_, "passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
 				userId := DbInsert(
 					"INSERT INTO votezilla.User(Email, Username, PasswordHash) " +
 						"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;", 
@@ -207,7 +206,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)			
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
-		log.Printf("secure cookie not found")
+		pr(go_, "secure cookie not found")
 		http.Redirect(w, r, "/register", http.StatusSeeOther)
 		return
 	}
@@ -220,7 +219,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		data := RegisterDetailsData{}
 		form.MapTo(&data)
 		
-		printVal("userId", userId)
+		prVal(db_, "userId", userId)
 	
 		// Update the user record with registration details.
 		DbQuery(
@@ -315,7 +314,7 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if flags.debug != "" {
-			printVal("Handling request from: ", formatRequest(r))
+			prVal(db_, "Handling request from: ", formatRequest(r))
 		}
 		
 		handler(w, r)
@@ -328,13 +327,13 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 //
 ///////////////////////////////////////////////////////////////////////////////
 func init() {
-	log.Printf("init")
+	print("init")
 	
 	parseTemplateFiles()
 }
 
 func main() {
-	log.Printf("main")
+	print("main")
 	
 	parseCommandLineFlags()
    
@@ -359,6 +358,6 @@ func main() {
 		
 	http.ListenAndServe(":8080", nil)
 	
-	log.Printf("Listening on http://localhost:8080...")
+	pr(go_, "Listening on http://localhost:8080...")
 }
 
