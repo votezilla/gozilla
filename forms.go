@@ -50,7 +50,8 @@ var (
         gforms.Validators{
             gforms.Required(),
         },
-    )
+		gforms.PasswordInputWidget(map[string]string{}),
+	)
     emailOrUsername = gforms.NewTextField(
 		"email or username",
 		gforms.Validators{
