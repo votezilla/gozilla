@@ -36,13 +36,13 @@ func check(err error) {
 ///////////////////////////////////////////////////////////////////////////////
 type PrintMask uint
 const (
-	nw_		= PrintMask(1 << 0)
-	go_		= PrintMask(1 << 1)
-	sc_		= PrintMask(1 << 2)
-	db_ 	= PrintMask(1 << 3)
-	fo_		= PrintMask(1 << 4)
+	nw_		= PrintMask( 1)
+	go_		= PrintMask( 2)
+	sc_		= PrintMask( 4)
+	db_ 	= PrintMask( 8)
+	fo_		= PrintMask(16)
 	
-	all_	= PrintMask((1 << 5) - 1)
+	all_	= PrintMask(32 - 1)
 )
 
 func print(text string) {

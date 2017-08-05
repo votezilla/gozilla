@@ -122,7 +122,6 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-
 	form := RegisterForm(r)
 	tableForm := TableForm{
 		Form: form,
@@ -313,9 +312,7 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if flags.debug != "" {
-			prVal(db_, "Handling request from: ", formatRequest(r))
-		}
+		prf(go_, "Handling request from: %s\n", formatRequest(r))
 		
 		handler(w, r)
 	}
