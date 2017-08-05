@@ -1,34 +1,4 @@
 {{define "body"}}
-<style><!--
-.vz-bar .vz-bar-item			{padding:2px 2px;float:left;width:auto;border:none;outline:none;display:block}
-.vz-bar .vz-button				{white-space:normal}
-
-.vz-bar .vz-button:hover		{color:#fff; background-color:#e87f19}
-
-.vz-bar .vz-dropdown-hover		{position:static;float:left}
-.vz-bar-block .vz-bar-item		{width:100%;display:block;padding:8px 16px;text-align:left;border:none;outline:none;white-space:normal;float:none}
-
-.vz-bar-block .vz-dropdown-hover .vz-button		{width:100%;text-align:left;padding:2px 2px}
-
-.vz-bar-block .vz-dropdown-hover .vz-dropdown-content		{min-width:100%}
-.vz-bar-block .vz-dropdown-hover		{width:100%}
-.vz-bar-block.vz-center .vz-bar-item		{text-align:center}.vz-block		{display:block;width:100%}
-.vz-bar					{width:100%;overflow:hidden}.vz-center .vz-bar		{display:inline-block;width:auto}
-.vz-btn,.vz-button		{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
-
-.vz-btn,.vz-button		{border:none;display:inline-block;outline:0;padding:2px 2px;vertical-align:middle;overflow:hidden;text-decoration:none;color:inherit;background-color:inherit;text-align:center;cursor:pointer;white-space:nowrap}
-
-.vz-card-4				{box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19)}
-.vz-cell-row:before,.vz-cell-row:after,.vz-clear:after,.vz-clear:before,.vz-bar:before,.vz-bar:after		{content:"";display:table;clear:both}
-.vz-disabled,.vz-btn:disabled,.vz-button:disabled		{cursor:not-allowed;opacity:0.3}.vz-disabled *,:disabled *		{pointer-events:none}
-.vz-dropdown-hover		{position:relative;display:inline-block;cursor:pointer}
-.vz-dropdown-content		{cursor:auto;color:#000;background-color:#fff;display:none;position:absolute;min-width:110px;margin:0;padding:0}
-.vz-dropdown-hover.vz-mobile .vz-dropdown-content		{position:relative}
-.vz-dropdown-hover.vz-mobile,.vz-dropdown-hover.vz-mobile .vz-btn,.vz-dropdown-hover.vz-mobile .vz-button		{width:100%}}
-.vz-dropdown-hover:first-child		{background-color:#ccc;color:#000}
-.vz-dropdown-hover:hover .vz-dropdown-content		{display:block;z-index:1}
-.vz-bar-item.vz-mobile,.vz-dropdown-hover.vz-mobile		{text-align:center}
---></style>
 <center>
 	<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
 		<tr><td bgcolor="#ff6600">
@@ -59,12 +29,13 @@
 						</span>
 					</td>
 
-					<td style="text-align:right;padding-right:4px;"><span class="pagetop">
-						{{- if .Username }}
-							<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
-						{{else}}
-							<a href="/login">login</a> / <a href="/register">register</a>
-						{{end -}}
+					<td style="text-align:right;padding-right:4px;">
+						<span class="pagetop">
+							{{- if .Username }}
+								<span class="pagetop vz-bar-item vz-button"><a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a></span>
+							{{else}}
+								<span class="pagetop vz-bar-item vz-button"><a href="/login">login</a> / <a href="/register">register</a></span>
+							{{end -}}
 						</span>
 					</td>
 				</tr>
