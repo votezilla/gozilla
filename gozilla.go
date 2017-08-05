@@ -312,7 +312,7 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		prf(go_, "Handling request from: %s\n", formatRequest(r))
+		prf(go_, "\nHandling request from: %s\n", formatRequest(r))
 		
 		handler(w, r)
 	}
