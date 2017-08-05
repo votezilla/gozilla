@@ -1,32 +1,5 @@
 {{define "body"}}
-<center>
-	<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
-		<tr><td bgcolor="#ff6600">
-			<a href="news"><h1 style="text-align:center; margin: 0px;"><b>votezilla</b></h1></a>
-		</td></tr>
-		<tr><td bgcolor="#ff6600">
-			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
-				<tr>
-					<td style="width:18px;padding-right:4px"><a href="http://www.ycombinator.com"><img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;"></a></td>
-					<td style="line-height:12pt; height:10px;">
-						<span class="pagetop">
-							<b class="hnname"><a href="news">votezilla</a></b>
-							<span class="topsel"><a href="news">news</a></span> |
-							<a href="submit">submit</a>
-						</span>
-					</td>
-					<td style="text-align:right;padding-right:4px;"><span class="pagetop">
-						{{- if .Username }}
-							<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
-						{{else}}
-							<a href="/login">login</a> / <a href="/register">register</a>
-						{{end -}}
-						</span>
-					</td>
-				</tr>
-			</table>
-		</td></tr>
-<style>
+<style><!--
 .vz-bar .vz-bar-item			{padding:2px 2px;float:left;width:auto;border:none;outline:none;display:block}
 .vz-bar .vz-button				{white-space:normal}
 
@@ -55,7 +28,12 @@
 .vz-dropdown-hover:first-child		{background-color:#ccc;color:#000}
 .vz-dropdown-hover:hover .vz-dropdown-content		{display:block;z-index:1}
 .vz-bar-item.vz-mobile,.vz-dropdown-hover.vz-mobile		{text-align:center}
-</style>
+--></style>
+<center>
+	<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
+		<tr><td bgcolor="#ff6600">
+			<a href="news"><h1 style="text-align:center; margin: 0px;"><b>votezilla</b></h1></a>
+		</td></tr>
 		<tr><td bgcolor="#ff6600">
 			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
 				<tr>
@@ -64,80 +42,23 @@
 					<td style="line-height:12pt; height:10px;">
 						<span class="pagetop">
 							<div class="vz-bar">
-<!--
-								<span class="pagetop">
-									<b class="hnname"><a href="news">votezilla</a></b>
-									<span class="topsel"><a href="news">news</a></span> |
-									<a href="submit">submit</a>
-								</span>
--->
-
-								<!--<a href="#" class="vz-bar-item vz-button">votezilla</a>-->
-								<!--<b class="vz-bar-item vz-button hnname"><a href="news">votezilla</a></b>-->
 								<b class="vz-bar-item hnname"><a href="news">votezilla</a></b>
-
-								<!--
-								<a href="#" class="vz-bar-item vz-button">news</a>
-								<a href="#" class="vz-bar-item">|</a>
-								-->
-								<span class="topsel vz-bar-item vz-button"><a href="news">news</a></span>
-								<span class="vz-bar-item"> | </span>
-
-								<span class="vz-bar-item vz-button"><a href="news">other shit</a></span>
-								<span class="vz-bar-item"> | </span>
-
+								<span class="pagetop topsel vz-bar-item vz-button"><a href="news">news</a></span>
+								<span class="pagetop vz-bar-item"> | </span>
+								<span class="pagetop vz-bar-item vz-button"><a href="news">other shit</a></span>
+								<span class="pagetop vz-bar-item"> | </span>
 								<div class="vz-dropdown-hover">
-								  <button class="vz-button">submit</button>
+								  <span class="pagetop vz-button">submit</span>
 								  <div class="vz-dropdown-content vz-bar-block vz-card-4">
-									<a href="#" class="vz-bar-item vz-button">submit link</a>
-									<a href="#" class="vz-bar-item vz-button">submit text post</a>
-									<a href="#" class="vz-bar-item vz-button">submit poll</a>
+									<a href="#" class="pagetop vz-bar-item vz-button">submit link</a>
+									<a href="#" class="pagetop vz-bar-item vz-button">submit text post</a>
+									<a href="#" class="pagetop vz-bar-item vz-button">submit poll</a>
 								  </div>
 								</div>
 							</div>
 						</span>
 					</td>
 
-					<td style="text-align:right;padding-right:4px;"><span class="pagetop">
-						{{- if .Username }}
-							<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
-						{{else}}
-							<a href="/login">login</a> / <a href="/register">register</a>
-						{{end -}}
-						</span>
-					</td>
-				</tr>
-			</table>
-		</td></tr>
-
-		<tr><td bgcolor="#ff6600">
-			<!--<td bgcolor="#000">-->
-			<!--<img src="/static/votezilla header small.png">-->
-			<!-- style="color:#fff!important" -->
-
-			<!-- Good -->
-			<!-- <a href="news"><h1><center><b>votezilla</b></center></h1></a> -->
-			<a href="news"><h1 style="text-align:center; margin: 0px;"><b>votezilla</b></h1></a>
-		</td></tr>
-		<tr><td bgcolor="#ff6600">
-			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
-				<tr>
-					<td style="width:18px;padding-right:4px"><a href="http://www.ycombinator.com"><img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;"></a></td>
-					<td style="line-height:12pt; height:10px;">
-						<span class="pagetop">
-							<b class="hnname"><a href="news">votezilla</a></b>
-							<span class="topsel"><a href="news">news</a></span> |
-							<!--<a href="submit">submit</a>-->
-							<div class="vz-dropdown-hover">
-							  <button class="vz-button">submit</button>
-							  <div class="vz-dropdown-content vz-bar-block vz-card-4">
-								<a href="#" class="vz-bar-item vz-button">submit link</a>
-								<a href="#" class="vz-bar-item vz-button">submit text post</a>
-								<a href="#" class="vz-bar-item vz-button">submit poll</a>
-							  </div>
-							</div>
-						</span>
-					</td>
 					<td style="text-align:right;padding-right:4px;"><span class="pagetop">
 						{{- if .Username }}
 							<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
