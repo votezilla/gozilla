@@ -225,7 +225,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			`UPDATE votezilla.User
 				SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
 				= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
-				WHERE Id = $1`, 
+				WHERE Id = $1::bigint`, 
 			userId,
 			data.Name,
 			data.Country,
@@ -287,6 +287,63 @@ func registerDoneHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// submit new post
+//
+///////////////////////////////////////////////////////////////////////////////
+func submitHandler(w http.ResponseWriter, r *http.Request) {
+	executeTemplate(w, "submit", PageArgs{Title: "Submit"})
+}
+
+func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
+	form := SubmitLinkForm(r)
+	tableForm := TableForm{
+		Form: form,
+		CallToAction: "Submit",
+	}
+	
+	userId := GetSession(r)			
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		pr(go_, "Must be logged in submit a post.  TODO: add submitLinkHandler to stack somehow.")
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
+	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
+
+		// Parse POST data
+		data := SubmitLinkData{}
+		form.MapTo(&data)
+
+		pr(db_, "Inserting new LinkPost into database.")
+		prf(db_, `INSERT INTO votezilla.LinkPost(UserId, Title, LinkURL) 
+			      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Link)
+
+		// Update the user record with registration details.
+		DbInsert(
+			`INSERT INTO votezilla.LinkPost(UserId, Title, LinkURL) 
+			 VALUES($1::bigint, $2, $3) returning id;`, 
+			userId,
+			data.Title,
+			data.Link)
+
+		http.Redirect(w, r, "/news", http.StatusSeeOther)   
+		return	
+	}  
+
+	// handle GET, or invalid form data from POST...	
+	{
+		args := FormArgs {
+			PageArgs: PageArgs{Title: "Submit Link"},
+			Forms: []TableForm{
+				tableForm,
+		}}
+		executeTemplate(w, "form", args)
+	}	
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // TODO: get user's ip address
 //       1) To log in the database when user is first created.
 //		 2) To set their location in registerDetails and save them time.
@@ -342,14 +399,16 @@ func main() {
 	InitSecurity()
 	
 	http.HandleFunc("/",                hwrap(newsHandler))
+	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
+	http.HandleFunc("/ip/",             hwrap(ipHandler))
 	http.HandleFunc("/login/",          hwrap(loginHandler))
 	http.HandleFunc("/logout/",         hwrap(logoutHandler))
-	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
+	http.HandleFunc("/newsSources/",    hwrap(newsSourcesHandler))
 	http.HandleFunc("/register/",       hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",hwrap(registerDetailsHandler))
 	http.HandleFunc("/registerDone/",   hwrap(registerDoneHandler))
-	http.HandleFunc("/ip/",             hwrap(ipHandler))
-	http.HandleFunc("/newsSources/",    hwrap(newsSourcesHandler))
+	http.HandleFunc("/submit/",   		hwrap(submitHandler))
+	http.HandleFunc("/submitLink/",   	hwrap(submitLinkHandler))
 	
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 		

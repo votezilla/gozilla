@@ -211,6 +211,23 @@ var (
 			{"Postgraduate study",               "P"},
 		}),
     )
+    
+    // Submit post
+    title = gforms.NewTextField(
+        "title",
+        gforms.Validators{
+            gforms.Required(),
+            gforms.MaxLengthValidator(50),
+        },
+    )
+	link = gforms.NewTextField(
+		"link",
+		gforms.Validators{
+			gforms.Required(),
+			gforms.URLValidator(),
+			gforms.MaxLengthValidator(250),
+		},
+    )
 )
 
 // === FORM POST DATA ===
@@ -243,6 +260,11 @@ type RegisterDetailsData struct {
     Schooling               string `gforms:"furthest schooling completed"`
 }
 
+type SubmitLinkData struct {
+	Title					string `gforms:"title"`
+	Link					string `gforms:"link"`
+}
+
 // === FORMS ===
 var (
     LoginForm = gforms.DefineForm(gforms.NewFields(
@@ -272,6 +294,11 @@ var (
         marital,
         schooling,      
     ))
+    
+    SubmitLinkForm = gforms.DefineForm(gforms.NewFields(
+		title,
+		link,
+	))
 ) // var
 
 // === FORM TYPES ===

@@ -8,40 +8,23 @@
 			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
 				<tr>
 					<td style="width:18px;padding-right:4px"><a href="http://www.ycombinator.com"><img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;"></a></td>
-
-					<td style="line-height:12pt; height:10px;">
-						<span class="pagetop">
-							<div class="vz-bar">
-								<b class="vz-bar-item hnname"><a href="news">votezilla</a></b>
-								<span class="pagetop topsel vz-bar-item vz-button"><a href="news">news</a></span>
-								<span class="pagetop vz-bar-item"> | </span>
-								<span class="pagetop vz-bar-item vz-button"><a href="news">other shit</a></span>
-								<span class="pagetop vz-bar-item"> | </span>
-								<div class="vz-dropdown-hover">
-								  <span class="pagetop vz-button">submit</span>
-								  <div class="vz-dropdown-content vz-bar-block vz-card-4">
-									<a href="#" class="pagetop vz-bar-item vz-button">submit link</a>
-									<a href="#" class="pagetop vz-bar-item vz-button">submit text post</a>
-									<a href="#" class="pagetop vz-bar-item vz-button">submit poll</a>
-								  </div>
-								</div>
-							</div>
+					<td style="line-height:12pt; height:10px;"><span class="pagetop"><b class="hnname"><a href="news">votezilla</a></b>
+						<span class="topsel">
+							<a href="news">news</a></span> |
+							<a href="submit">submit</a>
 						</span>
 					</td>
-
-					<td style="text-align:right;padding-right:4px;">
-						<span class="pagetop">
-							{{- if .Username }}
-								<span class="pagetop vz-bar-item vz-button"><a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a></span>
-							{{else}}
-								<span class="pagetop vz-bar-item vz-button"><a href="/login">login</a> / <a href="/register">register</a></span>
-							{{end -}}
+					<td style="text-align:right;padding-right:4px;"><span class="pagetop">
+						{{- if .Username }}
+							<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
+						{{else}}
+							<a href="/login">login</a> / <a href="/register">register</a>
+						{{end -}}
 						</span>
 					</td>
 				</tr>
 			</table>
 		</td></tr>
-
 		<tr style="height:10px"></tr>
 		<tr><td>
 			<table border="0" cellpadding="0" cellspacing="0" class="itemlist">

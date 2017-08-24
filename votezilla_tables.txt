@@ -6,7 +6,7 @@ CREATE SCHEMA votezilla;
 
 
 CREATE TABLE votezilla.User (
-    Id              SERIAL PRIMARY KEY,   
+    Id              BIGSERIAL 	PRIMARY KEY,   
     Email           TEXT		UNIQUE NOT NULL, -- UNIQUE implies an index
     Username        TEXT		UNIQUE NOT NULL, -- UNIQUE implies an index
     PasswordHash    BIGINT[4]   NOT NULL, 		 -- Store a 256-byte hash of the password  
@@ -33,36 +33,29 @@ CREATE TABLE votezilla.User (
     VerifiedEmail   BOOL		DEFAULT False
 );
 
+CREATE TABLE votezilla.Post (
+	Id              BIGSERIAL 	NOT NULL,
+	UserId			BIGINT		NOT NULL,
+	Created			TIMESTAMPTZ	NOT NULL DEFAULT now(),
+	Title			TEXT		NOT NULL,
+	PRIMARY KEY (UserId, Id)
+);
+
+CREATE TABLE votezilla.LinkPost (
+	LinkURL			TEXT
+) INHERITS (votezilla.Post);
+
+CREATE TABLE votezilla.BlogPost (
+	Blog			TEXT
+) INHERITS (votezilla.Post);
+
+
+
+DROP TABLE votezilla.LinkPost;
+DROP TABLE votezilla.BlogPost;
+DROP TABLE votezilla.Post;
 
 --
-
-CREATE TABLE Customer
-CustomerId INTEGER PRIMARY KEY AUTO-INC
-Address
-Address2
-City
-State
-ZipCode
-(order least to most intrusive)
-DOB (for age - just month and year.. or wait probablybneed day to for bkgd check)
-PoliticalParty
-Race
-Religion
-Gender
-Marital Status
-Highest College Degree
-Income (/ yr)
-
-CREATE TABLE Post
-PostID INTEGER PRIMARY KEY AUTO-INC
-DateTime
-Title VARCHAR
-
-CREATE TABLE LinkPost EXTENDS Post
-LinkURL VARCHAR
-
-CREATE TABLE BlogPost EXTENDS Post
-Blog VARCHAR
 
 CREATE TABLE PollPost EXTENDS Post
 Question VARCHAR
