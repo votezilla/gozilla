@@ -41,8 +41,9 @@ const (
 	sc_		= PrintMask( 4)
 	db_ 	= PrintMask( 8)
 	fo_		= PrintMask(16)
+	po_		= PrintMask(32)
 	
-	all_	= PrintMask(32 - 1)
+	all_	= PrintMask(64 - 1)
 )
 
 func print(text string) {

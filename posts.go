@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"math/rand"
+	"time"
 )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -15,27 +15,48 @@ import (
 func postsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	numArticlesToDisplay := min(50, len(articles))
+	pr(po_, "postsHandler")
 	
-	articleArgs := make([]ArticleArg, numArticlesToDisplay)
+	var title		string
+	var linkUrl		string
+	var created		time.Time
+	var username	string
+	rows := DbQuery(`
+		SELECT L.Title, L.LinkUrl, L.Created, U.Username 
+		FROM votezilla.LinkPost L 
+		JOIN votezilla.User U ON L.UserId= U.Id 
+		LIMIT 50;`)
+	defer rows.Close()
 	
-	perm := rand.Perm(len(articles))
+	var articleArgs []ArticleArg //make([]ArticleArg, len(rows))
 	
-	mutex.RLock()
-	for i := 0; i < numArticlesToDisplay; i++ {
-		article := articles[perm[i]] // shuffle the article order (to mix between sources)
-
-		// Copy the article information.
-		articleArgs[i].Article = article
-
-		// Set the index
-		articleArgs[i].Index = i + 1
+	for rows.Next() {
+		check(rows.Scan(&title, &linkUrl, &created, &username))
+		
+		prVal(po_, "title", title)
+		prVal(po_, "linkUrl", linkUrl)
+		prVal(po_, "created", created)
+		prVal(po_, "username", username)
+		
+		// Set the article information
+		articleArgs = append(articleArgs, ArticleArg{
+			Article:	Article{
+				Author:			"",
+				Title:			title,
+				Description:	"",
+				Url:			linkUrl,
+				UrlToImage:		"",
+				PublishedAt:	"",
+				NewsSourceId:	"",
+				Host:			username, // TODO: this is not the host
+				Category:		"",
+				Language:		"EN",
+				Country:		"US",
+			},
+			Index: 		len(articleArgs) + 1,
+		})
 	}
-	mutex.RUnlock()
-
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
+	check(rows.Err())
 
 	// Render the news articles.
 	newsArgs := struct {
