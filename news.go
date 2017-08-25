@@ -359,11 +359,16 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		PageArgs
 		Username	string
 		Articles	[]ArticleArg
+		NavMenu		[]string
+		UrlPath		string
 	}{
-		PageArgs: PageArgs{Title: "votezilla - News"},
-		Username: username,
-		Articles: articleArgs,
+		PageArgs:	PageArgs{Title: "votezilla - News"},
+		Username:	username,
+		Articles:	articleArgs,
+		NavMenu:	navMenu,
+		UrlPath:	"news",
 	}
+	
 	executeTemplate(w, "news", newsArgs)
 }
 

@@ -14,6 +14,9 @@ import (
 var (
 	templates   map[string]*template.Template
 	err		 	error
+	
+	// NavMenu (constant)
+	navMenu		= []string{"news", "posts", "submit"}
 )
 
 // Template arguments for webpage template.
@@ -21,7 +24,6 @@ type PageArgs struct {
 	Title			string
 	Script			string
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -399,6 +401,8 @@ func main() {
 	InitSecurity()
 	
 	http.HandleFunc("/",                hwrap(newsHandler))
+	http.HandleFunc("/news/",           hwrap(newsHandler))
+	http.HandleFunc("/posts/",          hwrap(postsHandler))
 	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
 	http.HandleFunc("/ip/",             hwrap(ipHandler))
 	http.HandleFunc("/login/",          hwrap(loginHandler))
