@@ -269,6 +269,8 @@ func newsServer() {
 	newsServerRunning = true
 	defer func(){newsServerRunning = false}()
 	
+	rand.Seed(time.Now().UnixNano())
+	
 	pr(nw_, "newsServer - fetchNewsSources")
 	ok := fetchNewsSources()
 	if !ok {
@@ -353,20 +355,42 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the username.
 	userId := GetSession(r)
 	username := getUsername(userId)
+	
+	// Group the articles into article groups (so they can be displayed in columns).
+	numColumns := 2
+	articlesPerGroup := len(articleArgs) / numColumns
+	
+	//prVal(nw_, "len(articleArgs)", len(articleArgs))
+	//prVal(nw_, "articlesPerGroup", articlesPerGroup)
+	
+	articleGroups := make([][]ArticleArg, numColumns)
+	
+	if articlesPerGroup >= 1 {
+		for i := 0; i < numColumns; i++ {
+			//prVal(nw_, "i", i)
+			//prVal(nw_, "sliceStart: i * articlesPerGroup", i * articlesPerGroup)
+			//prVal(nw_, "sliceEnd: (i + 1) * articlesPerGroup - 1", (i + 1) * articlesPerGroup - 1)
+			articleGroups[i] = articleArgs[i * articlesPerGroup : (i + 1) * articlesPerGroup - 1]
+		}
+	}
+	
+	//prVal(nw_, "articleGroups", articleGroups)
 
 	// Render the news articles.
 	newsArgs := struct {
 		PageArgs
-		Username	string
-		Articles	[]ArticleArg
-		NavMenu		[]string
-		UrlPath		string
+		Username		string
+		ArticleGroups	[][]ArticleArg
+		LastColumnIdx	int
+		NavMenu			[]string
+		UrlPath			string
 	}{
-		PageArgs:	PageArgs{Title: "votezilla - News"},
-		Username:	username,
-		Articles:	articleArgs,
-		NavMenu:	navMenu,
-		UrlPath:	"news",
+		PageArgs:		PageArgs{Title: "votezilla - News"},
+		Username:		username,
+		ArticleGroups:	articleGroups,
+		LastColumnIdx:	numColumns - 1,
+		NavMenu:		navMenu,
+		UrlPath:		"news",
 	}
 	
 	executeTemplate(w, "news", newsArgs)

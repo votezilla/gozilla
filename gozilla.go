@@ -415,9 +415,8 @@ func main() {
 	http.HandleFunc("/submitLink/",   	hwrap(submitLinkHandler))
 	
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
-		
-	http.ListenAndServe(":8080", nil)
 	
-	pr(go_, "Listening on http://localhost:8080...")
+	pr(go_, "Listening on http://localhost:" + flags.port + "...")
+	http.ListenAndServe(":" + flags.port, nil)
 }
 

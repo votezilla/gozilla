@@ -1,6 +1,14 @@
 body    { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
 td      { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
 
+/* Set 5% padding on a large screen (multi-column), but 0% on a small screen (single-column */
+@media (min-width:990px) {
+	.smart-padding { padding: 5%; }
+}
+@media (max-width:990px) {
+	.smart-padding { padding: 0%; }
+}
+
 .admin td   { font-family:Verdana, Geneva, sans-serif; font-size:8.5pt; color:#000000; }
 .subtext td { font-family:Verdana, Geneva, sans-serif; font-size:   7pt; color:#828282; }
 
@@ -100,6 +108,7 @@ and (max-width : 750px) {
     span.pagetop b { display: block; font-size: 15px; }
     table.comment-tree .comment a { display: inline-block; max-width: 200px; overflow: hidden; white-space: nowrap;
         text-overflow: ellipsis; vertical-align:top; }
+    // Separator line
     img[src='/static/s.gif'][width='40'] { width: 12px; }
     img[src='/static/s.gif'][width='80'] { width: 24px; }
     img[src='/static/s.gif'][width='120'] { width: 36px; }

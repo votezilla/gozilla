@@ -16,6 +16,7 @@ var (
 		secureCookieBlockKey	string		// Even more secure key for encrypting secure cookies.
 		newsAPIKey				string		// News API key.
 		printMask				PrintMask	// For selective logging.
+		port					string		// Which port to serve webpages from.
 	}
 )
 
@@ -35,6 +36,7 @@ func parseCommandLineFlags() {
 	f7 := flag.String("cookieBlockKey",	"a-lot-secret", "secure cookie block key");
 	f8 := flag.String("newsAPIKey",		"",				"news API key from https://newsapi.org");
 	f9 := flag.String("printMask",		"65535",		"log output mask");
+	fa := flag.String("port",			"8080",			"which port to serve webpages from");
 	
 	flag.Parse()
 	
@@ -46,11 +48,14 @@ func parseCommandLineFlags() {
 	flags.secureCookieHashKey	= *f6
 	flags.secureCookieBlockKey	= *f7
 	flags.newsAPIKey			= *f8
+	
 	printMask, err        		:= strconv.Atoi(*f9)
 	flags.printMask = PrintMask(printMask)
 	if err != nil {
 		flags.printMask = PrintMask(all_)
 	}
+	
+	flags.port					= *fa
 
 	printf("flags: %#v\n", flags)
 }
