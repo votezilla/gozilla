@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/url"
 	"math/rand"
+	"sort"
 	"sync"
 	"time"
 )
@@ -30,7 +31,13 @@ type Article struct {
 // For rendering the news article information.
 type ArticleArg struct {
 	Article
-	Index			int
+	//Index			int
+}
+
+type ArticleGroup struct {
+	ArticleArgs		[][]ArticleArg // Arrow of rows, each row has 2 articles.
+	Category		string
+	BgColor			string
 }
 
 // A news source to request the news from.
@@ -56,6 +63,18 @@ var (
 	
 	// Custom-written data from https://newsapi.org/v1/sources?language=en query
 	newsSources NewsSources
+	
+	categoryInfo map[string]string = map[string]string{
+		"business" 			: "#9f9",
+		"entertainment" 	: "#f7f",
+		"gaming" 			: "#7f7",
+		"general" 			: "#fff",
+		"music" 			: "#ff9",
+		"politics" 			: "#ddd",
+		"science-and-nature": "#99f",
+		"sport" 			: "#fd9",
+		"technology" 		: "#9ff",
+	}
 
 	// News source icons no longer part of API, so have to set manually.
 	newsSourceIcons map[string]string = map[string]string{
@@ -271,19 +290,26 @@ func newsServer() {
 	
 	rand.Seed(time.Now().UnixNano())
 	
-	pr(nw_, "newsServer - fetchNewsSources")
-	ok := fetchNewsSources()
-	if !ok {
-		return
-	}
-	
 	for {
 		pr(nw_, "========================================")
 		pr(nw_, "============ FETCHING NEWS =============")
 		pr(nw_, "========================================\n")
 		
+		pr(nw_, "Fetching news sources")
+		ok := fetchNewsSources()
+		if !ok {
+			pr(nw_, "Error: Failed to fetch news sources.  Probably Internet connectivity issues.  Trying again in 5 minutes.")
+			time.Sleep(5 * time.Minute)
+			continue
+		}
+		
 		c := make(chan []Article)
-		timeout := time.After(5 * time.Second)
+		
+		// 10 seconds to grab all news sources, unless it's debug, in which case make it 5 seconds for faster iteration.
+		timeout := time.After(10 * time.Second)
+		if flags.debug != "" {
+			timeout = time.After(5 * time.Second)
+		}
 		
 		prVal(nw_, "len(newsSources)", len(newsSources))
 		
@@ -308,11 +334,15 @@ func newsServer() {
 			}
 		}
 	
-		pr(nw_, "Copying new articles")
-		mutex.Lock()
-		articles = newArticles
-		mutex.Unlock()
-		pr(nw_, "New articles copied")
+		if float32(len(newArticles)) >= .8 * float32(len(articles)) {
+			pr(nw_, "Copying new articles")
+			mutex.Lock()
+			articles = newArticles
+			mutex.Unlock()
+			pr(nw_, "New articles copied")
+		} else {
+			pr(nw_, "Too many articles failed to fetch, probably Internet connectivity issues.  Will try again in 5 minutes.")
+		}
 	
 		pr(nw_, "Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)
@@ -341,6 +371,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	perm := rand.Perm(len(articles))
 	
 	mutex.RLock()
+	// TODO: change type ArticleArgs to just be []Article
 	for i := 0; i < numArticlesToDisplay; i++ {
 		article := articles[perm[i]] // shuffle the article order (to mix between sources)
 
@@ -348,39 +379,62 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articleArgs[i].Article = article
 
 		// Set the index
-		articleArgs[i].Index = i + 1
+		//articleArgs[i].Index = i + 1
 	}
 	mutex.RUnlock()
+	
+	sort.Slice(articleArgs, func(i, j int) bool {
+	  return articleArgs[i].Category < articleArgs[j].Category
+	})
+
+
+
+	numCategories := len(categoryInfo)
+	
+	articleGroups := make([]ArticleGroup, numCategories)
+	
+	const (
+		kArticlesPerRow = 2
+	)
+	
+	cat := 0
+	for category, bgColor := range categoryInfo {
+		row := 0
+		col := 0
+		
+		articleGroups[cat].Category = category
+		articleGroups[cat].BgColor = bgColor
+		
+		for _, articleArg := range articleArgs {
+			if articleArg.Category == category {
+				if col == 0 {
+					// Make room for new row
+					articleGroups[cat].ArticleArgs = append(articleGroups[cat].ArticleArgs, 
+														    make([]ArticleArg, kArticlesPerRow))
+				}
+				
+				articleGroups[cat].ArticleArgs[row][col] = articleArg
+				
+				// Inc row, col
+				col++
+				if col == kArticlesPerRow {
+					col = 0
+					row++
+				}
+			}
+		}
+		cat++
+	}
 
 	// Get the username.
 	userId := GetSession(r)
 	username := getUsername(userId)
-	
-	// Group the articles into article groups (so they can be displayed in columns).
-	numColumns := 2
-	articlesPerGroup := len(articleArgs) / numColumns
-	
-	//prVal(nw_, "len(articleArgs)", len(articleArgs))
-	//prVal(nw_, "articlesPerGroup", articlesPerGroup)
-	
-	articleGroups := make([][]ArticleArg, numColumns)
-	
-	if articlesPerGroup >= 1 {
-		for i := 0; i < numColumns; i++ {
-			//prVal(nw_, "i", i)
-			//prVal(nw_, "sliceStart: i * articlesPerGroup", i * articlesPerGroup)
-			//prVal(nw_, "sliceEnd: (i + 1) * articlesPerGroup - 1", (i + 1) * articlesPerGroup - 1)
-			articleGroups[i] = articleArgs[i * articlesPerGroup : (i + 1) * articlesPerGroup - 1]
-		}
-	}
-	
-	//prVal(nw_, "articleGroups", articleGroups)
 
 	// Render the news articles.
 	newsArgs := struct {
 		PageArgs
 		Username		string
-		ArticleGroups	[][]ArticleArg
+		ArticleGroups	[]ArticleGroup
 		LastColumnIdx	int
 		NavMenu			[]string
 		UrlPath			string
@@ -388,7 +442,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		PageArgs:		PageArgs{Title: "votezilla - News"},
 		Username:		username,
 		ArticleGroups:	articleGroups,
-		LastColumnIdx:	numColumns - 1,
+		//LastColumnIdx:	numColumns - 1,
 		NavMenu:		navMenu,
 		UrlPath:		"news",
 	}

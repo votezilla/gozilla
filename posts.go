@@ -28,7 +28,7 @@ func postsHandler(w http.ResponseWriter, r *http.Request) {
 		LIMIT 50;`)
 	defer rows.Close()
 	
-	var articleArgs []ArticleArg //make([]ArticleArg, len(rows))
+	var articleArgs []ArticleArg
 	
 	for rows.Next() {
 		check(rows.Scan(&title, &linkUrl, &created, &username))
@@ -53,7 +53,7 @@ func postsHandler(w http.ResponseWriter, r *http.Request) {
 				Language:		"EN",
 				Country:		"US",
 			},
-			Index: 		len(articleArgs) + 1,
+			//Index: 		len(articleArgs.Articles) + 1,
 		})
 	}
 	check(rows.Err())
