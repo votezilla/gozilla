@@ -37,6 +37,7 @@ type ArticleArg struct {
 type ArticleGroup struct {
 	ArticleArgs		[][]ArticleArg // Arrow of rows, each row has 2 articles.
 	Category		string
+	HeaderColor		string
 	BgColor			string
 }
 
@@ -64,18 +65,30 @@ var (
 	// Custom-written data from https://newsapi.org/v1/sources?language=en query
 	newsSources NewsSources
 	
-	categoryInfo map[string]string = map[string]string{
-		"business" 			: "#9f9",
-		"entertainment" 	: "#f7f",
-		"gaming" 			: "#7f7",
-		"general" 			: "#fff",
-		"music" 			: "#ff9",
-		"politics" 			: "#ddd",
-		"science-and-nature": "#99f",
-		"sport" 			: "#fd9",
-		"technology" 		: "#9ff",
+	headerColors map[string]string = map[string]string{
+		"business" 			: "#8e8",
+		"entertainment" 	: "#e85be4",
+		"gaming" 			: "#58d858",
+		"general" 			: "#ccc",
+		"music" 			: "#fd8",
+		"politics" 			: "#aaa",
+		"science-and-nature": "#8cf",
+		"sport" 			: "#88f",
+		"technology" 		: "#8ff",
 	}
 
+	bgColors map[string]string = map[string]string{
+		"business" 			: "#b2fdb2",
+		"entertainment" 	: "#fda5fd",
+		"gaming" 			: "#afa",
+		"general" 			: "#ddd",
+		"music" 			: "#feb",
+		"politics" 			: "#c7c6c6",
+		"science-and-nature": "#bdf",
+		"sport" 			: "#bbf",
+		"technology" 		: "#bff",
+	}
+	
 	// News source icons no longer part of API, so have to set manually.
 	newsSourceIcons map[string]string = map[string]string{
 		"abc-news-au": "https://icons.better-idea.org/icon?url=http://www.abc.net.au/news&size=70..120..200",
@@ -356,6 +369,19 @@ func newsServer() {
 // TODO: use a caching, resizing image proxy for the images.
 //
 //////////////////////////////////////////////////////////////////////////////
+/*func darkenColor(color string) darkerColor string {
+	var x, y, z int32
+	fmt.scanf("%1x%1x%1x", x, y, z)
+	
+	r := float32(x) / 255.0
+	g := float32(y) / 255.0
+	b := float32(z) / 255.0
+	
+	x = int32(x * 255.0)
+	y = int32(y * 255.0)
+	z = int32(z * 255.0)
+}*/
+
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	if (!newsServerRunning) {
 		go newsServer()
@@ -364,7 +390,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	RefreshSession(w, r)
 
-	numArticlesToDisplay := min(50, len(articles))
+	numArticlesToDisplay := len(articles)//min(50, len(articles))
 	
 	articleArgs := make([]ArticleArg, numArticlesToDisplay)
 	
@@ -389,21 +415,23 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 
 
-	numCategories := len(categoryInfo)
+	numCategories := len(bgColors)
 	
 	articleGroups := make([]ArticleGroup, numCategories)
 	
 	const (
 		kArticlesPerRow = 2
+		kRowsPerCategory = 3
 	)
 	
 	cat := 0
-	for category, bgColor := range categoryInfo {
+	for category, bgColor := range bgColors {
 		row := 0
 		col := 0
 		
 		articleGroups[cat].Category = category
 		articleGroups[cat].BgColor = bgColor
+		articleGroups[cat].HeaderColor = headerColors[category]
 		
 		for _, articleArg := range articleArgs {
 			if articleArg.Category == category {
@@ -420,6 +448,10 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 				if col == kArticlesPerRow {
 					col = 0
 					row++
+					
+					if row == kRowsPerCategory {
+						break
+					}
 				}
 			}
 		}

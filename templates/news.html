@@ -1,6 +1,6 @@
 {{define "body"}}
 <div class="smart-padding container-fluid">
-	<div class="row">
+	<div class="row" style="margin-left: -15px; margin-right: -15px;">
 		<div class="col-md-12">
 			<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
 				<tr><td bgcolor="#ff6600">
@@ -33,8 +33,9 @@
 		</div> {{/*col-md-12*/}}
 	</div> {{/*row*/}}
 	{{ range $_, $articleGroup := .ArticleGroups }}
-		<div class="row" style="background-color: {{$articleGroup.BgColor}}">
-			<div class="col-md-12 text-uppercase"><center><h5><strong>{{$articleGroup.Category}}</strong></h5></center></div>
+
+		<div class="row marginRow" style="color: #333; background-color: {{$articleGroup.HeaderColor}}/*#6f6*/;">
+			<div class="col-md-12 text-uppercase"><center><h6 style="color: #666; margin: 5px; text-shadow: 1px 1px 0px black;"><strong>{{$articleGroup.Category}}</strong></h6></center></div>
 		</div>
 
 		<div class="row" style="background-color: {{$articleGroup.BgColor}}">
@@ -66,8 +67,8 @@
 									<a href="user?id=unitedacademics" class="hnuser">unitedacademics</a>
 									<span class="age"><a href="item?id=14569339">0 minutes ago</a></span>
 									<span id="unv_14569339"></span> |
-									<a>hide</a> |
-									<a>discuss</a>
+									<!-- <a>hide</a> |
+									     <a>discuss</a> -->
 								</td>
 							</tr>
 							<tr class="spacer" style="height:5px"></tr>
