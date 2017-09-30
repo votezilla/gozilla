@@ -443,6 +443,9 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 				
 				articleGroups[cat].ArticleArgs[row][col] = articleArg
 				
+				prVal(nw_, "row", row)
+				prVal(nw_, "col", col)
+				
 				// Inc row, col
 				col++
 				if col == kArticlesPerRow {
