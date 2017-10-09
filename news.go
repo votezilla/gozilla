@@ -65,6 +65,18 @@ var (
 	// Custom-written data from https://newsapi.org/v1/sources?language=en query
 	newsSources NewsSources
 	
+	categoryOrder = []string{
+		"politics", 			
+		"general", 			
+		"business", 			
+		"sport", 			
+		"entertainment", 	
+		"science-and-nature",
+		"technology",		
+		"gaming",			
+		"music", 			
+	}
+	
 	headerColors map[string]string = map[string]string{
 		"politics" 			: "#aaa",
 		"general" 			: "#ccc",
@@ -417,6 +429,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
 	numArticlesToDisplay := len(articles)//min(50, len(articles))
+	prVal(nw_, "numArticlesToDisplay", numArticlesToDisplay)
 	
 	articleArgs := make([]ArticleArg, numArticlesToDisplay)
 	
@@ -429,9 +442,6 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Copy the article information.
 		articleArgs[i].Article = article
-
-		// Set the index
-		//articleArgs[i].Index = i + 1
 	}
 	mutex.RUnlock()
 	
@@ -451,12 +461,12 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	
 	cat := 0
-	for category, bgColor := range bgColors {
+	for _, category := range categoryOrder {
 		row := 0
 		col := 0
 		
 		articleGroups[cat].Category = category
-		articleGroups[cat].BgColor = bgColor
+		articleGroups[cat].BgColor = bgColors[category]
 		articleGroups[cat].HeaderColor = headerColors[category]
 		
 		for _, articleArg := range articleArgs {
