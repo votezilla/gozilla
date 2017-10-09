@@ -2,12 +2,14 @@ body    { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
 td      { font-family:Verdana, Geneva, sans-serif; font-size:12pt; /* 10pt; */ }
 
 /* Set 5% padding on a large screen (multi-column), but 0% on a small screen (single-column */
+/*
 @media (min-width:990px) {
 	.smart-padding { padding: 5%; !important }
 }
 @media (max-width:990px) {
 	.smart-padding { padding: 0%; !important }
 }
+*/
 
 .admin td   { font-family:Verdana, Geneva, sans-serif; font-size:8.5pt; color:#000000; }
 .subtext td { font-family:Verdana, Geneva, sans-serif; font-size:  9pt; color:#828282; }

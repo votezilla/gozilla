@@ -17,6 +17,7 @@ var (
 		newsAPIKey				string		// News API key.
 		printMask				PrintMask	// For selective logging.
 		port					string		// Which port to serve webpages from.
+		offlineNews				string		// Whether to use offline cached news, when working without Internet connection.
 	}
 )
 
@@ -37,6 +38,7 @@ func parseCommandLineFlags() {
 	f8 := flag.String("newsAPIKey",		"",				"news API key from https://newsapi.org");
 	f9 := flag.String("printMask",		"65535",		"log output mask");
 	fa := flag.String("port",			"8080",			"which port to serve webpages from");
+	fb := flag.String("offlineNews",    "",				"whether to use offline news");
 	
 	flag.Parse()
 	
@@ -56,6 +58,7 @@ func parseCommandLineFlags() {
 	}
 	
 	flags.port					= *fa
+	flags.offlineNews			= *fb
 
 	printf("flags: %#v\n", flags)
 }
