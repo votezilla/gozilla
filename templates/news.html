@@ -1,7 +1,7 @@
 {{define "body"}}
-<div class="smart-padding container-fluid" style="padding-right: 15px;">
-	<div class="row marginRow" style="margin-left: -15px; margin-right: -15px;" >
-		<div class="col-md-12" style="padding-right: 0px;">
+<div class="smart-padding container" style="padding-right: 15px;"> <!--container-fluid-->
+	<div class="row" style="margin-left: -15px; margin-right: -15px;" >
+		<div class="col-md-12" style="padding-left: 0px; padding-right: 0px;">
 			<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
 				<tr><td bgcolor="#ff6600">
 					<a href="news"><h1 style="text-align:center; margin: 0px;"><b>votezilla</b></h1></a>
@@ -32,67 +32,96 @@
 			</table>
 		</div> {{/*col-md-12*/}}
 	</div> {{/*row*/}}
-	{{ range $aaa, $articleGroup := .ArticleGroups }}
-		<!--
-		{{ if ne $aaa 0 }}
-			<div class="row marginRow">
-				<div class="col-md-12 text-uppercase"><center><h5 style="font-size: 1px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;"><strong> &nbsp; </strong></h6></center></div>
+	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
+		<div class="row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
+			<div class="col-md-12 text-uppercase" style="padding-left: 0px;">
+				<center>
+					<h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
+						<strong>
+							{{$articleGroup.Category}}
+						</strong>
+					</h5>
+				</center>
 			</div>
-		{{ end }}
-		-->
-		<div class="row marginRow" style="color: #333; background-color: {{$articleGroup.HeaderColor}}/*#6f6*/;">
-			<div class="col-md-12 text-uppercase"><center><h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;"><strong>{{$articleGroup.Category}}</strong></h6></center></div>
 		</div>
+		<div class="row" style="background-color: white">
+			{{ range $i, $articleCol := $articleGroup.ArticleArgs }}
+				{{ if and (eq $i $articleGroup.HeadlineSide) (eq $aaa 0) }}
+					<div class="col-md-6 hidden-sm hidden-xs" style="padding-left: 0px;"> <!--  style="width: 620px" -->
+				{{ else }}
+					<div class="col-md-6" style="padding-left: 0px;">
+				{{ end }}
+					{{ range $j, $article := $articleCol }}
+						{{ if ne $article.Size -1 }} {{/*-1 would be a cue to skip the article*/}}
+							{{ if eq $article.Size 1 }} {{/*1 means a large size*/}}
+								<center>
+								<a href="{{$article.Url}}" class="storylink" rel="nofollow">
+									<img src="{{$article.UrlToImage}}" width="100%" height="auto"><!-- "600" "400"-->
+								</a>
+								<table border="0" cellpadding="0" cellspacing="0" class="itemlist"><!-- width="600"-->
+									<tr>
+										<td rowspan="2"></td>
+										<td valign="top" class="votelinks"> &nbsp;
+										</td>
+										<td class="title">
+											<a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a>
+											<span class="sitebit comhead">(<a href="from?site={{$article.Host}}"><span class="sitestr">{{$article.Host}}</span></a>)</span>
+										</td>
+										<td></td>
+									</tr>
+									<tr>
+										<td></td>
+										<td class="subtext">
+											<span class="score" id="score_14569339">1 point</span>
+											by
+											<a href="user?id=unitedacademics" class="hnuser">unitedacademics</a>
+											<span class="age"><a href="item?id=14569339">0 minutes ago</a></span>
+											<span></span>
+										</td>
+									</tr>
+									<tr class="spacer" style="height:5px"></tr>
+								</table>
+								</center>
+							{{ else }}                  {{/*normal article size*/}}
+								<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
+									<tr>
+										<td rowspan="2">
+											<a href="{{$article.Url}}" class="storylink" rel="nofollow">
+												<img src="{{$article.UrlToImage}}" width="125" height="75">
+											</a>
+										</td>
+										<td valign="top" class="votelinks"> &nbsp;
+										</td>
+										<td class="title">
+											<a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a>
+											<span class="sitebit comhead">(<a href="from?site={{$article.Host}}"><span class="sitestr">{{$article.Host}}</span></a>)</span>
+											<!--<span class="sitebit comhead"><b>{{$article.Category}}</b></span>
+												<span class="sitebit comhead"><b>{{$article.Language}}</b></span>
+												<span class="sitebit comhead"><b>{{$article.Country}}</b></span>-->
+										</td>
+									</tr>
+									<tr>
+										<td></td>
+										<td class="subtext">
+											<span class="score" id="score_14569339">1 point</span>
+											by
+											<a href="user?id=unitedacademics" class="hnuser">unitedacademics</a>
+											<span class="age"><a href="item?id=14569339">0 minutes ago</a></span>
+											<span></span>
+										</td>
+									</tr>
+									<tr class="spacer" style="height:5px"></tr>
+								</table>
 
-		{{ range $i, $articleRow := $articleGroup.ArticleArgs }}
-			<div class="row" style="background-color: white <!--{{$articleGroup.BgColor}}-->">
-				{{ range $j, $article := $articleRow }}
-					<div class="col-md-6">
-						<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
-							<tr>
-								<td rowspan="2"><a href="{{$article.Url}}" class="storylink" rel="nofollow"><img src="{{$article.UrlToImage}}" width="125" height="75"></a></td>
-								<td valign="top" class="votelinks"> &nbsp;
-									<!--<center>
-										<div class='votearrow' title='upvote'></div>
-									</center>-->
-								</td>
-								<td class="title">
-									<a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a>
-									<span class="sitebit comhead">(<a href="from?site={{$article.Host}}"><span class="sitestr">{{$article.Host}}</span></a>)</span>
-									<!--<span class="sitebit comhead"><b>{{$article.Category}}</b></span>
-									    <span class="sitebit comhead"><b>{{$article.Language}}</b></span>
-										<span class="sitebit comhead"><b>{{$article.Country}}</b></span>-->
-								</td>
-								<!--<td>{{$i}}, {{$j}}</td>-->
-							</tr>
-							<tr>
-								<td></td>
-								<td class="subtext">
-									<span class="score" id="score_14569339">1 point</span>
-									by
-									<a href="user?id=unitedacademics" class="hnuser">unitedacademics</a>
-									<span class="age"><a href="item?id=14569339">0 minutes ago</a></span>
-									<span id="unv_14569339"></span> |
-									<!-- <a>hide</a> |
-									     <a>discuss</a> -->
-								</td>
-							</tr>
-							<tr class="spacer" style="height:5px"></tr>
-						</table>
-					</div> {{/*col-md-6*/}}
-				{{ end }} {{/*range $j, $article := $articleRow*/}}
-			</div> {{/*row*/}}
-		{{end}} {{/*range $i, $articleRow := $articleGroup.ArticleArgs*/}}
-
+							{{ end }} {{/*article size*/}}
+						{{ end }} {{/*{{ if ne $article.Size -1 }}*/}}
+					{{ end }} {{/*range $j, $article := $articleRow*/}}
+				</div> {{/*col-md-6*/}}
+			{{end}} {{/*range $i, $articleRow := $articleGroup.ArticleArgs*/}}
+		</div> {{/*row*/}}
 
 		{{/*if eq $aaa $.LastColumnIdx*/}}
-		<!-- TODO: deal with this later	<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
-				<tr class="morespace" style="height:10px"></tr>
-				<tr>
-					<td colspan="2"></td>
-					<td class="title"><a href="newest?next=14569097&amp;n=31" class="morelink" rel="nofollow">More</a></td>
-				</tr>
-			</table> -->
+
 		{{/*end*/}}
 	{{end}} {{/*range $_, $articleGroup := .ArticleGroups*/}}
 

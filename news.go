@@ -31,7 +31,7 @@ type Article struct {
 // For rendering the news article information.
 type ArticleArg struct {
 	Article
-	//Index			int
+	Size			int		// 0=normal, 1=large, 2=x-large
 }
 
 type ArticleGroup struct {
@@ -39,6 +39,7 @@ type ArticleGroup struct {
 	Category		string
 	HeaderColor		string
 	BgColor			string
+	HeadlineSide	int
 }
 
 // A news source to request the news from.
@@ -441,7 +442,8 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		article := articles[perm[i]] // shuffle the article order (to mix between sources)
 
 		// Copy the article information.
-		articleArgs[i].Article = article
+		articleArgs[i].Article	= article
+		articleArgs[i].Size		= 0 // normal size
 	}
 	mutex.RUnlock()
 	
@@ -451,43 +453,53 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 
 
-	numCategories := len(bgColors)
+	numCategories := len(categoryOrder)
 	
 	articleGroups := make([]ArticleGroup, numCategories)
 	
 	const (
 		kArticlesPerRow = 2
-		kRowsPerCategory = 3
+		kRowsPerCategory = 6//4
 	)
 	
 	cat := 0
-	for _, category := range categoryOrder {
+	headlineSide := 0 // The side that has the headline (large article).
+	for ccc, category := range categoryOrder {
 		row := 0
 		col := 0
 		
 		articleGroups[cat].Category = category
 		articleGroups[cat].BgColor = bgColors[category]
 		articleGroups[cat].HeaderColor = headerColors[category]
+		articleGroups[cat].HeadlineSide = headlineSide
 		
 		for _, articleArg := range articleArgs {
 			if articleArg.Category == category {
-				if col == 0 {
+				if row == 0 {
 					// Make room for new row
 					articleGroups[cat].ArticleArgs = append(articleGroups[cat].ArticleArgs, 
-														    make([]ArticleArg, kArticlesPerRow))
+														    make([]ArticleArg, kRowsPerCategory))
 				}
 				
-				articleGroups[cat].ArticleArgs[row][col] = articleArg
+				articleGroups[cat].ArticleArgs[col][row] = articleArg
 				
-				//prVal(nw_, "row", row)
-				//prVal(nw_, "col", col)
+				// First article on the "large side" is a headline (bigger), the remaining articles get skipped.
+				if col == headlineSide && ccc == 0 {
+					if row == 0 {
+						articleGroups[cat].ArticleArgs[col][row].Size =  1 // 1 means large article
+					} else {
+						articleGroups[cat].ArticleArgs[col][row].Size = -1 // -1 means skip the article
+					}
+				}
+				
+				prf(nw_, "colRowLargeside %d %d %d\n", col, row, headlineSide)
 				
 				// Inc row, col
 				col++
 				if col == kArticlesPerRow {
 					col = 0
 					row++
-					
+
 					if row == kRowsPerCategory {
 						break
 					}
@@ -495,6 +507,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		cat++
+		headlineSide = (headlineSide + 1) % 2 // The side with the headline switches each time, to look nice.
 	}
 
 	// Get the username.
