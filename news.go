@@ -303,12 +303,23 @@ func fetchNews(newsSource string, c chan []Article) {
 		// Set the news source
 		news.Articles[i].NewsSourceId = newsSource
 		
+		// Truncate the title if it's too long.
+		const kMaxTitleLength = 122	
+		if len(news.Articles[i].Title) > kMaxTitleLength {
+			news.Articles[i].Title = news.Articles[i].Title[0:kMaxTitleLength] + "..."
+		}
+		
 		// Parse the hostname.  TODO: parse away the "www."
 		u, err := url.Parse(news.Articles[i].Url)
 		if err != nil {
 			news.Articles[i].Host = "Error parsing hostname"
 		} else {
 			news.Articles[i].Host = u.Host
+		}
+		
+		// Hide the hostname to save space if the title is long.
+		if len(news.Articles[i].Title) > 90 {
+			news.Articles[i].Host = ""
 		}
 		
 		// Set the category, language, and country.
@@ -330,7 +341,7 @@ func newsServer() {
 	newsServerRunning = true
 	defer func(){newsServerRunning = false}()
 	
-	rand.Seed(time.Now().UnixNano())
+	//rand.Seed(time.Now().UnixNano()) // <-- not working?
 	
 	for {
 		pr(nw_, "========================================")
@@ -467,6 +478,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	for ccc, category := range categoryOrder {
 		row := 0
 		col := 0
+		filled := false
 		
 		articleGroups[cat].Category = category
 		articleGroups[cat].BgColor = bgColors[category]
@@ -492,8 +504,6 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 				
-				prf(nw_, "colRowLargeside %d %d %d\n", col, row, headlineSide)
-				
 				// Inc row, col
 				col++
 				if col == kArticlesPerRow {
@@ -501,11 +511,30 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 					row++
 
 					if row == kRowsPerCategory {
+						filled = true
 						break
 					}
 				}
 			}
 		}
+		
+		// If we ran out of articles, skip the rest
+		for !filled {
+			articleGroups[cat].ArticleArgs[col][row].Size = -1 // -1 means skip the article
+			
+			// Inc row, col
+			col++
+			if col == kArticlesPerRow {
+				col = 0
+				row++
+
+				if row == kRowsPerCategory {
+					filled = true
+					break
+				}
+			}
+		}
+		
 		cat++
 		headlineSide = (headlineSide + 1) % 2 // The side with the headline switches each time, to look nice.
 	}
