@@ -1,7 +1,7 @@
 {{define "body"}}
-<div class="smart-padding container" style="padding-right: 15px;"> <!--container-fluid-->
-	<div class="row" style="margin-left: -15px; margin-right: -15px;" >
-		<div class="col-md-12" style="padding-left: 0px; padding-right: 0px;">
+<div class="smart-padding container vz-container">
+	<div class="row vz-row">
+		<div class="col-md-12 vz-col-md-12">
 			<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
 				<tr><td bgcolor="#ff6600">
 					<a href="news"><h1 style="text-align:center; margin: 0px;"><b>votezilla</b></h1></a>
@@ -34,7 +34,7 @@
 	</div> {{/*row*/}}
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		<div class="row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
-			<div class="col-md-12 text-uppercase" style="padding-left: 0px;">
+			<div class="col-md-12 vz-col-md-12 text-uppercase">
 				<center>
 					<h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
 						<strong>
@@ -46,19 +46,15 @@
 		</div>
 		<div class="row" style="background-color: white">
 			{{ range $i, $articleCol := $articleGroup.ArticleArgs }}
-				{{ if and (eq $i $articleGroup.HeadlineSide) (eq $aaa 0) }}
-					<div class="col-md-6 hidden-sm hidden-xs" style="padding-left: 0px;"> <!--  style="width: 620px" -->
-				{{ else }}
-					<div class="col-md-6" style="padding-left: 0px;">
-				{{ end }}
+				<div class="col-md-6 vz-col-md-6 {{if gt $aaa 0}}vz-col-non-headline{{end}}">
 					{{ range $j, $article := $articleCol }}
 						{{ if ne $article.Size -1 }} {{/*-1 would be a cue to skip the article*/}}
 							{{ if eq $article.Size 1 }} {{/*1 means a large size*/}}
 								<center>
 								<a href="{{$article.Url}}" class="storylink" rel="nofollow">
-									<img src="{{$article.UrlToImage}}" width="100%" height="auto"><!-- "600" "400"-->
+									<img src="{{$article.UrlToImage}}" width="100%" height="auto">
 								</a>
-								<table border="0" cellpadding="0" cellspacing="0" class="itemlist"><!-- width="600"-->
+								<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
 									<tr>
 										<td rowspan="2"></td>
 										<td valign="top" class="votelinks"> &nbsp;
