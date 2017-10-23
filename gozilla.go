@@ -402,7 +402,6 @@ func main() {
 	
 	http.HandleFunc("/",                hwrap(newsHandler))
 	http.HandleFunc("/news/",           hwrap(newsHandler))
-	http.HandleFunc("/posts/",          hwrap(postsHandler))
 	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
 	http.HandleFunc("/ip/",             hwrap(ipHandler))
 	http.HandleFunc("/login/",          hwrap(loginHandler))
