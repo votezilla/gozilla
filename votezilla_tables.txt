@@ -42,13 +42,22 @@ CREATE TABLE votezilla.Post (
 );
 
 CREATE TABLE votezilla.LinkPost (
-	LinkURL			TEXT
+	LinkURL			TEXT,
+	UrlToImage		TEXT -- TODO: add to LinkPost
 ) INHERITS (votezilla.Post);
 
 CREATE TABLE votezilla.BlogPost (
 	Blog			TEXT
 ) INHERITS (votezilla.Post);
 
+CREATE TABLE votezilla.NewsPost (
+	Description		TEXT,	
+	PublishedAt		TIMESTAMPTZ,	
+	NewsSourceId	TEXT	NOT NULL,
+	Category		TEXT	NOT NULL,
+	Language		TEXT	NOT NULL,
+	Country			TEXT	NOT NULL
+) INHERITS (votezilla.LinkPost);
 
 
 DROP TABLE votezilla.LinkPost;

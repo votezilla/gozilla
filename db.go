@@ -39,6 +39,7 @@ func CloseDatabase() {
 // Panics on error.
 func DbInsert(query string, values ...interface{}) int {
 	var lastInsertId int
+	
 	check(db.QueryRow(
 		query,
 		values...

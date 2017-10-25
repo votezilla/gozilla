@@ -388,16 +388,7 @@ func init() {
 	parseTemplateFiles()
 }
 
-func main() {
-	print("main")
-	
-	parseCommandLineFlags()
-   
-	InitNews()
-	
-	OpenDatabase()
-	defer CloseDatabase()	
-	
+func WebServer() {
 	InitSecurity()
 	
 	http.HandleFunc("/",                hwrap(newsHandler))
@@ -406,7 +397,7 @@ func main() {
 	http.HandleFunc("/ip/",             hwrap(ipHandler))
 	http.HandleFunc("/login/",          hwrap(loginHandler))
 	http.HandleFunc("/logout/",         hwrap(logoutHandler))
-	http.HandleFunc("/newsSources/",    hwrap(newsSourcesHandler))
+//	http.HandleFunc("/newsSources/",    hwrap(newsSourcesHandler))
 	http.HandleFunc("/register/",       hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",hwrap(registerDetailsHandler))
 	http.HandleFunc("/registerDone/",   hwrap(registerDoneHandler))
@@ -418,4 +409,20 @@ func main() {
 	pr(go_, "Listening on http://localhost:" + flags.port + "...")
 	http.ListenAndServe(":" + flags.port, nil)
 }
+
+func main() {
+	print("main")
+	
+	parseCommandLineFlags()
+
+	OpenDatabase()
+	defer CloseDatabase()	
+
+	if (flags.newsServer != "") {
+		NewsServer()
+	} else {
+		WebServer()
+	}
+}
+
 

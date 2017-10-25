@@ -18,6 +18,7 @@ var (
 		printMask				PrintMask	// For selective logging.
 		port					string		// Which port to serve webpages from.
 		offlineNews				string		// Whether to use offline cached news, when working without Internet connection.
+		newsServer				string		// Whether to be the news server.
 	}
 )
 
@@ -39,6 +40,7 @@ func parseCommandLineFlags() {
 	f9 := flag.String("printMask",		"65535",		"log output mask");
 	fa := flag.String("port",			"8080",			"which port to serve webpages from");
 	fb := flag.String("offlineNews",    "",				"whether to use offline news");
+	fc := flag.String("newsServer",		"",				"whether to be the news server");
 	
 	flag.Parse()
 	
@@ -59,6 +61,7 @@ func parseCommandLineFlags() {
 	
 	flags.port					= *fa
 	flags.offlineNews			= *fb
+	flags.newsServer			= *fc
 
 	printf("flags: %#v\n", flags)
 }

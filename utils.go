@@ -36,14 +36,15 @@ func check(err error) {
 ///////////////////////////////////////////////////////////////////////////////
 type PrintMask uint
 const (
-	nw_		= PrintMask( 1)
-	go_		= PrintMask( 2)
-	sc_		= PrintMask( 4)
-	db_ 	= PrintMask( 8)
-	fo_		= PrintMask(16)
-	po_		= PrintMask(32)
+	nw_		= PrintMask( 1)			// news.go
+	go_		= PrintMask( 2)			// gozilla.go
+	sc_		= PrintMask( 4)			// security.go
+	db_ 	= PrintMask( 8)			// db.go
+	fo_		= PrintMask(16)			// forms.go
+	po_		= PrintMask(32)			// posts.go
+	ns_		= PrintMask(64)			// newsServer.go
 	
-	all_	= PrintMask(64 - 1)
+	all_	= PrintMask(128 - 1)
 )
 
 func print(text string) {
