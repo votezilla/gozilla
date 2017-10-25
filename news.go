@@ -10,6 +10,7 @@ import (
 type ArticleArg struct {
 	Article
 	Size			int		// 0=normal, 1=large, 2=x-large
+	AuthorIconUrl	string
 }
 
 type ArticleGroup struct {
@@ -128,6 +129,10 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		// Copy the article information.
 		articleArgs[i].Article	= article
 		articleArgs[i].Size		= 0 // normal size
+		
+		if article.NewsSourceId != "" {
+			articleArgs[i].AuthorIconUrl = newsSourceIcons[article.NewsSourceId]
+		}
 	}
 	
 	// Sort by category.

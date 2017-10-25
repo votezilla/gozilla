@@ -88,10 +88,11 @@
 										<td style="min-width: 5px;"></td>
 										<td class="title">
 											<a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a>
+											<!--
 											{{ if gt (len $article.Host) 0 }}
 												<span class="sitebit comhead"><a href="from?site={{$article.Host}}"><span class="sitestr">({{$article.Host}})</span></a></span>
 											{{ end }}
-											<!--<span class="sitebit comhead"><b>{{$article.Language}}</b></span>
+											    <span class="sitebit comhead"><b>{{$article.Language}}</b></span>
 												<span class="sitebit comhead"><b>{{$article.Country}}</b></span>-->
 										</td>
 									</tr>
@@ -100,8 +101,11 @@
 											<td></td>
 											<td class="subtext">
 												<span>^1v</span>
-												<span> by <a class="hnuser">{{$article.Author}}</a></span>
-												<span class="age"><a>0 minutes ago</a></span>
+												{{ if ne $article.AuthorIconUrl "" }}
+													<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+												{{ end }}
+												<span><a style="color: #88f">{{$article.Author}}</a></span> &middot;
+												<span class="age">2h</span>
 											</td>
 										</tr>
 									{{ end }}
