@@ -311,17 +311,13 @@ func NewsServer() {
 		sqlStr := `INSERT INTO votezilla.NewsPost(
 				     UserId, Title, LinkURL, UrlToImage,
 				     Description, PublishedAt, NewsSourceId, Category, Language, Country)
-				   VALUES` //(
+				   VALUES`
 		vals := []interface{}{}
 		
 		vals = append(vals, -1) // $1 = UserId = -1
 	
 		argId := 2 // arguments start at $2
 		for _, a := range newArticles {	
-			//if i > 0 { // TEST HACK!!
-			//	break
-			//}
-			
 			sqlStr += fmt.Sprintf("($1::bigint,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d),", 
 				argId, argId+1, argId+2, argId+3, argId+4, argId+5, argId+6, argId+7, argId+8)
 			argId += 9
