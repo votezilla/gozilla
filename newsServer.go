@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -294,41 +296,52 @@ func NewsServer() {
 						break fetchNewsLoop
 				}
 			}
+			
+			if len(newArticles) < 50 {
+				pr(ns_, "Error: Failed to fetch all the news.  Probably Internet connectivity issues.  Will populate the database anyways.")
+				
+				time.Sleep(5 * time.Minute)
+				continue
+			}
 		}
 				
 		prVal(ns_, "len(newArticles)", len(newArticles))
 	
+		// Insert the news articles all in one query.
+		sqlStr := `INSERT INTO votezilla.NewsPost(
+				     UserId, Title, LinkURL, UrlToImage,
+				     Description, PublishedAt, NewsSourceId, Category, Language, Country)
+				   VALUES` //(
+		vals := []interface{}{}
+		
+		vals = append(vals, -1) // $1 = UserId = -1
+	
+		argId := 2 // arguments start at $2
 		for _, a := range newArticles {	
-			prVal(ns_, "a", a)
+			//if i > 0 { // TEST HACK!!
+			//	break
+			//}
 			
-			DbInsert(
-				`INSERT INTO votezilla.NewsPost(
-					UserId, Title, LinkURL, UrlToImage, 
-					Description, PublishedAt, NewsSourceId, Category, Language, Country) 
-				 VALUES(
-					$1::bigint, $2, $3, $4,
-					$5, $6, $7, $8, $9, $10) returning id;`, 
-				-1, a.Title, a.Url, a.UrlToImage,
+			sqlStr += fmt.Sprintf("($1::bigint,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d),", 
+				argId, argId+1, argId+2, argId+3, argId+4, argId+5, argId+6, argId+7, argId+8)
+			argId += 9
+			vals = append(vals, 
+				a.Title, a.Url, a.UrlToImage,
 				a.Description, a.PublishedAt, a.NewsSourceId, a.Category, a.Language, a.Country)			
 		}
-
-		// TODO: add the Internet connectivity error message if necessary.
-/*
-		posts := fetchPosts()
-
-		if float32(len(newArticles)) >= .8 * float32(len(articles)) {
-			pr(ns_, "Copying new articles")
-			mutex.Lock()
-			articles = append(posts, newArticles...)
-
-			prf(ns_, "posts: %d newArticles: %d --> articles: %d\n", len(posts), len(newArticles)) 
-
-			mutex.Unlock()
-			pr(ns_, "New articles copied")
-		} else {
-			pr(ns_, "Too many articles failed to fetch, probably Internet connectivity issues.  Will try again in 5 minutes.")
-		}
-*/
+		//trim the last ',', add a trailing ';'
+		sqlStr = strings.TrimSuffix(sqlStr, ",")
+		sqlStr += ";"
+		
+		prVal(ns_, "sqlStr", sqlStr)
+		
+		//prepare the statement
+		stmt, err := db.Prepare(sqlStr)
+		check(err)
+		defer stmt.Close()
+		//format all vals at once
+		_, err = stmt.Exec(vals...)
+		check(err)
 
 		pr(ns_, "Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)

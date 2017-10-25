@@ -231,11 +231,11 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			userId,
 			data.Name,
 			data.Country,
-			data.Location, // TODO: remove ZipCode and City, add Location
+			data.Location,
 			data.BirthYear,
 			data.Gender,
 			data.Party,
-			pq.Array(data.Races), // TODO: change Race to Races[]
+			pq.Array(data.Races),
 			data.Marital,
 			data.Schooling)
 		

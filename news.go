@@ -96,6 +96,23 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	articleArgs := make([]ArticleArg, numArticlesToDisplay)
 	
+	/*
+	posts := fetchPosts()
+
+	if float32(len(newArticles)) >= .8 * float32(len(articles)) {
+		pr(ns_, "Copying new articles")
+		mutex.Lock()
+		articles = append(posts, newArticles...)
+
+		prf(ns_, "posts: %d newArticles: %d --> articles: %d\n", len(posts), len(newArticles)) 
+
+		mutex.Unlock()
+		pr(ns_, "New articles copied")
+	} else {
+		pr(ns_, "Too many articles failed to fetch, probably Internet connectivity issues.  Will try again in 5 minutes.")
+	}
+	*/
+	
 	// TODO: Grab news from votezilla.NewsPost mixed with votezilla.Post... something like that!
 	/*
 	perm := rand.Perm(len(articles))
