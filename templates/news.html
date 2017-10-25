@@ -99,13 +99,15 @@
 									{{ if lt (len $article.Title) 100 }}
 										<tr>
 											<td></td>
-											<td class="subtext">
-												<span>^1v</span>
+											<td class="subtext" style="width: 100%">
+											<span style="float: left">
 												{{ if ne $article.AuthorIconUrl "" }}
 													<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
 												{{ end }}
 												<span><a style="color: #88f">{{$article.Author}}</a></span> &middot;
-												<span class="age">2h</span>
+												<span class="age" align="right">2h</span>
+											</span>
+											<span style="float: right">^1v <a>q</a> <a>r</a> <a>!</a></span>
 											</td>
 										</tr>
 									{{ end }}
