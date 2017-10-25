@@ -79,7 +79,7 @@
 								</center>
 							{{ else }}                  {{/*normal article size*/}}
 								<table border="0" cellpadding="0" cellspacing="0" class="itemlist">
-									<tr>
+									<tr valign="top">
 										<td rowspan="2">
 											<a href="{{$article.Url}}" class="storylink" rel="nofollow">
 												<img src="{{$article.UrlToImage}}" width="125" height="75"> <!--125 x 75   150x90-->
@@ -91,8 +91,7 @@
 											{{ if gt (len $article.Host) 0 }}
 												<span class="sitebit comhead"><a href="from?site={{$article.Host}}"><span class="sitestr">({{$article.Host}})</span></a></span>
 											{{ end }}
-											<!--<span class="sitebit comhead"><b>{{$article.Category}}</b></span>
-												<span class="sitebit comhead"><b>{{$article.Language}}</b></span>
+											<!--<span class="sitebit comhead"><b>{{$article.Language}}</b></span>
 												<span class="sitebit comhead"><b>{{$article.Country}}</b></span>-->
 										</td>
 									</tr>
@@ -100,17 +99,9 @@
 										<tr>
 											<td></td>
 											<td class="subtext">
-												<span class="caret">^</span>
-												<span>1</span>
-													<!--
-													by
-													<a href="user?id=unitedacademics" class="hnuser">unitedacademics</a>
-													<span class="age"><a href="item?id=14569339">0 minutes ago</a></span>
-													<span></span>
-													-->
-												<span class="dropup">
-													<span class="caret">v</span>
-												</span>
+												<span>^1v</span>
+												<span> by <a class="hnuser">{{$article.Author}}</a></span>
+												<span class="age"><a>0 minutes ago</a></span>
 											</td>
 										</tr>
 									{{ end }}

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/url"
 	"strings"
 	"time"
 )
@@ -215,15 +214,7 @@ func fetchNews(newsSource string, c chan []Article) {
 	for i := 0; i < len(news.Articles); i++ {
 		// Set the news source
 		news.Articles[i].NewsSourceId = newsSource
-		
-		// Parse the hostname.  TODO: parse away the "www."
-		u, err := url.Parse(news.Articles[i].Url)
-		if err != nil {
-			news.Articles[i].Host = "Error parsing hostname"
-		} else {
-			news.Articles[i].Host = u.Host
-		}
-		
+				
 		// Set the category, language, and country.
 		news.Articles[i].Category = newsSources[newsSource].Category
 		news.Articles[i].Language = newsSources[newsSource].Language
@@ -241,8 +232,6 @@ func fetchNews(newsSource string, c chan []Article) {
 //
 //////////////////////////////////////////////////////////////////////////////
 func NewsServer() {
-	//rand.Seed(time.Now().UnixNano()) // <-- not working?
-
 	var newArticles []Article
 
 	pr(ns_, "========================================")
@@ -338,6 +327,8 @@ func NewsServer() {
 		//format all vals at once
 		_, err = stmt.Exec(vals...)
 		check(err)
+		
+		//TODO: Remove duplicate news articles.
 
 		pr(ns_, "Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)

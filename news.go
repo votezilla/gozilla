@@ -2,8 +2,8 @@ package main
 
 import (
 	"net/http"
+	"math/rand"
 	"sort"
-	"sync"
 )
 
 // For rendering the news article information.
@@ -38,7 +38,6 @@ type NewsSources map[string]NewsSource
 
 var (
 	// newsServer populates the articles.
-	mutex = &sync.RWMutex{}
 	articles []Article
 	
 	// Custom-written data from https://newsapi.org/v1/sources?language=en query
@@ -91,60 +90,45 @@ var (
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
+	// TODO: cache this, fetch every minute?
+	newArticles := fetchArticles()
+	posts := fetchPosts()
+	
+	prf(ns_, "Fetched %d articles and %d posts", len(newArticles), len(posts))
+	
+	articles = append(posts, newArticles...)
+	
 	numArticlesToDisplay := len(articles)//min(50, len(articles))
 	prVal(nw_, "numArticlesToDisplay", numArticlesToDisplay)
 	
+	prf(ns_, "There are now %d articles total", len(articles))
+	
 	articleArgs := make([]ArticleArg, numArticlesToDisplay)
 	
-	/*
-	posts := fetchPosts()
-
-	if float32(len(newArticles)) >= .8 * float32(len(articles)) {
-		pr(ns_, "Copying new articles")
-		mutex.Lock()
-		articles = append(posts, newArticles...)
-
-		prf(ns_, "posts: %d newArticles: %d --> articles: %d\n", len(posts), len(newArticles)) 
-
-		mutex.Unlock()
-		pr(ns_, "New articles copied")
-	} else {
-		pr(ns_, "Too many articles failed to fetch, probably Internet connectivity issues.  Will try again in 5 minutes.")
-	}
-	*/
-	
-	// TODO: Grab news from votezilla.NewsPost mixed with votezilla.Post... something like that!
-	/*
 	perm := rand.Perm(len(articles))
 	perm[0] = 0 // HACK!!
 	
-	prVal(nw_, "perm", perm)
+	//prVal(nw_, "perm", perm)
 	
-	mutex.RLock()
 	// TODO: change type ArticleArgs to just be []Article
 	for i := 0; i < numArticlesToDisplay; i++ {
 		article := articles[perm[i]] // shuffle the article order (to mix between sources)
+
+		// Truncate the title if it's too long.
+		const kMaxTitleLength = 122	
+		if len(article.Title) > kMaxTitleLength {
+			article.Title = article.Title[0:kMaxTitleLength] + "..."
+		}
+
+		// Hide the hostname to save space if the title is long.
+		if len(article.Title) > 90 {
+			article.Host = ""
+		}
 
 		// Copy the article information.
 		articleArgs[i].Article	= article
 		articleArgs[i].Size		= 0 // normal size
 	}
-	mutex.RUnlock()
-	*/
-	
-	// TODO: add this code somewhere
-	/*
-	// Truncate the title if it's too long.
-	const kMaxTitleLength = 122	
-	if len(news.Articles[i].Title) > kMaxTitleLength {
-		news.Articles[i].Title = news.Articles[i].Title[0:kMaxTitleLength] + "..."
-	}
-
-	// Hide the hostname to save space if the title is long.
-	if len(news.Articles[i].Title) > 90 {
-		news.Articles[i].Host = ""
-	}
-	*/
 	
 	// Sort by category.
 	// TODO: sort by category, then by rank.
@@ -253,6 +237,8 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		NavMenu:		navMenu,
 		UrlPath:		"news",
 	}
+	
+	//prVal(nw_, "newsArgs", newsArgs)
 	
 	executeTemplate(w, "news", newsArgs)
 }
