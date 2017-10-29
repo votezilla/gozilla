@@ -116,7 +116,7 @@ func fetchNewsSources() bool {
 	
 	prVal(ns_, "newsRequestUrl", newsRequestUrl)
 	
-	resp, err := httpGet(newsRequestUrl, 10.0)
+	resp, err := httpGet(newsRequestUrl, 60.0)
 	if err != nil {
 		prVal(ns_, "fetchNewsSources request err", err)
 		return false
@@ -169,13 +169,13 @@ func fetchNews(newsSource string, c chan []Article) {
 	// Site: https://newsapi.org/
 	// Note: I should be passing in category, language, and country parameters.
 	newsRequestUrl := "https://newsapi.org/v1/articles"
-	//newsRequestUrl += "?sortBy=latest"
+	//newsRequestUrl += "?sortBy=latest" // top, latest, or popular
 	newsRequestUrl += "?apiKey=" + flags.newsAPIKey
 	newsRequestUrl += "&source=" + newsSource
 	
 	prVal(ns_, "newsRequestUrl", newsRequestUrl)
 	
-	resp, err := httpGet(newsRequestUrl, 5.0)
+	resp, err := httpGet(newsRequestUrl, 60.0)
 	if err != nil {
 		prf(ns_, "Error fetching news from '%s': '%s'\n", newsSource, err)
 		c <- []Article{}
@@ -259,8 +259,7 @@ func NewsServer() {
 
 			c := make(chan []Article)
 
-			// 10 seconds to grab all news sources, unless it's debug, in which case make it 5 seconds for faster iteration.
-			timeout := time.After(10 * time.Second)
+			timeout := time.After(60 * time.Second)
 
 			prVal(ns_, "len(newsSources)", len(newsSources))
 
@@ -304,18 +303,35 @@ func NewsServer() {
 		vals := []interface{}{}
 		
 		vals = append(vals, -1) // $1 = UserId = -1
+		
+		defaultTime := time.Now().Format(time.UnixDate)
 	
 		argId := 2 // arguments start at $2
 		for _, a := range newArticles {	
 			sqlStr += fmt.Sprintf("($1::bigint,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d),", 
 				argId, argId+1, argId+2, argId+3, argId+4, argId+5, argId+6, argId+7, argId+8)
 			argId += 9
+			
+			// Null PublishedAt causes uniqueness problems, so use the current time as a replacement in this case.
+			publishedAt := a.PublishedAt
+			if len(publishedAt) == 0 {
+				publishedAt = defaultTime
+			}
+			
 			vals = append(vals, 
 				a.Title, a.Url, a.UrlToImage,
-				a.Description, a.PublishedAt, a.NewsSourceId, a.Category, a.Language, a.Country)			
+				a.Description, 
+				publishedAt, 
+				a.NewsSourceId, a.Category, a.Language, a.Country)	
+				
+			prVal(ns_, "a.PublishedAt", ConvertNullString(a.PublishedAt))
 		}
 		//trim the last ',', add a trailing ';'
 		sqlStr = strings.TrimSuffix(sqlStr, ",")
+		
+		// Do not insert duplicate news articles.
+		sqlStr += " ON CONFLICT DO NOTHING"
+		
 		sqlStr += ";"
 		
 		prVal(ns_, "sqlStr", sqlStr)
@@ -334,3 +350,25 @@ func NewsServer() {
 		time.Sleep(5 * time.Minute)
 	}
 }
+
+/*
+Various tests for, and eliminations of, duplicate news data:
+
+select publishedat, title, count(*) from votezilla.newspost group by 1, 2;
+
+SELECT PublishedAt, Title, min(ctid)
+FROM votezilla.NewsPost
+GROUP BY 1, 2
+HAVING count(*) > 1
+WITH x AS (
+	SELECT PublishedAt, Title, min(ctid)
+	FROM votezilla.NewsPost
+	GROUP BY 1, 2
+	HAVING count(*) > 1
+)
+DELETE FROM votezilla.NewsPost n
+USING x
+WHERE n.PublishedAt = x.PublishedAt AND n.Title = x.Title
+AND n.ctid <> x.min
+RETURNING *;
+*/

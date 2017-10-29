@@ -1,4 +1,7 @@
 # Executables:
 *.exe
+*.exe~
 test.html
+static/downloads/*
+static/thumbnails/*
 

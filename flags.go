@@ -19,6 +19,8 @@ var (
 		port					string		// Which port to serve webpages from.
 		offlineNews				string		// Whether to use offline cached news, when working without Internet connection.
 		newsServer				string		// Whether to be the news server.
+		imageServer				string		// Whether to be the image server.
+		test					string		// Whether to run a simple test, instead of the actual server.
 	}
 )
 
@@ -41,6 +43,8 @@ func parseCommandLineFlags() {
 	fa := flag.String("port",			"8080",			"which port to serve webpages from");
 	fb := flag.String("offlineNews",    "",				"whether to use offline news");
 	fc := flag.String("newsServer",		"",				"whether to be the news server");
+	fd := flag.String("imageServer",	"",				"whether to be the image server");
+	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server.");
 	
 	flag.Parse()
 	
@@ -62,6 +66,8 @@ func parseCommandLineFlags() {
 	flags.port					= *fa
 	flags.offlineNews			= *fb
 	flags.newsServer			= *fc
+	flags.imageServer			= *fd
+	flags.test					= *fe
 
 	printf("flags: %#v\n", flags)
 }

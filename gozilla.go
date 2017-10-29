@@ -418,7 +418,9 @@ func main() {
 	OpenDatabase()
 	defer CloseDatabase()	
 
-	if (flags.newsServer != "") {
+	if flags.imageServer != "" {
+		ImageServer()
+	} else if flags.newsServer != "" {
 		NewsServer()
 	} else {
 		WebServer()

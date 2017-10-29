@@ -61,3 +61,14 @@ func DbExists(query string, values ...interface{}) bool {
 	rows := DbQuery(query, values...)
 	return rows.Next()
 }
+
+// If string is empty, convert to to NULL.
+func ConvertNullString(s string) sql.NullString {
+    if len(s) == 0 {
+        return sql.NullString{}
+    }
+    return sql.NullString{
+         String: s,
+         Valid: true,
+    }
+}

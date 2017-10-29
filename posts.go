@@ -23,14 +23,15 @@ func fetchArticles() (articleArgs []Article) {
 	var country			string
 	
 	rows := DbQuery(
-		`SELECT Title, Description, LinkUrl, UrlToImage, PublishedAt, NewsSourceId, Category, Language, Country
+		`SELECT Title, Description, LinkUrl, COALESCE(UrlToImage, ''), COALESCE(PublishedAt, Created), NewsSourceId, 
+				Category, Language, Country
 		 FROM votezilla.NewsPost
 		 LIMIT 600;`)
 	defer rows.Close()
 
 	for rows.Next() {
-		check(rows.Scan(&title, &description, &linkUrl, &urlToImage, &publishedAt, &newsSourceId, &category,
-					    &language, &country))
+		check(rows.Scan(&title, &description, &linkUrl, &urlToImage, &publishedAt, &newsSourceId, 
+					    &category, &language, &country))
 
 		//prVal(po_, "title", title)		
 		//prVal(po_, "description", description)	

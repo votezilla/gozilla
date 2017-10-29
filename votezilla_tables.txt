@@ -42,8 +42,10 @@ CREATE TABLE votezilla.Post (
 );
 
 CREATE TABLE votezilla.LinkPost (
-	LinkURL			TEXT,
-	UrlToImage		TEXT -- TODO: add to LinkPost
+	LinkURL				TEXT,
+	UrlToImage			TEXT,
+	ThumbnailFilePath	TEXT,
+	ThumbnailStatus	INT			DEFAULT 0;
 ) INHERITS (votezilla.Post);
 
 CREATE TABLE votezilla.BlogPost (
@@ -56,7 +58,8 @@ CREATE TABLE votezilla.NewsPost (
 	NewsSourceId	TEXT	NOT NULL,
 	Category		TEXT	NOT NULL,
 	Language		TEXT	NOT NULL,
-	Country			TEXT	NOT NULL
+	Country			TEXT	NOT NULL,
+	UNIQUE(PublishedAt, Title)
 ) INHERITS (votezilla.LinkPost);
 
 
