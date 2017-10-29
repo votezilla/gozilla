@@ -304,18 +304,16 @@ func NewsServer() {
 		
 		vals = append(vals, -1) // $1 = UserId = -1
 		
-		defaultTime := time.Now().Format(time.UnixDate)
-	
 		argId := 2 // arguments start at $2
 		for _, a := range newArticles {	
-			sqlStr += fmt.Sprintf("($1::bigint,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d),", 
+			sqlStr += fmt.Sprintf("($1::bigint,$%d,$%d,$%d,$%d,$%d::timestamptz,$%d,$%d,$%d,$%d),", 
 				argId, argId+1, argId+2, argId+3, argId+4, argId+5, argId+6, argId+7, argId+8)
 			argId += 9
 			
-			// Null PublishedAt causes uniqueness problems, so use the current time as a replacement in this case.
+			// Null PublishedAt causes uniqueness problems, so use zero time as a replacement in this case.
 			publishedAt := a.PublishedAt
 			if len(publishedAt) == 0 {
-				publishedAt = defaultTime
+				publishedAt = "epoch" //"1970-01-01 00:00:00" // January 1, year 1 00:00:00 UTC.
 			}
 			
 			vals = append(vals, 
@@ -323,8 +321,6 @@ func NewsServer() {
 				a.Description, 
 				publishedAt, 
 				a.NewsSourceId, a.Category, a.Language, a.Country)	
-				
-			prVal(ns_, "a.PublishedAt", ConvertNullString(a.PublishedAt))
 		}
 		//trim the last ',', add a trailing ';'
 		sqlStr = strings.TrimSuffix(sqlStr, ",")
@@ -354,7 +350,7 @@ func NewsServer() {
 /*
 Various tests for, and eliminations of, duplicate news data:
 
-select publishedat, title, count(*) from votezilla.newspost group by 1, 2;
+select publishedat, title, count(*) from votezilla.newspost group by 1, 2 having count(*) > 1;
 
 SELECT PublishedAt, Title, min(ctid)
 FROM votezilla.NewsPost
