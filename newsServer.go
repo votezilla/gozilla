@@ -279,6 +279,11 @@ func NewsServer() {
 						numSourcesFetched++
 
 						prVal(ns_, "New articles fetched", numSourcesFetched)
+						
+						if numSourcesFetched == len(newsSources) {
+							pr(ns_, "Fetched all news sources!")
+							break fetchNewsLoop
+						}
 					case <- timeout:
 						pr(ns_, "Timeout!")
 						break fetchNewsLoop

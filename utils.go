@@ -43,8 +43,9 @@ const (
 	fo_		= PrintMask(16)			// forms.go
 	po_		= PrintMask(32)			// posts.go
 	ns_		= PrintMask(64)			// newsServer.go
+	is_		= PrintMask(128)		// imageServer.go
 	
-	all_	= PrintMask(128 - 1)
+	all_	= PrintMask(256 - 1)
 )
 
 func print(text string) {
