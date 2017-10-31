@@ -27,8 +27,7 @@ func fetchArticles() (articleArgs []Article) {
 				Category, Language, Country
 		 FROM votezilla.NewsPost
 		 LIMIT 600;`)
-	defer rows.Close()
-
+	
 	for rows.Next() {
 		check(rows.Scan(&title, &description, &linkUrl, &urlToImage, &publishedAt, &newsSourceId, 
 					    &category, &language, &country))
@@ -68,6 +67,7 @@ func fetchArticles() (articleArgs []Article) {
 		})
 	}
 	check(rows.Err())
+	rows.Close()
 	
 	return articleArgs
 }
@@ -86,12 +86,11 @@ func fetchPosts() (articleArgs []Article) {
 	var username	string
 	var country		string
 	
-	rows := DbQuery(`
-		SELECT L.Title, L.LinkUrl, COALESCE(L.UrlToImage, ''), L.Created, U.Username, U.Country
-		FROM ONLY votezilla.LinkPost L 
-		JOIN votezilla.User U ON L.UserId = U.Id 
-		LIMIT 50;`)
-	defer rows.Close()
+	rows := DbQuery(
+		`SELECT L.Title, L.LinkUrl, COALESCE(L.UrlToImage, ''), L.Created, U.Username, U.Country
+		 FROM ONLY votezilla.LinkPost L 
+		 JOIN votezilla.User U ON L.UserId = U.Id 
+		 LIMIT 50;`)
 
 	for rows.Next() {
 		check(rows.Scan(&title, &linkUrl, &urlToImage, &created, &username, &country))
@@ -127,6 +126,7 @@ func fetchPosts() (articleArgs []Article) {
 		})
 	}
 	check(rows.Err())
+	rows.Close()
 	
 	return articleArgs
 }

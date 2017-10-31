@@ -337,15 +337,11 @@ func NewsServer() {
 		
 		prVal(ns_, "sqlStr", sqlStr)
 		
-		//prepare the statement
-		stmt, err := db.Prepare(sqlStr)
-		check(err)
-		defer stmt.Close()
-		//format all vals at once
-		_, err = stmt.Exec(vals...)
-		check(err)
+		DbExec(sqlStr, vals...)
 		
 		//TODO: Remove duplicate news articles.
+		
+		DbTrackOpenConnections()
 
 		pr(ns_, "Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)

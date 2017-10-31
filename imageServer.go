@@ -132,14 +132,15 @@ func ImageServer() {
 
 		rows := DbQuery(`SELECT UrlToImage, Id FROM votezilla.NewsPost WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
 						 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";")
+		
 		numImages := 0	
-		defer rows.Close()
 		for rows.Next() {
 			err := rows.Scan(&imageURLs[numImages], &ids[numImages])
 			check(err)
 			numImages++
 		}
 		check(rows.Err())
+		rows.Close()
 
 		prVal(is_, "imageURLs", imageURLs)
 		prVal(is_, "ids", ids)
@@ -162,7 +163,7 @@ func ImageServer() {
 						thumbnailStatus = image_DownsampleError
 					}
 
-					DbQuery(
+					DbExec(
 						`UPDATE votezilla.NewsPost 
 						 SET ThumbnailStatus = $1
 						 WHERE Id = $2::bigint`,
@@ -183,7 +184,7 @@ func ImageServer() {
 					// Set status to -1 for any images that timed out.
 					for _, id := range ids {
 						prVal(ns_, "Removing timed out id", id)
-						DbQuery(
+						DbExec(
 							`UPDATE votezilla.NewsPost 
 							 SET ThumbnailStatus = -1
 							 WHERE Id = $1::bigint`,
@@ -193,5 +194,7 @@ func ImageServer() {
 					break downsampleImagesLoop
 			}		
 		}
+		
+		DbTrackOpenConnections()
 	}
 }

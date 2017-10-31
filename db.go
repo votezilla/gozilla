@@ -4,6 +4,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 var (
@@ -23,6 +24,11 @@ func OpenDatabase() {
 	db, err = sql.Open("postgres", dbInfo)
 	check(err)
 	
+	// Suggested defaults:
+	db.SetMaxOpenConns(20) // Sane default
+	db.SetMaxIdleConns(0)
+    db.SetConnMaxLifetime(time.Nanosecond)
+	
 	prVal(db_, "db", db)
 }
 
@@ -30,9 +36,31 @@ func OpenDatabase() {
 func CloseDatabase() {
 	pr(db_, "CloseDatabase")
 	
+	open := db.Stats().OpenConnections
+	if open > 0 {
+		// This could also modify the return code...
+		prf(db_, "failed to close %d connections!", open)
+    }
+	
 	if db != nil {
-		defer db.Close()
+		db.Close()
 	}
+}
+
+func DbTrackOpenConnections() {
+	// This could also modify the return code...
+	prVal(db_, "Open connections", db.Stats().OpenConnections)
+}
+
+// Executes a query that does not return anything.  Necessary for not leaking connections.
+func DbExec(query string, values ...interface{}) {
+	stmt, err := db.Prepare(query)
+	check(err)
+
+	_, err = stmt.Exec(values...)
+	check(err)
+
+	stmt.Close()
 }
 
 // Inserts a new record into the database and returns the Id of the inserted record.

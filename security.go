@@ -156,12 +156,12 @@ func getUsername(userId int) string {
 	username := ""
 	if userId != -1 {
 		rows := DbQuery("SELECT Username FROM votezilla.User WHERE Id = $1;", userId)
-		defer rows.Close()
 		if rows.Next() {
 			err := rows.Scan(&username)
 			check(err)	
 		}
 		check(rows.Err())
+		rows.Close()
 	}
 	
 	return username
