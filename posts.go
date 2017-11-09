@@ -12,10 +12,12 @@ import (
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticles() (articleArgs []Article) {
+	var id				string
 	var title			string
 	var description		string
 	var linkUrl			string
 	var urlToImage		string
+	var urlToThumbnail	string
 	var publishedAt		time.Time
 	var newsSourceId	string
 	var category		string
@@ -23,13 +25,14 @@ func fetchArticles() (articleArgs []Article) {
 	var country			string
 	
 	rows := DbQuery(
-		`SELECT Title, Description, LinkUrl, COALESCE(UrlToImage, ''), COALESCE(PublishedAt, Created), NewsSourceId, 
+		`SELECT Id, Title, Description, LinkUrl, COALESCE(UrlToImage, ''), COALESCE(PublishedAt, Created), NewsSourceId, 
 				Category, Language, Country
 		 FROM votezilla.NewsPost
+		 WHERE ThumbnailStatus = 1
 		 LIMIT 600;`)
 	
 	for rows.Next() {
-		check(rows.Scan(&title, &description, &linkUrl, &urlToImage, &publishedAt, &newsSourceId, 
+		check(rows.Scan(&id, &title, &description, &linkUrl, &urlToImage, &publishedAt, &newsSourceId, 
 					    &category, &language, &country))
 
 		//prVal(po_, "title", title)		
@@ -50,6 +53,9 @@ func fetchArticles() (articleArgs []Article) {
 		} else {
 			host = u.Host
 		}
+		
+		// TODO: do this if thumbnailStatus = 1.  Or maybe just always do this.
+		urlToThumbnail = "/static/thumbnails/" + id + ".jpeg"
 
 		// Set the article information
 		articleArgs = append(articleArgs, Article{
@@ -58,6 +64,7 @@ func fetchArticles() (articleArgs []Article) {
 			Description:	description,
 			Url:			linkUrl,
 			UrlToImage:		urlToImage,
+			UrlToThumbnail:	urlToThumbnail,
 			PublishedAt:	publishedAt.Format(time.UnixDate),
 			NewsSourceId:	newsSourceId,
 			Host:			host,
