@@ -1,26 +1,3 @@
-{{define "body"}}
-
-
-<h1>H1</h1>
-    <div class="parallax-container"
-    	data-parallax="scroll"
-    	data-position="top"
-    	data-bleed="10"
-    	data-image-src="/static/stellar-spire-eagle-nebula-1400x900.jpg"
-    	data-natural-width="1400"
-    	data-natural-height="900"
-    	style="height: 411px; width: 350px;"></div>
-<h2>H2</h2>
-
-    <div class="parallax-container"
-    	data-parallax="scroll"
-    	data-bleed="10"
-    	data-speed=".1"
-    	data-image-src="/static/helix-nebula-1400x1400.jpg"
-    	data-natural-width="1400"
-    	data-natural-height="1400"
-    	style="height: 411px;"></div>
-<h3>h3</h3>
 
 <div class="smart-padding container vz-container">
 	<div class="row vz-row">
@@ -55,7 +32,6 @@
 			</table>
 		</div> {{/*col-md-12*/}}
 	</div> {{/*row*/}}
-
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		<div class="row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
 			<div class="col-md-12 vz-col-md-12 text-uppercase">
@@ -178,5 +154,4 @@
 			</center>
 		</td></tr>
 	</table>
-</div> {{/*smart-padding*/}}
 {{end}}
