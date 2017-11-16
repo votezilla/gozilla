@@ -73,6 +73,14 @@
 											<span class="age"><a href="item?id=14569339">0 minutes ago</a></span>
 											<span></span>
 										</td>
+											<span style="float: left">
+												{{ if ne $article.AuthorIconUrl "" }}
+													<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+												{{ end }}
+												<span><a style="color: #88f">{{$article.Author}}</a></span> &middot;
+												<span class="age" align="right">2h</span>
+											</span>
+
 									</tr>
 									<tr class="spacer" style="height:5px"></tr>
 								</table>
@@ -96,21 +104,32 @@
 												<span class="sitebit comhead"><b>{{$article.Country}}</b></span>-->
 										</td>
 									</tr>
-									{{ if lt (len $article.Title) 100 }}
-										<tr>
-											<td></td>
-											<td class="subtext" style="width: 100%">
-											<span style="float: left">
-												{{ if ne $article.AuthorIconUrl "" }}
-													<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
-												{{ end }}
-												<span><a style="color: #88f">{{$article.Author}}</a></span> &middot;
-												<span class="age" align="right">2h</span>
+									<tr>
+										<td></td>
+										<td class="subtext" style="width: 100%">
+										<span style="float: left">
+											{{ if ne $article.AuthorIconUrl "" }}
+												<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+											{{ end }}
+											<span><a style="color: #88f">{{$article.Author}}</a></span> &middot;
+											<span class="age" align="right">2h</span>
+										</span>
+										<span style="float: right; vertical-align: text-bottom;">
+											<a href="#">&#x25B2;</a><a href="#">25k pts</a><a href="#">&#x25BC;</a>
+
+											<a href="#">100 comments</a>
+
+
+
+											<span style="opacity: 0.5;">
+												<a href="#" data-toggle="tooltip" title="Share!"><img src="/static/share.png" width=16 height=16></a>
+												<a href="#" data-toggle="tooltip" title="Save!"><img src="/static/save.png" width=16 height=16></a>
+												<a href="#" data-toggle="tooltip" title="Hide!"><img src="/static/hide.png" width=16 height=16></a>
+												<a href="#" data-toggle="tooltip" title="Report!"><img src="/static/report.png" width=16 height=16></a>
 											</span>
-											<span style="float: right">^1v <a>q</a> <a>r</a> <a>!</a></span>
-											</td>
-										</tr>
-									{{ end }}
+										</span>
+										</td>
+									</tr>
 									<tr class="spacer" style="height:5px"></tr>
 								</table>
 

@@ -19,7 +19,6 @@
 		 margin-bottom:0px !important;
 	}
 
-
 	.vz-col-md-12 { padding-left: 0px; padding-right: 0px; }
 
 	@media (min-width:990px) {
@@ -45,8 +44,12 @@
 	-->
 	<!-- <script>alert( 'Your screen resolution is ' + screen.width + 'x' + screen.height );</script> -->
 
-    {{if .Script}}
-  	<script>{{.Script}}</script>
-  	{{end}}
+    <script>
+	  $(document).ready(function(){
+	      $('[data-toggle="tooltip"]').tooltip();
+	  });
+
+      {{.Script}}
+    </script>
   </body>
 </html>
