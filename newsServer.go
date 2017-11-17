@@ -25,82 +25,6 @@ type Article struct {
 	Country			string
 }
 
-var (
-	// News source icons no longer part of API, so have to set manually.
-	// TODO: move this data to a database.
-	newsSourceIcons map[string]string = map[string]string{
-		"abc-news-au": "https://icons.better-idea.org/icon?url=http://www.abc.net.au/news&size=70..120..200",
-		"al-jazeera-english": "https://icons.better-idea.org/icon?url=http://www.aljazeera.com&size=70..120..200",
-		"ars-technica": "https://icons.better-idea.org/icon?url=http://arstechnica.com&size=70..120..200",
-		"associated-press": "https://icons.better-idea.org/icon?url=https://apnews.com/&size=70..120..200",
-		"bbc-news": "https://icons.better-idea.org/icon?url=http://www.bbc.co.uk/news&size=70..120..200",
-		"bbc-sport": "https://icons.better-idea.org/icon?url=http://www.bbc.co.uk/sport&size=70..120..200",
-		"bloomberg": "https://icons.better-idea.org/icon?url=http://www.bloomberg.com&size=70..120..200",
-		"breitbart-news": "https://icons.better-idea.org/icon?url=http://www.breitbart.com&size=70..120..200",
-		"business-insider": "https://icons.better-idea.org/icon?url=http://www.businessinsider.com&size=70..120..200",
-		"business-insider-uk": "https://icons.better-idea.org/icon?url=http://uk.businessinsider.com&size=70..120..200",
-		"buzzfeed": "https://icons.better-idea.org/icon?url=https://www.buzzfeed.com&size=70..120..200",
-		"cnbc": "https://icons.better-idea.org/icon?url=http://www.cnbc.com&size=70..120..200",
-		"cnn": "https://icons.better-idea.org/icon?url=http://us.cnn.com&size=70..120..200",
-		"daily-mail": "https://icons.better-idea.org/icon?url=http://www.dailymail.co.uk/home/index.html&size=70..120..200",
-		"der-tagesspiegel": "https://icons.better-idea.org/icon?url=http://www.tagesspiegel.de&size=70..120..200",
-		"die-zeit": "https://icons.better-idea.org/icon?url=http://www.zeit.de/index&size=70..120..200",
-		"engadget": "https://icons.better-idea.org/icon?url=https://www.engadget.com&size=70..120..200",
-		"entertainment-weekly": "https://icons.better-idea.org/icon?url=http://www.ew.com&size=70..120..200",
-		"espn": "https://icons.better-idea.org/icon?url=http://espn.go.com&size=70..120..200",
-		"espn-cric-info": "https://icons.better-idea.org/icon?url=http://www.espncricinfo.com/&size=70..120..200",
-		"financial-times": "https://icons.better-idea.org/icon?url=http://www.ft.com/home/uk&size=70..120..200",
-		"focus": "https://icons.better-idea.org/icon?url=http://www.focus.de&size=70..120..200",
-		"football-italia": "https://icons.better-idea.org/icon?url=http://www.football-italia.net&size=70..120..200",
-		"fortune": "https://icons.better-idea.org/icon?url=http://fortune.com&size=70..120..200",
-		"four-four-two": "https://icons.better-idea.org/icon?url=http://www.fourfourtwo.com/news&size=70..120..200",
-		"fox-sports": "https://icons.better-idea.org/icon?url=http://www.foxsports.com&size=70..120..200",
-		"google-news": "https://icons.better-idea.org/icon?url=https://news.google.com&size=70..120..200",
-		"gruenderszene": "https://icons.better-idea.org/icon?url=http://www.gruenderszene.de&size=70..120..200",
-		"hacker-news": "https://icons.better-idea.org/icon?url=https://news.ycombinator.com&size=70..120..200",
-		"handelsblatt": "https://icons.better-idea.org/icon?url=http://www.handelsblatt.com&size=70..120..200",
-		"ign": "https://icons.better-idea.org/icon?url=http://www.ign.com&size=70..120..200",
-		"independent": "https://icons.better-idea.org/icon?url=http://www.independent.co.uk&size=70..120..200",
-		"mashable": "https://icons.better-idea.org/icon?url=http://mashable.com&size=70..120..200",
-		"metro": "https://icons.better-idea.org/icon?url=http://metro.co.uk&size=70..120..200",
-		"mirror": "https://icons.better-idea.org/icon?url=http://www.mirror.co.uk/&size=70..120..200",
-		"mtv-news": "https://icons.better-idea.org/icon?url=http://www.mtv.com/news&size=70..120..200",
-		"mtv-news-uk": "https://icons.better-idea.org/icon?url=http://www.mtv.co.uk/news&size=70..120..200",
-		"national-geographic": "https://icons.better-idea.org/icon?url=http://news.nationalgeographic.com&size=70..120..200",
-		"new-scientist": "https://icons.better-idea.org/icon?url=https://www.newscientist.com/section/news&size=70..120..200",
-		"newsweek": "https://icons.better-idea.org/icon?url=http://www.newsweek.com&size=70..120..200",
-		"new-york-magazine": "https://icons.better-idea.org/icon?url=http://nymag.com&size=70..120..200",
-		"nfl-news": "https://icons.better-idea.org/icon?url=http://www.nfl.com/news&size=70..120..200",
-		"polygon": "https://icons.better-idea.org/icon?url=http://www.polygon.com&size=70..120..200",
-		"recode": "https://icons.better-idea.org/icon?url=http://www.recode.net&size=70..120..200",
-		"reddit-r-all": "https://icons.better-idea.org/icon?url=https://www.reddit.com/r/all&size=70..120..200",
-		"reuters": "https://icons.better-idea.org/icon?url=http://www.reuters.com&size=70..120..200",
-		"spiegel-online": "https://icons.better-idea.org/icon?url=http://www.spiegel.de&size=70..120..200",
-		"t3n": "https://icons.better-idea.org/icon?url=http://t3n.de&size=70..120..200",
-		"talksport": "https://icons.better-idea.org/icon?url=http://talksport.com&size=70..120..200",
-		"techcrunch": "https://icons.better-idea.org/icon?url=https://techcrunch.com&size=70..120..200",
-		"techradar": "https://icons.better-idea.org/icon?url=http://www.techradar.com&size=70..120..200",
-		"the-economist": "https://icons.better-idea.org/icon?url=http://www.economist.com&size=70..120..200",
-		"the-guardian-au": "https://icons.better-idea.org/icon?url=https://www.theguardian.com/au&size=70..120..200",
-		"the-guardian-uk": "https://icons.better-idea.org/icon?url=https://www.theguardian.com/uk&size=70..120..200",
-		"the-hindu": "https://icons.better-idea.org/icon?url=http://www.thehindu.com&size=70..120..200",
-		"the-huffington-post": "https://icons.better-idea.org/icon?url=http://www.huffingtonpost.com&size=70..120..200",
-		"the-lad-bible": "https://icons.better-idea.org/icon?url=http://www.theladbible.com&size=70..120..200",
-		"the-new-york-times": "https://icons.better-idea.org/icon?url=http://www.nytimes.com&size=70..120..200",
-		"the-next-web": "https://icons.better-idea.org/icon?url=http://thenextweb.com&size=70..120..200",
-		"the-sport-bible": "https://icons.better-idea.org/icon?url=http://www.thesportbible.com&size=70..120..200",
-		"the-telegraph": "https://icons.better-idea.org/icon?url=http://www.telegraph.co.uk&size=70..120..200",
-		"the-times-of-india": "https://icons.better-idea.org/icon?url=http://timesofindia.indiatimes.com&size=70..120..200",
-		"the-verge": "https://icons.better-idea.org/icon?url=http://www.theverge.com&size=70..120..200",
-		"the-wall-street-journal": "https://icons.better-idea.org/icon?url=http://www.wsj.com&size=70..120..200",
-		"the-washington-post": "https://icons.better-idea.org/icon?url=https://www.washingtonpost.com&size=70..120..200",
-		"time": "https://icons.better-idea.org/icon?url=http://time.com&size=70..120..200",
-		"usa-today": "https://icons.better-idea.org/icon?url=http://www.usatoday.com/news&size=70..120..200",
-		"wired-de": "https://icons.better-idea.org/icon?url=https://www.wired.de&size=70..120..200",
-		"wirtschafts-woche": "https://icons.better-idea.org/icon?url=http://www.wiwo.de&size=70..120..200",
-	}
-)
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // fetches news sources
@@ -150,7 +74,7 @@ func fetchNewsSources() bool {
 	// Copy news source data to newsSources, and assign icon.
 	newsSources = NewsSources{}
 	for _, newsSource := range newsSourcesResp.Sources {
-		newsSource.Icon = newsSourceIcons[newsSource.Id]
+		newsSource.Icon = "/static/newsSourceIcons/" + newsSource.Id + ".png"
 		
 		newsSources[newsSource.Id] = newsSource
 	}

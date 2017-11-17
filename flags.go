@@ -21,6 +21,7 @@ var (
 		newsServer				string		// Whether to be the news server.
 		imageServer				string		// Whether to be the image server.
 		test					string		// Whether to run a simple test, instead of the actual server.
+		mode					string		// A special mode to run a server in.
 	}
 )
 
@@ -44,7 +45,8 @@ func parseCommandLineFlags() {
 	fb := flag.String("offlineNews",    "",				"whether to use offline news");
 	fc := flag.String("newsServer",		"",				"whether to be the news server");
 	fd := flag.String("imageServer",	"",				"whether to be the image server");
-	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server.");
+	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server");
+	ff := flag.String("mode",			"",				"a special mode to run a server in")
 	
 	flag.Parse()
 	
@@ -68,6 +70,7 @@ func parseCommandLineFlags() {
 	flags.newsServer			= *fc
 	flags.imageServer			= *fd
 	flags.test					= *fe
+	flags.mode					= *ff
 
 	printf("flags: %#v\n", flags)
 }

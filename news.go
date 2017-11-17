@@ -131,7 +131,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articleArgs[i].Size		= 0 // normal size
 		
 		if article.NewsSourceId != "" {
-			articleArgs[i].AuthorIconUrl = newsSourceIcons[article.NewsSourceId]
+			articleArgs[i].AuthorIconUrl = "/static/newsSourceIcons/" + article.NewsSourceId + ".png"
 		}
 	}
 	
