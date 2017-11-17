@@ -95,38 +95,57 @@
 										</td>
 										<td style="min-width: 5px;"></td>
 										<td class="title">
-											<a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a>
-
+											<div class="subtext">
+												<a href="#">
+													<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+													<span style="color: #88f">{{$article.Author}}</span>
+												</a>
+												&middot;
+												<span class="age" align="right">2h</span>
+											</div>
+											<div>
+												<a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a>
+											</div>
+		<!--
 											{{ if gt (len $article.Host) 0 }}
 												<span class="sitebit comhead" style="font-size: 11px;"><a href="from?site={{$article.Host}}"><span class="sitestr">({{$article.Host}})</span></a></span>
 											{{ end }}
-											<!--<span class="sitebit comhead"><b>{{$article.Language}}</b></span>
-												<span class="sitebit comhead"><b>{{$article.Country}}</b></span>-->
+											-->
 										</td>
 									</tr>
 									<tr>
 										<td></td>
 										<td class="subtext" style="width: 100%">
 										<span style="float: left">
-											{{ if ne $article.AuthorIconUrl "" }}
-												<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
-											{{ end }}
-											<span><a style="color: #88f">{{$article.Author}}</a></span> &middot;
-											<span class="age" align="right">2h</span>
+											<a href="#">&#x25B2;</a> <!-- TODO: if you vote up, change color to #2900ff -->
+											<a href="#">25k</a>
+											<a href="#">&#x25BC;</a> <!-- TODO: if you vote down, change color to #ff0029 -->
 										</span>
-										<span style="float: right; vertical-align: text-bottom;">
-											<a href="#">&#x25B2;</a><a href="#">25k pts</a><a href="#">&#x25BC;</a>
 
-											<a href="#">100 comments</a>
+										<!--<span style="width: auto; align: center;">
+											<a href="#">...</a>
+										</span>-->
 
 
+										<span style="width: 50%; float:left;">
+										  <center>
+										    <span>...</span>
+										  </center>
+										</span>
 
+										<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+
+											<a href="#" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
+
+
+										<!--
 											<span style="opacity: 0.5;">
 												<a href="#" data-toggle="tooltip" title="Share!"><img src="/static/share.png" width=16 height=16></a>
 												<a href="#" data-toggle="tooltip" title="Save!"><img src="/static/save.png" width=16 height=16></a>
 												<a href="#" data-toggle="tooltip" title="Hide!"><img src="/static/hide.png" width=16 height=16></a>
 												<a href="#" data-toggle="tooltip" title="Report!"><img src="/static/report.png" width=16 height=16></a>
 											</span>
+										-->
 										</span>
 										</td>
 									</tr>
