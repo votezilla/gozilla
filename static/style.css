@@ -12,7 +12,6 @@ td      { font-family:Verdana, Geneva, sans-serif; font-size:12pt; /* 10pt; */ }
 */
 
 .admin td   { font-family:Verdana, Geneva, sans-serif; font-size:8.5pt; color:#000000; }
-.subtext td { font-family:Verdana, Geneva, sans-serif; font-size:  9pt; color:#828282; }
 
 input,select      { font-family:monospace; font-size:10pt; color:#000000; max-width: 200px; }
 input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }

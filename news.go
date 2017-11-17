@@ -132,6 +132,8 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		
 		if article.NewsSourceId != "" {
 			articleArgs[i].AuthorIconUrl = "/static/newsSourceIcons/" + article.NewsSourceId + ".png"
+		} else {
+			articleArgs[i].AuthorIconUrl = "/static/mozilla dinosaur head.png" // TODO: we need real dinosaur icons for users.
 		}
 	}
 	
