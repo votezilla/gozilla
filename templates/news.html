@@ -60,7 +60,6 @@
 										<td style="min-width: 5px;"></td>
 										<td class="title">
 											<a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a>
-											<span class="sitebit comhead">(<a href="from?site={{$article.Host}}"><span class="sitestr">{{$article.Host}}</span></a>)</span>
 										</td>
 										<td></td>
 									</tr>
@@ -80,7 +79,7 @@
 												<span><a style="color: #88f">{{$article.Author}}</a></span> &middot;
 												<span class="age" align="right">2h</span>
 											</span>
-
+											<!-- WTF?? -->
 									</tr>
 									<tr class="spacer" style="height:5px"></tr>
 								</table>
@@ -106,37 +105,26 @@
 											<div>
 												<a href="{{$article.Url}}" class="storylink" rel="nofollow">{{$article.Title}}</a>
 											</div>
-		<!--
-											{{ if gt (len $article.Host) 0 }}
-												<span class="sitebit comhead" style="font-size: 11px;"><a href="from?site={{$article.Host}}"><span class="sitestr">({{$article.Host}})</span></a></span>
-											{{ end }}
-											-->
 										</td>
 									</tr>
 									<tr>
 										<td></td>
 										<td class="subtext" style="width: 100%">
-										<span style="float: left">
-											<a href="#">&#x25B2;</a> <!-- TODO: if you vote up, change color to #2900ff -->
-											<a href="#">25k</a>
-											<a href="#">&#x25BC;</a> <!-- TODO: if you vote down, change color to #ff0029 -->
-										</span>
-
-										<!--<span style="width: auto; align: center;">
-											<a href="#">...</a>
-										</span>-->
-
-
-										<span style="width: 50%; float:left;">
-										  <center>
-										    <span>...</span>
-										  </center>
-										</span>
-
-										<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-
-											<a href="#" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
-
+											<table width="100%"><tr>
+												<td align="left" style="width: 40%;">
+													<span class="upvote"><a href="#" class="upvote">&#x25B2;</a></span>
+													<a href="#">25k</a>
+													<span class="downvote"><a href="#">&#x25BC;</a></span>
+												</td>
+												<td align="center" style="width: auto;">
+													<a href="#">...</a>
+												</td>
+												<td align="right" style="width: 40%;">
+													<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+														<a href="#" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
+													</span>
+												</td>
+											</tr></table>
 
 										<!--
 											<span style="opacity: 0.5;">
@@ -146,7 +134,7 @@
 												<a href="#" data-toggle="tooltip" title="Report!"><img src="/static/report.png" width=16 height=16></a>
 											</span>
 										-->
-										</span>
+
 										</td>
 									</tr>
 									<tr class="spacer" style="height:5px"></tr>
