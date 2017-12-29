@@ -57,6 +57,11 @@ func fetchArticles() (articleArgs []Article) {
 		
 		// TODO: do this if thumbnailStatus = 1.  Or maybe just always do this.
 		urlToThumbnail = "/static/thumbnails/" + id + ".jpeg"
+		
+		// Combine "politics" and "general" into "news>
+		if category == "politics" || category == "general" {
+			category = "news"
+		}
 
 		// Set the article information
 		articleArgs = append(articleArgs, Article{
@@ -128,7 +133,7 @@ func fetchPosts() (articleArgs []Article) {
 			PublishedAt:	created.Format(time.UnixDate), // <-- TODO: not exactly the same thing, but close enough?
 			NewsSourceId:	"",
 			Host:			host,
-			Category:		"general",
+			Category:		"news",
 			Language:		"EN",
 			Country:		country,
 		})

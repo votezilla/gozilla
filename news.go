@@ -46,8 +46,7 @@ var (
 	newsSources NewsSources
 	
 	categoryOrder = []string{
-		"politics", 			
-		"general", 			
+		"news", 			
 		"business", 			
 		"sport", 			
 		"entertainment", 	
@@ -58,8 +57,7 @@ var (
 	}
 	
 	headerColors map[string]string = map[string]string{
-		"politics" 			: "#aaa",
-		"general" 			: "#ccc",
+		"news" 			 	: "#ccc",
 		"business" 			: "#8e8",
 		"sport" 			: "#88f",
 		"entertainment" 	: "#e85be4",
@@ -70,8 +68,7 @@ var (
 	}
 
 	bgColors map[string]string = map[string]string{
-		"politics" 			: "#c7c6c6",
-		"general" 			: "#ddd",
+		"news"	 			: "#ddd",
 		"business" 			: "#b2fdb2",
 		"sport" 			: "#bbf",
 		"entertainment" 	: "#fda5fd",
