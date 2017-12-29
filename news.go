@@ -4,12 +4,13 @@ import (
 	"net/http"
 	"math/rand"
 	"sort"
+	"strconv"
 )
 
 // For rendering the news article information.
 type ArticleArg struct {
 	Article
-	Size			int		// 0=normal, 1=large, 2=x-large
+	Size			int		// 0=normal, 1=large (headline)
 	AuthorIconUrl	string
 }
 
@@ -18,7 +19,7 @@ type ArticleGroup struct {
 	Category		string
 	HeaderColor		string
 	BgColor			string
-	HeadlineSide	int
+	HeadlineSide	int		// 0=left, 1=right (On large, i.e. non-mobile, devices...)
 }
 
 // A news source to request the news from.
@@ -149,12 +150,12 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	const (
 		kArticlesPerRow = 2
-		kRowsPerCategory = 6
+		kRowsPerCategory = 5
 	)
 	
 	cat := 0
 	headlineSide := 0 // The side that has the headline (large article).
-	for ccc, category := range categoryOrder {
+	for _/*ccc*/, category := range categoryOrder {
 		row := 0
 		col := 0
 		filled := false
@@ -173,15 +174,24 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 														    make([]ArticleArg, kRowsPerCategory))
 				}
 				
-				articleGroups[cat].ArticleArgs[col][row] = articleArg
-				
-				// First article on the "large side" is a headline (bigger), the remaining articles get skipped.
-				if col == headlineSide && ccc == 0 {
-					if row == 0 {
-						articleGroups[cat].ArticleArgs[col][row].Size =  1 // 1 means large article
-					} else {
-						articleGroups[cat].ArticleArgs[col][row].Size = -1 // -1 means skip the article
+				// The first article is always the headline.  Articles after the headline get skipped.
+				size := 0
+				if col == 0/*headlineSide*/ {
+					if row == 0 { // first article is the headline, i.e. big
+						size =  1 // 1 means large article (headline)
+					} else {      // the rest of the articles get skipped, since the headline takes all the space.
+						size = -1 // -1 means skip the article
 					}
+				}
+			
+				// Assign this slot the next article, as long as this is not an empty slot.  Make sure size gets assigned!
+				if size == -1 {
+					articleGroups[cat].ArticleArgs[col][row].Size = -1
+				} else {
+					articleGroups[cat].ArticleArgs[col][row] = articleArg
+					articleGroups[cat].ArticleArgs[col][row].Size = size
+					
+					articleArg.Article.Title = articleArg.Article.Title[0:9] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(headlineSide)
 				}
 				
 				// Inc row, col

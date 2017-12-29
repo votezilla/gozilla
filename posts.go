@@ -29,6 +29,7 @@ func fetchArticles() (articleArgs []Article) {
 				Category, Language, Country
 		 FROM votezilla.NewsPost
 		 WHERE ThumbnailStatus = 1
+		 ORDER BY COALESCE(PublishedAt, Created)
 		 LIMIT 600;`)
 	
 	for rows.Next() {
