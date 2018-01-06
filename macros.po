@@ -1,0 +1,33 @@
+//invoked via "go run ..\..\strickyak\prego\main.go --noinline <macros.po >macros.go", but doesn't work
+// +build main
+
+package main
+
+import "fmt"
+
+func (inline) TEMPLATE_httpGetJson(funcName string, dataType string) {
+	func funcName(url string, timeout float, pm PrintMask) {
+		resp, err := httpGet(newsRequestUrl, timeout)
+		if err != nil {
+			prVal(pm, "httpGetJson request err", err)
+			return false
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			prVal(pm, "httpGetJson read err", err)
+			return false
+		}
+
+		// Parse the News Sources json.
+		var data dataType
+		err = json.Unmarshal(body, &data)
+		if err != nil {
+			prVal(pm, "httpGetJson unmarshall err", err)
+			return false
+		}
+	}
+}
+macro.TEMPLATE_httpGetJson(httpGetJson_NewsResp, NewsResp)
+macro.TEMPLATE_httpGetJson(httpGetJson_NewsSourcesResp, NewsSourcesResp)

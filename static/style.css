@@ -1,5 +1,7 @@
 body    { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
 
+hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
+
 input,select      { font-family:monospace; font-size:10pt; color:#000000; max-width: 200px; }
 input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 

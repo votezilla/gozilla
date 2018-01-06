@@ -191,3 +191,13 @@ func formatRequest(r *http.Request) string {
 	// Return the request as a string
 	return strings.Join(request, "\n")
 }
+
+func parseUrlParam(r *http.Request, name string) string {
+	values, ok := r.URL.Query()[name]
+
+	if !ok || len(values) < 1 {
+		return ""
+	} else {
+		return values[0]
+	}
+}

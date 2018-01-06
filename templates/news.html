@@ -9,21 +9,33 @@
 				<tr><td bgcolor="#ff6600">
 					<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
 						<tr>
-							<td style="width:18px;padding-right:4px"><a href="http://www.ycombinator.com"><img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;"></a></td>
-							<td style="line-height:12pt; height:10px;"><span class="pagetop"><b class="hnname"><a href="news">votezilla</a></b>
+							<td style="width:18px; padding-right:4px">
+								<a href="http://www.ycombinator.com">
+									<img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;">
+								</a>
+							</td>
+							<td style="line-height:12pt; height:10px;">
+								<span class="pagetop">
+									<b class="hnname">
+										<a href="news">votezilla</a>
+									</b>
 								{{- range $i, $navItem := .NavMenu}}
 									{{- if ne $i 0 }} | {{end -}}
 									{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
 									<a href="/{{$navItem}}">{{$navItem}}</a>
 									{{- if eq $navItem $.UrlPath}}</span>{{end -}}
 								{{end -}}
+								</span>
 							</td>
-							<td style="text-align:right;padding-right:4px;"><span class="pagetop">
-								{{- if .Username }}
-									<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
-								{{- else -}}
-									<a href="/login">login</a> / <a href="/register">register</a>
-								{{end -}}
+							<td style="text-align:center;">
+								<a href="/news/?noHeadlines=1">no headlines</a>
+							<td style="text-align:right; padding-right:4px;">
+								<span class="pagetop">
+									{{- if .Username }}
+										<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
+									{{- else -}}
+										<a href="/login">login</a> / <a href="/register">register</a>
+									{{end -}}
 								</span>
 							</td>
 						</tr>
@@ -33,17 +45,21 @@
 		</div> {{/*col-md-12*/}}
 	</div> {{/*row*/}}
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
-		<div class="row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
-			<div class="col-md-12 vz-col-md-12 text-uppercase">
-				<center>
-					<h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
-						<strong>
-							{{$articleGroup.Category}}
-						</strong>
-					</h5>
-				</center>
+		{{ if ne $articleGroup.Category "" }}
+			<div class="row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
+				<div class="col-md-12 vz-col-md-12 text-uppercase">
+					<center>
+						<h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
+							<strong>
+								<a href="/news/?category={{$articleGroup.Category}}"> <!-- style="text-decoration: none" -->
+									{{$articleGroup.Category}}
+								</a>
+							</strong>
+						</h5>
+					</center>
+				</div>
 			</div>
-		</div>
+		{{ end }}
 		<div class="row" style="background-color: white">
 			{{ range $i, $articleCol := $articleGroup.ArticleArgs }}
 				<div class="col-md-6 vz-col-md-6
@@ -162,9 +178,7 @@
 				</div> {{/*col-md-6*/}}
 			{{end}} {{/*range $i, $articleRow := $articleGroup.ArticleArgs*/}}
 		</div> {{/*row*/}}
-
 		{{/*if eq $aaa $.LastColumnIdx*/}}
-
 		{{/*end*/}}
 	{{end}} {{/*range $_, $articleGroup := .ArticleGroups*/}}
 

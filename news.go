@@ -4,7 +4,8 @@ import (
 	"net/http"
 	"math/rand"
 	"sort"
-	"strconv"
+	//"strconv"
+	//"net/url"
 )
 
 // For rendering the news article information.
@@ -88,6 +89,11 @@ var (
 //////////////////////////////////////////////////////////////////////////////
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
+	  
+	prVal(nw_, "r.URL.Query()", r.URL.Query())
+
+	reqCategory		:= parseUrlParam(r, "category")
+	reqNoHeadlines	:= parseUrlParam(r, "noHeadlines")
 
 	// TODO: cache this, fetch every minute?
 	newArticles := fetchArticles()
@@ -145,25 +151,47 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	articleGroups := make([]ArticleGroup, numCategories)
 	
-	const (
+	var (
 		kArticlesPerRow = 2
-		kRowsPerCategory = 5
+		kRowsPerCategory = 4//5
 	)
 	
 	cat := 0
 	headlineSide := 0 // The side that has the headline (large article).
-	for _/*ccc*/, category := range categoryOrder {
+	currArticle := 0
+	for ccc, category := range categoryOrder {
 		row := 0
 		col := 0
 		filled := false
-		
-		articleGroups[cat].Category = category
+	
+		if reqCategory == "" { // Mixed categories
+			articleGroups[cat].Category = category
+		} else { 			   // Single category
+			category = reqCategory // Make all categories the same
+			// Only the first articleGroup has a category name, the rest have "",
+			// which is a flag to have no category header.
+			if ccc == 0 {
+				articleGroups[cat].Category = category
+			} else {
+				articleGroups[cat].Category = ""
+			}
+		} 
 		articleGroups[cat].BgColor = bgColors[category]
 		articleGroups[cat].HeaderColor = headerColors[category]
 		articleGroups[cat].HeadlineSide = headlineSide
 		
-		for _, articleArg := range articleArgs {
-			// This should work since we've sorted by category.
+		if reqCategory == "" {
+			currArticle = 0
+		}
+		
+		// TODO: if a single category, without noHeadlines, either large image should be set to always 
+		// 4 article height, or all articles should stack verticlally in each column.  
+		// (I prefer the second idea, because it might look nicer.)
+		
+		for ; currArticle < len(articleArgs); currArticle++ {
+			articleArg := articleArgs[currArticle]
+		
+			// This works since we've sorted by category.
 			if articleArg.Category == category {
 				if row == 0 {
 					// Make room for new row
@@ -173,11 +201,14 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 				
 				// The first article is always the headline.  Articles after the headline get skipped.
 				size := 0
-				if col == 0/*headlineSide*/ {
-					if row == 0 { // first article is the headline, i.e. big
-						size =  1 // 1 means large article (headline)
-					} else {      // the rest of the articles get skipped, since the headline takes all the space.
-						size = -1 // -1 means skip the article
+				
+				if reqNoHeadlines == "" {
+					if col == 0 {
+						if row == 0 { // first article is the headline, i.e. big
+							size =  1 // 1 means large article (headline)
+						} else {      // the rest of the articles get skipped, since the headline takes all the space.
+							size = -1 // -1 means skip the article
+						}
 					}
 				}
 			
@@ -188,7 +219,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 					articleGroups[cat].ArticleArgs[col][row] = articleArg
 					articleGroups[cat].ArticleArgs[col][row].Size = size
 					
-					articleArg.Article.Title = articleArg.Article.Title[0:9] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(headlineSide)
+					//articleArg.Article.Title = articleArg.Article.Title[0:9] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(headlineSide)
 				}
 				
 				// Inc row, col
@@ -229,7 +260,10 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		
 		cat++
-		headlineSide = (headlineSide + 1) % 2 // The side with the headline switches each time, to look nice.
+		
+		if reqNoHeadlines == "" {
+			headlineSide = (headlineSide + 1) % 2 // The side with the headline switches each time, to look nice.
+		}
 	}
 
 	// Get the username.
