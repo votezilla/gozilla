@@ -46,19 +46,19 @@
 	</div> {{/*row*/}}
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		{{ if ne $articleGroup.Category "" }}
+		<a href="/news/?category={{$articleGroup.Category}}">
 			<div class="row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
 				<div class="col-md-12 vz-col-md-12 text-uppercase">
 					<center>
 						<h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
 							<strong>
-								<a href="/news/?category={{$articleGroup.Category}}"> <!-- style="text-decoration: none" -->
 									{{$articleGroup.Category}}
-								</a>
 							</strong>
 						</h5>
 					</center>
 				</div>
 			</div>
+		</a>
 		{{ end }}
 		<div class="row" style="background-color: white">
 			{{ range $i, $articleCol := $articleGroup.ArticleArgs }}
@@ -77,12 +77,11 @@
 					{{ end }}
 				{{ end }}
 				">
-
 				{{ range $j, $article := $articleCol }}
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
 						{{ if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
 							<a href="{{$article.Url}}" class="storylink" rel="nofollow">
-								<img src="{{$article.UrlToImage}}" width="100%" height="auto">
+								<img src="{{$article.UrlToImage}}" width="100%" height="280">
 							</a>
 							<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
 								<tr>
@@ -177,9 +176,16 @@
 				{{ end }} {{/*range $j, $article := $articleRow*/}}
 				</div> {{/*col-md-6*/}}
 			{{end}} {{/*range $i, $articleRow := $articleGroup.ArticleArgs*/}}
+			{{ if ne $articleGroup.More "" }}
+				<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+					<tr>
+						<td align="right">
+							<a href="/news/?category={{$articleGroup.More}}&more=1">More...</a>
+						</td>
+					</tr>
+				</table>
+			{{ end }}
 		</div> {{/*row*/}}
-		{{/*if eq $aaa $.LastColumnIdx*/}}
-		{{/*end*/}}
 	{{end}} {{/*range $_, $articleGroup := .ArticleGroups*/}}
 
 	<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">

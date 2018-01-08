@@ -21,6 +21,7 @@ type ArticleGroup struct {
 	HeaderColor		string
 	BgColor			string
 	HeadlineSide	int		// 0=left, 1=right (On large, i.e. non-mobile, devices...)
+	More			string	// category if "More..." appears at end of group.
 }
 
 // A news source to request the news from.
@@ -166,6 +167,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 		if reqCategory == "" { // Mixed categories
 			articleGroups[cat].Category = category
+			articleGroups[cat].More = category
 		} else { 			   // Single category
 			category = reqCategory // Make all categories the same
 			// Only the first articleGroup has a category name, the rest have "",
@@ -175,6 +177,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				articleGroups[cat].Category = ""
 			}
+			articleGroups[cat].More = ""
 		} 
 		articleGroups[cat].BgColor = bgColors[category]
 		articleGroups[cat].HeaderColor = headerColors[category]
@@ -264,6 +267,11 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		if reqNoHeadlines == "" {
 			headlineSide = (headlineSide + 1) % 2 // The side with the headline switches each time, to look nice.
 		}
+	}
+	
+	// If a single category, only the last articleGroup should have a "More..." link.
+	if reqCategory != "" { 
+		articleGroups[cat - 1].More = reqCategory
 	}
 
 	// Get the username.
