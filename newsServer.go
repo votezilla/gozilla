@@ -17,6 +17,7 @@ type Article struct {
 	UrlToImage		string
 	PublishedAt		string
 	// Custom parameters:
+	Id				string
 	UrlToThumbnail	string
 	NewsSourceId	string
 	Host			string

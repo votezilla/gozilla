@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/url"
 	"time"
 )
@@ -8,10 +9,92 @@ import (
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// fetch a single article from database
+// TODO: doesn't work with user-submitted posts.  Will need a database refactor for that!
+// id - int64 id of the article
+// idStr - string version of the id (will have already from the URL param, so
+//         this is an optimization)
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchArticle(id int64, idStr string) (Article, error) {
+	var title			string
+	var description		string
+	var linkUrl			string
+	var urlToImage		string
+	var urlToThumbnail	string
+	var publishedAt		time.Time
+	var newsSourceId	string
+	var category		string
+	var language		string
+	var country			string
+	
+	rows := DbQuery(
+		`SELECT Title, Description, LinkUrl, COALESCE(UrlToImage, ''), COALESCE(PublishedAt, Created), NewsSourceId, 
+				Category, Language, Country
+		 FROM votezilla.NewsPost
+		 WHERE Id = $1::bigint;`, 
+		 id)
+	
+	if rows.Next() {
+		check(rows.Scan(&title, &description, &linkUrl, &urlToImage, &publishedAt, &newsSourceId, 
+					    &category, &language, &country))
+
+		//prVal(po_, "title", title)		
+		//prVal(po_, "description", description)	
+		//prVal(po_, "linkUrl", linkUrl)		 
+		//prVal(po_, "urlToImage", urlToImage)	 
+		//prVal(po_, "publishedAt", publishedAt)	 
+		//prVal(po_, "newsSourceId", newsSourceId)
+		//prVal(po_, "category", category)	
+		//prVal(po_, "language", language)	 
+		//prVal(po_, "country", country)
+		
+		// Parse the hostname.  TODO: parse away the "www."
+		host := ""
+		u, err := url.Parse(linkUrl)
+		if err != nil {
+			host = "Error parsing hostname"
+		} else {
+			host = u.Host
+		}
+		
+		// TODO: do this if thumbnailStatus = 1.  Or maybe just always do this.
+		urlToThumbnail = "/static/thumbnails/" + idStr + ".jpeg"
+		
+		// Combine "politics" and "general" into "news>
+		if category == "politics" || category == "general" {
+			category = "news"
+		}
+
+		// Set the article information
+		return Article{
+			Id:				idStr,
+			Author:			newsSourceId, // haha hijacking Author to be the poster
+			Title:			title,
+			Description:	description,
+			Url:			linkUrl,
+			UrlToImage:		urlToImage,
+			UrlToThumbnail:	urlToThumbnail,
+			PublishedAt:	publishedAt.Format(time.UnixDate),
+			NewsSourceId:	newsSourceId,
+			Host:			host,
+			Category:		category,
+			Language:		language,
+			Country:		country,
+		}, nil
+	} 
+	check(rows.Err())
+	rows.Close()
+	
+	return Article{}, errors.New("Article not found")
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // fetch news articles from database
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticles() (articleArgs []Article) {
+func fetchArticles() (articles []Article) {
 	var id				string
 	var title			string
 	var description		string
@@ -64,7 +147,8 @@ func fetchArticles() (articleArgs []Article) {
 		}
 
 		// Set the article information
-		articleArgs = append(articleArgs, Article{
+		articles = append(articles, Article{
+			Id:				id,
 			Author:			newsSourceId, // haha hijacking Author to be the poster
 			Title:			title,
 			Description:	description,
@@ -82,7 +166,7 @@ func fetchArticles() (articleArgs []Article) {
 	check(rows.Err())
 	rows.Close()
 	
-	return articleArgs
+	return articles
 }
 
 
@@ -91,7 +175,8 @@ func fetchArticles() (articleArgs []Article) {
 // fetch posts from database
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchPosts() (articleArgs []Article) {
+func fetchPosts() (articles []Article) {
+	var id			string
 	var title		string
 	var linkUrl		string
 	var urlToImage	string
@@ -100,13 +185,13 @@ func fetchPosts() (articleArgs []Article) {
 	var country		string
 	
 	rows := DbQuery(
-		`SELECT L.Title, L.LinkUrl, COALESCE(L.UrlToImage, ''), L.Created, U.Username, U.Country
+		`SELECT L.Id, L.Title, L.LinkUrl, COALESCE(L.UrlToImage, ''), L.Created, U.Username, U.Country
 		 FROM ONLY votezilla.LinkPost L 
 		 JOIN votezilla.User U ON L.UserId = U.Id 
 		 LIMIT 50;`)
 
 	for rows.Next() {
-		check(rows.Scan(&title, &linkUrl, &urlToImage, &created, &username, &country))
+		check(rows.Scan(&id, &title, &linkUrl, &urlToImage, &created, &username, &country))
 		
 		//prVal(po_, "title", title)
 		//prVal(po_, "linkUrl", linkUrl)
@@ -124,7 +209,8 @@ func fetchPosts() (articleArgs []Article) {
 		}
 		
 		// Set the article information
-		articleArgs = append(articleArgs, Article{
+		articles = append(articles, Article{
+			Id:				id,
 			Author:			username, // haha hijacking Author to be the poster
 			Title:			title,
 			Description:	"",
@@ -141,5 +227,5 @@ func fetchPosts() (articleArgs []Article) {
 	check(rows.Err())
 	rows.Close()
 	
-	return articleArgs
+	return articles
 }

@@ -110,6 +110,7 @@ func parseTemplateFiles() {
 	
 	// HTML templates
 	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form")))
+	templates["comments"]		= template.Must(template.ParseFiles(T("base"), T("comments")))
 	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("news")))
 	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
 	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
@@ -129,6 +130,7 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 	if err != nil {
 		printVal("executeTemplate err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 

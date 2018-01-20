@@ -392,7 +392,8 @@ func WebServer() {
 	InitSecurity()
 	
 	http.HandleFunc("/",                hwrap(newsHandler))
-	http.HandleFunc("/news/",           /*hwrap(*/newsHandler/*)*/)
+	http.HandleFunc("/news/",           hwrap(newsHandler))
+	http.HandleFunc("/comments/",       hwrap(commentsHandler))
 	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
 	http.HandleFunc("/ip/",             hwrap(ipHandler))
 	http.HandleFunc("/login/",          hwrap(loginHandler))
@@ -404,7 +405,11 @@ func WebServer() {
 	http.HandleFunc("/submit/",   		hwrap(submitHandler))
 	http.HandleFunc("/submitLink/",   	hwrap(submitLinkHandler))
 	
+	// Server static file.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	
+	// Special handling for favicon.ico.
+	http.Handle("/favicon.ico", http.FileServer(http.Dir("./static")))
 	
 	pr(go_, "Listening on http://localhost:" + flags.port + "...")
 	http.ListenAndServe(":" + flags.port, nil)
