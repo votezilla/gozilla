@@ -45,6 +45,53 @@
 		</div> {{/*col-md-12*/}}
 	</div> {{/*row*/}}
 
+	{{ $article := .Article }}
+	<a href="{{$article.Url}}" class="storylink" rel="nofollow">
+		<img src="{{$article.UrlToImage}}" width="100%" height="280">
+	</a>
+	<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+		<tr>
+			<td align="left" style="width: 35%; padding-left:5px;">
+				<a href="#">
+					<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+					<span style="color: #88f">{{$article.Author}}</span>
+				</a>
+				&middot;
+				<span class="age" align="right">2h</span>
+			</td>
+		</tr>
+
+		<tr valign="top">
+			<td class="title" style="padding-left: 5px;">
+				<span>
+					<a href="{{$article.Url}}" class="storylink" rel="nofollow" style="font-size:14pt;">{{$article.Title}}</a>
+				</span>
+			</td>
+		</tr>
+
+		<tr>
+			<td class="subtext" style="width: 100%; padding-left: 5px;">
+				<table width="100%"><tr>
+					<td align="left" style="width: 40%;">
+						<span class="upvote"><a href="#" class="upvote">&#x25B2;</a></span>
+						<a href="#">25k</a>
+						<span class="downvote"><a href="#">&#x25BC;</a></span>
+					</td>
+					<td align="center" style="width: auto;">
+						<a href="#">...</a>
+					</td>
+					<td align="right" style="width: 40%;">
+						<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+							<a href="/comments/?postId={{$article.Id}}" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
+						</span>
+					</td>
+				</tr></table>
+			</td>
+		</tr>
+
+		<tr class="spacer" style="height:5px"></tr>
+	</table>
+
 	<form>
 		<p><textarea rows="4" cols="50"></textarea></p>
 		<p><button type="submit" onclick="" class="save">save</button></p>

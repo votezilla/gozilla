@@ -97,14 +97,11 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	reqNoHeadlines	:= parseUrlParam(r, "noHeadlines")
 
 	// TODO: cache this, fetch every minute?
-	newArticles := fetchArticles()
-	posts := fetchPosts()
+	articles := fetchArticles()
 	
-	prf(ns_, "Fetched %d articles and %d posts", len(newArticles), len(posts))
+	prf(ns_, "Fetched %d articles", len(articles))
 	
-	articles = append(posts, newArticles...)
-	
-	numArticlesToDisplay := len(articles)//min(50, len(articles))
+	numArticlesToDisplay := len(articles)
 	prVal(nw_, "numArticlesToDisplay", numArticlesToDisplay)
 	
 	prf(ns_, "There are now %d articles total", len(articles))

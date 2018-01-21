@@ -42,9 +42,8 @@ CREATE TABLE votezilla.Post (
 );
 
 CREATE TABLE votezilla.LinkPost (
-	LinkURL				TEXT,
-	UrlToImage			TEXT,
-	ThumbnailFilePath	TEXT,
+	LinkURL				TEXT NOT NULL;
+	UrlToImage			TEXT,                -- TODO: make NOT NULL once user posts have this enabled.
 	ThumbnailStatus	INT			DEFAULT 0;
 ) INHERITS (votezilla.Post);
 
