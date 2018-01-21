@@ -109,7 +109,6 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	articleArgs := make([]ArticleArg, numArticlesToDisplay)
 	
 	perm := rand.Perm(len(articles))
-	perm[0] = 0 // HACK!!
 	
 	//prVal(nw_, "perm", perm)
 	
@@ -140,7 +139,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	// Sort by category.
-	// TODO: sort by category, then by rank.
+	// TODO: add separate tab for things you've posted.
 	sort.Slice(articleArgs, func(i, j int) bool {
 	  return articleArgs[i].Category < articleArgs[j].Category
 	})

@@ -39,7 +39,7 @@ func _queryArticles(idCondition string) (articles []Article) {
 		 FROM ONLY votezilla.LinkPost P 
 		 JOIN votezilla.User U ON P.UserId = U.Id
 		 WHERE (P.Id %s)
-		 ORDER BY PublishedAt
+		 ORDER BY PublishedAt DESC
 		 LIMIT 600;`, idCondition, idCondition))
 	
 	for rows.Next() {
