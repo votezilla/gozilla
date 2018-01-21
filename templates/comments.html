@@ -45,69 +45,85 @@
 		</div> {{/*col-md-12*/}}
 	</div> {{/*row*/}}
 
-	{{ $article := .Article }}
-	<a href="{{$article.Url}}" class="storylink" rel="nofollow">
-		<img src="{{$article.UrlToImage}}" width="100%" height="280">
-	</a>
-	<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
-		<tr>
-			<td align="left" style="width: 35%; padding-left:5px;">
-				<a href="#">
-					<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
-					<span style="color: #88f">{{$article.Author}}</span>
-				</a>
-				&middot;
-				<span class="age" align="right">2h</span>
-			</td>
-		</tr>
-
-		<tr valign="top">
-			<td class="title" style="padding-left: 5px;">
-				<span>
-					<a href="{{$article.Url}}" class="storylink" rel="nofollow" style="font-size:14pt;">{{$article.Title}}</a>
-				</span>
-			</td>
-		</tr>
-
-		<tr>
-			<td class="subtext" style="width: 100%; padding-left: 5px;">
-				<table width="100%"><tr>
-					<td align="left" style="width: 40%;">
-						<span class="upvote"><a href="#" class="upvote">&#x25B2;</a></span>
-						<a href="#">25k</a>
-						<span class="downvote"><a href="#">&#x25BC;</a></span>
+	<div class="row vz-row">
+		<div class="col-md-6 vz-col-md-6-left">
+			{{ $article := .Article }}
+			<a href="{{$article.Url}}" class="storylink" rel="nofollow">
+				<img src="{{$article.UrlToImage}}" width="100%" height="280">
+			</a>
+			<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+				<tr>
+					<td align="left" style="width: 35%; padding-left:5px;">
+						<a href="#">
+							<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+							<span style="color: #88f">{{$article.Author}}</span>
+						</a>
+						&middot;
+						<span class="age" align="right">2h</span>
 					</td>
-					<td align="center" style="width: auto;">
-						<a href="#">...</a>
-					</td>
-					<td align="right" style="width: 40%;">
-						<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-							<a href="/comments/?postId={{$article.Id}}" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
+				</tr>
+
+				<tr valign="top">
+					<td class="title" style="padding-left: 5px;">
+						<span>
+							<a href="{{$article.Url}}" class="storylink" rel="nofollow" style="font-size:14pt;">{{$article.Title}}</a>
 						</span>
 					</td>
-				</tr></table>
-			</td>
-		</tr>
+				</tr>
 
-		<tr class="spacer" style="height:5px"></tr>
-	</table>
+				<tr>
+					<td class="subtext" style="width: 100%; padding-left: 5px;">
+						<table width="100%"><tr>
+							<td align="left" style="width: 40%;">
+								<span class="upvote"><a href="#" class="upvote">&#x25B2;</a></span>
+								<a href="#">25k</a>
+								<span class="downvote"><a href="#">&#x25BC;</a></span>
+							</td>
+							<td align="center" style="width: auto;">
+								<a href="#">...</a>
+							</td>
+							<td align="right" style="width: 40%;">
+								<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+									<a href="/comments/?postId={{$article.Id}}" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
+								</span>
+							</td>
+						</tr></table>
+					</td>
+				</tr>
+				<tr class="spacer" style="height:5px"></tr>
+			</table>
+		</div> {{/*col-md-6*/}}
+		<div class="col-md-6 vz-col-md-6">
+		</div>
+	</div> {{/*row*/}}
 
-	<form>
-		<p><textarea rows="4" cols="50"></textarea></p>
-		<p><button type="submit" onclick="" class="save">save</button></p>
-	</form>
+	<div class="row vz-row">
+		<div class="col-md-12 vz-col-md-12">
+			<form>
+				<p><textarea rows="4" cols="50"></textarea></p>
+				<p><button type="submit" onclick="" class="save">save</button></p>
+			</form>
 
-	<div class="vzcomment">
-		<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
-		<p>I was half expecting it to be an act and him to start doing some crazy shit </p>
-		<div class="vzchild"><div class="vzcomment">
-			<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
-			<p>Wait for it... wait for itttt..... waaaiittt ffooorrr iiittttt..........</p>
-			<div class="vzchild"><div class="vzcomment">
+			<div class="vzcomment">
 				<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
-				<p>You hear about Pluto? That’s messed up. </p>
-			</div></div>
-		</div></div>
-	</div>
-
+				<p>I was half expecting it to be an act and him to start doing some crazy shit </p>
+				<div class="vzcomment_children">
+					<div class="vzcomment">
+						<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+						<p>Wait for it... wait for itttt..... waaaiittt ffooorrr iiittttt..........</p>
+						<div class="vzcomment_children">
+							<div class="vzcomment">
+								<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+								<p>You hear about Pluto? That’s messed up. </p>
+							</div>
+							<div class="vzcomment">
+								<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+								<p>What about the other 99 "plantets"?? </p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> {{/*col-md-12*/}}
+	</div> {{/*row*/}}
 {{end}} {{/*body*/}}

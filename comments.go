@@ -24,7 +24,7 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	// TODO_REFACTOR: unify articles and posts in database.
-	article, err := fetchArticle(postId, reqPostId)
+	article, err := fetchArticle(postId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
 		return

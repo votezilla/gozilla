@@ -1,9 +1,9 @@
 body    { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
 
-// Nested comments
-.vzchild   { margin-top: 10px; margin-left: 15px; border-left: 1px dotted #CCF; }
-.vzcomment { margin-left: 10px; }
-.vztagline { font-size: x-small; font-weight: bold; }
+/* Nested comments */
+.vzcomment          { margin-left: 10px; }
+.vzcomment_children { margin-top: 10px; margin-left: 10px; border-left: 1px dotted #CCF; }
+.vztagline          { font-size: x-small; font-weight: bold; }
 
 hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
 
@@ -44,7 +44,7 @@ a:visited   { color:#000000; text-decoration:none; }
 
 pre:hover { overflow:auto }
 
-// mobile device 
+/* mobile device */
 @media only screen
 and (min-width : 300px)
 and (max-width : 750px) {
@@ -54,7 +54,7 @@ and (max-width : 750px) {
     span.pagetop b { display: block; font-size: 15px; }
     table.comment-tree .comment a { display: inline-block; max-width: 200px; overflow: hidden; white-space: nowrap;
         text-overflow: ellipsis; vertical-align:top; }
-    // Separator line
+    /* Separator line */
     img[src='/static/s.gif'][width='40'] { width: 12px; }
     img[src='/static/s.gif'][width='80'] { width: 24px; }
     img[src='/static/s.gif'][width='120'] { width: 36px; }

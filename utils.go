@@ -29,6 +29,8 @@ func check(err error) {
     }
 }
 
+func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // logging

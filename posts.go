@@ -27,9 +27,7 @@ func _queryArticles(idCondition string) (articles []Article) {
 	var language		string
 	var country			string
 	
-	// Union of NewsPosts (News API) and LinkPosts (user articles)
-	rows := DbQuery(
-		fmt.Sprintf(`SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+	query := fmt.Sprintf(`SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
 				COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
 		 FROM votezilla.NewsPost
 		 WHERE ThumbnailStatus = 1 AND (Id %s)
@@ -40,7 +38,12 @@ func _queryArticles(idCondition string) (articles []Article) {
 		 JOIN votezilla.User U ON P.UserId = U.Id
 		 WHERE (P.Id %s)
 		 ORDER BY PublishedAt DESC
-		 LIMIT 600;`, idCondition, idCondition))
+		 LIMIT 600;`, idCondition, idCondition)
+		 
+	//prVal(po_, "query", query)
+	
+	// Union of NewsPosts (News API) and LinkPosts (user articles)
+	rows := DbQuery(query)
 	
 	for rows.Next() {
 		check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
@@ -79,7 +82,7 @@ func _queryArticles(idCondition string) (articles []Article) {
 			Title:			title,
 			Description:	description,
 			Url:			linkUrl,
-			UrlToImage:		urlToImage,
+			UrlToImage:		coalesce_str(urlToImage, "/static/mozilla dinosaur head.png"),
 			UrlToThumbnail:	"/static/thumbnails/" + id + ".jpeg",
 			PublishedAt:	publishedAt.Format(time.UnixDate),
 			NewsSourceId:	newsSourceId,
@@ -99,13 +102,11 @@ func _queryArticles(idCondition string) (articles []Article) {
 //
 // fetch a single article from database
 // TODO: doesn't work with user-submitted posts.  Will need a database refactor for that!
-// id - int64 id of the article
-// idStr - string version of the id (will have already from the URL param, so
-//         this is an optimization)
+// id - article id
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticle(id int64, idStr string) (Article, error) {
-	articles := _queryArticles("Id = " + strconv.FormatInt(id, 10))
+func fetchArticle(id int64) (Article, error) {
+	articles := _queryArticles(" = " + strconv.FormatInt(id, 10))
 	
 	len := len(articles)
 	
