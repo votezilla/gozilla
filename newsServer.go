@@ -8,24 +8,6 @@ import (
 	"time"
 )
 
-// JSON-parsed format of an article.
-type Article struct {
-	Author			string
-	Title			string
-	Description		string
-	Url				string
-	UrlToImage		string
-	PublishedAt		string
-	// Custom parameters:
-	Id				string
-	UrlToThumbnail	string
-	NewsSourceId	string
-	Host			string
-	Category		string
-	Language		string
-	Country			string
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // fetches news sources

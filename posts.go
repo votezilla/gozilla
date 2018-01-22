@@ -9,6 +9,26 @@ import (
 )
 
 
+// JSON-parsed format of an article.
+type Article struct {
+	Author			string
+	Title			string
+	Description		string
+	Url				string
+	UrlToImage		string
+	PublishedAt		string
+	// Custom parameters:
+	Id				string
+	UrlToThumbnail	string
+	NewsSourceId	string
+	Host			string
+	Category		string
+	Language		string
+	Country			string
+	PublishedAtUnix	time.Time
+	TimeSince		string
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // query news articles and user posts from database, with condition test on the id.
@@ -27,22 +47,23 @@ func _queryArticles(idCondition string) (articles []Article) {
 	var language		string
 	var country			string
 	
-	query := fmt.Sprintf(`SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
-				COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
-		 FROM votezilla.NewsPost
-		 WHERE ThumbnailStatus = 1 AND (Id %s)
-		 UNION
-		 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
-		 		P.Created AS PublishedAt, '' AS NewsSourceId, 'EN' AS Category, 'EN' AS Language, U.Country
-		 FROM ONLY votezilla.LinkPost P 
-		 JOIN votezilla.User U ON P.UserId = U.Id
-		 WHERE (P.Id %s)
-		 ORDER BY PublishedAt DESC
-		 LIMIT 600;`, idCondition, idCondition)
+	// Union of NewsPosts (News API) and LinkPosts (user articles).
+	query := fmt.Sprintf(`
+		SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
+		FROM votezilla.NewsPost
+		WHERE ThumbnailStatus = 1 AND (Id %s)
+		UNION
+		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
+		FROM ONLY votezilla.LinkPost P 
+		JOIN votezilla.User U ON P.UserId = U.Id
+		WHERE (P.Id %s)
+		ORDER BY PublishedAt DESC
+		LIMIT 600;`, idCondition, idCondition)
 		 
 	//prVal(po_, "query", query)
 	
-	// Union of NewsPosts (News API) and LinkPosts (user articles)
 	rows := DbQuery(query)
 	
 	for rows.Next() {
@@ -74,6 +95,29 @@ func _queryArticles(idCondition string) (articles []Article) {
 		if category == "politics" || category == "general" {
 			category = "news"
 		}
+		
+		// Format time since article was posted to a short format, e.g. "2h" for 2 hours.
+		var timeSinceStr string
+		{
+			timeSince := time.Since(publishedAt)
+			seconds := timeSince.Seconds()
+			minutes := timeSince.Minutes()
+			hours := timeSince.Hours()
+			days := hours / 24.0
+			weeks := days / 7.0
+			
+			if weeks >= 1.0 {
+				timeSinceStr = strconv.FormatFloat(weeks, 'f', 0, 32) + "w"
+			} else if days >= 1.0 {
+				timeSinceStr = strconv.FormatFloat(days, 'f', 0, 32) + "d"
+			} else if hours >= 1.0 {
+				timeSinceStr = strconv.FormatFloat(hours, 'f', 0, 32) + "h"
+			} else if minutes >= 1.0 {
+				timeSinceStr = strconv.FormatFloat(minutes, 'f', 0, 32) + "m"
+			} else {
+				timeSinceStr = strconv.FormatFloat(seconds, 'f', 0, 32) + "s"
+			}
+		}
 
 		// Set the article information
 		articles = append(articles, Article{
@@ -84,12 +128,14 @@ func _queryArticles(idCondition string) (articles []Article) {
 			Url:			linkUrl,
 			UrlToImage:		coalesce_str(urlToImage, "/static/mozilla dinosaur head.png"),
 			UrlToThumbnail:	"/static/thumbnails/" + id + ".jpeg",
+			PublishedAtUnix:publishedAt,
 			PublishedAt:	publishedAt.Format(time.UnixDate),
 			NewsSourceId:	newsSourceId,
 			Host:			host,
 			Category:		category,
 			Language:		language,
 			Country:		country,
+			TimeSince:		timeSinceStr,
 		})
 	}
 	check(rows.Err())

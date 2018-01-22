@@ -213,9 +213,17 @@ func ImageServer() {
 		const kImageBatchSize = 5
 		imageURLs := make([]string, kImageBatchSize)
 		ids		  := make([]int,	kImageBatchSize)
+		
+		query := `
+			SELECT UrlToImage, Id 
+			FROM votezilla.NewsPost 
+			WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
+			ORDER BY COALESCE(PublishedAt, Created) DESC
+			LIMIT ` + strconv.Itoa(kImageBatchSize) + ";"
+			
+		prVal(ns_, "query", query)
 
-		rows := DbQuery(`SELECT UrlToImage, Id FROM votezilla.NewsPost WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
-						 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";")
+		rows := DbQuery(query)
 		
 		numImages := 0	
 		for rows.Next() {
@@ -226,6 +234,7 @@ func ImageServer() {
 		check(rows.Err())
 		rows.Close()
 
+		prVal(is_, "numImages", numImages)
 		prVal(is_, "imageURLs", imageURLs)
 		prVal(is_, "ids", ids)
 

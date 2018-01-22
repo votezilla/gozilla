@@ -138,10 +138,12 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	
-	// Sort by category.
+	// Sort by category, then by how recently it was published.
 	// TODO: add separate tab for things you've posted.
 	sort.Slice(articleArgs, func(i, j int) bool {
-	  return articleArgs[i].Category < articleArgs[j].Category
+	  return articleArgs[i].Category < articleArgs[j].Category ||
+	  		(articleArgs[i].Category == articleArgs[j].Category &&
+	  		  articleArgs[i].PublishedAtUnix.After(articleArgs[j].PublishedAtUnix))
 	})
 
 	numCategories := len(categoryOrder)
@@ -150,7 +152,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	var (
 		kArticlesPerRow = 2
-		kRowsPerCategory = 4//5
+		kRowsPerCategory = 4
 	)
 	
 	cat := 0
