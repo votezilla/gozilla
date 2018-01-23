@@ -2,8 +2,8 @@ package main
 
 import (
 	"net/http"
-	"math/rand"
-	"sort"
+	//"math/rand"
+	//"sort"
 	//"strconv"
 	//"net/url"
 )
@@ -47,6 +47,18 @@ var (
 	// Custom-written data from https://newsapi.org/v1/sources?language=en query
 	newsSources NewsSources
 	
+	// TODO: there are actually 11 categories.  Need some remapping logic:
+	//   business
+	//   entertainment
+	//   gaming
+	//   general
+	//   music
+	//   politics
+	//   science
+	//   science-and-nature
+ 	//   sport
+	//   sports
+	//   technology
 	categoryOrder = []string{
 		"news", 			
 		"business", 			
@@ -95,10 +107,25 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqCategory		:= parseUrlParam(r, "category")
 	reqNoHeadlines	:= parseUrlParam(r, "noHeadlines")
+	
+	const (
+		kArticlesPerRow = 2
+		kRowsPerCategory = 4 // TODO: same as other const in posts.go
+		kMaxArticles = 60
+	)
 
 	// TODO: cache this, fetch every minute?
-	articles := fetchArticles()
-	
+	var articles []Article
+	if reqCategory == "" {
+		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
+	} else {
+		articles, err = fetchArticlesWithinCategory(reqCategory, kMaxArticles)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
+			return
+		}
+	}
+
 	prf(ns_, "Fetched %d articles", len(articles))
 	
 	numArticlesToDisplay := len(articles)
@@ -108,13 +135,14 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	articleArgs := make([]ArticleArg, numArticlesToDisplay)
 	
-	perm := rand.Perm(len(articles))
+	//perm := rand.Perm(len(articles))
 	
 	//prVal(nw_, "perm", perm)
 	
 	// TODO: change type ArticleArgs to just be []Article
 	for i := 0; i < numArticlesToDisplay; i++ {
-		article := articles[perm[i]] // shuffle the article order (to mix between sources)
+		article := articles[i]
+		//article := articles[perm[i]] // shuffle the article order (to mix between sources)
 
 		// Truncate the title if it's too long.
 		const kMaxTitleLength = 122	
@@ -140,20 +168,15 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	// Sort by category, then by how recently it was published.
 	// TODO: add separate tab for things you've posted.
-	sort.Slice(articleArgs, func(i, j int) bool {
-	  return articleArgs[i].Category < articleArgs[j].Category ||
-	  		(articleArgs[i].Category == articleArgs[j].Category &&
-	  		  articleArgs[i].PublishedAtUnix.After(articleArgs[j].PublishedAtUnix))
-	})
+	//sort.Slice(articleArgs, func(i, j int) bool {
+	//	return articleArgs[i].Category < articleArgs[j].Category ||
+	//  		   (articleArgs[i].Category == articleArgs[j].Category &&
+	//  		    articleArgs[i].PublishedAtUnix.After(articleArgs[j].PublishedAtUnix))
+	//})
 
 	numCategories := len(categoryOrder)
 	
 	articleGroups := make([]ArticleGroup, numCategories)
-	
-	var (
-		kArticlesPerRow = 2
-		kRowsPerCategory = 4
-	)
 	
 	cat := 0
 	headlineSide := 0 // The side that has the headline (large article).
@@ -209,6 +232,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 							size =  1 // 1 means large article (headline)
 						} else {      // the rest of the articles get skipped, since the headline takes all the space.
 							size = -1 // -1 means skip the article
+							currArticle-- // don't skip the article, since the slot is skipped
 						}
 					}
 				}

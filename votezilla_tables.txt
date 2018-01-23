@@ -42,8 +42,8 @@ CREATE TABLE votezilla.Post (
 );
 
 CREATE TABLE votezilla.LinkPost (
-	LinkURL				TEXT NOT NULL;
-	UrlToImage			TEXT,                -- TODO: make NOT NULL once user posts have this enabled.
+	LinkURL			TEXT NOT NULL;
+	UrlToImage		TEXT,                		-- TODO: make NOT NULL once user posts have this enabled.
 	ThumbnailStatus	INT			DEFAULT 0;
 ) INHERITS (votezilla.Post);
 
@@ -52,15 +52,16 @@ CREATE TABLE votezilla.BlogPost (
 ) INHERITS (votezilla.Post);
 
 CREATE TABLE votezilla.NewsPost (
-	Description		TEXT,	
-	PublishedAt		TIMESTAMPTZ,	
-	NewsSourceId	TEXT	NOT NULL,
-	Category		TEXT	NOT NULL,
-	Language		TEXT	NOT NULL,
-	Country			TEXT	NOT NULL,
-	UNIQUE(PublishedAt, Title)
+	Description		TEXT,						-- TODO: may not need this, unless we use in certain newspaper formats
+	PublishedAt		TIMESTAMPTZ,				-- TODO: can we get this from the article, for user-submitted posts, and then move this to Post?
+	NewsSourceId	TEXT	NOT NULL,			-- TODO: can we get this from the URL, and not keep in database?
+	Category		TEXT	NOT NULL,			-- TODO: move this to Post
+	Language		TEXT	NOT NULL,			-- TODO: move this to Post
+	Country			TEXT	NOT NULL,			-- TODO: move this to Post
+	UNIQUE(PublishedAt, Title)					-- TODO: everything else is moving, so eventually move this to LinkPost
 ) INHERITS (votezilla.LinkPost);
 
+-- TODO: CREATE TABLE PollPost
 
 DROP TABLE votezilla.LinkPost;
 DROP TABLE votezilla.BlogPost;

@@ -31,10 +31,13 @@ type Article struct {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// query news articles and user posts from database, with condition test on the id.
+// query news articles and user posts from database, with condition test on the
+// id, category, and optional partitioning per category.
+// If articlesPerCategory <= 0, no category partitioning takes place.
 //
 //////////////////////////////////////////////////////////////////////////////
-func _queryArticles(idCondition string) (articles []Article) {
+func _queryArticles(idCondition string, categoryCondition string, articlesPerCategory int, 
+					maxArticles int) (articles []Article) {
 	var id				string
 	var author			string
 	var title			string
@@ -46,30 +49,54 @@ func _queryArticles(idCondition string) (articles []Article) {
 	var category		string
 	var language		string
 	var country			string
+	var rowNumber		int
 	
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
 	query := fmt.Sprintf(`
 		SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
 			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
 		FROM votezilla.NewsPost
-		WHERE ThumbnailStatus = 1 AND (Id %s)
+		WHERE ThumbnailStatus = 1 AND (Id %s) AND (Category %s)
 		UNION
 		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
 			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
 		FROM ONLY votezilla.LinkPost P 
 		JOIN votezilla.User U ON P.UserId = U.Id
-		WHERE (P.Id %s)
-		ORDER BY PublishedAt DESC
-		LIMIT 600;`, idCondition, idCondition)
-		 
-	//prVal(po_, "query", query)
+		WHERE (P.Id %s) AND ('general' %s)
+		ORDER BY PublishedAt DESC`, 
+		idCondition, categoryCondition,
+		idCondition, categoryCondition)
+	if articlesPerCategory > 0 {
+		// Select 5 articles of each category
+		query = fmt.Sprintf(`
+			SELECT * 
+			FROM (		
+				SELECT 
+					*,
+					ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r 
+				FROM (%s) x
+			) x
+			WHERE x.r <= %d`, 
+			query, 
+			articlesPerCategory)
+	}
+	if maxArticles > 0 {
+		query += ` LIMIT ` + strconv.Itoa(maxArticles)
+	}
+	query += `;`
+	
+	prf(po_, "query: %s", query)
 	
 	rows := DbQuery(query)
 	
 	for rows.Next() {
-		check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
-						&publishedAt, &newsSourceId, &category, &language, &country))
-
+		if articlesPerCategory > 0 {
+			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
+							&publishedAt, &newsSourceId, &category, &language, &country, &rowNumber))
+		} else {
+			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
+							&publishedAt, &newsSourceId, &category, &language, &country))
+		}
 		//prVal(po_, "id", id)
 		//prVal(po_, "author", author)
 		//prVal(po_, "title", title)		
@@ -152,7 +179,11 @@ func _queryArticles(idCondition string) (articles []Article) {
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticle(id int64) (Article, error) {
-	articles := _queryArticles(" = " + strconv.FormatInt(id, 10))
+	articles := _queryArticles(
+		"= " + strconv.FormatInt(id, 10), 
+		"IS NOT NULL",
+		-1,
+		2) // 2, so we could potentially catch duplicate articles.
 	
 	len := len(articles)
 	
@@ -167,9 +198,41 @@ func fetchArticle(id int64) (Article, error) {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch news articles from database
+// fetch news articles partitioned by category, up to articlesPerCategory
+// articles per category, up to maxArticles total.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticles() (articles []Article) {
-	return _queryArticles("IS NOT NULL")
+func fetchArticlesPartitionedByCategory(articlesPerCategory int, maxArticles int) ([]Article) {
+	return _queryArticles(
+		"IS NOT NULL",
+		"IS NOT NULL",
+		articlesPerCategory,
+		maxArticles)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch news articles within a particular category, up to maxArticles total.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchArticlesWithinCategory(category string, maxArticles int) ([]Article, error) {
+	// Validate we have a valid category; otherwise, this could be SQL injection!
+	if _, ok := headerColors[category]; !ok {
+	    return []Article{}, errors.New("Invalid category")
+	}
+	
+	// "news" is a combination of "politics" and "general" categories.
+	if category == "news" {
+		return _queryArticles(
+			"IS NOT NULL", 
+			"IN ('politics', 'general')",
+			-1,
+			maxArticles), nil
+	} else {
+		return _queryArticles(
+			"IS NOT NULL", 
+			"= '" + category + "'",
+			-1,
+			maxArticles), nil
+	}
 }

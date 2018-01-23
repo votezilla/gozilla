@@ -1,0 +1,78 @@
+SELECT COUNT(Id), ThumbnailStatus
+		FROM votezilla.NewsPost
+		GROUP BY ThumbnailStatus;
+		
+		
+SELECT COUNT(Id), Category
+		FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
+				FROM votezilla.NewsPost
+				WHERE ThumbnailStatus = 1 
+				ORDER BY PublishedAt DESC
+				LIMIT 600
+				) AS Q
+		GROUP BY Category;
+		
+SELECT * 
+FROM (		
+	SELECT 
+		*, 
+		ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r 
+	FROM (
+		SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
+		FROM votezilla.NewsPost
+		WHERE ThumbnailStatus = 1
+		UNION
+		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
+		FROM ONLY votezilla.LinkPost P 
+		JOIN votezilla.User U ON P.UserId = U.Id
+
+		ORDER BY PublishedAt DESC
+	) x
+) x
+WHERE x.r <= 6;
+
+
+SELECT *
+FROM (
+        SELECT
+                *,
+                ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r
+        FROM (
+                SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+                           COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
+                FROM votezilla.NewsPost
+                WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL)
+                UNION
+                SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+                           P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
+                FROM ONLY votezilla.LinkPost P
+                JOIN votezilla.User U ON P.UserId = U.Id
+                WHERE (P.Id IS NOT NULL)
+                ORDER BY PublishedAt DESC
+        ) x
+) x
+WHERE x.r <= 5;
+
+SELECT *
+FROM (
+        SELECT
+                Title, NewsSourceId, Category,
+                ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r
+        FROM (
+                SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+                           COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
+                FROM votezilla.NewsPost
+                WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL)
+                UNION
+                SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+                           P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
+                FROM ONLY votezilla.LinkPost P
+                JOIN votezilla.User U ON P.UserId = U.Id
+                WHERE (P.Id IS NOT NULL)
+                ORDER BY PublishedAt DESC
+        ) x
+) x
+WHERE x.r <= 5;
