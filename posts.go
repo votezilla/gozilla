@@ -73,7 +73,8 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			FROM (		
 				SELECT 
 					*,
-					ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r 
+					ROW_NUMBER() OVER (PARTITION BY Category ORDER BY 
+						PublishedAt + RANDOM() * '4:00:00'::INTERVAL DESC) AS r 
 				FROM (%s) x
 			) x
 			WHERE x.r <= %d`, 
@@ -86,7 +87,6 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	query += `;`
 	
 	prf(po_, "query: %s", query)
-	
 	rows := DbQuery(query)
 	
 	for rows.Next() {

@@ -1,78 +1,80 @@
 SELECT COUNT(Id), ThumbnailStatus
 		FROM votezilla.NewsPost
 		GROUP BY ThumbnailStatus;
-		
-		
-SELECT COUNT(Id), Category
-		FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
-			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
-				FROM votezilla.NewsPost
-				WHERE ThumbnailStatus = 1 
-				ORDER BY PublishedAt DESC
-				LIMIT 600
-				) AS Q
-		GROUP BY Category;
-		
-SELECT * 
-FROM (		
-	SELECT 
-		*, 
-		ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r 
-	FROM (
-		SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
-			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
-		FROM votezilla.NewsPost
-		WHERE ThumbnailStatus = 1
-		UNION
-		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
-			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
-		FROM ONLY votezilla.LinkPost P 
-		JOIN votezilla.User U ON P.UserId = U.Id
 
-		ORDER BY PublishedAt DESC
+SELECT COUNT(Id), Category FROM votezilla.NewsPost GROUP BY Category;
+
+SELECT *
+FROM (
+		SELECT
+				AGE(Now(), PublishedAt) AS Age,
+				EXTRACT(EPOCH FROM AGE(Now(), PublishedAt)) / 
+                        EXTRACT(EPOCH FROM '1:00:00'::INTERVAL) AS Hours,
+                OrderBy,
+				Category,
+				Title,
+				ROW_NUMBER() OVER (PARTITION BY Category ORDER BY OrderBy DESC) AS r
+		FROM (
+			SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
+			   COALESCE(PublishedAt, Created) + RANDOM() * '4:00:00'::INTERVAL AS OrderBy
+			FROM votezilla.NewsPost
+			WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL) AND (Category IS NOT NULL)
+			UNION
+			SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country,
+			   P.Created + RANDOM() * '4:00:00'::INTERVAL AS OrderBy
+			FROM ONLY votezilla.LinkPost P
+			JOIN votezilla.User U ON P.UserId = U.Id
+			WHERE (P.Id IS NOT NULL) AND ('general' IS NOT NULL)
+			ORDER BY OrderBy
 	) x
 ) x
-WHERE x.r <= 6;
-
-
-SELECT *
-FROM (
-        SELECT
-                *,
-                ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r
-        FROM (
-                SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
-                           COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
-                FROM votezilla.NewsPost
-                WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL)
-                UNION
-                SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
-                           P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
-                FROM ONLY votezilla.LinkPost P
-                JOIN votezilla.User U ON P.UserId = U.Id
-                WHERE (P.Id IS NOT NULL)
-                ORDER BY PublishedAt DESC
-        ) x
-) x
-WHERE x.r <= 5;
+WHERE x.r <= 5 LIMIT 60;
 
 SELECT *
 FROM (
-        SELECT
-                Title, NewsSourceId, Category,
-                ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r
-        FROM (
-                SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
-                           COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
-                FROM votezilla.NewsPost
-                WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL)
-                UNION
-                SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
-                           P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
-                FROM ONLY votezilla.LinkPost P
-                JOIN votezilla.User U ON P.UserId = U.Id
-                WHERE (P.Id IS NOT NULL)
-                ORDER BY PublishedAt DESC
-        ) x
+		SELECT
+				AGE(Now(), PublishedAt) AS Age,
+				EXTRACT(EPOCH FROM AGE(Now(), PublishedAt)) / 
+                        EXTRACT(EPOCH FROM '1:00:00'::INTERVAL) AS Hours,
+				Category,
+				Title,
+				ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt + RANDOM() * '4:00:00'::INTERVAL DESC) AS r
+		FROM (
+			SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
+			FROM votezilla.NewsPost
+			WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL) AND (Category IS NOT NULL)
+			UNION
+			SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
+			FROM ONLY votezilla.LinkPost P
+			JOIN votezilla.User U ON P.UserId = U.Id
+			WHERE (P.Id IS NOT NULL) AND ('general' IS NOT NULL)
+	) x
 ) x
-WHERE x.r <= 5;
+WHERE x.r <= 5 LIMIT 60;
+
+SELECT *
+FROM (
+		SELECT
+				*,
+				ROW_NUMBER() OVER (PARTITION BY Category ORDER BY PublishedAt DESC) AS r
+		FROM (
+			SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
+			   COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+			FROM votezilla.NewsPost
+			WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL) AND (Category IS NOT NULL)
+			UNION
+			SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country,
+			   P.Created + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+			FROM ONLY votezilla.LinkPost P
+			JOIN votezilla.User U ON P.UserId = U.Id
+			WHERE (P.Id IS NOT NULL) AND ('general' IS NOT NULL)
+			ORDER BY OrderBy
+	) x
+) x
+WHERE x.r <= 5 LIMIT 60;

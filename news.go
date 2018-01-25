@@ -233,6 +233,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 						} else {      // the rest of the articles get skipped, since the headline takes all the space.
 							size = -1 // -1 means skip the article
 							currArticle-- // don't skip the article, since the slot is skipped
+										  // TODO: there's a bug where a headline article gets displayed twice, if we're in a specific category!!!
 						}
 					}
 				}
