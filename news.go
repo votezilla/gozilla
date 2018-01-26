@@ -24,41 +24,11 @@ type ArticleGroup struct {
 	More			string	// category if "More..." appears at end of group.
 }
 
-// A news source to request the news from.
-// TODO: turn NewsSource into a table as well?
-type NewsSource struct {
-	Id					string
-	Name				string
-	Description			string
-	Url					string
-	Category			string
-	Language			string
-	Country				string
-	SortBysAvailable	[]string
-	// Custom parameters:
-	Icon				string
-}
-type NewsSources map[string]NewsSource
-
 var (
 	// newsServer populates the articles.
 	articles []Article
 	
-	// Custom-written data from https://newsapi.org/v1/sources?language=en query
-	newsSources NewsSources
-	
-	// TODO: there are actually 11 categories.  Need some remapping logic:
-	//   business
-	//   entertainment
-	//   gaming
-	//   general
-	//   music
-	//   politics
-	//   science
-	//   science-and-nature
- 	//   sport
-	//   sports
-	//   technology
+	// TODO: Combine these into one map of structs.
 	categoryOrder = []string{
 		"news", 			
 		"business", 			
@@ -67,19 +37,6 @@ var (
 		"technology",		
 		"science",			
 	}
-	// want sport, sports -> sports
-	//      science, science-and-nature -> science
-	//      politics, general -> news
-	//      music, entertainment -> entertainment
-	//      gaming, technology -> technology
-	//
-	// so final categories will be:
-	//		news
-	//		business
-	//		sports
-	//		entertainment
-	//		technology
-	//		science
 	
 	headerColors map[string]string = map[string]string{
 		"news" 			 	: "#ccc",

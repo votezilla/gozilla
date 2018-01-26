@@ -8,6 +8,41 @@ import (
 	"time"
 )
 
+// A news source to request the news from.
+// TODO: turn NewsSource into a table as well?
+type NewsSource struct {
+	Id					string
+	Name				string
+	Description			string
+	Url					string
+	Category			string
+	Language			string
+	Country				string
+	SortBysAvailable	[]string
+	// Custom parameters:
+	Icon				string
+}
+type NewsSources map[string]NewsSource
+
+var (
+	// Custom-written data from https://newsapi.org/v1/sources?language=en query
+	newsSources NewsSources	
+	
+	newsCategoryRemapping = map[string]string{
+		"politics"			: "news",
+		"general"			: "news",
+		"business"			: "business",
+		"sport"				: "sports",
+		"sports"			: "sports",
+		"science"			: "science",
+		"science-and-nature": "science",
+		"music"				: "entertainment",
+		"entertainment"		: "entertainment",
+		"technology"		: "technology",
+		"gaming"			: "gaming",
+	}
+)
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // fetches news sources
@@ -58,6 +93,15 @@ func fetchNewsSources() bool {
 	newsSources = NewsSources{}
 	for _, newsSource := range newsSourcesResp.Sources {
 		newsSource.Icon = "/static/newsSourceIcons/" + newsSource.Id + ".png"
+
+		// News category remapping
+		category, ok := newsCategoryRemapping[newsSource.Category]
+		if ok {
+			newsSource.Category = category
+		} else {
+			prVal(ns_, "Error: unknown category: ", newsSource.Category)
+			return false
+		}
 		
 		newsSources[newsSource.Id] = newsSource
 	}
@@ -123,7 +167,7 @@ func fetchNews(newsSource string, c chan []Article) {
 		// Set the news source
 		news.Articles[i].NewsSourceId = newsSource
 				
-		// Set the category, language, and country.
+		// Set the language and country. 
 		news.Articles[i].Category = newsSources[newsSource].Category
 		news.Articles[i].Language = newsSources[newsSource].Language
 		news.Articles[i].Country  = newsSources[newsSource].Country

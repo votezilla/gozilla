@@ -121,29 +121,6 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			host = u.Host
 		}
 		
-		// Combine "politics" and "general" into "news>
-		//if category == "politics" || category == "general" {
-		//	category = "news"
-		//}
-		
-		switch category {
-			case "sport":
-			case "sports":
-				category = "sports"
-			case "science":
-			case "science-and-nature":
-				category = "science"
-			case "politics":
-			case "general":
-				category = "news"
-			case "music":
-			case "entertainment":
-				category = "entertainment"
-			case "technology":
-			case "gaming":
-				category = "technology"
-		}
-		
 		// Format time since article was posted to a short format, e.g. "2h" for 2 hours.
 		var timeSinceStr string
 		{
@@ -241,19 +218,10 @@ func fetchArticlesWithinCategory(category string, maxArticles int) ([]Article, e
 	if _, ok := headerColors[category]; !ok {
 	    return []Article{}, errors.New("Invalid category")
 	}
-	
-	// "news" is a combination of "politics" and "general" categories.
-	if category == "news" {
-		return _queryArticles(
-			"IS NOT NULL", 
-			"IN ('politics', 'general')",
-			-1,
-			maxArticles), nil
-	} else {
-		return _queryArticles(
-			"IS NOT NULL", 
-			"= '" + category + "'",
-			-1,
-			maxArticles), nil
-	}
+
+	return _queryArticles(
+		"IS NOT NULL", 
+		"= '" + category + "'",
+		-1,
+		maxArticles), nil
 }
