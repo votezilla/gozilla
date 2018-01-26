@@ -49,21 +49,24 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	var category		string
 	var language		string
 	var country			string
+	var orderBy			time.Time
 	var rowNumber		int
 	
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
 	query := fmt.Sprintf(`
 		SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
-			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
+			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
+			   COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
 		FROM votezilla.NewsPost
 		WHERE ThumbnailStatus = 1 AND (Id %s) AND (Category %s)
 		UNION
 		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
-			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
+			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country,
+			   P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
 		FROM ONLY votezilla.LinkPost P 
 		JOIN votezilla.User U ON P.UserId = U.Id
 		WHERE (P.Id %s) AND ('general' %s)
-		ORDER BY PublishedAt DESC`, 
+		ORDER BY OrderBy DESC`, 
 		idCondition, categoryCondition,
 		idCondition, categoryCondition)
 	if articlesPerCategory > 0 {
@@ -74,7 +77,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 				SELECT 
 					*,
 					ROW_NUMBER() OVER (PARTITION BY Category ORDER BY 
-						PublishedAt + RANDOM() * '4:00:00'::INTERVAL DESC) AS r 
+						OrderBy DESC) AS r 
 				FROM (%s) x
 			) x
 			WHERE x.r <= %d`, 
@@ -92,10 +95,10 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	for rows.Next() {
 		if articlesPerCategory > 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
-							&publishedAt, &newsSourceId, &category, &language, &country, &rowNumber))
+							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &rowNumber))
 		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
-							&publishedAt, &newsSourceId, &category, &language, &country))
+							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy))
 		}
 		//prVal(po_, "id", id)
 		//prVal(po_, "author", author)
@@ -119,8 +122,26 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 		}
 		
 		// Combine "politics" and "general" into "news>
-		if category == "politics" || category == "general" {
-			category = "news"
+		//if category == "politics" || category == "general" {
+		//	category = "news"
+		//}
+		
+		switch category {
+			case "sport":
+			case "sports":
+				category = "sports"
+			case "science":
+			case "science-and-nature":
+				category = "science"
+			case "politics":
+			case "general":
+				category = "news"
+			case "music":
+			case "entertainment":
+				category = "entertainment"
+			case "technology":
+			case "gaming":
+				category = "technology"
 		}
 		
 		// Format time since article was posted to a short format, e.g. "2h" for 2 hours.

@@ -255,25 +255,3 @@ func NewsServer() {
 		time.Sleep(5 * time.Minute)
 	}
 }
-
-/*
-Various tests for, and eliminations of, duplicate news data:
-
-select publishedat, title, count(*) from votezilla.newspost group by 1, 2 having count(*) > 1;
-
-SELECT PublishedAt, Title, min(ctid)
-FROM votezilla.NewsPost
-GROUP BY 1, 2
-HAVING count(*) > 1
-WITH x AS (
-	SELECT PublishedAt, Title, min(ctid)
-	FROM votezilla.NewsPost
-	GROUP BY 1, 2
-	HAVING count(*) > 1
-)
-DELETE FROM votezilla.NewsPost n
-USING x
-WHERE n.PublishedAt = x.PublishedAt AND n.Title = x.Title
-AND n.ctid <> x.min
-RETURNING *;
-*/

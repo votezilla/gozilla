@@ -70,7 +70,7 @@ FROM (
 			UNION
 			SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
 			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country,
-			   P.Created + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+			   P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
 			FROM ONLY votezilla.LinkPost P
 			JOIN votezilla.User U ON P.UserId = U.Id
 			WHERE (P.Id IS NOT NULL) AND ('general' IS NOT NULL)
@@ -78,3 +78,31 @@ FROM (
 	) x
 ) x
 WHERE x.r <= 5 LIMIT 60;
+
+SELECT
+	AGE(Now(), PublishedAt) AS Age,
+	EXTRACT(EPOCH FROM AGE(Now(), PublishedAt)) /
+		EXTRACT(EPOCH FROM '1:00:00'::INTERVAL) AS Hours,
+	Category,
+	Title FROM votezilla.NewsPost WHERE Category = 'music';
+	
+
+//Various tests for, and eliminations of, duplicate news data:
+
+select publishedat, title, count(*) from votezilla.newspost group by 1, 2 having count(*) > 1;
+
+SELECT PublishedAt, Title, min(ctid)
+FROM votezilla.NewsPost
+GROUP BY 1, 2
+HAVING count(*) > 1
+WITH x AS (
+	SELECT PublishedAt, Title, min(ctid)
+	FROM votezilla.NewsPost
+	GROUP BY 1, 2
+	HAVING count(*) > 1
+)
+DELETE FROM votezilla.NewsPost n
+USING x
+WHERE n.PublishedAt = x.PublishedAt AND n.Title = x.Title
+AND n.ctid <> x.min
+RETURNING *;

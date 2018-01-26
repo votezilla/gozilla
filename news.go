@@ -62,34 +62,41 @@ var (
 	categoryOrder = []string{
 		"news", 			
 		"business", 			
-		"sport", 			
+		"sports", 			
 		"entertainment", 	
-		"science-and-nature",
 		"technology",		
-		"gaming",			
-		"music", 			
+		"science",			
 	}
+	// want sport, sports -> sports
+	//      science, science-and-nature -> science
+	//      politics, general -> news
+	//      music, entertainment -> entertainment
+	//      gaming, technology -> technology
+	//
+	// so final categories will be:
+	//		news
+	//		business
+	//		sports
+	//		entertainment
+	//		technology
+	//		science
 	
 	headerColors map[string]string = map[string]string{
 		"news" 			 	: "#ccc",
 		"business" 			: "#8e8",
-		"sport" 			: "#88f",
+		"sports" 			: "#88f",
 		"entertainment" 	: "#e85be4",
-		"science-and-nature": "#8cf",
 		"technology" 		: "#8ff",
-		"gaming" 			: "#58d858",
-		"music" 			: "#fd8",
+		"science"			: "#8cf",
 	}
 
 	bgColors map[string]string = map[string]string{
 		"news"	 			: "#ddd",
 		"business" 			: "#b2fdb2",
-		"sport" 			: "#bbf",
+		"sports" 			: "#bbf",
 		"entertainment" 	: "#fda5fd",
-		"science-and-nature": "#bdf",
 		"technology" 		: "#bff",
-		"gaming" 			: "#afa",
-		"music" 			: "#feb",
+		"science"			: "#bdf",
 	}
 )
 
