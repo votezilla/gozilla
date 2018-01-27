@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
+	"encoding/json"
 	"net/http"
 	"strings"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML
@@ -366,13 +367,44 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// AJAX Handlers
+//
+///////////////////////////////////////////////////////////////////////////////
+func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.NotFound(w, r)
+		return
+	}
+    
+    //parse request to struct
+    var vote struct {
+		Id	int
+		Dir	int
+	}
+    err := json.NewDecoder(r.Body).Decode(&vote)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    // create json response from struct
+    a, err := json.Marshal(vote)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    w.Write(a)
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // handler wrapper - Each request should refresh the session.
 //
 ///////////////////////////////////////////////////////////////////////////////
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		prf(go_, "\nHandling request from: %s\n", formatRequest(r))
-		
+    	
 		handler(w, r)
 	}
 }
@@ -404,6 +436,7 @@ func WebServer() {
 	http.HandleFunc("/registerDone/",   hwrap(registerDoneHandler))
 	http.HandleFunc("/submit/",   		hwrap(submitHandler))
 	http.HandleFunc("/submitLink/",   	hwrap(submitLinkHandler))
+	http.HandleFunc("/ajaxVote/",		hwrap(ajaxVoteHandler))
 	
 	// Server static file.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))

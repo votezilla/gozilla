@@ -1,5 +1,43 @@
 {{define "body"}}
 
+<script>
+function upvote(id) {
+	alert('upvote');
+
+	$.ajax({
+		url: '/ajaxVote/',
+		type: "post",
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify({ Id: id, Dir: 1 }),
+		dataType: 'json',
+		success: function(r) {
+			alert('upvoted!!! ' + r.Id + ' ' + r.Dir);
+		},
+		error: function(r) {
+			alert('error!!!')
+		}
+	});
+}
+
+function downvote(id) {
+	alert('downvote');
+
+	$.ajax({
+		url: '/ajaxVote/',
+		type: "post",
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify({ Id: id, Dir: -1 }),
+		dataType: 'json',
+		success: function(r) {
+			alert('upvoted!!! ' + r.Id + ' ' + r.Dir);
+		},
+		error: function(r) {
+			alert('error!!!')
+		}
+	});
+}
+</script>
+
 <div class="smart-padding container vz-container">
 	<div class="row vz-row">
 		<div class="col-md-12 vz-col-md-12">

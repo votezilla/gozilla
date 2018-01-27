@@ -63,9 +63,9 @@
 									<td class="subtext" style="width: 100%; padding-left: 5px;">
 										<table width="100%"><tr>
 											<td align="left" style="width: 40%;">
-												<span class="upvote"><a href="javascript:alert('upvote')" class="upvote">&#x25B2;</a></span>
+												<span class="upvote"><a href="javascript:upvote({{$article.Id}})" class="upvote">&#x25B2;</a></span>
 												<a href="#">25k</a>
-												<span class="downvote"><a href="#">&#x25BC;</a></span>
+												<span class="downvote"><a href="javascript:downvote({{$article.Id}})">&#x25BC;</a></span>
 											</td>
 											<td align="center" style="width: auto;">
 												<a href="#">...</a>
@@ -110,9 +110,9 @@
 									<td class="subtext" style="width: 100%">
 										<table width="100%"><tr>
 											<td align="left" style="width: 40%;">
-												<span class="upvote"><a href="javascript:alert('upvote')" class="upvote">&#x25B2;</a></span>
+												<span class="upvote"><a href="javascript:upvote({{$article.Id}})" class="upvote">&#x25B2;</a></span>
 												<a href="#">25k</a>
-												<span class="downvote"><a href="#">&#x25BC;</a></span>
+												<span class="downvote"><a href="javascript:downvote({{$article.Id}})">&#x25BC;</a></span>
 											</td>
 											<td align="center" style="width: auto;">
 												<a href="#">...</a>
