@@ -61,11 +61,11 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 		WHERE ThumbnailStatus = 1 AND (Id %s) AND (Category %s)
 		UNION
 		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
-			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country,
+			   P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
 			   P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
 		FROM ONLY votezilla.LinkPost P 
 		JOIN votezilla.User U ON P.UserId = U.Id
-		WHERE (P.Id %s) AND ('general' %s)
+		WHERE (P.Id %s) AND ('news' %s)
 		ORDER BY OrderBy DESC`, 
 		idCondition, categoryCondition,
 		idCondition, categoryCondition)

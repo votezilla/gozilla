@@ -49,6 +49,7 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 	commentsArgs := struct {
 		PageArgs
 		Username		string
+		UserId			int
 		NavMenu			[]string
 		UrlPath			string
 		Article			ArticleArg
@@ -56,6 +57,7 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 	}{
 		PageArgs:		PageArgs{Title: "votezilla - Comments"},
 		Username:		username,
+		UserId:			userId,
 		NavMenu:		navMenu,
 		UrlPath:		"news",
 		Article:		articleArg,

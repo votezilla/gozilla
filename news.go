@@ -269,6 +269,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	newsArgs := struct {
 		PageArgs
 		Username		string
+		UserId			int
 		ArticleGroups	[]ArticleGroup
 		LastColumnIdx	int
 		NavMenu			[]string
@@ -276,6 +277,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	}{
 		PageArgs:		PageArgs{Title: "votezilla - News"},
 		Username:		username,
+		UserId:			userId,
 		ArticleGroups:	articleGroups,
 		NavMenu:		navMenu,
 		UrlPath:		"news",

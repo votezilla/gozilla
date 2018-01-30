@@ -61,11 +61,20 @@ CREATE TABLE votezilla.NewsPost (
 	UNIQUE(PublishedAt, Title)					-- TODO: everything else is moving, so eventually move this to LinkPost
 ) INHERITS (votezilla.LinkPost);
 
--- TODO: CREATE TABLE PollPost
 
-DROP TABLE votezilla.LinkPost;
-DROP TABLE votezilla.BlogPost;
-DROP TABLE votezilla.Post;
+CREATE TABLE votezilla.PostVote (
+	Id				BIGSERIAL	NOT NULL,
+	PostId			BIGINT		NOT NULL,
+	UserId			BIGINT		NOT NULL,
+	Up				BOOL		NOT NULL,
+	UNIQUE(PostId, UserId)
+);
+
+
+-- TODO: CREATE TABLE PollPost
+-- TODO: CREATE TABLE PollVote
+
+DROP TABLE votezilla.xxx;
 
 --
 
@@ -92,7 +101,6 @@ PrevRevisionId FOREIGN KEY Comment
 Text VARCHAR(10,000)
 MaterializedPath (4b,4b,2b,2b,2b,2b = 64 bits, so can use bitwise math!)  If stored MSB order, you can sort by it!
 Tombstone BOOL
-Checkbox - They have to consent to the public data lookup.
 INDEX ParentId
 INDEX MaterializedPath
 
@@ -104,7 +112,3 @@ T PostLike E Like
 PostId
 
 same forCommentLike
-
-
-TODO:
-create ancestor to Post and Comment, don't know the name, that has an Id and a datetime.

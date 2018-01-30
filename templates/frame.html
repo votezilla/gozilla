@@ -1,40 +1,98 @@
 {{define "body"}}
 
 <script>
-function upvote(id) {
-	alert('upvote');
+loggedIn = {{ if .Username }} true {{ else }} false {{ end }} ;
 
-	$.ajax({
-		url: '/ajaxVote/',
-		type: "post",
-		contentType: 'application/json; charset=utf-8',
-		data: JSON.stringify({ Id: id, Dir: 1 }),
-		dataType: 'json',
-		success: function(r) {
-			alert('upvoted!!! ' + r.Id + ' ' + r.Dir);
-		},
-		error: function(r) {
-			alert('error!!!')
-		}
-	});
+var votedPosts = [[], []];
+
+function removeItem(arr, item) {
+	var index = arr.indexOf(item);
+	if (index > -1) {
+	    arr.splice(index, 1);
+	}
 }
 
-function downvote(id) {
-	alert('downvote');
+///////////////////////////////////////////////////////////////////////////////
+//
+// VOTING FUNCTIONS
+//
+///////////////////////////////////////////////////////////////////////////////
 
-	$.ajax({
-		url: '/ajaxVote/',
-		type: "post",
-		contentType: 'application/json; charset=utf-8',
-		data: JSON.stringify({ Id: id, Dir: -1 }),
-		dataType: 'json',
-		success: function(r) {
-			alert('upvoted!!! ' + r.Id + ' ' + r.Dir);
-		},
-		error: function(r) {
-			alert('error!!!')
+// Whether an upvote or down with this id is enabled
+function hasVote(id, up) {
+	return votedPosts[up ? 1 : 0].includes(id)
+}
+
+// Add or remove the voting state.
+function addOrRemoveVoteState(id, add, up) {
+	if (add) {
+		votedPosts[up ? 1 : 0].push(id)
+	} else { // remove
+		removeItem(votedPosts[up ? 1 : 0], id)
+	}
+}
+
+// Add or remove a vote via state, CSS, and updating of database via AJAX.
+function addOrRemoveVote(id, add, up, updateDatabase) {
+	// state
+	addOrRemoveVoteState(id, add, up)
+
+	// CSS
+	if (add) {
+		if (up) {
+			$("#upvote" + id).css("border", "3px solid blue");
+		} else {
+			$("#downvote" + id).css("border", "3px solid red");
 		}
-	});
+	} else { // remove
+		if (up) {
+			$("#upvote" + id).css("border", "")
+		} else {
+			$("#downvote" + id).css("border", "")
+		}
+	}
+
+	// AJAX
+	if (updateDatabase) {
+		$.ajax({
+			url: '/ajaxVote/',
+			type: "post",
+			contentType: 'application/json; charset=utf-8',
+			data: JSON.stringify({ PostId: id, UserId: {{.UserId}}, Add: add, Up: up}), // Hmmm <-- should be UserId not Username
+			dataType: 'json',
+			success: function(r) { console.log("AJAX - success"); },
+			error:   function(r) { console.log("AJAX - error"); }
+		});
+	}
+}
+
+// Cancel an up or down vote
+function cancelVote(id, up) {
+	if (hasVote(id, up)) {
+		addOrRemoveVote(id, false, up, false) // cancel
+	}
+}
+
+// Toggle an up or down vote
+// (Only toggleVote should send the AJAX, otherwise there will be a race condition in updating the database.)
+function toggleVote(id, up) {
+	if (hasVote(id, up)) {
+		addOrRemoveVote(id, false, up, true) // cancel.
+	} else {
+		addOrRemoveVote(id, true,  up, true) // enable
+	}
+}
+
+// Vote up or down on a post.  Or if already voted, cancels the vote.
+// id: postId
+// up: true for up, false for down
+function Vote(id, up) {
+	if (loggedIn) {
+		cancelVote(id, !up) // cancel opposite type of vote
+		toggleVote(id, up)  // toggle this type of vote
+	} else {
+		alert("You must be logged in to do that!")
+	}
 }
 </script>
 

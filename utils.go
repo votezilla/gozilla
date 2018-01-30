@@ -44,6 +44,8 @@ func round(f float32) int { return int(f + .5) }
 ///////////////////////////////////////////////////////////////////////////////
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
 
+func sql_bool(b bool) string { if b { return "true" } else { return "false" } }
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // logging

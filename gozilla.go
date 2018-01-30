@@ -161,7 +161,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 				prf(go_, "passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
 				userId := DbInsert(
 					"INSERT INTO votezilla.User(Email, Username, PasswordHash) " +
-						"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;", 
+					"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;", 
 					data.Email,
 					data.Username,
 					passwordHashInts[0],
@@ -371,6 +371,9 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
+	pr(go_, "ajaxVoteHandler")
+	prVal(go_, "r.Method", r.Method)
+	
 	if r.Method != "POST" {
 		http.NotFound(w, r)
 		return
@@ -378,14 +381,38 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
     
     //parse request to struct
     var vote struct {
-		Id	int
-		Dir	int
+		PostId	int
+		UserId	int
+		Add		bool
+		Up		bool
 	}
+	
     err := json.NewDecoder(r.Body).Decode(&vote)
     if err != nil {
+		prVal(go_, "Failed to decode json body", r.Body)
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
+    
+    prVal(go_, "vote", vote)
+	
+	if vote.Add {
+    	DbExec(fmt.Sprintf( // sprintf necessary cause ::bool produces incorrect value in driver.
+			`INSERT INTO votezilla.PostVote(PostId, UserId, Up)
+			 VALUES ($1::bigint, $2::bigint, %s)
+			 ON CONFLICT (PostId, UserId) DO UPDATE 
+			 SET Up = %s;`,
+			sql_bool(vote.Up),
+			sql_bool(vote.Up)),
+			vote.PostId,
+			vote.UserId)
+	} else { // remove
+		DbExec(
+			`DELETE FROM votezilla.PostVote 
+			 WHERE PostId = $1::bigint AND UserId = $2::bigint;`,
+			vote.PostId,
+			vote.UserId)
+	}
     
     // create json response from struct
     a, err := json.Marshal(vote)
