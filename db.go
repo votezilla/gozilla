@@ -56,13 +56,17 @@ func DbTrackOpenConnections() {
 func DbExec(query string, values ...interface{}) {
 	prf(db_, "DbExec query:%#v values:%#v", query, values)
 	
-	stmt, err := db.Prepare(query)
-	check(err)
+	// TODO: test this!!!
+	
+	//stmt, err := db.Prepare(query)
+	//check(err)
+	//
+	//_, err = stmt.Exec(values...)
+	//check(err)
 
-	_, err = stmt.Exec(values...)
-	check(err)
+	_, err = db.Exec(query, values...)
 
-	stmt.Close()
+	//stmt.Close()
 }
 
 // Inserts a new record into the database and returns the Id of the inserted record.
