@@ -397,15 +397,14 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
     prVal(go_, "vote", vote)
 	
 	if vote.Add {
-    	DbExec(fmt.Sprintf( // sprintf necessary cause ::bool produces incorrect value in driver.
+    	DbExec( // sprintf necessary cause ::bool produces incorrect value in driver.
 			`INSERT INTO votezilla.PostVote(PostId, UserId, Up)
-			 VALUES ($1::bigint, $2::bigint, %s)
+			 VALUES ($1::bigint, $2::bigint, $3::bool)
 			 ON CONFLICT (PostId, UserId) DO UPDATE 
-			 SET Up = %s;`,
-			sql_bool(vote.Up),
-			sql_bool(vote.Up)),
+			 SET Up = $3::bool;`,
 			vote.PostId,
-			vote.UserId)
+			vote.UserId,
+			vote.Up)
 	} else { // remove
 		DbExec(
 			`DELETE FROM votezilla.PostVote 
