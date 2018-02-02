@@ -27,6 +27,8 @@ type Article struct {
 	Country			string
 	PublishedAtUnix	time.Time
 	TimeSince		string
+	Size			int		// 0=normal, 1=large (headline)
+	AuthorIconUrl	string	
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -144,6 +146,14 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			}
 		}
 
+		// Author icon URL: either the news source's, or the user's.  (TODO: let users pick their dino head / upload a photo.)		
+		authorIconUrl := ""
+		if newsSourceId != "" {
+			authorIconUrl = "/static/newsSourceIcons/" + newsSourceId + ".png"
+		} else {
+			authorIconUrl = "/static/mozilla dinosaur head.png" // TODO: we need real dinosaur icons for users.
+		}
+
 		// Set the article information
 		articles = append(articles, Article{
 			Id:				id,
@@ -161,6 +171,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			Language:		language,
 			Country:		country,
 			TimeSince:		timeSinceStr,
+			AuthorIconUrl:	authorIconUrl,
 		})
 	}
 	check(rows.Err())

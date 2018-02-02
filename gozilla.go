@@ -17,7 +17,7 @@ var (
 	err		 	error
 	
 	// NavMenu (constant)
-	navMenu		= []string{"news", "posts", "submit"}
+	navMenu		= []string{"news", "history", "submit"}
 )
 
 // Template arguments for webpage template.
@@ -451,6 +451,7 @@ func WebServer() {
 	
 	http.HandleFunc("/",                hwrap(newsHandler))
 	http.HandleFunc("/news/",           hwrap(newsHandler))
+	http.HandleFunc("/history/",        hwrap(historyHandler)) // <-- TODO: Implement this!
 	http.HandleFunc("/comments/",       hwrap(commentsHandler))
 	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
 	http.HandleFunc("/ip/",             hwrap(ipHandler))

@@ -3,20 +3,14 @@ package main
 import (
 	"net/http"
 	//"math/rand"
-	//"sort"
+	"sort"
 	//"strconv"
 	//"net/url"
 )
 
-// For rendering the news article information.
-type ArticleArg struct {
-	Article
-	Size			int		// 0=normal, 1=large (headline)
-	AuthorIconUrl	string
-}
-
+// A group of articles, separated by a header.
 type ArticleGroup struct {
-	ArticleArgs		[][]ArticleArg // Arrow of rows, each row has 2 articles.
+	Articles		[][]Article // Arrow of rows, each row has 2 articles.
 	Category		string
 	HeaderColor		string
 	BgColor			string
@@ -57,96 +51,52 @@ var (
 	}
 )
 
+const (
+	kArticlesPerRow = 2
+	kRowsPerCategory = 4 
+	kMaxArticles = 60
+	kMaxTitleLength = 122
+)
+
 //////////////////////////////////////////////////////////////////////////////
 //
-// display news
-// TODO: santize (html- and url-escape the arguments).  (Make sure URL's don't point back to votezilla.)
-// TODO: use a caching, resizing image proxy for the images.
+// TODO: santize (html- and url-escape the arguments).  
+//       (Make sure URL's don't point back to votezilla.)
+//		 possibly based on whether mobile, and whether a headline.
 //
 //////////////////////////////////////////////////////////////////////////////
-func newsHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
-	  
-	prVal(nw_, "r.URL.Query()", r.URL.Query())
-
-	reqCategory		:= parseUrlParam(r, "category")
-	reqNoHeadlines	:= parseUrlParam(r, "noHeadlines")
-	reqOnlyMyVotes	:= parseUrlParam(r, "onlyMyVotes")
-	
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
-	
-	const (
-		kArticlesPerRow = 2
-		kRowsPerCategory = 4 // TODO: same as other const in posts.go
-		kMaxArticles = 60
-	)
-
-	// TODO: cache this, fetch every minute?
-	var articles []Article
-	if reqOnlyMyVotes == "" {
-		if reqCategory == "" {
-			articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
-		} else {
-			articles, err = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
-				return
-			}
-		}
-	} else {
-		// Test showing a user what they've voted on:
-		articles = fetchArticlesVotedOnByUser(userId, kMaxArticles)
+func formatArticle(article *Article) {
+	// Truncate the title if it's too long.
+	if len(article.Title) > kMaxTitleLength {
+		article.Title = article.Title[0:kMaxTitleLength] + "..."
 	}
+}
 
-	prf(ns_, "Fetched %d articles", len(articles))
-	
-	numArticlesToDisplay := len(articles)
-	prVal(nw_, "numArticlesToDisplay", numArticlesToDisplay)
-	
-	prf(ns_, "There are now %d articles total", len(articles))
-	
-	articleArgs := make([]ArticleArg, numArticlesToDisplay)
-	
-	//perm := rand.Perm(len(articles))
-	
-	//prVal(nw_, "perm", perm)
-	
-	// TODO: change type ArticleArgs to just be []Article
-	for i := 0; i < numArticlesToDisplay; i++ {
-		article := articles[i]
-		//article := articles[perm[i]] // shuffle the article order (to mix between sources)
-
-		// Truncate the title if it's too long.
-		const kMaxTitleLength = 122	
-		if len(article.Title) > kMaxTitleLength {
-			article.Title = article.Title[0:kMaxTitleLength] + "..."
-		}
-
-		// Hide the hostname to save space if the title is long.
-		if len(article.Title) > 90 {
-			article.Host = ""
-		}
-
-		// Copy the article information.
-		articleArgs[i].Article	= article
-		articleArgs[i].Size		= 0 // normal size
-		
-		if article.NewsSourceId != "" {
-			articleArgs[i].AuthorIconUrl = "/static/newsSourceIcons/" + article.NewsSourceId + ".png"
-		} else {
-			articleArgs[i].AuthorIconUrl = "/static/mozilla dinosaur head.png" // TODO: we need real dinosaur icons for users.
-		}
-	}
-	
+//////////////////////////////////////////////////////////////////////////////
+//
+// Sort articles
+//
+//////////////////////////////////////////////////////////////////////////////
+func sortArticles(articles []Article) {
 	// Sort by category, then by how recently it was published.
-	// TODO: add separate tab for things you've posted.
-	//sort.Slice(articleArgs, func(i, j int) bool {
-	//	return articleArgs[i].Category < articleArgs[j].Category ||
-	//  		   (articleArgs[i].Category == articleArgs[j].Category &&
-	//  		    articleArgs[i].PublishedAtUnix.After(articleArgs[j].PublishedAtUnix))
-	//})
+	sort.Slice(articles, func(i, j int) bool {
+		return articles[i].Category < articles[j].Category ||
+	  		   (articles[i].Category == articles[j].Category &&
+	  		    articles[i].PublishedAtUnix.After(articles[j].PublishedAtUnix))
+	})
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// 
+// Format article groups - take an array of articles, arrange it into article groups
+//                         for display on the webpage.
+//	 onlyCategory - if == "", displays for articles grouped by category
+//				       != "", only display articles from a specific category
+//   headlines    - whether to display some articles as headlines (larger articles).
+//
+//////////////////////////////////////////////////////////////////////////////
+func formatArticleGroups(articles []Article, onlyCategory string, headlines bool) ([]ArticleGroup) {
+	//sortArticle(articles)
 
 	numCategories := len(categoryOrder)
 	
@@ -160,11 +110,11 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		col := 0
 		filled := false
 	
-		if reqCategory == "" { // Mixed categories
+		if onlyCategory == "" { // Mixed categories
 			articleGroups[cat].Category = category
 			articleGroups[cat].More = category
 		} else { 			   // Single category
-			category = reqCategory // Make all categories the same
+			category = onlyCategory // Make all categories the same
 			// Only the first articleGroup has a category name, the rest have "",
 			// which is a flag to have no category header.
 			if ccc == 0 {
@@ -178,29 +128,31 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articleGroups[cat].HeaderColor = headerColors[category]
 		articleGroups[cat].HeadlineSide = headlineSide
 		
-		if reqCategory == "" {
+		if onlyCategory == "" {
 			currArticle = 0
 		}
 		
-		// TODO: if a single category, without noHeadlines, either large image should be set to always 
+		// TODO: if a single category, with headlines, either large image should be set to always 
 		// 4 article height, or all articles should stack verticlally in each column.  
 		// (I prefer the second idea, because it might look nicer.)
 		
-		for ; currArticle < len(articleArgs); currArticle++ {
-			articleArg := articleArgs[currArticle]
+		for ; currArticle < len(articles); currArticle++ {
+			article := articles[currArticle]
+			
+			formatArticle(&article)
 		
 			// This works since we've sorted by category.
-			if articleArg.Category == category {
+			if article.Category == category {
 				if row == 0 {
 					// Make room for new row
-					articleGroups[cat].ArticleArgs = append(articleGroups[cat].ArticleArgs, 
-														    make([]ArticleArg, kRowsPerCategory))
+					articleGroups[cat].Articles = append(articleGroups[cat].Articles, 
+														 make([]Article, kRowsPerCategory))
 				}
 				
 				// The first article is always the headline.  Articles after the headline get skipped.
 				size := 0
 				
-				if reqNoHeadlines == "" {
+				if headlines {
 					if col == 0 {
 						if row == 0 { // first article is the headline, i.e. big
 							size =  1 // 1 means large article (headline)
@@ -214,12 +166,12 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 			
 				// Assign this slot the next article, as long as this is not an empty slot.  Make sure size gets assigned!
 				if size == -1 {
-					articleGroups[cat].ArticleArgs[col][row].Size = -1
+					articleGroups[cat].Articles[col][row].Size = -1
 				} else {
-					articleGroups[cat].ArticleArgs[col][row] = articleArg
-					articleGroups[cat].ArticleArgs[col][row].Size = size
+					articleGroups[cat].Articles[col][row] = article
+					articleGroups[cat].Articles[col][row].Size = size
 					
-					//articleArg.Article.Title = articleArg.Article.Title[0:9] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(headlineSide)
+					//article.Article.Title = article.Article.Title[0:9] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(headlineSide)
 				}
 				
 				// Inc row, col
@@ -240,11 +192,11 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		for !filled {
 			if row == 0 {
 				// Make room for new row
-				articleGroups[cat].ArticleArgs = append(articleGroups[cat].ArticleArgs, 
-														make([]ArticleArg, kRowsPerCategory))
+				articleGroups[cat].Articles = append(articleGroups[cat].Articles, 
+													 make([]Article, kRowsPerCategory))
 			}
 			
-			articleGroups[cat].ArticleArgs[col][row].Size = -1 // -1 means skip the article
+			articleGroups[cat].Articles[col][row].Size = -1 // -1 means skip the article
 			
 			// Inc row, col
 			col++
@@ -261,16 +213,26 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		
 		cat++
 		
-		if reqNoHeadlines == "" {
+		if headlines {
 			headlineSide = (headlineSide + 1) % 2 // The side with the headline switches each time, to look nice.
 		}
 	}
 	
 	// If a single category, only the last articleGroup should have a "More..." link.
-	if reqCategory != "" { 
-		articleGroups[cat - 1].More = reqCategory
+	if onlyCategory != "" { 
+		articleGroups[cat - 1].More = onlyCategory
 	}
+	
+	return articleGroups
+}
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Render a news template
+//
+//////////////////////////////////////////////////////////////////////////////
+func renderNews(w http.ResponseWriter, title string, username string, userId int64, 
+				articleGroups []ArticleGroup, urlPath string, template string) {
 	// Render the news articles.
 	newsArgs := struct {
 		PageArgs
@@ -280,17 +242,72 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		NavMenu			[]string
 		UrlPath			string
 	}{
-		PageArgs:		PageArgs{Title: "votezilla - News"},
+		PageArgs:		PageArgs{Title: "votezilla - " + title},
 		Username:		username,
 		UserId:			userId,
 		ArticleGroups:	articleGroups,
 		NavMenu:		navMenu,
-		UrlPath:		"news",
+		UrlPath:		urlPath,
+	}
+
+	executeTemplate(w, template, newsArgs)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// News handler
+// TODO: santize (html- and url-escape the arguments).  
+//       (Make sure URL's don't point back to votezilla.)
+//
+//////////////////////////////////////////////////////////////////////////////
+func newsHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
+	  
+	prVal(nw_, "r.URL.Query()", r.URL.Query())
+
+	reqCategory		:= parseUrlParam(r, "category")
+	
+	// Get the username.
+	userId := GetSession(r)
+	username := getUsername(userId)
+
+	// TODO: cache this, fetch every minute?
+	var articles []Article
+	if reqCategory == "" {
+		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
+	} else {
+		articles, err = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
+			return
+		}
 	}
 	
-	//prVal(nw_, "newsArgs", newsArgs)
+	articleGroups := formatArticleGroups(articles, reqCategory, true)
 	
-	executeTemplate(w, "news", newsArgs)
+	renderNews(w, "News", username, userId, articleGroups, "news", "news")
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// History handler - of user posts, up/down votes, 
+//                   TODO: comments
+//
+///////////////////////////////////////////////////////////////////////////////
+func historyHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
+	  
+	prVal(nw_, "r.URL.Query()", r.URL.Query())
+
+	// Get the username.
+	userId := GetSession(r)
+	username := getUsername(userId)
+
+	articles := fetchArticlesVotedOnByUser(userId, kMaxArticles)
+
+	articleGroups := formatArticleGroups(articles, "", false)
+
+	renderNews(w, "History", username, userId, articleGroups, "history", "news")
 }
 
 

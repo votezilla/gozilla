@@ -36,15 +36,6 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	username := getUsername(userId)
 	
-	// TODO: make a function to convert Article to ArticleArg, news.go also uses this.
-	articleArg := ArticleArg{}
-	articleArg.Article	= article			
-	if article.NewsSourceId != "" {
-		articleArg.AuthorIconUrl = "/static/newsSourceIcons/" + article.NewsSourceId + ".png"
-	} else {
-		articleArg.AuthorIconUrl = "/static/mozilla dinosaur head.png" // TODO: we need real dinosaur icons for users.
-	}
-
 	// Render the news articles.
 	commentsArgs := struct {
 		PageArgs
@@ -52,7 +43,7 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 		UserId			int64
 		NavMenu			[]string
 		UrlPath			string
-		Article			ArticleArg
+		Article			Article
 		Comments		string
 	}{
 		PageArgs:		PageArgs{Title: "votezilla - Comments"},
@@ -60,7 +51,7 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 		UserId:			userId,
 		NavMenu:		navMenu,
 		UrlPath:		"news",
-		Article:		articleArg,
+		Article:		article,
 		Comments:		comments,
 	}
 	
