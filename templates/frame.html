@@ -40,15 +40,15 @@ function addOrRemoveVote(id, add, up, updateDatabase) {
 	// CSS
 	if (add) {
 		if (up) {
-			$("#upvote" + id).css("border", "3px solid blue");
+			$("#upvote" + id).addClass("upvoted")        //css("border", "3px solid blue");
 		} else {
-			$("#downvote" + id).css("border", "3px solid red");
+			$("#downvote" + id).addClass("downvoted")    //css("border", "3px solid red");
 		}
 	} else { // remove
 		if (up) {
-			$("#upvote" + id).css("border", "")
+			$("#upvote" + id).removeClass("upvoted")     //css("border", "")
 		} else {
-			$("#downvote" + id).css("border", "")
+			$("#downvote" + id).removeClass("downvoted") //css("border", "")
 		}
 	}
 

@@ -1,0 +1,81 @@
+body    { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
+
+/* Nested comments */
+.vzcomment          { margin-left: 10px; }
+.vzcomment_children { margin-top: 10px; margin-left: 10px; border-left: 1px dotted #CCF; }
+.vztagline          { font-size: x-small; font-weight: bold; }
+
+hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
+
+input,select      { font-family:monospace; font-size:10pt; color:#000000; max-width: 200px; }
+input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
+
+textarea { font-family:monospace; font-size:10pt; color:#000000; }
+
+label.error { font-family:Verdana, Geneva, sans-serif; font-size:   10pt; color:#ee0000; }
+
+a:link      { color:#000000; text-decoration:none; }
+a:visited   { color:#000000; text-decoration:none; }
+
+.default { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#828282; }
+.admin   { font-family:Verdana, Geneva, sans-serif; font-size:8.5pt; color:#000000; }
+.title   { font-family:Verdana, Geneva, sans-serif; font-size: 12pt; color:#828282; }
+.subtext { font-family:Verdana, Geneva, sans-serif; font-size:  9pt; color:#828282; }
+
+.upvote   a:link, .upvote   a:visited { color:#68a; text-decoration: none; }
+.downvote a:link, .downvote a:visited { color:#a86; text-decoration: none; }
+
+.upvote   a:hover { color:#0000ff; text-decoration: none; }
+.downvote a:hover { color:#ff0000; text-decoration: none; }
+
+.yclinks { font-family:Verdana, Geneva, sans-serif; font-size:  8pt; color:#828282; }
+.pagetop { font-family:Verdana, Geneva, sans-serif; font-size: 12pt; color:#222222; }
+.comhead { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#828282; }
+.comment { font-family:Verdana, Geneva, sans-serif; font-size:  9pt; }
+
+.comment a:link, .comment a:visited { text-decoration: underline; }
+.noshow { display: none; }
+.nosee { visibility: hidden; pointer-events: none; cursor: default }
+
+.pagetop a:visited { color:#000000;}
+.topsel a:link, .topsel a:visited { color:#ffffff; }
+
+.pagebreak {page-break-before:always}
+
+pre:hover { overflow:auto }
+
+/* mobile device */
+@media only screen
+and (min-width : 300px)
+and (max-width : 750px) {
+    #hnmain { width: 100%; }
+    .title, .comment { font-size: inherit;  }
+    span.pagetop { display: block; margin: 3px 5px; font-size: 12px; }
+    span.pagetop b { display: block; font-size: 15px; }
+    table.comment-tree .comment a { display: inline-block; max-width: 200px; overflow: hidden; white-space: nowrap;
+        text-overflow: ellipsis; vertical-align:top; }
+    /* Separator line */
+    img[src='/static/s.gif'][width='40'] { width: 12px; }
+    img[src='/static/s.gif'][width='80'] { width: 24px; }
+    img[src='/static/s.gif'][width='120'] { width: 36px; }
+    img[src='/static/s.gif'][width='160'] { width: 48px; }
+    img[src='/static/s.gif'][width='200'] { width: 60px; }
+    img[src='/static/s.gif'][width='240'] { width: 72px; }
+    img[src='/static/s.gif'][width='280'] { width: 84px; }
+    img[src='/static/s.gif'][width='320'] { width: 96px; }
+    img[src='/static/s.gif'][width='360'] { width: 108px; }
+    img[src='/static/s.gif'][width='400'] { width: 120px; }
+    img[src='/static/s.gif'][width='440'] { width: 132px; }
+    img[src='/static/s.gif'][width='480'] { width: 144px; }
+    img[src='/static/s.gif'][width='520'] { width: 156px; }
+    img[src='/static/s.gif'][width='560'] { width: 168px; }
+    img[src='/static/s.gif'][width='600'] { width: 180px; }
+    img[src='/static/s.gif'][width='640'] { width: 192px; }
+    img[src='/static/s.gif'][width='680'] { width: 204px; }
+    img[src='/static/s.gif'][width='720'] { width: 216px; }
+    img[src='/static/s.gif'][width='760'] { width: 228px; }
+    img[src='/static/s.gif'][width='800'] { width: 240px; }
+    img[src='/static/s.gif'][width='840'] { width: 252px; }
+    .title { font-size: 11pt; line-height: 14pt;    }
+    input[type='text'], input[type='number'], textarea { font-size: 16px; width: 90%; }
+}
