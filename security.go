@@ -108,7 +108,7 @@ func shortExpiration() time.Time { return time.Now().Add(10 * time.Minute) }
 
 // Creates a secure session for Username.
 // If RememberMe, remember cookie for one year.  Otherwise, terminate cookie when browser closes.
-func CreateSession(w http.ResponseWriter, r *http.Request, userId int, rememberMe bool) {
+func CreateSession(w http.ResponseWriter, r *http.Request, userId int64, rememberMe bool) {
 	// Set expiration time
 	var expiration time.Time
 	if rememberMe {
@@ -121,7 +121,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userId int, rememberM
 	prVal(sc_, "              rememberMe", rememberMe)
 	prVal(sc_, "              expiration", expiration.Format(time.UnixDate))
 	
-	setCookie(w, r, kUserId, strconv.Itoa(userId), expiration, true)
+	setCookie(w, r, kUserId, strconv.FormatInt(userId, 10), expiration, true)
 	if rememberMe {
 		setCookie(w, r, kRememberMe, "true", expiration, false)
 	} else {
@@ -137,13 +137,13 @@ func DestroySession(w http.ResponseWriter, r *http.Request) {
 }
 
 // Returns the User.Id if the secure cookie exists, ok=false otherwise.
-func GetSession(r *http.Request) (userId int) {
+func GetSession(r *http.Request) (userId int64) {
 	// Get userId.
 	cookie, err := getCookie(r, kUserId, true)
 	if err != nil { // Missing or forged cookie
 		return -1
 	}
-	userId, err = strconv.Atoi(cookie)
+	userId, err = strconv.ParseInt(cookie, 10, 64)
 	if err != nil { // Cannot parse cookie
 		return -1
 	}
@@ -152,10 +152,10 @@ func GetSession(r *http.Request) (userId int) {
 }
 
 // Get username from userId.
-func getUsername(userId int) string {		
+func getUsername(userId int64) string {		
 	username := ""
 	if userId != -1 {
-		rows := DbQuery("SELECT Username FROM votezilla.User WHERE Id = $1;", userId)
+		rows := DbQuery("SELECT Username FROM votezilla.User WHERE Id = $1::bigint;", userId)
 		if rows.Next() {
 			err := rows.Scan(&username)
 			check(err)	

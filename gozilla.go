@@ -53,7 +53,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 							data.EmailOrUsername)
 		}
 		
-		var userId int
+		var userId int64
 		var passwordHashInts int256			
 
 		defer rows.Close()

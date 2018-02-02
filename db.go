@@ -71,10 +71,10 @@ func DbExec(query string, values ...interface{}) {
 
 // Inserts a new record into the database and returns the Id of the inserted record.
 // Panics on error.
-func DbInsert(query string, values ...interface{}) int {
+func DbInsert(query string, values ...interface{}) int64 {
 	prf(db_, "DbInsert query:%#v values:%#v", query, values)
 	
-	var lastInsertId int
+	var lastInsertId int64
 	
 	check(db.QueryRow(
 		query,

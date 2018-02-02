@@ -197,12 +197,12 @@ func fetchArticle(id int64) (Article, error) {
 //////////////////////////////////////////////////////////////////////////////
 //
 // fetch news articles partitioned by category, up to articlesPerCategory
-// articles per category, up to maxArticles total.
+// articles per category, up to maxArticles total, which excludeUserId did not vote on.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesPartitionedByCategory(articlesPerCategory int, maxArticles int) ([]Article) {
+func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IS NOT NULL",
+		"NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")",
 		"IS NOT NULL",
 		articlesPerCategory,
 		maxArticles)
@@ -210,17 +210,32 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, maxArticles int
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch news articles within a particular category, up to maxArticles total.
+// fetch news articles within a particular category, up to maxArticles total, 
+// which userId voted on.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesWithinCategory(category string, maxArticles int) ([]Article, error) {
+func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
+	return _queryArticles(
+		"IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  
+		"IS NOT NULL",
+		-1,
+		maxArticles)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch news articles within a particular category, up to maxArticles total,
+// which excludeUserId did not vote on.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article, error) {
 	// Validate we have a valid category; otherwise, this could be SQL injection!
 	if _, ok := headerColors[category]; !ok {
 	    return []Article{}, errors.New("Invalid category")
 	}
 
 	return _queryArticles(
-		"IS NOT NULL", 
+		"NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", 
 		"= '" + category + "'",
 		-1,
 		maxArticles), nil

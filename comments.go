@@ -49,7 +49,7 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 	commentsArgs := struct {
 		PageArgs
 		Username		string
-		UserId			int
+		UserId			int64
 		NavMenu			[]string
 		UrlPath			string
 		Article			ArticleArg

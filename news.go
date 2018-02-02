@@ -71,6 +71,11 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqCategory		:= parseUrlParam(r, "category")
 	reqNoHeadlines	:= parseUrlParam(r, "noHeadlines")
+	reqOnlyMyVotes	:= parseUrlParam(r, "onlyMyVotes")
+	
+	// Get the username.
+	userId := GetSession(r)
+	username := getUsername(userId)
 	
 	const (
 		kArticlesPerRow = 2
@@ -80,14 +85,19 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: cache this, fetch every minute?
 	var articles []Article
-	if reqCategory == "" {
-		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
-	} else {
-		articles, err = fetchArticlesWithinCategory(reqCategory, kMaxArticles)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
-			return
+	if reqOnlyMyVotes == "" {
+		if reqCategory == "" {
+			articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
+		} else {
+			articles, err = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
+				return
+			}
 		}
+	} else {
+		// Test showing a user what they've voted on:
+		articles = fetchArticlesVotedOnByUser(userId, kMaxArticles)
 	}
 
 	prf(ns_, "Fetched %d articles", len(articles))
@@ -261,17 +271,12 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articleGroups[cat - 1].More = reqCategory
 	}
 
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
-
 	// Render the news articles.
 	newsArgs := struct {
 		PageArgs
 		Username		string
-		UserId			int
+		UserId			int64
 		ArticleGroups	[]ArticleGroup
-		LastColumnIdx	int
 		NavMenu			[]string
 		UrlPath			string
 	}{
