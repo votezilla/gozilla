@@ -18,7 +18,7 @@ type Article struct {
 	UrlToImage		string
 	PublishedAt		string
 	// Custom parameters:
-	Id				string
+	Id				int64
 	UrlToThumbnail	string
 	NewsSourceId	string
 	Host			string
@@ -29,6 +29,8 @@ type Article struct {
 	TimeSince		string
 	Size			int		// 0=normal, 1=large (headline)
 	AuthorIconUrl	string	
+	Bucket			string  // "" by default, but can override Category as a way to categorize articles
+	Upvoted			bool
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -38,9 +40,9 @@ type Article struct {
 // If articlesPerCategory <= 0, no category partitioning takes place.
 //
 //////////////////////////////////////////////////////////////////////////////
-func _queryArticles(idCondition string, categoryCondition string, articlesPerCategory int, 
-					maxArticles int) (articles []Article) {
-	var id				string
+func _queryArticles(idCondition string, categoryCondition string, articlesPerCategory int, maxArticles int,
+				    fetchVotesForUserId int64) (articles []Article) {
+	var id				int64
 	var author			string
 	var title			string
 	var description		string
@@ -53,24 +55,32 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	var country			string
 	var orderBy			time.Time
 	var rowNumber		int
+	var upvoted			bool
+	
+	bRandomizeTime := (fetchVotesForUserId == -1)
 	
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
-	query := fmt.Sprintf(`
-		SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+	query := fmt.Sprintf(
+	   `SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
 			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
-			   COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+			   COALESCE(PublishedAt, Created) %s AS OrderBy
 		FROM votezilla.NewsPost
 		WHERE ThumbnailStatus = 1 AND (Id %s) AND (Category %s)
 		UNION
 		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
 			   P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
-			   P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
+			   P.Created %s AS OrderBy
 		FROM ONLY votezilla.LinkPost P 
 		JOIN votezilla.User U ON P.UserId = U.Id
 		WHERE (P.Id %s) AND ('news' %s)
 		ORDER BY OrderBy DESC`, 
-		idCondition, categoryCondition,
-		idCondition, categoryCondition)
+		ternary_str(bRandomizeTime, "+ RANDOM() * '3:00:00'::INTERVAL", ""),
+		idCondition, 
+		categoryCondition,
+		ternary_str(bRandomizeTime, "+ RANDOM() * '1:00:00'::INTERVAL", ""),
+		idCondition, 
+		categoryCondition,
+	)
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category
 		query = fmt.Sprintf(`
@@ -85,6 +95,15 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			WHERE x.r <= %d`, 
 			query, 
 			articlesPerCategory)
+	} else if fetchVotesForUserId >= 0 {
+		// Join query to post votes table.
+		query = fmt.Sprintf(`
+			SELECT x.*, v.Up AS Upvoted
+			FROM (%s) x
+			JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
+			ORDER BY x.OrderBy DESC`, 
+			query,
+			fetchVotesForUserId)
 	}
 	if maxArticles > 0 {
 		query += ` LIMIT ` + strconv.Itoa(maxArticles)
@@ -98,6 +117,9 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 		if articlesPerCategory > 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
 							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &rowNumber))
+		} else if fetchVotesForUserId >= 0 {
+			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
+							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &upvoted))
 		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
 							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy))
@@ -162,7 +184,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			Description:	description,
 			Url:			linkUrl,
 			UrlToImage:		coalesce_str(urlToImage, "/static/mozilla dinosaur head.png"),
-			UrlToThumbnail:	"/static/thumbnails/" + id + ".jpeg",
+			UrlToThumbnail:	"/static/thumbnails/" + strconv.FormatInt(id, 10) + ".jpeg",
 			PublishedAtUnix:publishedAt,
 			PublishedAt:	publishedAt.Format(time.UnixDate),
 			NewsSourceId:	newsSourceId,
@@ -172,6 +194,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			Country:		country,
 			TimeSince:		timeSinceStr,
 			AuthorIconUrl:	authorIconUrl,
+			Upvoted:		upvoted,
 		})
 	}
 	check(rows.Err())
@@ -192,7 +215,8 @@ func fetchArticle(id int64) (Article, error) {
 		"= " + strconv.FormatInt(id, 10), 
 		"IS NOT NULL",
 		-1,
-		2) // 2, so we could potentially catch duplicate articles.
+		2,	// 2, so we could potentially catch duplicate articles.
+		-1)
 	
 	len := len(articles)
 	
@@ -216,7 +240,8 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId i
 		"NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")",
 		"IS NOT NULL",
 		articlesPerCategory,
-		maxArticles)
+		maxArticles,
+		-1)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -230,7 +255,8 @@ func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 		"IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  
 		"IS NOT NULL",
 		-1,
-		maxArticles)
+		maxArticles,
+		userId)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -239,15 +265,11 @@ func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 // which excludeUserId did not vote on.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article, error) {
-	// Validate we have a valid category; otherwise, this could be SQL injection!
-	if _, ok := headerColors[category]; !ok {
-	    return []Article{}, errors.New("Invalid category")
-	}
-
+func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
 		"NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", 
 		"= '" + category + "'",
 		-1,
-		maxArticles), nil
+		maxArticles,
+		-1)
 }

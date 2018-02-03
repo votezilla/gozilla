@@ -40,15 +40,15 @@ function addOrRemoveVote(id, add, up, updateDatabase) {
 	// CSS
 	if (add) {
 		if (up) {
-			$("#upvote" + id).addClass("upvoted")        //css("border", "3px solid blue");
+			$("#upvote" + id).addClass("upvoted")
 		} else {
-			$("#downvote" + id).addClass("downvoted")    //css("border", "3px solid red");
+			$("#downvote" + id).addClass("downvoted")
 		}
 	} else { // remove
 		if (up) {
-			$("#upvote" + id).removeClass("upvoted")     //css("border", "")
+			$("#upvote" + id).removeClass("upvoted")
 		} else {
-			$("#downvote" + id).removeClass("downvoted") //css("border", "")
+			$("#downvote" + id).removeClass("downvoted")
 		}
 	}
 
@@ -94,6 +94,15 @@ function Vote(id, up) {
 		alert("You must be logged in to do that!")
 	}
 }
+
+$(function() {
+    {{ range $_, $id := $.UpVotes}}
+    	addOrRemoveVote({{$id}}, true, true, false)  // Add a upvote presentation, but do not update the database.
+    {{ end }}
+    {{ range $_, $id := $.DownVotes}}
+	    addOrRemoveVote({{$id}}, true, false, false) // Add a downvote presentation, but do not update the database.
+    {{ end }}
+});
 </script>
 
 <div class="smart-padding container vz-container">

@@ -17,35 +17,51 @@ type ArticleGroup struct {
 	More			string	// category if "More..." appears at end of group.
 }
 
+type CategoryInfo struct {
+	CategoryOrder	[]string
+	HeaderColors	map[string]string
+}
+
+const (
+	kNumCols = 2
+	kRowsPerCategory = 4 
+	kMaxArticles = 60
+	kMaxTitleLength = 122
+	
+	kVotedPosts = "voted posts"
+)
+
 var (
 	// newsServer populates the articles.
 	articles []Article
 	
-	// TODO: Combine these into one map of structs.
-	categoryOrder = []string{
-		"news", 			
-		"business", 			
-		"sports", 			
-		"entertainment", 	
-		"technology",		
-		"science",			
+	newsCategoryInfo = CategoryInfo {
+		CategoryOrder : []string{
+			"news", 			
+			"business", 			
+			"sports", 			
+			"entertainment", 	
+			"technology",		
+			"science",			
+		},
+		HeaderColors : map[string]string{
+			"news" 			 	: "#ccc",
+			"business" 			: "#8e8",
+			"sports" 			: "#88f",
+			"entertainment" 	: "#e85be4",
+			"technology" 		: "#8ff",
+			"science"			: "#8cf",
+		},
 	}
 	
-	headerColors map[string]string = map[string]string{
-		"news" 			 	: "#ccc",
-		"business" 			: "#8e8",
-		"sports" 			: "#88f",
-		"entertainment" 	: "#e85be4",
-		"technology" 		: "#8ff",
-		"science"			: "#8cf",
+	historyCategoryInfo = CategoryInfo {
+		CategoryOrder : []string{
+			kVotedPosts,	
+		},
+		HeaderColors : map[string]string{
+			kVotedPosts : "#ccc",
+		},
 	}
-)
-
-const (
-	kArticlesPerRow = 2
-	kRowsPerCategory = 4 
-	kMaxArticles = 60
-	kMaxTitleLength = 122
 )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -80,17 +96,30 @@ func sortArticles(articles []Article) {
 // 
 // Format article groups - take an array of articles, arrange it into article groups
 //                         for display on the webpage.
+//	 categoryInfo - describes the category names and banner background colors.
 //	 onlyCategory - if == "", displays for articles grouped by category
 //				       != "", only display articles from a specific category
 //   headlines    - whether to display some articles as headlines (larger articles).
 //
 //////////////////////////////////////////////////////////////////////////////
-func formatArticleGroups(articles []Article, onlyCategory string, headlines bool) ([]ArticleGroup) {
+func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines bool) ([]ArticleGroup) {
 	//sortArticle(articles)
-
-	numCategories := len(categoryOrder)
 	
-	articleGroups := make([]ArticleGroup, numCategories)
+	//rowsPerCategory := ternary_int(onlyCategory == "", kRowsPerCategory, kMaxArticles)
+
+	var categoryOrder []string
+	if onlyCategory != "" {
+		numCategoryGroups := kMaxArticles / (ternary_int(headlines, (kRowsPerCategory + 1), 
+																    kRowsPerCategory * kNumCols))
+		categoryOrder = make([]string, numCategoryGroups)
+		for i := range categoryOrder {
+			categoryOrder[i] = onlyCategory
+		}
+	} else {
+		categoryOrder = categoryInfo.CategoryOrder
+	}
+	
+	articleGroups := make([]ArticleGroup, len(categoryOrder))
 	
 	cat := 0
 	headlineSide := 0 // The side that has the headline (large article).
@@ -100,6 +129,7 @@ func formatArticleGroups(articles []Article, onlyCategory string, headlines bool
 		col := 0
 		filled := false
 	
+		// Set category header text and background color.
 		if onlyCategory == "" { // Mixed categories
 			articleGroups[cat].Category = category
 			articleGroups[cat].More = category
@@ -114,9 +144,10 @@ func formatArticleGroups(articles []Article, onlyCategory string, headlines bool
 			}
 			articleGroups[cat].More = ""
 		} 
-		articleGroups[cat].HeaderColor = headerColors[category]
+		articleGroups[cat].HeaderColor = categoryInfo.HeaderColors[category]
 		articleGroups[cat].HeadlineSide = headlineSide
 		
+		// Mixed categories - causing all articles to reiterate, but it will test against the category later.
 		if onlyCategory == "" {
 			currArticle = 0
 		}
@@ -125,15 +156,16 @@ func formatArticleGroups(articles []Article, onlyCategory string, headlines bool
 		// 4 article height, or all articles should stack verticlally in each column.  
 		// (I prefer the second idea, because it might look nicer.)
 		
-		for ; currArticle < len(articles); currArticle++ {
+		for currArticle < len(articles) {
 			article := articles[currArticle]
+			currArticle++
 			
 			formatArticle(&article)
 		
-			// This works since we've sorted by category.
-			if article.Category == category {
+			// This works since we've sorted by bucket/category.
+			if coalesce_str(article.Bucket, article.Category) == category {
 				if row == 0 {
-					// Make room for new row
+					// Allocate a new column of categories
 					articleGroups[cat].Articles = append(articleGroups[cat].Articles, 
 														 make([]Article, kRowsPerCategory))
 				}
@@ -160,12 +192,13 @@ func formatArticleGroups(articles []Article, onlyCategory string, headlines bool
 					articleGroups[cat].Articles[col][row] = article
 					articleGroups[cat].Articles[col][row].Size = size
 					
-					//article.Article.Title = article.Article.Title[0:9] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(headlineSide)
+					//articleGroups[cat].Articles[col][row].Title = 
+					//	articleGroups[cat].Articles[col][row].Title[0:29] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(currArticle)
 				}
 				
 				// Inc row, col
 				col++
-				if col == kArticlesPerRow {
+				if col == kNumCols {
 					col = 0
 					row++
 
@@ -189,7 +222,7 @@ func formatArticleGroups(articles []Article, onlyCategory string, headlines bool
 			
 			// Inc row, col
 			col++
-			if col == kArticlesPerRow {
+			if col == kNumCols {
 				col = 0
 				row++
 
@@ -221,7 +254,8 @@ func formatArticleGroups(articles []Article, onlyCategory string, headlines bool
 //
 //////////////////////////////////////////////////////////////////////////////
 func renderNews(w http.ResponseWriter, title string, username string, userId int64, 
-				articleGroups []ArticleGroup, urlPath string, template string) {
+				articleGroups []ArticleGroup, urlPath string, template string,
+				upvotes []int64, downvotes []int64) {
 	// Render the news articles.
 	newsArgs := struct {
 		PageArgs
@@ -230,6 +264,8 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 		ArticleGroups	[]ArticleGroup
 		NavMenu			[]string
 		UrlPath			string
+		UpVotes			[]int64
+		DownVotes		[]int64
 	}{
 		PageArgs:		PageArgs{Title: "votezilla - " + title},
 		Username:		username,
@@ -237,6 +273,8 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 		ArticleGroups:	articleGroups,
 		NavMenu:		navMenu,
 		UrlPath:		urlPath,
+		UpVotes:		upvotes,
+		DownVotes:		downvotes,
 	}
 
 	executeTemplate(w, template, newsArgs)
@@ -263,18 +301,21 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: cache this, fetch every minute?
 	var articles []Article
 	if reqCategory == "" {
+		// Fetch 5 articles from each category
 		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
 	} else {
-		articles, err = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
+		// Ensure we have a valid category (prevent SQL injection)
+		if _, ok := newsCategoryInfo.HeaderColors[reqCategory]; !ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		// Fetch articles in requested category
+		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
 	
-	articleGroups := formatArticleGroups(articles, reqCategory, true)
+	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, true)
 	
-	renderNews(w, "News", username, userId, articleGroups, "news", "news")
+	renderNews(w, "News", username, userId, articleGroups, "news", "news", []int64{}, []int64{})
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -292,11 +333,28 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	username := getUsername(userId)
 
-	articles := fetchArticlesVotedOnByUser(userId, kMaxArticles)
+	// Get articles voted on by user, and set their bucket accordingly.
+	articles	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
+	prVal(nw_, "len(articles)", len(articles))
+	
+	upvotes		:= []int64{}
+	downvotes	:= []int64{}
+	for a, article := range articles {
+		articles[a].Bucket = kVotedPosts
+		
+		if article.Upvoted {
+			upvotes = append(upvotes, article.Id)
+		} else {
+			downvotes = append(downvotes, article.Id)
+		}
+	}
+	
+	prVal(nw_, "upvotes", upvotes)
+	prVal(nw_, "downvotes", downvotes)
 
-	articleGroups := formatArticleGroups(articles, "", false)
+	articleGroups := formatArticleGroups(articles, historyCategoryInfo, kVotedPosts, false)
 
-	renderNews(w, "History", username, userId, articleGroups, "history", "news")
+	renderNews(w, "History", username, userId, articleGroups, "history", "news", upvotes, downvotes)
 }
 
 
