@@ -13,7 +13,6 @@ type ArticleGroup struct {
 	Articles		[][]Article // Arrow of rows, each row has 2 articles.
 	Category		string
 	HeaderColor		string
-	BgColor			string
 	HeadlineSide	int		// 0=left, 1=right (On large, i.e. non-mobile, devices...)
 	More			string	// category if "More..." appears at end of group.
 }
@@ -39,15 +38,6 @@ var (
 		"entertainment" 	: "#e85be4",
 		"technology" 		: "#8ff",
 		"science"			: "#8cf",
-	}
-
-	bgColors map[string]string = map[string]string{
-		"news"	 			: "#ddd",
-		"business" 			: "#b2fdb2",
-		"sports" 			: "#bbf",
-		"entertainment" 	: "#fda5fd",
-		"technology" 		: "#bff",
-		"science"			: "#bdf",
 	}
 )
 
@@ -124,7 +114,6 @@ func formatArticleGroups(articles []Article, onlyCategory string, headlines bool
 			}
 			articleGroups[cat].More = ""
 		} 
-		articleGroups[cat].BgColor = bgColors[category]
 		articleGroups[cat].HeaderColor = headerColors[category]
 		articleGroups[cat].HeadlineSide = headlineSide
 		
