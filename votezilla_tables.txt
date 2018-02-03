@@ -63,10 +63,10 @@ CREATE TABLE votezilla.NewsPost (
 
 
 CREATE TABLE votezilla.PostVote (
-	Id				BIGSERIAL	NOT NULL,
 	PostId			BIGINT		NOT NULL,
 	UserId			BIGINT		NOT NULL,
 	Up				BOOL		NOT NULL,
+	Created			TIMESTAMPTZ	NOT NULL DEFAULT now(),
 	UNIQUE(PostId, UserId)
 );
 

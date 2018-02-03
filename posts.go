@@ -101,7 +101,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			SELECT x.*, v.Up AS Upvoted
 			FROM (%s) x
 			JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
-			ORDER BY x.OrderBy DESC`, 
+			ORDER BY v.Created DESC`, 
 			query,
 			fetchVotesForUserId)
 	}
