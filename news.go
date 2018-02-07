@@ -32,9 +32,6 @@ const (
 )
 
 var (
-	// newsServer populates the articles.
-	articles []Article
-	
 	newsCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
 			"news", 			
@@ -250,6 +247,28 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// Deduce voting arrows - for articles you have voted on
+//
+//////////////////////////////////////////////////////////////////////////////
+func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64) {
+	for a, article := range articles {
+		articles[a].Bucket = kVotedPosts
+		
+		if article.Upvoted == 1 {
+			upvotes = append(upvotes, article.Id)
+		} else if article.Upvoted == -1 {
+			downvotes = append(downvotes, article.Id)
+		}
+	}
+	
+	prVal(nw_, "upvotes", upvotes)
+	prVal(nw_, "downvotes", downvotes)
+	
+	return upvotes, downvotes
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // Render a news template
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -337,20 +356,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	articles	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
 	prVal(nw_, "len(articles)", len(articles))
 	
-	upvotes		:= []int64{}
-	downvotes	:= []int64{}
-	for a, article := range articles {
-		articles[a].Bucket = kVotedPosts
-		
-		if article.Upvoted {
-			upvotes = append(upvotes, article.Id)
-		} else {
-			downvotes = append(downvotes, article.Id)
-		}
-	}
-	
-	prVal(nw_, "upvotes", upvotes)
-	prVal(nw_, "downvotes", downvotes)
+	upvotes, downvotes := deduceVotingArrows(articles)
 
 	articleGroups := formatArticleGroups(articles, historyCategoryInfo, kVotedPosts, false)
 

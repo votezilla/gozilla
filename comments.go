@@ -23,18 +23,20 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	// Get the username.
+	userId := GetSession(r)
+	username := getUsername(userId)	
+	
 	// TODO_REFACTOR: unify articles and posts in database.
-	article, err := fetchArticle(postId)
+	article, err := fetchArticle(postId, userId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
 		return
 	}
 	
+	upvotes, downvotes := deduceVotingArrows([]Article{article})
+	
 	comments := "TODO: NESTED COMMENTS!"
-
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
 	
 	// Render the news articles.
 	commentsArgs := struct {
@@ -54,8 +56,8 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 		NavMenu:		navMenu,
 		UrlPath:		"news",
 		Article:		article,
-		UpVotes:		[]int64{}, // TODO: make Voted data universal in query, and return 0, 1, or -1 so I don't have to hack this!
-		DownVotes:		[]int64{}, // TODO: make Voted data universal in query, and return 0, 1, or -1 so I don't have to hack this!
+		UpVotes:		upvotes, 
+		DownVotes:		downvotes,
 		Comments:		comments,
 	}
 	

@@ -30,7 +30,7 @@ type Article struct {
 	Size			int		// 0=normal, 1=large (headline)
 	AuthorIconUrl	string	
 	Bucket			string  // "" by default, but can override Category as a way to categorize articles
-	Upvoted			bool
+	Upvoted			int
 	VoteTally		int
 }
 
@@ -55,7 +55,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	var language		string
 	var country			string
 	var orderBy			time.Time
-	var upvoted			bool
+	var upvoted			int
 	var voteTally		int
 	
 	bRandomizeTime := (fetchVotesForUserId == -1)
@@ -102,9 +102,13 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	} else if fetchVotesForUserId >= 0 {
 		// Join query to post votes table.
 		query = fmt.Sprintf(`
-			SELECT x.*, v.Up AS Upvoted
+			SELECT x.*, 
+				   CASE WHEN v.Up IS NULL THEN 0 
+				        WHEN v.Up THEN 1
+				        ELSE -1
+				   END AS Upvoted
 			FROM (%s) x
-			JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
+			LEFT JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
 			ORDER BY v.Created`, 
 			query,
 			fetchVotesForUserId)
@@ -225,13 +229,13 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 // id - article id
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticle(id int64) (Article, error) {
+func fetchArticle(id int64, userId int64) (Article, error) {
 	articles := _queryArticles(
 		"= " + strconv.FormatInt(id, 10), 
 		"IS NOT NULL",
 		-1,
 		2,	// 2, so we could potentially catch duplicate articles.
-		-1)
+		userId)
 	
 	len := len(articles)
 	

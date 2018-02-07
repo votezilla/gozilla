@@ -276,3 +276,83 @@ SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
 FROM posts
 LEFT JOIN votes ON posts.Id = votes.PostId;
 	 
+SELECT x.*, v.Up AS Upvoted
+			FROM (%s) x
+			JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = 1)
+			ORDER BY v.Created DESC
+
+======
+
+WITH posts AS (
+        SELECT x.*, v.Up AS Upvoted
+        FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl,
+           COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
+           NewsSourceId, Category, Language, Country,
+           COALESCE(PublishedAt, Created)  AS OrderBy
+FROM votezilla.NewsPost
+WHERE ThumbnailStatus = 1 AND (Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+UNION
+SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
+           COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+           '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
+           P.Created  AS OrderBy
+FROM ONLY votezilla.LinkPost P
+JOIN votezilla.User U ON P.UserId = U.Id
+WHERE (P.Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+ORDER BY OrderBy DESC) x
+        JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) LIMIT 60),
+         votes AS (
+                SELECT PostId,
+                           Created,
+                           SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+                FROM votezilla.PostVote
+                WHERE PostId IN (SELECT Id FROM posts)
+                GROUP BY PostId, Created
+         )
+SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
+FROM posts
+LEFT JOIN votes ON posts.Id = votes.PostId
+ORDER BY votes.Created DESC;
+
+
+
+WITH posts AS (
+        SELECT x.*, v.Up AS Upvoted
+        FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl,
+           COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
+           NewsSourceId, Category, Language, Country,
+           COALESCE(PublishedAt, Created)  AS OrderBy
+FROM votezilla.NewsPost
+WHERE ThumbnailStatus = 1 AND (Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+UNION
+SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
+           COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+           '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
+           P.Created  AS OrderBy
+FROM ONLY votezilla.LinkPost P
+JOIN votezilla.User U ON P.UserId = U.Id
+WHERE (P.Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+ORDER BY OrderBy DESC) x
+        JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) LIMIT 60),
+         votes AS (
+                SELECT PostId,
+                           Created,
+                           SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+                FROM votezilla.PostVote
+                WHERE PostId IN (SELECT Id FROM posts)
+                GROUP BY PostId, Created
+         )
+SELECT posts.Id, --posts.*, 
+		COALESCE(votes.VoteTally, 0) AS VoteTally
+FROM posts
+LEFT JOIN votes ON posts.Id = votes.PostId
+ORDER BY votes.Created DESC;
+
+
+
+SELECT PostId,
+                           --Created,
+                           SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+                FROM votezilla.PostVote
+                WHERE PostId IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)
+                GROUP BY PostId --, Created
