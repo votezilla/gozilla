@@ -31,7 +31,7 @@
 						<table width="100%"><tr>
 							<td align="left" style="width: 40%;">
 								<span class="upvote" id="upvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, true)" class="upvote">&#x25B2;</a></span>
-								<a href="#">25k</a>
+								<a href="#">{{$article.VoteTally}}</a>
 								<span class="downvote" id="downvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, false)">&#x25BC;</a></span>
 							</td>
 							<td align="center" style="width: auto;">

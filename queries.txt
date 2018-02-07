@@ -144,4 +144,135 @@ WHERE (P.Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('n
 ORDER BY OrderBy DESC) x
         JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) 
 ORDER BY x.OrderBy DESC 
-LIMIT 20;			
+LIMIT 20;	
+
+WITH posts AS (
+			 SELECT *
+			 FROM (
+					 SELECT
+							 *,
+							 ROW_NUMBER() OVER (PARTITION BY Category ORDER BY
+									 OrderBy DESC) AS r
+					 FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+				COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
+				COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+	 FROM votezilla.NewsPost
+	 WHERE ThumbnailStatus = 1 AND (Id NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+	 UNION
+	 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+				P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
+				P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
+	 FROM ONLY votezilla.LinkPost P
+	 JOIN votezilla.User U ON P.UserId = U.Id
+	 WHERE (P.Id NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+	 ORDER BY OrderBy DESC) x
+			 ) x
+			 WHERE x.r <= 5 LIMIT 60
+	 ),
+  votes AS (
+	 SELECT PostId, Up FROM votezilla.PostVote)
+SELECT posts.Title, SUM(CASE WHEN votes.Up THEN 1 ELSE -1 END) 
+FROM posts LEFT OUTER JOIN votes ON posts.Id = votes.PostId GROUP BY posts.Title;
+ 
+========================================
+WORKS FOR TALLYING VOTES PER POST!:
+WITH posts AS (
+			 SELECT *
+			 FROM (
+					 SELECT
+							 *,
+							 ROW_NUMBER() OVER (PARTITION BY Category ORDER BY OrderBy DESC) AS r
+					 FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
+				COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
+				COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+	 FROM votezilla.NewsPost
+	 WHERE ThumbnailStatus = 1 --AND (Id NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+	 UNION
+	 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
+				P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
+				P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
+	 FROM ONLY votezilla.LinkPost P
+	 JOIN votezilla.User U ON P.UserId = U.Id
+	 WHERE (P.Id NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+	 ORDER BY OrderBy DESC) x
+			 ) x
+			 WHERE x.r <= 5 LIMIT 60
+	 ),
+  votes AS (
+	 SELECT PostId, Up FROM votezilla.PostVote)
+SELECT posts.Id, posts.Title, SUM(
+	CASE WHEN votes.Up IS NULL THEN 0  
+		 WHEN votes.Up THEN 1 
+		 ELSE -1 
+	END)
+FROM posts LEFT OUTER JOIN votes ON posts.Id = votes.PostId GROUP BY 1, 2;
+========================================
+
+OK... THIS IS THE CLEANER APPROACH.  DO THIS.  THEN JOIN RESULS TOGETHER MANUALLY, IN THE CODE.
+SELECT PostId, SUM(
+    CASE WHEN Up THEN 1
+             ELSE -1
+    END)
+FROM votezilla.PostVote WHERE PostId IN(42784, 40963, 41726, 41078, 41187) GROUP BY 1;
+
+
+>>>
+IS THERE A WAY TO SIMPLIFY?:
+
+SELECT Id, Author, Title, Description, LinkUrl, UrlToImage, PublishedAt, NewsSourceId, Category, Language, Country
+			 FROM (
+					 SELECT
+							 *,
+							 ROW_NUMBER() OVER (PARTITION BY Category ORDER BY
+									 OrderBy DESC) AS r
+					 FROM (
+	 SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, '') AS UrlToImage,
+				COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
+				COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+	 FROM votezilla.NewsPost
+	 WHERE ThumbnailStatus = 1 
+	 UNION
+	 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, '') AS UrlToImage,
+				P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
+				P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
+	 FROM ONLY votezilla.LinkPost P
+	 JOIN votezilla.User U ON P.UserId = U.Id
+	 ORDER BY OrderBy DESC
+	 ) x
+			 ) x
+			 WHERE x.r <= 5 LIMIT 60;
+			 
+WITH posts AS (
+	SELECT Id, Author, Title, Description, LinkUrl, UrlToImage, PublishedAt, NewsSourceId, Category, Language, Country
+				 FROM (
+						 SELECT
+								 *,
+								 ROW_NUMBER() OVER (PARTITION BY Category ORDER BY
+										 OrderBy DESC) AS r
+						 FROM (
+		 SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, '') AS UrlToImage,
+					COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
+					COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+		 FROM votezilla.NewsPost
+		 WHERE ThumbnailStatus = 1 
+		 UNION
+		 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, '') AS UrlToImage,
+					P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
+					P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
+		 FROM ONLY votezilla.LinkPost P
+		 JOIN votezilla.User U ON P.UserId = U.Id
+		 ORDER BY OrderBy DESC
+		 ) x
+				 ) x
+				 WHERE x.r <= 5 LIMIT 60
+	 ),
+  votes AS (
+	SELECT PostId,
+		   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+	FROM votezilla.PostVote
+	WHERE PostId IN (SELECT Id FROM posts)
+	GROUP BY PostId)
+SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
+FROM posts
+LEFT JOIN votes ON posts.Id = votes.PostId;
+	 

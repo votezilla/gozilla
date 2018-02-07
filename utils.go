@@ -132,7 +132,7 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 
 	err := templates[templateName].Execute(w, data)
 	if err != nil {
-		printVal("executeTemplate err", err)
+		printf("executeTemplate err: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

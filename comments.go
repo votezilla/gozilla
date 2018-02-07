@@ -44,6 +44,8 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 		NavMenu			[]string
 		UrlPath			string
 		Article			Article
+		UpVotes			[]int64
+		DownVotes		[]int64
 		Comments		string
 	}{
 		PageArgs:		PageArgs{Title: "votezilla - Comments"},
@@ -52,6 +54,8 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 		NavMenu:		navMenu,
 		UrlPath:		"news",
 		Article:		article,
+		UpVotes:		[]int64{}, // TODO: make Voted data universal in query, and return 0, 1, or -1 so I don't have to hack this!
+		DownVotes:		[]int64{}, // TODO: make Voted data universal in query, and return 0, 1, or -1 so I don't have to hack this!
 		Comments:		comments,
 	}
 	

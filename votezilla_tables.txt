@@ -38,6 +38,7 @@ CREATE TABLE votezilla.Post (
 	UserId			BIGINT		NOT NULL,
 	Created			TIMESTAMPTZ	NOT NULL DEFAULT now(),
 	Title			TEXT		NOT NULL,
+	VoteTally		INT			NOT NULL DEFAULT 0,
 	PRIMARY KEY (UserId, Id)
 );
 

@@ -54,7 +54,7 @@ func DbTrackOpenConnections() {
 
 // Executes a query that does not return anything.  Necessary for not leaking connections.
 func DbExec(query string, values ...interface{}) {
-	prf(db_, "DbExec query:%#v values:%#v", query, values)
+	prf(db_, "DbExec query:%s", query)
 	
 	// TODO: test this!!!
 	
@@ -72,7 +72,7 @@ func DbExec(query string, values ...interface{}) {
 // Inserts a new record into the database and returns the Id of the inserted record.
 // Panics on error.
 func DbInsert(query string, values ...interface{}) int64 {
-	prf(db_, "DbInsert query:%#v values:%#v", query, values)
+	prf(db_, "DbInsert query:%s", query)
 	
 	var lastInsertId int64
 	
@@ -86,7 +86,7 @@ func DbInsert(query string, values ...interface{}) int64 {
 // Executes a database query, returns the sql.Rows.
 // Panics on error.
 func DbQuery(query string, values ...interface{}) *sql.Rows {
-	prf(db_, "DbQuery query:%#v values:%#v", query, values)
+	prf(db_, "DbQuery query:%s", query)
 	
 	rows, err := db.Query(query, values...)
 	check(err)	
@@ -96,8 +96,10 @@ func DbQuery(query string, values ...interface{}) *sql.Rows {
 // Executes a query, and TRUE if it returned any row.
 // Panics on error
 func DbExists(query string, values ...interface{}) bool {
-	pr(db_, "DbExists")
+	prf(db_, "DbExists query:%s", query)
+	
 	rows := DbQuery(query, values...)
+	
 	return rows.Next()
 }
 

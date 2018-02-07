@@ -31,6 +31,7 @@ type Article struct {
 	AuthorIconUrl	string	
 	Bucket			string  // "" by default, but can override Category as a way to categorize articles
 	Upvoted			bool
+	VoteTally		int
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -54,21 +55,23 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	var language		string
 	var country			string
 	var orderBy			time.Time
-	var rowNumber		int
 	var upvoted			bool
+	var voteTally		int
 	
 	bRandomizeTime := (fetchVotesForUserId == -1)
 	
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
 	query := fmt.Sprintf(
-	   `SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
-			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
+	   `SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, 
+	   		   COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt, 
+	   		   NewsSourceId, Category, Language, Country,
 			   COALESCE(PublishedAt, Created) %s AS OrderBy
 		FROM votezilla.NewsPost
 		WHERE ThumbnailStatus = 1 AND (Id %s) AND (Category %s)
 		UNION
-		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
-			   P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
+		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, 
+			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt, 
+			   '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
 			   P.Created %s AS OrderBy
 		FROM ONLY votezilla.LinkPost P 
 		JOIN votezilla.User U ON P.UserId = U.Id
@@ -84,7 +87,8 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category
 		query = fmt.Sprintf(`
-			SELECT * 
+			SELECT Id, Author, Title, Description, LinkUrl, UrlToImage, 
+				   PublishedAt, NewsSourceId, Category, Language, Country, OrderBy
 			FROM (		
 				SELECT 
 					*,
@@ -101,28 +105,38 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			SELECT x.*, v.Up AS Upvoted
 			FROM (%s) x
 			JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
-			ORDER BY v.Created DESC`, 
+			ORDER BY v.Created`, 
 			query,
 			fetchVotesForUserId)
 	}
 	if maxArticles > 0 {
 		query += ` LIMIT ` + strconv.Itoa(maxArticles)
 	}
+	// Add vote tally per article.
+	query = fmt.Sprintf(`
+		WITH posts AS (%s),
+	  		 votes AS (
+				SELECT PostId,
+					   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+				FROM votezilla.PostVote
+				WHERE PostId IN (SELECT Id FROM posts)
+				GROUP BY PostId
+			 )
+		SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
+		FROM posts
+		LEFT JOIN votes ON posts.Id = votes.PostId`,
+		query)
 	query += `;`
 	
-	prf(po_, "query: %s", query)
 	rows := DbQuery(query)
 	
 	for rows.Next() {
-		if articlesPerCategory > 0 {
+		if fetchVotesForUserId >= 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
-							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &rowNumber))
-		} else if fetchVotesForUserId >= 0 {
-			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
-							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &upvoted))
+							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &upvoted, &voteTally))
 		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
-							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy))
+							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &voteTally))
 		}
 		//prVal(po_, "id", id)
 		//prVal(po_, "author", author)
@@ -195,6 +209,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			TimeSince:		timeSinceStr,
 			AuthorIconUrl:	authorIconUrl,
 			Upvoted:		upvoted,
+			VoteTally:		voteTally,
 		})
 	}
 	check(rows.Err())
