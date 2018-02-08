@@ -18,26 +18,34 @@ function removeItem(arr, item) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Whether an upvote or down with this id is enabled
+// Whether an upvote or down with this id is enabled.
 function hasVote(id, up) {
 	return votedPosts[up ? 1 : 0].includes(id)
 }
 
-// Add or remove the voting state.
+// Add or remove the voting state.  Also updates the vote tally text.
 function addOrRemoveVoteState(id, add, up) {
 	if (add) {
 		votedPosts[up ? 1 : 0].push(id)
+
 	} else { // remove
 		removeItem(votedPosts[up ? 1 : 0], id)
 	}
 }
 
+// Increment or decrement vote tally text.
+function incVoteLabel(id, voteInc) {
+	label = $("#votetally" + id)
+	count = parseInt(label.text())
+	label.text(count + voteInc)
+}
+
 // Add or remove a vote via state, CSS, and updating of database via AJAX.
-function addOrRemoveVote(id, add, up, updateDatabase) {
+function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
 	// state
 	addOrRemoveVoteState(id, add, up)
 
-	// CSS
+	// glowing arrow CSS
 	if (add) {
 		if (up) {
 			$("#upvote" + id).addClass("upvoted")
@@ -52,7 +60,12 @@ function addOrRemoveVote(id, add, up, updateDatabase) {
 		}
 	}
 
-	// AJAX
+	// vote tally text
+	if (updateText) {
+		incVoteLabel(id, (add && up || !add && !up) ? 1 : -1)
+	}
+
+	// AJAX - database state
 	if (updateDatabase) {
 		$.ajax({
 			url: '/ajaxVote/',
@@ -69,7 +82,7 @@ function addOrRemoveVote(id, add, up, updateDatabase) {
 // Cancel an up or down vote
 function cancelVote(id, up) {
 	if (hasVote(id, up)) {
-		addOrRemoveVote(id, false, up, false) // cancel
+		addOrRemoveVote(id, false, up, false, true) // cancel
 	}
 }
 
@@ -77,9 +90,9 @@ function cancelVote(id, up) {
 // (Only toggleVote should send the AJAX, otherwise there will be a race condition in updating the database.)
 function toggleVote(id, up) {
 	if (hasVote(id, up)) {
-		addOrRemoveVote(id, false, up, true) // cancel.
+		addOrRemoveVote(id, false, up, true, true) // cancel.
 	} else {
-		addOrRemoveVote(id, true,  up, true) // enable
+		addOrRemoveVote(id, true,  up, true, true) // enable
 	}
 }
 
@@ -97,10 +110,10 @@ function Vote(id, up) {
 
 $(function() {
     {{ range $_, $id := $.UpVotes}}
-    	addOrRemoveVote({{$id}}, true, true, false)  // Add a upvote presentation, but do not update the database.
+    	addOrRemoveVote({{$id}}, true, true, false, false)  // Add a upvote presentation, but do not update the database.
     {{ end }}
     {{ range $_, $id := $.DownVotes}}
-	    addOrRemoveVote({{$id}}, true, false, false) // Add a downvote presentation, but do not update the database.
+	    addOrRemoveVote({{$id}}, true, false, false, false) // Add a downvote presentation, but do not update the database.
     {{ end }}
 });
 </script>
