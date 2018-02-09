@@ -55,7 +55,7 @@ func fetchNewsSources() bool {
 	newsRequestUrl := "https://newsapi.org/v1/sources"
 	newsRequestUrl += "?apiKey=" + flags.newsAPIKey
 	newsRequestUrl += "&language=en" // TODO: handle news source language selection.
-	newsRequestUrl += "&country=us"  // TODO: handle news source country selection.
+	//newsRequestUrl += "&country=us"  // allow international news
 	
 	prVal(ns_, "newsRequestUrl", newsRequestUrl)
 	

@@ -35,6 +35,7 @@ var (
 	newsCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
 			"news", 			
+			"world news",
 			"business", 			
 			"sports", 			
 			"entertainment", 	
@@ -43,6 +44,7 @@ var (
 		},
 		HeaderColors : map[string]string{
 			"news" 			 	: "#ccc",
+			"world news"		: "#ea3ce7",
 			"business" 			: "#8e8",
 			"sports" 			: "#88f",
 			"entertainment" 	: "#e85be4",
@@ -141,6 +143,11 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 			}
 			articleGroups[cat].More = ""
 		} 
+		// HACK: remap label "news" to "us news"
+		if articleGroups[cat].Category == "news" {
+			articleGroups[cat].Category = "us news"
+		}
+		
 		articleGroups[cat].HeaderColor = categoryInfo.HeaderColors[category]
 		articleGroups[cat].HeadlineSide = headlineSide
 		

@@ -356,3 +356,10 @@ SELECT PostId,
                 FROM votezilla.PostVote
                 WHERE PostId IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)
                 GROUP BY PostId --, Created
+
+
+-- News sources:
+select country, category, newssourceid, count(id) from vz.NewsPost group by 1, 2, 3 order by 1, 2, 3;
+
+-- Country news posts vs thumbnail status:
+select country, thumbnailstatus, count(*) from vz.NewsPost group by 1, 2 order by 2, 1;

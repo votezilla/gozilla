@@ -71,6 +71,17 @@ CREATE TABLE votezilla.PostVote (
 	UNIQUE(PostId, UserId)
 );
 
+-- FUNCTIONS
+-- TODO: generalize the country to be the user's country of origin.
+CREATE FUNCTION GetCategory(category TEXT, country TEXT) RETURNS TEXT
+    AS $$SELECT CASE WHEN $2 <> 'us' THEN 'world news'
+    		    ELSE $1
+                END;$$
+    LANGUAGE SQL
+    IMMUTABLE
+    RETURNS NULL ON NULL INPUT;
+    
+
 
 -- TODO: CREATE TABLE PollPost
 -- TODO: CREATE TABLE PollVote

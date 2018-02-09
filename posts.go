@@ -64,18 +64,22 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	query := fmt.Sprintf(
 	   `SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, 
 	   		   COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt, 
-	   		   NewsSourceId, Category, Language, Country,
+	   		   NewsSourceId, 
+	   		   GetCategory(Category, Country) AS Category, 
+	   		   Language, Country,
 			   COALESCE(PublishedAt, Created) %s AS OrderBy
 		FROM $$NewsPost
-		WHERE ThumbnailStatus = 1 AND (Id %s) AND (Category %s)
+		WHERE ThumbnailStatus = 1 AND (Id %s) AND (GetCategory(Category, Country) %s)
 		UNION
 		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, 
 			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt, 
-			   '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
+			   '' AS NewsSourceId, 
+			   GetCategory('news', U.Country) AS Category,
+			   'EN' AS Language, U.Country,
 			   P.Created %s AS OrderBy
 		FROM ONLY $$LinkPost P 
 		JOIN $$User U ON P.UserId = U.Id
-		WHERE (P.Id %s) AND ('news' %s)
+		WHERE (P.Id %s) AND (GetCategory('news', U.Country) %s)
 		ORDER BY OrderBy DESC`, 
 		ternary_str(bRandomizeTime, "+ RANDOM() * '3:00:00'::INTERVAL", ""),
 		idCondition, 
