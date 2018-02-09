@@ -66,15 +66,15 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	   		   COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt, 
 	   		   NewsSourceId, Category, Language, Country,
 			   COALESCE(PublishedAt, Created) %s AS OrderBy
-		FROM votezilla.NewsPost
+		FROM $$NewsPost
 		WHERE ThumbnailStatus = 1 AND (Id %s) AND (Category %s)
 		UNION
 		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, 
 			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt, 
 			   '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
 			   P.Created %s AS OrderBy
-		FROM ONLY votezilla.LinkPost P 
-		JOIN votezilla.User U ON P.UserId = U.Id
+		FROM ONLY $$LinkPost P 
+		JOIN $$User U ON P.UserId = U.Id
 		WHERE (P.Id %s) AND ('news' %s)
 		ORDER BY OrderBy DESC`, 
 		ternary_str(bRandomizeTime, "+ RANDOM() * '3:00:00'::INTERVAL", ""),
@@ -108,7 +108,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 				        ELSE -1
 				   END AS Upvoted
 			FROM (%s) x
-			LEFT JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
+			LEFT JOIN $$PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
 			ORDER BY v.Created`, 
 			query,
 			fetchVotesForUserId)
@@ -122,7 +122,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	  		 votes AS (
 				SELECT PostId,
 					   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
-				FROM votezilla.PostVote
+				FROM $$PostVote
 				WHERE PostId IN (SELECT Id FROM posts)
 				GROUP BY PostId
 			 )
@@ -256,7 +256,7 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")",
+		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")",
 		"IS NOT NULL",
 		articlesPerCategory,
 		maxArticles,
@@ -271,7 +271,7 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId i
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  
+		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  
 		"IS NOT NULL",
 		-1,
 		maxArticles,
@@ -286,7 +286,7 @@ func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", 
+		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", 
 		"= '" + category + "'",
 		-1,
 		maxArticles,

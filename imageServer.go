@@ -216,7 +216,7 @@ func ImageServer() {
 		
 		query := `
 			SELECT UrlToImage, Id 
-			FROM votezilla.NewsPost 
+			FROM $$NewsPost 
 			WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
 			ORDER BY COALESCE(PublishedAt, Created) DESC
 			LIMIT ` + strconv.Itoa(kImageBatchSize) + ";"
@@ -257,7 +257,7 @@ func ImageServer() {
 					}
 
 					DbExec(
-						`UPDATE votezilla.NewsPost 
+						`UPDATE $$NewsPost 
 						 SET ThumbnailStatus = $1
 						 WHERE Id = $2::bigint`,
 						thumbnailStatus,
@@ -278,7 +278,7 @@ func ImageServer() {
 					for _, id := range ids {
 						prVal(ns_, "Removing timed out id", id)
 						DbExec(
-							`UPDATE votezilla.NewsPost 
+							`UPDATE $$NewsPost 
 							 SET ThumbnailStatus = -1
 							 WHERE Id = $1::bigint`,
 							id)

@@ -4,6 +4,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -52,8 +53,14 @@ func DbTrackOpenConnections() {
 	prVal(db_, "Open connections", db.Stats().OpenConnections)
 }
 
+// Replace all instances of "$$" with "votezilla." or whatever the schema is, in the query.
+func replaceSchema(query string) string {
+	return strings.Replace(query, "$$", "vz.", -1)
+}
+
 // Executes a query that does not return anything.  Necessary for not leaking connections.
 func DbExec(query string, values ...interface{}) {
+	query = replaceSchema(query)
 	prf(db_, "DbExec query:%s", query)
 	
 	// TODO: test this!!!
@@ -72,6 +79,7 @@ func DbExec(query string, values ...interface{}) {
 // Inserts a new record into the database and returns the Id of the inserted record.
 // Panics on error.
 func DbInsert(query string, values ...interface{}) int64 {
+	query = replaceSchema(query)
 	prf(db_, "DbInsert query:%s", query)
 	
 	var lastInsertId int64
@@ -86,6 +94,7 @@ func DbInsert(query string, values ...interface{}) int64 {
 // Executes a database query, returns the sql.Rows.
 // Panics on error.
 func DbQuery(query string, values ...interface{}) *sql.Rows {
+	query = replaceSchema(query)
 	prf(db_, "DbQuery query:%s", query)
 	
 	rows, err := db.Query(query, values...)
@@ -96,6 +105,7 @@ func DbQuery(query string, values ...interface{}) *sql.Rows {
 // Executes a query, and TRUE if it returned any row.
 // Panics on error
 func DbExists(query string, values ...interface{}) bool {
+	query = replaceSchema(query)
 	prf(db_, "DbExists query:%s", query)
 	
 	rows := DbQuery(query, values...)

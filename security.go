@@ -155,7 +155,7 @@ func GetSession(r *http.Request) (userId int64) {
 func getUsername(userId int64) string {		
 	username := ""
 	if userId != -1 {
-		rows := DbQuery("SELECT Username FROM votezilla.User WHERE Id = $1::bigint;", userId)
+		rows := DbQuery("SELECT Username FROM $$User WHERE Id = $1::bigint;", userId)
 		if rows.Next() {
 			err := rows.Scan(&username)
 			check(err)	

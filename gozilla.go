@@ -45,11 +45,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		var rows *sql.Rows
 		if strings.Contains(data.EmailOrUsername, "@") {
 			rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " + 
-							"FROM votezilla.User WHERE Email = $1;", 
+							"FROM $$User WHERE Email = $1;", 
 							data.EmailOrUsername)
 		} else {
 			rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " + 
-							"FROM votezilla.User WHERE Username = $1;", 
+							"FROM $$User WHERE Username = $1;", 
 							data.EmailOrUsername)
 		}
 		
@@ -143,7 +143,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		// TODO: Verify email and set emailverified=True when email is verified
 		
 		// Check for duplicate email
-		if DbExists("SELECT * FROM votezilla.User WHERE Email = $1;", data.Email) {
+		if DbExists("SELECT * FROM $$User WHERE Email = $1;", data.Email) {
 			pr(go_, "That email is taken... have you registered already?")
 			
 			field, err := form.GetField("email")
@@ -151,7 +151,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 			field.SetErrors([]string{"That email is taken... have you registered already?"})
         } else { 
         	// Check for duplicate username
-			if DbExists("SELECT * FROM votezilla.User WHERE Username = $1;", data.Username) {
+			if DbExists("SELECT * FROM $$User WHERE Username = $1;", data.Username) {
 				pr(go_, "That username is taken... try another one.  Or, have you registered already?")
 				field, err := form.GetField("username")
 				assert(err)
@@ -160,7 +160,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 				// Add new user to the database   
 				prf(go_, "passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
 				userId := DbInsert(
-					"INSERT INTO votezilla.User(Email, Username, PasswordHash) " +
+					"INSERT INTO $$User(Email, Username, PasswordHash) " +
 					"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;", 
 					data.Email,
 					data.Username,
@@ -225,7 +225,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	
 		// Update the user record with registration details.
 		DbQuery(
-			`UPDATE votezilla.User
+			`UPDATE $$User
 				SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
 				= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
 				WHERE Id = $1::bigint`, 
@@ -319,12 +319,12 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 		form.MapTo(&data)
 
 		pr(db_, "Inserting new LinkPost into database.")
-		prf(db_, `INSERT INTO votezilla.LinkPost(UserId, Title, LinkURL) 
+		prf(db_, `INSERT INTO $$LinkPost(UserId, Title, LinkURL) 
 			      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Link)
 
 		// Update the user record with registration details.
 		DbInsert(
-			`INSERT INTO votezilla.LinkPost(UserId, Title, LinkURL) 
+			`INSERT INTO $$LinkPost(UserId, Title, LinkURL) 
 			 VALUES($1::bigint, $2, $3) returning id;`, 
 			userId,
 			data.Title,
@@ -398,7 +398,7 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
 	
 	if vote.Add {
     	DbExec( // sprintf necessary cause ::bool produces incorrect value in driver.
-			`INSERT INTO votezilla.PostVote(PostId, UserId, Up)
+			`INSERT INTO $$PostVote(PostId, UserId, Up)
 			 VALUES ($1::bigint, $2::bigint, $3::bool)
 			 ON CONFLICT (PostId, UserId) DO UPDATE 
 			 SET Up = $3::bool;`,
@@ -407,7 +407,7 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
 			vote.Up)
 	} else { // remove
 		DbExec(
-			`DELETE FROM votezilla.PostVote 
+			`DELETE FROM $$PostVote 
 			 WHERE PostId = $1::bigint AND UserId = $2::bigint;`,
 			vote.PostId,
 			vote.UserId)

@@ -180,7 +180,7 @@ func fetchNews(newsSource string, c chan []Article) {
 //////////////////////////////////////////////////////////////////////////////
 //
 // news server - On startup, and every 5 minutes, fetches the latest news, then
-//				 adds it to votezilla.NewsPost table.
+//				 adds it to $$NewsPost table.
 //
 //////////////////////////////////////////////////////////////////////////////
 func NewsServer() {
@@ -253,7 +253,7 @@ func NewsServer() {
 		prVal(ns_, "len(newArticles)", len(newArticles))
 	
 		// Insert the news articles all in one query.
-		sqlStr := `INSERT INTO votezilla.NewsPost(
+		sqlStr := `INSERT INTO $$NewsPost(
 				     UserId, Title, LinkURL, UrlToImage,
 				     Description, PublishedAt, NewsSourceId, Category, Language, Country)
 				   VALUES`
