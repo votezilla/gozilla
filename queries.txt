@@ -358,7 +358,7 @@ SELECT PostId,
                 GROUP BY PostId --, Created
 
 
--- News sources:
+-- News sources, number of posts:
 select country, category, newssourceid, count(id) from vz.NewsPost group by 1, 2, 3 order by 1, 2, 3;
 
 -- Country news posts vs thumbnail status:

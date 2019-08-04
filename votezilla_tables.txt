@@ -1,21 +1,25 @@
 Great article on writing demographic questions!: https://www.surveygizmo.com/survey-blog/how-to-write-better-demographic-questions/
 Pew Research:                                    http://www.pewresearch.org/files/2015/03/Demographic-Questions-Web-and-Mail-English-3-20-2015.pdf
 
-CREATE SCHEMA votezilla;
+\connect vz
+SET client_encoding = 'UTF8';
+
+CREATE DATABASE vz ENCODING 'UTF8';
+CREATE SCHEMA vz;
 
 
 
-CREATE TABLE votezilla.User (
-    Id              BIGSERIAL 	PRIMARY KEY,   
-    Email           TEXT		UNIQUE NOT NULL, -- UNIQUE implies an index
-    Username        TEXT		UNIQUE NOT NULL, -- UNIQUE implies an index
-    PasswordHash    BIGINT[4]   NOT NULL, 		 -- Store a 256-byte hash of the password  
+CREATE TABLE vz.User (
+    Id              BIGSERIAL   PRIMARY KEY,   
+    Email           TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
+    Username        TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
+    PasswordHash    BIGINT[4]   NOT NULL,        -- Store a 256-byte hash of the password  
     
     Name            TEXT,
     
     -- Details
     Country         TEXT,
-    Location		TEXT,
+    Location        TEXT,
     
     BirthYear       INT,
     Gender          TEXT,
@@ -30,52 +34,52 @@ CREATE TABLE votezilla.User (
     OtherRace       TEXT,
     
     -- Verification status
-    VerifiedEmail   BOOL		DEFAULT False
+    VerifiedEmail   BOOL DEFAULT False
 );
 
-CREATE TABLE votezilla.Post (
-	Id              BIGSERIAL 	NOT NULL,
-	UserId			BIGINT		NOT NULL,
-	Created			TIMESTAMPTZ	NOT NULL DEFAULT now(),
-	Title			TEXT		NOT NULL,
-	VoteTally		INT			NOT NULL DEFAULT 0,
-	PRIMARY KEY (UserId, Id)
+CREATE TABLE vz.Post (
+    Id              BIGSERIAL         NOT NULL,
+    UserId            BIGINT          NOT NULL,
+    Created            TIMESTAMPTZ    NOT NULL DEFAULT now(),
+    Title            TEXT             NOT NULL,
+    VoteTally        INT              NOT NULL DEFAULT 0,
+    PRIMARY KEY (UserId, Id)
 );
 
-CREATE TABLE votezilla.LinkPost (
-	LinkURL			TEXT NOT NULL;
-	UrlToImage		TEXT,                		-- TODO: make NOT NULL once user posts have this enabled.
-	ThumbnailStatus	INT			DEFAULT 0;
-) INHERITS (votezilla.Post);
+CREATE TABLE vz.LinkPost (
+    LinkURL            TEXT NOT NULL,
+    UrlToImage         TEXT,            -- TODO: make NOT NULL once user posts have this enabled.
+    ThumbnailStatus    INT DEFAULT 0
+) INHERITS (vz.Post);
 
-CREATE TABLE votezilla.BlogPost (
-	Blog			TEXT
-) INHERITS (votezilla.Post);
+CREATE TABLE vz.BlogPost (
+    Blog            TEXT
+) INHERITS (vz.Post);
 
-CREATE TABLE votezilla.NewsPost (
-	Description		TEXT,						-- TODO: may not need this, unless we use in certain newspaper formats
-	PublishedAt		TIMESTAMPTZ,				-- TODO: can we get this from the article, for user-submitted posts, and then move this to Post?
-	NewsSourceId	TEXT	NOT NULL,			-- TODO: can we get this from the URL, and not keep in database?
-	Category		TEXT	NOT NULL,			-- TODO: move this to Post
-	Language		TEXT	NOT NULL,			-- TODO: move this to Post
-	Country			TEXT	NOT NULL,			-- TODO: move this to Post
-	UNIQUE(PublishedAt, Title)					-- TODO: everything else is moving, so eventually move this to LinkPost
-) INHERITS (votezilla.LinkPost);
+CREATE TABLE vz.NewsPost (
+    Description        TEXT,                     -- TODO: may not need this, unless we use in certain newspaper formats
+    PublishedAt        TIMESTAMPTZ,              -- TODO: can we get this from the article, for user-submitted posts, and then move this to Post?
+    NewsSourceId    TEXT    NOT NULL,            -- TODO: can we get this from the URL, and not keep in database?
+    Category        TEXT    NOT NULL,            -- TODO: move this to Post
+    Language        TEXT    NOT NULL,            -- TODO: move this to Post
+    Country            TEXT    NOT NULL,         -- TODO: move this to Post
+    UNIQUE(PublishedAt, Title)                   -- TODO: everything else is moving, so eventually move this to LinkPost
+) INHERITS (vz.LinkPost);
 
 
-CREATE TABLE votezilla.PostVote (
-	PostId			BIGINT		NOT NULL,
-	UserId			BIGINT		NOT NULL,
-	Up				BOOL		NOT NULL,
-	Created			TIMESTAMPTZ	NOT NULL DEFAULT now(),
-	UNIQUE(PostId, UserId)
+CREATE TABLE vz.PostVote (
+    PostId            BIGINT        NOT NULL,
+    UserId            BIGINT        NOT NULL,
+    Up                BOOL          NOT NULL,
+    Created            TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    UNIQUE(PostId, UserId)
 );
 
 -- FUNCTIONS
--- TODO: generalize the country to be the user's country of origin.
-CREATE FUNCTION GetCategory(category TEXT, country TEXT) RETURNS TEXT
+-- Gets the category based on the category and user's country of origin.
+CREATE FUNCTION vz.GetCategory(category TEXT, country TEXT) RETURNS TEXT
     AS $$SELECT CASE WHEN $2 <> 'us' THEN 'world news'
-    		    ELSE $1
+                ELSE $1
                 END;$$
     LANGUAGE SQL
     IMMUTABLE
@@ -86,7 +90,7 @@ CREATE FUNCTION GetCategory(category TEXT, country TEXT) RETURNS TEXT
 -- TODO: CREATE TABLE PollPost
 -- TODO: CREATE TABLE PollVote
 
-DROP TABLE votezilla.xxx;
+DROP TABLE vz.xxx;
 
 --
 

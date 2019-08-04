@@ -214,6 +214,8 @@ func ImageServer() {
 		imageURLs := make([]string, kImageBatchSize)
 		ids		  := make([]int,	kImageBatchSize)
 		
+		// TODO: this misses posts with UrlToImage=''... should this eventually scan the website
+		//       to determine a worthy thumbnail image?
 		query := `
 			SELECT UrlToImage, Id 
 			FROM $$NewsPost 
@@ -231,6 +233,7 @@ func ImageServer() {
 			check(err)
 			numImages++
 		}
+		// TODO: set the rest of ids to -1, then make the UPDATE skip if id = -1.
 		check(rows.Err())
 		rows.Close()
 

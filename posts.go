@@ -28,7 +28,7 @@ type Article struct {
 	PublishedAtUnix	time.Time
 	TimeSince		string
 	Size			int		// 0=normal, 1=large (headline)
-	AuthorIconUrl	string	
+	AuthorIconUrl	string
 	Bucket			string  // "" by default, but can override Category as a way to categorize articles
 	Upvoted			int
 	VoteTally		int
@@ -57,63 +57,63 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	var orderBy			time.Time
 	var upvoted			int
 	var voteTally		int
-	
+
 	bRandomizeTime := (fetchVotesForUserId == -1)
-	
+
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
 	query := fmt.Sprintf(
-	   `SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, 
-	   		   COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt, 
-	   		   NewsSourceId, 
-	   		   GetCategory(Category, Country) AS Category, 
+	   `SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl,
+	   		   COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
+	   		   NewsSourceId,
+	   		   $$GetCategory(Category, Country) AS Category,
 	   		   Language, Country,
 			   COALESCE(PublishedAt, Created) %s AS OrderBy
 		FROM $$NewsPost
-		WHERE ThumbnailStatus = 1 AND (Id %s) AND (GetCategory(Category, Country) %s)
+		WHERE ThumbnailStatus = 1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)
 		UNION
-		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, 
-			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt, 
-			   '' AS NewsSourceId, 
-			   GetCategory('news', U.Country) AS Category,
+		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
+			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+			   '' AS NewsSourceId,
+			   $$GetCategory('news', U.Country) AS Category,
 			   'EN' AS Language, U.Country,
 			   P.Created %s AS OrderBy
-		FROM ONLY $$LinkPost P 
+		FROM ONLY $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
-		WHERE (P.Id %s) AND (GetCategory('news', U.Country) %s)
-		ORDER BY OrderBy DESC`, 
+		WHERE (P.Id %s) AND ($$GetCategory('news', U.Country) %s)
+		ORDER BY OrderBy DESC`,
 		ternary_str(bRandomizeTime, "+ RANDOM() * '3:00:00'::INTERVAL", ""),
-		idCondition, 
+		idCondition,
 		categoryCondition,
 		ternary_str(bRandomizeTime, "+ RANDOM() * '1:00:00'::INTERVAL", ""),
-		idCondition, 
+		idCondition,
 		categoryCondition,
 	)
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category
 		query = fmt.Sprintf(`
-			SELECT Id, Author, Title, Description, LinkUrl, UrlToImage, 
+			SELECT Id, Author, Title, Description, LinkUrl, UrlToImage,
 				   PublishedAt, NewsSourceId, Category, Language, Country, OrderBy
-			FROM (		
-				SELECT 
+			FROM (
+				SELECT
 					*,
-					ROW_NUMBER() OVER (PARTITION BY Category ORDER BY 
-						OrderBy DESC) AS r 
+					ROW_NUMBER() OVER (PARTITION BY Category ORDER BY
+						OrderBy DESC) AS r
 				FROM (%s) x
 			) x
-			WHERE x.r <= %d`, 
-			query, 
+			WHERE x.r <= %d`,
+			query,
 			articlesPerCategory)
 	} else if fetchVotesForUserId >= 0 {
 		// Join query to post votes table.
 		query = fmt.Sprintf(`
-			SELECT x.*, 
-				   CASE WHEN v.Up IS NULL THEN 0 
+			SELECT x.*,
+				   CASE WHEN v.Up IS NULL THEN 0
 				        WHEN v.Up THEN 1
 				        ELSE -1
 				   END AS Upvoted
 			FROM (%s) x
 			LEFT JOIN $$PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
-			ORDER BY v.Created`, 
+			ORDER BY v.Created`,
 			query,
 			fetchVotesForUserId)
 	}
@@ -135,29 +135,29 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 		LEFT JOIN votes ON posts.Id = votes.PostId`,
 		query)
 	query += `;`
-	
+
 	rows := DbQuery(query)
-	
+
 	for rows.Next() {
 		if fetchVotesForUserId >= 0 {
-			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
+			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
 							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &upvoted, &voteTally))
 		} else {
-			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage, 
+			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
 							&publishedAt, &newsSourceId, &category, &language, &country, &orderBy, &voteTally))
 		}
 		//prVal(po_, "id", id)
 		//prVal(po_, "author", author)
-		//prVal(po_, "title", title)		
-		//prVal(po_, "description", description)	
-		//prVal(po_, "linkUrl", linkUrl)		 
-		//prVal(po_, "urlToImage", urlToImage)	  
+		//prVal(po_, "title", title)
+		//prVal(po_, "description", description)
+		//prVal(po_, "linkUrl", linkUrl)
+		//prVal(po_, "urlToImage", urlToImage)
 		//prVal(po_, "publishedAt", publishedAt)
 		//prVal(po_, "newsSourceId", newsSourceId)
-		//prVal(po_, "category", category)	
-		//prVal(po_, "language", language)	 
+		//prVal(po_, "category", category)
+		//prVal(po_, "language", language)
 		//prVal(po_, "country", country)
-		
+
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
 		u, err := url.Parse(linkUrl)
@@ -166,7 +166,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 		} else {
 			host = u.Host
 		}
-		
+
 		// Format time since article was posted to a short format, e.g. "2h" for 2 hours.
 		var timeSinceStr string
 		{
@@ -176,7 +176,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			hours := timeSince.Hours()
 			days := hours / 24.0
 			weeks := days / 7.0
-			
+
 			if weeks >= 1.0 {
 				timeSinceStr = strconv.FormatFloat(weeks, 'f', 0, 32) + "w"
 			} else if days >= 1.0 {
@@ -190,7 +190,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			}
 		}
 
-		// Author icon URL: either the news source's, or the user's.  (TODO: let users pick their dino head / upload a photo.)		
+		// Author icon URL: either the news source's, or the user's.  (TODO: let users pick their dino head / upload a photo.)
 		authorIconUrl := ""
 		if newsSourceId != "" {
 			authorIconUrl = "/static/newsSourceIcons/" + newsSourceId + ".png"
@@ -222,7 +222,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	}
 	check(rows.Err())
 	rows.Close()
-	
+
 	return articles
 }
 
@@ -235,14 +235,14 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticle(id int64, userId int64) (Article, error) {
 	articles := _queryArticles(
-		"= " + strconv.FormatInt(id, 10), 
+		"= " + strconv.FormatInt(id, 10),
 		"IS NOT NULL",
 		-1,
 		2,	// 2, so we could potentially catch duplicate articles.
 		userId)
-	
+
 	len := len(articles)
-	
+
 	if len == 1 {
 		return articles[0], nil
 	} else if len == 0 {
@@ -269,13 +269,13 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId i
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch news articles within a particular category, up to maxArticles total, 
+// fetch news articles within a particular category, up to maxArticles total,
 // which userId voted on.
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  
+		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",
 		"IS NOT NULL",
 		-1,
 		maxArticles,
@@ -290,7 +290,7 @@ func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", 
+		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")",
 		"= '" + category + "'",
 		-1,
 		maxArticles,

@@ -24,23 +24,23 @@ type CategoryInfo struct {
 
 const (
 	kNumCols = 2
-	kRowsPerCategory = 4 
+	kRowsPerCategory = 4
 	kMaxArticles = 60
 	kMaxTitleLength = 122
-	
+
 	kVotedPosts = "voted posts"
 )
 
 var (
 	newsCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
-			"news", 			
+			"news",
 			"world news",
-			"business", 			
-			"sports", 			
-			"entertainment", 	
-			"technology",		
-			"science",			
+			"business",
+			"sports",
+			"entertainment",
+			"technology",
+			"science",
 		},
 		HeaderColors : map[string]string{
 			"news" 			 	: "#ccc",
@@ -52,10 +52,10 @@ var (
 			"science"			: "#8cf",
 		},
 	}
-	
+
 	historyCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
-			kVotedPosts,	
+			kVotedPosts,
 		},
 		HeaderColors : map[string]string{
 			kVotedPosts : "#ccc",
@@ -65,7 +65,7 @@ var (
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// TODO: santize (html- and url-escape the arguments).  
+// TODO: santize (html- and url-escape the arguments).
 //       (Make sure URL's don't point back to votezilla.)
 //		 possibly based on whether mobile, and whether a headline.
 //
@@ -92,7 +92,7 @@ func sortArticles(articles []Article) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// 
+//
 // Format article groups - take an array of articles, arrange it into article groups
 //                         for display on the webpage.
 //	 categoryInfo - describes the category names and banner background colors.
@@ -103,12 +103,12 @@ func sortArticles(articles []Article) {
 //////////////////////////////////////////////////////////////////////////////
 func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines bool) ([]ArticleGroup) {
 	//sortArticle(articles)
-	
+
 	//rowsPerCategory := ternary_int(onlyCategory == "", kRowsPerCategory, kMaxArticles)
 
 	var categoryOrder []string
 	if onlyCategory != "" {
-		numCategoryGroups := kMaxArticles / (ternary_int(headlines, (kRowsPerCategory + 1), 
+		numCategoryGroups := kMaxArticles / (ternary_int(headlines, (kRowsPerCategory + 1),
 																    kRowsPerCategory * kNumCols))
 		categoryOrder = make([]string, numCategoryGroups)
 		for i := range categoryOrder {
@@ -117,9 +117,9 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 	} else {
 		categoryOrder = categoryInfo.CategoryOrder
 	}
-	
+
 	articleGroups := make([]ArticleGroup, len(categoryOrder))
-	
+
 	cat := 0
 	headlineSide := 0 // The side that has the headline (large article).
 	currArticle := 0
@@ -127,7 +127,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		row := 0
 		col := 0
 		filled := false
-	
+
 		// Set category header text and background color.
 		if onlyCategory == "" { // Mixed categories
 			articleGroups[cat].Category = category
@@ -142,41 +142,41 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 				articleGroups[cat].Category = ""
 			}
 			articleGroups[cat].More = ""
-		} 
-		// HACK: remap label "news" to "us news"
-		if articleGroups[cat].Category == "news" {
-			articleGroups[cat].Category = "us news"
 		}
-		
+		// HACK: remap label "news" to "us news"
+		//if articleGroups[cat].Category == "news" {
+		//	articleGroups[cat].Category = "us news"
+		//}
+
 		articleGroups[cat].HeaderColor = categoryInfo.HeaderColors[category]
 		articleGroups[cat].HeadlineSide = headlineSide
-		
+
 		// Mixed categories - causing all articles to reiterate, but it will test against the category later.
 		if onlyCategory == "" {
 			currArticle = 0
 		}
-		
-		// TODO: if a single category, with headlines, either large image should be set to always 
-		// 4 article height, or all articles should stack verticlally in each column.  
+
+		// TODO: if a single category, with headlines, either large image should be set to always
+		// 4 article height, or all articles should stack verticlally in each column.
 		// (I prefer the second idea, because it might look nicer.)
-		
+
 		for currArticle < len(articles) {
 			article := articles[currArticle]
 			currArticle++
-			
+
 			formatArticle(&article)
-		
+
 			// This works since we've sorted by bucket/category.
 			if coalesce_str(article.Bucket, article.Category) == category {
 				if row == 0 {
 					// Allocate a new column of categories
-					articleGroups[cat].Articles = append(articleGroups[cat].Articles, 
+					articleGroups[cat].Articles = append(articleGroups[cat].Articles,
 														 make([]Article, kRowsPerCategory))
 				}
-				
+
 				// The first article is always the headline.  Articles after the headline get skipped.
 				size := 0
-				
+
 				if headlines {
 					if col == 0 {
 						if row == 0 { // first article is the headline, i.e. big
@@ -188,18 +188,18 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 						}
 					}
 				}
-			
+
 				// Assign this slot the next article, as long as this is not an empty slot.  Make sure size gets assigned!
 				if size == -1 {
 					articleGroups[cat].Articles[col][row].Size = -1
 				} else {
 					articleGroups[cat].Articles[col][row] = article
 					articleGroups[cat].Articles[col][row].Size = size
-					
-					//articleGroups[cat].Articles[col][row].Title = 
+
+					//articleGroups[cat].Articles[col][row].Title =
 					//	articleGroups[cat].Articles[col][row].Title[0:29] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(currArticle)
 				}
-				
+
 				// Inc row, col
 				col++
 				if col == kNumCols {
@@ -213,17 +213,17 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 				}
 			}
 		}
-		
+
 		// If we ran out of articles, skip the rest
 		for !filled {
 			if row == 0 {
 				// Make room for new row
-				articleGroups[cat].Articles = append(articleGroups[cat].Articles, 
+				articleGroups[cat].Articles = append(articleGroups[cat].Articles,
 													 make([]Article, kRowsPerCategory))
 			}
-			
+
 			articleGroups[cat].Articles[col][row].Size = -1 // -1 means skip the article
-			
+
 			// Inc row, col
 			col++
 			if col == kNumCols {
@@ -236,19 +236,19 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 				}
 			}
 		}
-		
+
 		cat++
-		
+
 		if headlines {
 			headlineSide = (headlineSide + 1) % 2 // The side with the headline switches each time, to look nice.
 		}
 	}
-	
+
 	// If a single category, only the last articleGroup should have a "More..." link.
-	if onlyCategory != "" { 
+	if onlyCategory != "" {
 		articleGroups[cat - 1].More = onlyCategory
 	}
-	
+
 	return articleGroups
 }
 
@@ -260,17 +260,17 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64) {
 	for a, article := range articles {
 		articles[a].Bucket = kVotedPosts
-		
+
 		if article.Upvoted == 1 {
 			upvotes = append(upvotes, article.Id)
 		} else if article.Upvoted == -1 {
 			downvotes = append(downvotes, article.Id)
 		}
 	}
-	
+
 	prVal(nw_, "upvotes", upvotes)
 	prVal(nw_, "downvotes", downvotes)
-	
+
 	return upvotes, downvotes
 }
 
@@ -279,7 +279,7 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 // Render a news template
 //
 //////////////////////////////////////////////////////////////////////////////
-func renderNews(w http.ResponseWriter, title string, username string, userId int64, 
+func renderNews(w http.ResponseWriter, title string, username string, userId int64,
 				articleGroups []ArticleGroup, urlPath string, template string,
 				upvotes []int64, downvotes []int64) {
 	// Render the news articles.
@@ -309,17 +309,17 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 //////////////////////////////////////////////////////////////////////////////
 //
 // News handler
-// TODO: santize (html- and url-escape the arguments).  
+// TODO: santize (html- and url-escape the arguments).
 //       (Make sure URL's don't point back to votezilla.)
 //
 //////////////////////////////////////////////////////////////////////////////
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
-	  
+
 	prVal(nw_, "r.URL.Query()", r.URL.Query())
 
 	reqCategory		:= parseUrlParam(r, "category")
-	
+
 	// Get the username.
 	userId := GetSession(r)
 	username := getUsername(userId)
@@ -338,21 +338,21 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		// Fetch articles in requested category
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
-	
+
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, true)
-	
+
 	renderNews(w, "News", username, userId, articleGroups, "news", "news", []int64{}, []int64{})
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// History handler - of user posts, up/down votes, 
+// History handler - of user posts, up/down votes,
 //                   TODO: comments
 //
 ///////////////////////////////////////////////////////////////////////////////
 func historyHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
-	  
+
 	prVal(nw_, "r.URL.Query()", r.URL.Query())
 
 	// Get the username.
@@ -362,7 +362,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	// Get articles voted on by user, and set their bucket accordingly.
 	articles	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
 	prVal(nw_, "len(articles)", len(articles))
-	
+
 	upvotes, downvotes := deduceVotingArrows(articles)
 
 	articleGroups := formatArticleGroups(articles, historyCategoryInfo, kVotedPosts, false)
@@ -373,14 +373,14 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// display news sources - TODO: checkboxes so user can pick 
+// display news sources - TODO: checkboxes so user can pick
 //                        which news sources they want to see.
 //
 ///////////////////////////////////////////////////////////////////////////////
 /*
 func newsSourcesHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
-	
+
 	newsSourcesArgs := struct {
 		PageArgs
 		NewsSources NewsSources
@@ -389,6 +389,6 @@ func newsSourcesHandler(w http.ResponseWriter, r *http.Request) {
 		NewsSources: newsSources,
 	}
 	fmt.Println("newsSourcesArgs: %#v\n", newsSourcesArgs)
-	executeTemplate(w, "newsSources", newsSourcesArgs)	
+	executeTemplate(w, "newsSources", newsSourcesArgs)
 }
 */

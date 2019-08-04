@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"		
+	"flag"
 	"strconv"
 )
 
@@ -9,7 +9,7 @@ var (
 	flags struct {
 		dbName					string 		// Database name, currently 'votezilla'.
 		dbUser					string 		// Database user.
-		dbPassword				string 		// Database password. 
+		dbPassword				string 		// Database password.
 		dbSalt					string 		// Salt for encrypting secure information in database.
 		debug	 				string 		// Reloads template files every time
 		secureCookieHashKey		string 		// Secure key for encrypting secure cookies.
@@ -32,10 +32,10 @@ var (
 ///////////////////////////////////////////////////////////////////////////////
 func parseCommandLineFlags() {
 	// Grab command line flags
-	f1 := flag.String("dbname",			"votezilla",	"Database to connect to"); 
-	f2 := flag.String("dbuser",			"",				"Database user"); 
-	f3 := flag.String("dbpassword", 	"",				"Database password"); 
-	f4 := flag.String("dbsalt",			"SALT",			"Database salt (for security)"); 
+	f1 := flag.String("dbname",			"vz",			"Database to connect to");
+	f2 := flag.String("dbuser",			"",				"Database user");
+	f3 := flag.String("dbpassword", 	"",				"Database password");
+	f4 := flag.String("dbsalt",			"SALT",			"Database salt (for security)");
 	f5 := flag.String("debug",		  	"",				"debug=true for development");
 	f6 := flag.String("cookieHashKey",	"very-secret",	"secure cookie hash key");
 	f7 := flag.String("cookieBlockKey",	"a-lot-secret", "secure cookie block key");
@@ -47,9 +47,9 @@ func parseCommandLineFlags() {
 	fd := flag.String("imageServer",	"",				"whether to be the image server");
 	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server");
 	ff := flag.String("mode",			"",				"a special mode to run a server in")
-	
+
 	flag.Parse()
-	
+
 	flags.dbName				= *f1
 	flags.dbUser				= *f2
 	flags.dbPassword			= *f3
@@ -58,13 +58,13 @@ func parseCommandLineFlags() {
 	flags.secureCookieHashKey	= *f6
 	flags.secureCookieBlockKey	= *f7
 	flags.newsAPIKey			= *f8
-	
+
 	printMask, err        		:= strconv.Atoi(*f9)
 	flags.printMask = PrintMask(printMask)
 	if err != nil {
 		flags.printMask = PrintMask(all_)
 	}
-	
+
 	flags.port					= *fa
 	flags.offlineNews			= *fb
 	flags.newsServer			= *fc
