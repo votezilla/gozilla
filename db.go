@@ -6,10 +6,14 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	
+	_ "github.com/lib/pq"
+    "github.com/jmoiron/sqlx"
 )
 
 var (
-	db			*sql.DB
+	//db			*sql.DB
+	db			*sqlx.DB
 )
 	
 // Open database.
@@ -22,7 +26,7 @@ func OpenDatabase() {
 
 	prf(db_, "dbInfo: %s", dbInfo)
 
-	db, err = sql.Open("postgres", dbInfo)
+	db, err = sqlx.Connect("postgres", dbInfo)//sql.Open("postgres", dbInfo)
 	check(err)
 	
 	// Suggested defaults:
@@ -62,8 +66,6 @@ func replaceSchema(query string) string {
 func DbExec(query string, values ...interface{}) {
 	query = replaceSchema(query)
 	prf(db_, "DbExec query:%s", query)
-	
-	// TODO: test this!!!
 	
 	//stmt, err := db.Prepare(query)
 	//check(err)
