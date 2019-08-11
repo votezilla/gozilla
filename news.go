@@ -338,6 +338,19 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		// Fetch articles in requested category
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
+	
+	// Hack in polls for now
+	for i := 0; i < len(articles); i++ {
+		if i % 6 == 0 {
+			articles[i].IsPoll = true
+			articles[i].Title = "Poll: Who should be president in 2020?"
+			articles[i].PollOptions = []string{"Trump", "Clinton", "Sanders"}
+		} else if i % 6 == 3 {
+			articles[i].IsPoll = true
+			articles[i].Title = "Poll: Was Jeffrey Epstein murdered?"
+			articles[i].PollOptions = []string{"Yes", "No", "Maybe", "Not sure"}
+		}
+	}
 
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, true)
 

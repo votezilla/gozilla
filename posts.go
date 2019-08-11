@@ -32,6 +32,9 @@ type Article struct {
 	Bucket			string  // "" by default, but can override Category as a way to categorize articles
 	Upvoted			int
 	VoteTally		int
+	
+	IsPoll			bool
+	PollOptions		[]string
 }
 
 //////////////////////////////////////////////////////////////////////////////
