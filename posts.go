@@ -202,7 +202,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 		}
 
 		// Set the article information
-		articles = append(articles, Article{
+		newArticle := Article{
 			Id:				id,
 			Author:			author, // haha hijacking Author to be the poster
 			Title:			title,
@@ -221,7 +221,26 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			AuthorIconUrl:	authorIconUrl,
 			Upvoted:		upvoted,
 			VoteTally:		voteTally,
-		})
+		}	
+		
+		// Hack in polls for now
+		if id % 6 == 0 {
+			newArticle.IsPoll = true
+			newArticle.Title = "Poll: Who should be president in 2020?"
+			newArticle.PollOptions = []string{"Trump", "Clinton", "Sanders"}
+		} else if id % 6 == 3 {
+			newArticle.IsPoll = true
+			newArticle.Title = "Poll: Was Jeffrey Epstein murdered?"
+			newArticle.PollOptions = []string{"Yes", "No", "Maybe", "Not sure"}
+		}
+
+		if newArticle.IsPoll {
+			newArticle.UrlToImage     = "/static/ballotbox.png"
+			newArticle.UrlToThumbnail = "/static/ballotbox small.png"
+			newArticle.Url = fmt.Sprintf("/comments/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
+		}
+		
+		articles = append(articles, newArticle)
 	}
 	check(rows.Err())
 	rows.Close()
