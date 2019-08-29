@@ -4,10 +4,12 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/lib/pq"
-	"encoding/json"
+	"github.com/PuerkitoBio/goquery"
 	"net/http"
+	"net/url"
 	"strings"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML
 )
@@ -17,7 +19,7 @@ var (
 	err		 	error
 	
 	// NavMenu (constant)
-	navMenu		= []string{"news", "history", "submit"}
+	navMenu		= []string{"news", "submit", "history"}
 )
 
 // Template arguments for webpage template.
@@ -336,12 +338,15 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 	// handle GET, or invalid form data from POST...	
 	{
+		
+		
 		args := FormArgs {
 			PageArgs: PageArgs{Title: "Submit Link"},
+				
 			Forms: []TableForm{
 				tableForm,
 		}}
-		executeTemplate(w, "form", args)
+		executeTemplate(w, "submitLink", args)
 	}	
 }
 
@@ -422,6 +427,130 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
     w.Write(a)
 }
 
+// Figure out which thumbnail to use based on the Url of the link submitted.
+func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
+	pr(go_, "ajaxScrapeImageURLs")
+	prVal(go_, "r.Method", r.Method)
+	prVal(go_, "r", r)
+	
+	if r.Method != "POST" {
+		prVal(go_, "r.Method must is not POST", r.Method)
+		return
+	}
+	
+    //parse request to struct
+    var linkUrl struct {
+		Url		string		
+	}
+	
+	prVal(go_, "r.Body", r.Body)
+	
+    err := json.NewDecoder(r.Body).Decode(&linkUrl)
+    if err != nil {
+		prVal(go_, "Failed to decode json body", r.Body)
+        return
+    }
+    
+    prVal(go_, "linkUrl", linkUrl)
+    prVal(go_, "linkUrl", linkUrl.Url)
+    
+    // Fix the URL scheme
+    if !strings.HasPrefix(linkUrl.Url, "http://") && !strings.HasPrefix(linkUrl.Url, "https://") {
+       linkUrl.Url = "http://" + linkUrl.Url
+       
+       prVal(go_, "fixed linkUrl", linkUrl.Url)
+	}
+
+    // Make HTTP request
+    response, err := httpGet(linkUrl.Url, 60.0)
+    if err != nil {
+        prVal(go_, "HTTP request failed", err) 
+        return
+    }
+    defer response.Body.Close()
+    
+    prVal(go_, "response", response)
+
+    // Create a goquery document from the HTTP response
+    document, err := goquery.NewDocumentFromReader(response.Body)
+    if err != nil {
+        prVal(go_, "Error loading LinkUrl body. ", err)
+        return
+    }
+    
+    prVal(go_, "document", document)
+
+    // Find and return all image URLs
+    var parsedImages struct {
+		Images	[]string
+	}
+	
+    // Which image is the right one?
+    // Excellent article!: https://tech.shareaholic.com/2012/11/02/how-to-find-the-image-that-best-respresents-a-web-page/
+    ogImage := ""
+    	
+	document.Find("meta").Each(func(i int, s *goquery.Selection) {
+	    property, _ := s.Attr("property"); 
+	    
+	    prVal(go_, "found meta tag, property:", property)
+	    
+	    if property == "og:image" {			
+	        ogImage, _ = s.Attr("content")
+	        
+	        prVal(go_, "ogImage Found!", ogImage)
+	        
+	        parsedImages.Images = []string{ogImage}
+	    }
+	})
+	
+	if ogImage == "" {
+		document.Find("img").Each(func(index int, element *goquery.Selection) {
+			imgSrc, exists := element.Attr("src")
+			imgWidth, _    := element.Attr("width")
+			imgHeight, _   := element.Attr("height")
+
+			imgUrl, err := url.Parse(imgSrc)
+			if err != nil {
+				prf(go_, "Error parsing URL: %s %v %s", imgSrc, imgUrl, err)
+				return
+			}
+
+			if !imgUrl.IsAbs() {
+				pr(go_, "Image URL is not absolute")
+
+				baseUrl, err := url.Parse(linkUrl.Url)
+				if err != nil {
+					prf(go_, "Error parsing base URL: %s %s", linkUrl.Url, err)
+					return
+				}
+
+				imgUrl := baseUrl.ResolveReference(imgUrl)
+
+				prVal(go_, "Fixed Image Url:", imgUrl)
+
+				imgSrc = imgUrl.String()
+
+				prVal(go_, "Fixed imgSrc:", imgSrc)
+			}
+
+			if exists {
+				prf(go_, "Found image: %s - %d x %d", imgSrc, imgWidth, imgHeight)
+
+				parsedImages.Images = append(parsedImages.Images, imgSrc)
+			}
+		})
+	}
+    // create json response from struct
+    a, err := json.Marshal(parsedImages)
+    if err != nil {
+		prVal(go_, "Unable to marshall images for ", parsedImages)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    w.Write(a)
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // handler wrapper - Each request should refresh the session.
@@ -449,21 +578,22 @@ func init() {
 func WebServer() {
 	InitSecurity()
 	
-	http.HandleFunc("/",                hwrap(newsHandler))
-	http.HandleFunc("/news/",           hwrap(newsHandler))
-	http.HandleFunc("/history/",        hwrap(historyHandler)) // <-- TODO: Implement this!
-	http.HandleFunc("/comments/",       hwrap(commentsHandler))
-	http.HandleFunc("/forgotPassword/", hwrap(forgotPasswordHandler))
-	http.HandleFunc("/ip/",             hwrap(ipHandler))
-	http.HandleFunc("/login/",          hwrap(loginHandler))
-	http.HandleFunc("/logout/",         hwrap(logoutHandler))
-//	http.HandleFunc("/newsSources/",    hwrap(newsSourcesHandler))
-	http.HandleFunc("/register/",       hwrap(registerHandler))
-	http.HandleFunc("/registerDetails/",hwrap(registerDetailsHandler))
-	http.HandleFunc("/registerDone/",   hwrap(registerDoneHandler))
-	http.HandleFunc("/submit/",   		hwrap(submitHandler))
-	http.HandleFunc("/submitLink/",   	hwrap(submitLinkHandler))
-	http.HandleFunc("/ajaxVote/",		hwrap(ajaxVoteHandler))
+	http.HandleFunc("/",                		hwrap(newsHandler))
+	http.HandleFunc("/news/",           		hwrap(newsHandler))
+	http.HandleFunc("/history/",        		hwrap(historyHandler)) // <-- TODO: Implement this!
+	http.HandleFunc("/comments/",       		hwrap(commentsHandler))
+	http.HandleFunc("/forgotPassword/", 		hwrap(forgotPasswordHandler))
+	http.HandleFunc("/ip/",             		hwrap(ipHandler))
+	http.HandleFunc("/login/",          		hwrap(loginHandler))
+	http.HandleFunc("/logout/",         		hwrap(logoutHandler))
+//	http.HandleFunc("/newsSources/",    		hwrap(newsSourcesHandler))
+	http.HandleFunc("/register/",       		hwrap(registerHandler))
+	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
+	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))
+	http.HandleFunc("/submit/",   				hwrap(submitHandler))
+	http.HandleFunc("/submitLink/",   			hwrap(submitLinkHandler))
+	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
+	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
 	
 	// Server static file.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))

@@ -118,6 +118,7 @@ func parseTemplateFiles() {
 	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("frame"), T("news")))
 	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
 	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
+	templates["submitLink"]		= template.Must(template.ParseFiles(T("base"), T("submitLink")))
 	
 	// Javascript snippets
 	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
