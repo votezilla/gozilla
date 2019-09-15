@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Site Title</title>
+</head>
+<body>
+
+  <!-- Wrap all page content in a page container (optional, but recommended for screen readers and iOS*) -->
+  <div id="page">
+    <header></header>
+    <main>
+      {{ Page Content }}
+      <!-- Add a button to open the popup (optional) -->
+      <button class="JPO_open">Open popup</button>
+    </main>
+    <footer></footer>
+  </div>
+
+  <!-- Add content to the popup -->
+  <div id="JPO">
+    {{ Popup Content }}
+    <!-- Add a button to close the popup (optional) -->
+    <button class="JPO_close">Close</button>
+  </div>
+
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+
+  <!-- Include jQuery Popup Overlay -->
+  <script src="https://cdn.jsdelivr.net/gh/vast-engineering/jquery-popup-overlay@2/jquery.popupoverlay.min.js">
+  </script>
+
+  <script>
+    $(document).ready(function() {
+
+      // Initialize the plugin
+      $('#JPO').popup();
+
+      // Set default `pagecontainer` for all popups (optional, but recommended for screen readers and iOS*)
+      $.fn.popup.defaults.pagecontainer = '#page'
+    });
+  </script>
+
+</body>
+</html>

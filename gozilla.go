@@ -4,12 +4,9 @@ package main
 import (
 	"bytes"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/lib/pq"
-	"github.com/PuerkitoBio/goquery"
 	"net/http"
-	"net/url"
 	"strings"
 	"text/template" // Faster than "html/template", and less of a pain for safeHTML
 )
@@ -81,9 +78,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			} else {				
 				CreateSession(w, r, userId, data.RememberMe)
 
-				serveHTML(w, `<h2>Successfully logged in</h2>
-								  <script>alert('Successfully logged in')</script>`)
-				return		// TODO: add redirect here!!!
+				http.Redirect(w, r, "/news?alert=LoggedIn", http.StatusSeeOther)   
+				return	
 			}
 		}
 	}
@@ -109,8 +105,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func logoutHandler(w http.ResponseWriter, r *http.Request) {	
 	DestroySession(w, r)
 	
-	serveHTML(w, `<h2>Successfully logged out</h2>
-				  <script>alert('Successfully logged out')</script>`)
+	http.Redirect(w, r, "/news?alert=LoggedOut", http.StatusSeeOther)   
+	return
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,6 +115,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: implement forgotPassword
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -215,15 +212,14 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
-
+	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
 		// Passwords match, everything is good - Register the user
 
 		// Parse POST data into "data".
 		data := RegisterDetailsData{}
 		form.MapTo(&data)
 		
-		prVal(db_, "userId", userId)
+		prVal(go_, "userId", userId)
 	
 		// Update the user record with registration details.
 		DbQuery(
@@ -242,7 +238,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			data.Marital,
 			data.Schooling)
 		
-		http.Redirect(w, r, "/registerDone", http.StatusSeeOther)   
+		http.Redirect(w, r, "/news?alert=AccountCreated", http.StatusSeeOther)   
 		return	
 	} 
 	
@@ -319,33 +315,38 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 		// Parse POST data
 		data := SubmitLinkData{}
 		form.MapTo(&data)
+		
+		prVal(go_, "data", data)
+		prVal(go_, "form", form)
 
-		pr(db_, "Inserting new LinkPost into database.")
-		prf(db_, `INSERT INTO $$LinkPost(UserId, Title, LinkURL) 
-			      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Link)
+		pr(go_, "Inserting new LinkPost into database.")
+		//prf(go_, `INSERT INTO $$LinkPost(UserId, Title, LinkURL, Category) 
+		//	      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Link, data.Category)
 
 		// Update the user record with registration details.
 		DbInsert(
-			`INSERT INTO $$LinkPost(UserId, Title, LinkURL) 
-			 VALUES($1::bigint, $2, $3) returning id;`, 
+			`INSERT INTO $$LinkPost(UserId, LinkURL, Title, Category, UrlToImage) 
+			 VALUES($1::bigint, $2, $3, $4, $5) returning id;`, 
 			userId,
+			data.Link,
 			data.Title,
-			data.Link)
+			data.Category,
+			data.Thumbnail)
 
-		http.Redirect(w, r, "/news", http.StatusSeeOther)   
+		http.Redirect(w, r, "/news?alert=SubmittedLink", http.StatusSeeOther)   
 		return	
 	}  
 
 	// handle GET, or invalid form data from POST...	
-	{
-		
-		
-		args := FormArgs {
-			PageArgs: PageArgs{Title: "Submit Link"},
-				
-			Forms: []TableForm{
-				tableForm,
-		}}
+	{		
+		/*type SubmitLinkArgs struct {
+			FormArgs
+			Categories	[]string
+		}*/
+		args := FormArgs{
+			PageArgs:	PageArgs{Title: "Submit Link"},
+			Forms:		[]TableForm{tableForm},
+		}
 		executeTemplate(w, "submitLink", args)
 	}	
 }
@@ -355,7 +356,7 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 // TODO: get user's ip address
 //       1) To log in the database when user is first created.
 //		 2) To set their location in registerDetails and save them time.
-// USING: https://play.golang.org/p/Z6ATIhL_IM
+// USING: https://play.golang.org/p/Z6ATIgo_IM
 //        https://stackoverflow.com/questions/27234861/correct-way-of-getting-clients-ip-addresses-from-http-request-golang
 //
 // (WAIT TIL TESTING FROM AWS, OTHERWISE IT'S LOCALHOST, BASICALLY MEANINGLESS)
@@ -372,187 +373,6 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// AJAX Handlers
-//
-///////////////////////////////////////////////////////////////////////////////
-func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
-	pr(go_, "ajaxVoteHandler")
-	prVal(go_, "r.Method", r.Method)
-	
-	if r.Method != "POST" {
-		http.NotFound(w, r)
-		return
-	}
-    
-    //parse request to struct
-    var vote struct {
-		PostId	int
-		UserId	int
-		Add		bool
-		Up		bool
-	}
-	
-    err := json.NewDecoder(r.Body).Decode(&vote)
-    if err != nil {
-		prVal(go_, "Failed to decode json body", r.Body)
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    
-    prVal(go_, "vote", vote)
-	
-	if vote.Add {
-    	DbExec( // sprintf necessary cause ::bool produces incorrect value in driver.
-			`INSERT INTO $$PostVote(PostId, UserId, Up)
-			 VALUES ($1::bigint, $2::bigint, $3::bool)
-			 ON CONFLICT (PostId, UserId) DO UPDATE 
-			 SET Up = $3::bool;`,
-			vote.PostId,
-			vote.UserId,
-			vote.Up)
-	} else { // remove
-		DbExec(
-			`DELETE FROM $$PostVote 
-			 WHERE PostId = $1::bigint AND UserId = $2::bigint;`,
-			vote.PostId,
-			vote.UserId)
-	}
-    
-    // create json response from struct
-    a, err := json.Marshal(vote)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    w.Write(a)
-}
-
-// Figure out which thumbnail to use based on the Url of the link submitted.
-func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
-	pr(go_, "ajaxScrapeImageURLs")
-	prVal(go_, "r.Method", r.Method)
-	prVal(go_, "r", r)
-	
-	if r.Method != "POST" {
-		prVal(go_, "r.Method must is not POST", r.Method)
-		return
-	}
-	
-    //parse request to struct
-    var linkUrl struct {
-		Url		string		
-	}
-	
-	prVal(go_, "r.Body", r.Body)
-	
-    err := json.NewDecoder(r.Body).Decode(&linkUrl)
-    if err != nil {
-		prVal(go_, "Failed to decode json body", r.Body)
-        return
-    }
-    
-    prVal(go_, "linkUrl", linkUrl)
-    prVal(go_, "linkUrl", linkUrl.Url)
-    
-    // Fix the URL scheme
-    if !strings.HasPrefix(linkUrl.Url, "http://") && !strings.HasPrefix(linkUrl.Url, "https://") {
-       linkUrl.Url = "http://" + linkUrl.Url
-       
-       prVal(go_, "fixed linkUrl", linkUrl.Url)
-	}
-
-    // Make HTTP request
-    response, err := httpGet(linkUrl.Url, 60.0)
-    if err != nil {
-        prVal(go_, "HTTP request failed", err) 
-        return
-    }
-    defer response.Body.Close()
-    
-    prVal(go_, "response", response)
-
-    // Create a goquery document from the HTTP response
-    document, err := goquery.NewDocumentFromReader(response.Body)
-    if err != nil {
-        prVal(go_, "Error loading LinkUrl body. ", err)
-        return
-    }
-    
-    prVal(go_, "document", document)
-
-    // Find and return all image URLs
-    var parsedImages struct {
-		Images	[]string
-	}
-	
-    // Which image is the right one?
-    // Excellent article!: https://tech.shareaholic.com/2012/11/02/how-to-find-the-image-that-best-respresents-a-web-page/
-    ogImage := ""
-    	
-	document.Find("meta").Each(func(i int, s *goquery.Selection) {
-	    property, _ := s.Attr("property"); 
-	    
-	    prVal(go_, "found meta tag, property:", property)
-	    
-	    if property == "og:image" {			
-	        ogImage, _ = s.Attr("content")
-	        
-	        prVal(go_, "ogImage Found!", ogImage)
-	        
-	        parsedImages.Images = []string{ogImage}
-	    }
-	})
-	
-	if ogImage == "" {
-		document.Find("img").Each(func(index int, element *goquery.Selection) {
-			imgSrc, exists := element.Attr("src")
-			imgWidth, _    := element.Attr("width")
-			imgHeight, _   := element.Attr("height")
-
-			imgUrl, err := url.Parse(imgSrc)
-			if err != nil {
-				prf(go_, "Error parsing URL: %s %v %s", imgSrc, imgUrl, err)
-				return
-			}
-
-			if !imgUrl.IsAbs() {
-				pr(go_, "Image URL is not absolute")
-
-				baseUrl, err := url.Parse(linkUrl.Url)
-				if err != nil {
-					prf(go_, "Error parsing base URL: %s %s", linkUrl.Url, err)
-					return
-				}
-
-				imgUrl := baseUrl.ResolveReference(imgUrl)
-
-				prVal(go_, "Fixed Image Url:", imgUrl)
-
-				imgSrc = imgUrl.String()
-
-				prVal(go_, "Fixed imgSrc:", imgSrc)
-			}
-
-			if exists {
-				prf(go_, "Found image: %s - %d x %d", imgSrc, imgWidth, imgHeight)
-
-				parsedImages.Images = append(parsedImages.Images, imgSrc)
-			}
-		})
-	}
-    // create json response from struct
-    a, err := json.Marshal(parsedImages)
-    if err != nil {
-		prVal(go_, "Unable to marshall images for ", parsedImages)
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    w.Write(a)
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-//
 // handler wrapper - Each request should refresh the session.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -562,6 +382,30 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
     	
 		handler(w, r)
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// parse template files - Establishes the template inheritance structure for Votezilla.
+//
+///////////////////////////////////////////////////////////////////////////////
+func parseTemplateFiles() {
+	T := func(page string) string {
+		return "templates/" + page + ".html"
+	}
+
+	templates = make(map[string]*template.Template)
+	
+	// HTML templates
+	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form"), T("defaultForm")))
+	templates["comments"]		= template.Must(template.ParseFiles(T("base"), T("frame"), T("comments")))
+	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("frame"), T("news")))
+	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
+	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
+	templates["submitLink"]		= template.Must(template.ParseFiles(T("base"), T("form"), T("submitLink")))
+	
+	// Javascript snippets
+	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
 }
 
 ///////////////////////////////////////////////////////////////////////////////

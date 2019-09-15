@@ -20,6 +20,7 @@ CREATE TABLE vz.User (
     -- Details
     Country         TEXT,
     Location        TEXT,
+    -- TODO: ++ Language	TEXT.  Will default to "English (US)" if Country is "US".  Otherwise, will unhide a request for language, which was previously hidden by JQuery
     
     BirthYear       INT,
     Gender          TEXT,
@@ -43,27 +44,41 @@ CREATE TABLE vz.Post (
     Created            TIMESTAMPTZ    NOT NULL DEFAULT now(),
     Title            TEXT             NOT NULL,
     VoteTally        INT              NOT NULL DEFAULT 0,
+
+    Description        TEXT,            -- NewsPosts currently have this.  Also includes user's description of a link or poll, below the headline title.  Could appear in a zoomed in view.
+    Category         TEXT,
+    Language        TEXT,            
+    Country            TEXT,   
+
     PRIMARY KEY (UserId, Id)
 );
 
 CREATE TABLE vz.LinkPost (
     LinkURL            TEXT NOT NULL,
-    UrlToImage         TEXT,            -- TODO: make NOT NULL once user posts have this enabled.
+    UrlToImage         TEXT,            
     ThumbnailStatus    INT DEFAULT 0
 ) INHERITS (vz.Post);
 
 CREATE TABLE vz.BlogPost (
-    Blog            TEXT
+    Blog            TEXT		-- The actual blog article.  Text vs byte?  In this case, the description would give a preview or short summary in the zoomed in view.
 ) INHERITS (vz.Post);
 
+-- TODO: CREATE TABLE PollPost (
+    PollId
+) INHERITS (vz.Post);
+
+-- TODO: CREATE TABLE PollVote (
+    Id
+    VoteId
+    UserId	
+    PollId
+)
+
 CREATE TABLE vz.NewsPost (
-    Description        TEXT,                     -- TODO: may not need this, unless we use in certain newspaper formats
-    PublishedAt        TIMESTAMPTZ,              -- TODO: can we get this from the article, for user-submitted posts, and then move this to Post?
-    NewsSourceId    TEXT    NOT NULL,            -- TODO: can we get this from the URL, and not keep in database?
-    Category        TEXT    NOT NULL,            -- TODO: move this to Post
-    Language        TEXT    NOT NULL,            -- TODO: move this to Post
-    Country            TEXT    NOT NULL,         -- TODO: move this to Post
-    UNIQUE(PublishedAt, Title)                   -- TODO: everything else is moving, so eventually move this to LinkPost
+    PublishedAt        TIMESTAMPTZ,      -- TODO?: can we get this from the article, for user-submitted posts, and then move this to Post?
+    NewsSourceId    TEXT    NOT NULL,                  
+      
+    UNIQUE(PublishedAt, Title)           -- This constraint prevents duplicate articles News API updates.
 ) INHERITS (vz.LinkPost);
 
 
@@ -86,9 +101,6 @@ CREATE FUNCTION vz.GetCategory(category TEXT, country TEXT) RETURNS TEXT
     RETURNS NULL ON NULL INPUT;
     
 
-
--- TODO: CREATE TABLE PollPost
--- TODO: CREATE TABLE PollVote
 
 DROP TABLE vz.xxx;
 

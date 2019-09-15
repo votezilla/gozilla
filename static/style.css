@@ -46,6 +46,8 @@ a:visited   { color:#000000; text-decoration:none; }
   -webkit-animation-iteration-count: infinite;
 }
 
+.active{border:2px solid #f00;}
+
 .upvote   a:link, .upvote   a:visited { color:#68a; text-decoration: none; }
 .downvote a:link, .downvote a:visited { color:#a86; text-decoration: none; }
 

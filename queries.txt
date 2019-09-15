@@ -1,8 +1,9 @@
 SELECT COUNT(Id), ThumbnailStatus
-		FROM votezilla.NewsPost
+		FROM vz.NewsPost
+		WHERE UrlToImage <> ''
 		GROUP BY ThumbnailStatus;
 
-SELECT COUNT(Id), Category FROM votezilla.NewsPost GROUP BY Category;
+SELECT COUNT(Id), Category FROM vz.NewsPost GROUP BY Category;
 
 SELECT *
 FROM (
@@ -18,14 +19,14 @@ FROM (
 			SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
 			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
 			   COALESCE(PublishedAt, Created) + RANDOM() * '4 THEN00 THEN00' THEN THENINTERVAL AS OrderBy
-			FROM votezilla.NewsPost
+			FROM vz.NewsPost
 			WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL) AND (Category IS NOT NULL)
 			UNION
 			SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
 			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country,
 			   P.Created + RANDOM() * '4 THEN00 THEN00' THEN THENINTERVAL AS OrderBy
-			FROM ONLY votezilla.LinkPost P
-			JOIN votezilla.User U ON P.UserId = U.Id
+			FROM ONLY vz.LinkPost P
+			JOIN vz.User U ON P.UserId = U.Id
 			WHERE (P.Id IS NOT NULL) AND ('general' IS NOT NULL)
 			ORDER BY OrderBy
 	) x
@@ -44,13 +45,13 @@ FROM (
 		FROM (
 			SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
 			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country
-			FROM votezilla.NewsPost
+			FROM vz.NewsPost
 			WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL) AND (Category IS NOT NULL)
 			UNION
 			SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
 			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country
-			FROM ONLY votezilla.LinkPost P
-			JOIN votezilla.User U ON P.UserId = U.Id
+			FROM ONLY vz.LinkPost P
+			JOIN vz.User U ON P.UserId = U.Id
 			WHERE (P.Id IS NOT NULL) AND ('general' IS NOT NULL)
 	) x
 ) x
@@ -65,14 +66,14 @@ FROM (
 			SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
 			   COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
 			   COALESCE(PublishedAt, Created) + RANDOM() * '3 THEN00 THEN00' THEN THENINTERVAL AS OrderBy
-			FROM votezilla.NewsPost
+			FROM vz.NewsPost
 			WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL) AND (Category IS NOT NULL)
 			UNION
 			SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
 			   P.Created AS PublishedAt, '' AS NewsSourceId, 'general' AS Category, 'EN' AS Language, U.Country,
 			   P.Created + RANDOM() * '1 THEN00 THEN00' THEN THENINTERVAL AS OrderBy
-			FROM ONLY votezilla.LinkPost P
-			JOIN votezilla.User U ON P.UserId = U.Id
+			FROM ONLY vz.LinkPost P
+			JOIN vz.User U ON P.UserId = U.Id
 			WHERE (P.Id IS NOT NULL) AND ('general' IS NOT NULL)
 			ORDER BY OrderBy
 	) x
@@ -84,24 +85,24 @@ SELECT
 	EXTRACT(EPOCH FROM AGE(Now(), PublishedAt)) /
 		EXTRACT(EPOCH FROM '1 THEN00 THEN00' THEN THENINTERVAL) AS Hours,
 	Category,
-	Title FROM votezilla.NewsPost WHERE Category = 'music';
+	Title FROM vz.NewsPost WHERE Category = 'music';
 	
 
 //Various tests for, and eliminations of, duplicate news data THEN
 
-select publishedat, title, count(*) from votezilla.newspost group by 1, 2 having count(*) > 1;
+select publishedat, title, count(*) from vz.newspost group by 1, 2 having count(*) > 1;
 
 SELECT PublishedAt, Title, min(ctid)
-FROM votezilla.NewsPost
+FROM vz.NewsPost
 GROUP BY 1, 2
 HAVING count(*) > 1
 WITH x AS (
 	SELECT PublishedAt, Title, min(ctid)
-	FROM votezilla.NewsPost
+	FROM vz.NewsPost
 	GROUP BY 1, 2
 	HAVING count(*) > 1
 )
-DELETE FROM votezilla.NewsPost n
+DELETE FROM vz.NewsPost n
 USING x
 WHERE n.PublishedAt = x.PublishedAt AND n.Title = x.Title
 AND n.ctid <> x.min
@@ -109,10 +110,10 @@ RETURNING *;
 
 
 SELECT count(Id), Category 
-FROM votezilla.NewsPost 
+FROM vz.NewsPost 
 GROUP BY Category;
 
-UPDATE votezilla.NewsPost 
+UPDATE vz.NewsPost 
 SET Category = (
 	CASE Category
 		WHEN 'sport'  THEN 'sports'
@@ -132,17 +133,17 @@ SET Category = (
         FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
            COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
            COALESCE(PublishedAt, Created)  AS OrderBy
-FROM votezilla.NewsPost
-WHERE ThumbnailStatus = 1 AND (Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+FROM vz.NewsPost
+WHERE ThumbnailStatus = 1 AND (Id IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
 UNION
 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
            P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
            P.Created  AS OrderBy
-FROM ONLY votezilla.LinkPost P
-JOIN votezilla.User U ON P.UserId = U.Id
-WHERE (P.Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+FROM ONLY vz.LinkPost P
+JOIN vz.User U ON P.UserId = U.Id
+WHERE (P.Id IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
 ORDER BY OrderBy DESC) x
-        JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) 
+        JOIN vz.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) 
 ORDER BY x.OrderBy DESC 
 LIMIT 20;	
 
@@ -156,21 +157,21 @@ WITH posts AS (
 					 FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
 				COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
 				COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
-	 FROM votezilla.NewsPost
-	 WHERE ThumbnailStatus = 1 AND (Id NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+	 FROM vz.NewsPost
+	 WHERE ThumbnailStatus = 1 AND (Id NOT IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
 	 UNION
 	 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
 				P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
 				P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
-	 FROM ONLY votezilla.LinkPost P
-	 JOIN votezilla.User U ON P.UserId = U.Id
-	 WHERE (P.Id NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+	 FROM ONLY vz.LinkPost P
+	 JOIN vz.User U ON P.UserId = U.Id
+	 WHERE (P.Id NOT IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
 	 ORDER BY OrderBy DESC) x
 			 ) x
 			 WHERE x.r <= 5 LIMIT 60
 	 ),
   votes AS (
-	 SELECT PostId, Up FROM votezilla.PostVote)
+	 SELECT PostId, Up FROM vz.PostVote)
 SELECT posts.Title, SUM(CASE WHEN votes.Up THEN 1 ELSE -1 END) 
 FROM posts LEFT OUTER JOIN votes ON posts.Id = votes.PostId GROUP BY posts.Title;
  
@@ -185,21 +186,21 @@ WITH posts AS (
 					 FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, ''),
 				COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
 				COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
-	 FROM votezilla.NewsPost
-	 WHERE ThumbnailStatus = 1 --AND (Id NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+	 FROM vz.NewsPost
+	 WHERE ThumbnailStatus = 1 --AND (Id NOT IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
 	 UNION
 	 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, ''),
 				P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
 				P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
-	 FROM ONLY votezilla.LinkPost P
-	 JOIN votezilla.User U ON P.UserId = U.Id
-	 WHERE (P.Id NOT IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+	 FROM ONLY vz.LinkPost P
+	 JOIN vz.User U ON P.UserId = U.Id
+	 WHERE (P.Id NOT IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
 	 ORDER BY OrderBy DESC) x
 			 ) x
 			 WHERE x.r <= 5 LIMIT 60
 	 ),
   votes AS (
-	 SELECT PostId, Up FROM votezilla.PostVote)
+	 SELECT PostId, Up FROM vz.PostVote)
 SELECT posts.Id, posts.Title, SUM(
 	CASE WHEN votes.Up IS NULL THEN 0  
 		 WHEN votes.Up THEN 1 
@@ -213,7 +214,7 @@ SELECT PostId, SUM(
     CASE WHEN Up THEN 1
              ELSE -1
     END)
-FROM votezilla.PostVote WHERE PostId IN(42784, 40963, 41726, 41078, 41187) GROUP BY 1;
+FROM vz.PostVote WHERE PostId IN(42784, 40963, 41726, 41078, 41187) GROUP BY 1;
 
 
 >>>
@@ -229,14 +230,14 @@ SELECT Id, Author, Title, Description, LinkUrl, UrlToImage, PublishedAt, NewsSou
 	 SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, '') AS UrlToImage,
 				COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
 				COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
-	 FROM votezilla.NewsPost
+	 FROM vz.NewsPost
 	 WHERE ThumbnailStatus = 1 
 	 UNION
 	 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, '') AS UrlToImage,
 				P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
 				P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
-	 FROM ONLY votezilla.LinkPost P
-	 JOIN votezilla.User U ON P.UserId = U.Id
+	 FROM ONLY vz.LinkPost P
+	 JOIN vz.User U ON P.UserId = U.Id
 	 ORDER BY OrderBy DESC
 	 ) x
 			 ) x
@@ -253,14 +254,14 @@ WITH posts AS (
 		 SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl, COALESCE(UrlToImage, '') AS UrlToImage,
 					COALESCE(PublishedAt, Created) AS PublishedAt, NewsSourceId, Category, Language, Country,
 					COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
-		 FROM votezilla.NewsPost
+		 FROM vz.NewsPost
 		 WHERE ThumbnailStatus = 1 
 		 UNION
 		 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl, COALESCE(P.UrlToImage, '') AS UrlToImage,
 					P.Created AS PublishedAt, '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
 					P.Created + RANDOM() * '1:00:00'::INTERVAL AS OrderBy
-		 FROM ONLY votezilla.LinkPost P
-		 JOIN votezilla.User U ON P.UserId = U.Id
+		 FROM ONLY vz.LinkPost P
+		 JOIN vz.User U ON P.UserId = U.Id
 		 ORDER BY OrderBy DESC
 		 ) x
 				 ) x
@@ -269,7 +270,7 @@ WITH posts AS (
   votes AS (
 	SELECT PostId,
 		   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
-	FROM votezilla.PostVote
+	FROM vz.PostVote
 	WHERE PostId IN (SELECT Id FROM posts)
 	GROUP BY PostId)
 SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
@@ -278,7 +279,7 @@ LEFT JOIN votes ON posts.Id = votes.PostId;
 	 
 SELECT x.*, v.Up AS Upvoted
 			FROM (%s) x
-			JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = 1)
+			JOIN vz.PostVote v ON x.Id = v.PostId AND (v.UserId = 1)
 			ORDER BY v.Created DESC
 
 ======
@@ -289,23 +290,23 @@ WITH posts AS (
            COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
            NewsSourceId, Category, Language, Country,
            COALESCE(PublishedAt, Created)  AS OrderBy
-FROM votezilla.NewsPost
-WHERE ThumbnailStatus = 1 AND (Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+FROM vz.NewsPost
+WHERE ThumbnailStatus = 1 AND (Id IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
 UNION
 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
            COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
            '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
            P.Created  AS OrderBy
-FROM ONLY votezilla.LinkPost P
-JOIN votezilla.User U ON P.UserId = U.Id
-WHERE (P.Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+FROM ONLY vz.LinkPost P
+JOIN vz.User U ON P.UserId = U.Id
+WHERE (P.Id IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
 ORDER BY OrderBy DESC) x
-        JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) LIMIT 60),
+        JOIN vz.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) LIMIT 60),
          votes AS (
                 SELECT PostId,
                            Created,
                            SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
-                FROM votezilla.PostVote
+                FROM vz.PostVote
                 WHERE PostId IN (SELECT Id FROM posts)
                 GROUP BY PostId, Created
          )
@@ -322,23 +323,23 @@ WITH posts AS (
            COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
            NewsSourceId, Category, Language, Country,
            COALESCE(PublishedAt, Created)  AS OrderBy
-FROM votezilla.NewsPost
-WHERE ThumbnailStatus = 1 AND (Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
+FROM vz.NewsPost
+WHERE ThumbnailStatus = 1 AND (Id IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (Category IS NOT NULL)
 UNION
 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
            COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
            '' AS NewsSourceId, 'news' AS Category, 'EN' AS Language, U.Country,
            P.Created  AS OrderBy
-FROM ONLY votezilla.LinkPost P
-JOIN votezilla.User U ON P.UserId = U.Id
-WHERE (P.Id IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
+FROM ONLY vz.LinkPost P
+JOIN vz.User U ON P.UserId = U.Id
+WHERE (P.Id IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND ('news' IS NOT NULL)
 ORDER BY OrderBy DESC) x
-        JOIN votezilla.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) LIMIT 60),
+        JOIN vz.PostVote v ON x.Id = v.PostId AND (v.UserId = 1) LIMIT 60),
          votes AS (
                 SELECT PostId,
                            Created,
                            SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
-                FROM votezilla.PostVote
+                FROM vz.PostVote
                 WHERE PostId IN (SELECT Id FROM posts)
                 GROUP BY PostId, Created
          )
@@ -353,8 +354,8 @@ ORDER BY votes.Created DESC;
 SELECT PostId,
                            --Created,
                            SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
-                FROM votezilla.PostVote
-                WHERE PostId IN (SELECT PostId FROM votezilla.PostVote WHERE UserId = 1)
+                FROM vz.PostVote
+                WHERE PostId IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)
                 GROUP BY PostId --, Created
 
 
@@ -363,3 +364,9 @@ select country, category, newssourceid, count(id) from vz.NewsPost group by 1, 2
 
 -- Country news posts vs thumbnail status:
 select country, thumbnailstatus, count(*) from vz.NewsPost group by 1, 2 order by 2, 1;
+
+
+SELECT LinkUrl, Id,         Created
+FROM ONLY vz.LinkPost 
+WHERE ThumbnailStatus = 0
+ORDER BY Created DESC;

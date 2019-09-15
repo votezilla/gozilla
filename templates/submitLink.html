@@ -1,8 +1,4 @@
-{{define "body"}}
-<h1>Submit Link</h1>
-<h2></h2>
-<h4></h4>
-<br><br>
+<!--
 <form method="post">
 	<table border="0">
 		<tr>
@@ -13,58 +9,161 @@
 			<td id="link label">link:</td>
 			<td><input type="text" name="link" id="link" value="" oninput="onLinkTextUpdated()"></input></td>
 		</tr>
+	<tr>
+	<tr>
+		<td id="category">category:</td>
+		<td><select name="category">
+			<option value="" selected>-</option>
+		  {{- range $_, $category := .Categories}}
+			<option value="$category">$category</option>
+		  {{- end}}
+		</select></td>
+		</tr>
 	</table>
-	<br>
-	<div style="overflow: visible; width: 1000px; height: 1000px;">
-	    <div id="image_container"></div>
+	<div id="thumbnail container" style="display: none;">
+		<p> Choose a thumbnail </p>
+		<div style="overflow: visible; width: 600px; height: 200px;">
+			<div id="image_container"></div>
+		</div>
 	</div>
 	<br>
+	<input type="hidden" id="thumbnail" value="-1">
 	<input type="submit" value="Submit">
 </form>
 
-<div id='data'></div>
+<div id='data'></div>-->
+
+
+{{ define "preForm" }}{{ end }}
+
+{{ define "postForm" }}{{ end }}
+
+{{define "additionalInput" -}}
+
+<!--
+<tr id="thumbnail row">
+	<td id="thumbnail label">thumbnail:</td>
+	<td><input type="hidden" name="thumbnail" value="0"></input>
+		<div style="overflow: visible; width: 420px; /*height: 200px;*/">
+			<div id="image_container"></div>
+		</div>
+	</td>
+</tr>
+-->
 
 <script>
-var lastUpdateTime;
-function onLinkTextUpdated() {
-	lastUpdateTime = new Date();
-	setTimeout(function() {
-		//console.log("1.5 seconds after text updated");
-		currentTime = new Date();
-		var secondsElapsed = (currentTime - lastUpdateTime) / 1000.0; // Get the difference in time, convert from milliseconds to seconds.
-		//console.log("" + secondsElapsed + " seconds elapsed");
-		if (secondsElapsed > 1.4) {
-			console.log("Link Text Is Updated (>= 1.5 seconds)");
-			console.log("Link Url is: " + $("#link").val());
+//var lastUpdateTime;
 
-			// AJAX - database state
-			$.ajax({
-				url: '/ajaxScrapeImageURLs/',
-				type: "post",
-				contentType: 'application/json; charset=utf-8',
-				data: JSON.stringify({ Url: $("#link").val() }), // Hmmm <-- should be UserId not Username
-				dataType: 'json',
-				success: function(r) {
-					console.log("AJAX - success r.Images = " + r.Images);
+$(document).ready(function() {
+	$('input[name="thumbnail"]').parent().append(`<div style="overflow: visible; width: 420px;">
+			<div id="image_container"></div>
+		</div>`);
 
-					for ( img in r.Images ) {					
-							$('#image_container').append( '<img id="img_'+ img +'" src="' + r.Images[img] + '" width=467 heigh=280 />' );
-							$('#image_container').append( '<img id="img_'+ img +'" src="' + r.Images[img] + '" width=125 height=75 />' );
-        			}
-				},
-				error:   function(r) { console.log("AJAX - error"); }
-			});
-		}
-    }, 1500);
-}
 
-$(document).ready(function(){
-	$('[data-toggle="tooltip"]').tooltip();
+	//$('#thumbnail row').hide();
+
+	function selectThumbnail(idx, urlToImage) {
+	//function selectThumbnail(img, urlToImage) {
+		$('#image_container img').removeClass('active');
+		//$(this).addClass('active');
+		$('#img_'+idx).addClass('active');
+		//img.addClass('active');
+
+		$('input[name="thumbnail"]').val(urlToImage);
+	}
+
+	var $link = $('input[name="link"]');
+	$link.change( function() {
+		console.log("Link Url is: " + $link.val());
+
+		// AJAX - database state
+		$.ajax({
+			url: '/ajaxScrapeImageURLs/',
+			type: "post",
+			contentType: 'application/json; charset=utf-8',
+			data: JSON.stringify({ Url: $link.val() }), // Hmmm <-- should be UserId not Username
+			dataType: 'json',
+			success: function(r) {
+
+				// WORKING GREAT!!  TODO: prioritize the og:Image to come first
+
+				console.log("AJAX - success r.Images = " + r.Images);
+
+				$('#thumbnail container').show(); // REVERT!!
+
+				$('#image_container img').remove();
+
+				var OGImages = []
+
+				for ( i in r.OGImages ) {
+					console.log('First loop i = ' + i + ' r.OGImages[img] = ' + r.OGImages[i])
+						$('#image_container').append( '<img id="img_'+ i +'" src="' + r.OGImages[i] + '" width=1 height=1 />' );
+
+					OGImages[r.OGImages[i]] = true
+				}
+
+				for ( i in r.Images ) {
+					console.log('First loop i = ' + i + ' r.Images[img] = ' + r.Images[i])
+					if (OGImages[r.Images[i]]) {
+						console.log("Skipping cause OGImages already has this one!");
+						continue;
+					}
+					$('#image_container').append( '<img id="img_'+ i +'" src="' + r.Images[i] + '" width=125 height=75 />' );
+				}
+
+				var imageSortData = []
+				$('#image_container img').each(function(){
+					console.log($(this).prop('src') + ' ' + $(this).prop('naturalWidth') + ' ' + $(this).prop('naturalHeight'));
+
+				    var w = $(this).prop('naturalWidth'),
+				    	h = $(this).prop('naturalHeight'),
+				    	m = Math.min(w, h),
+						M = Math.max(w, h),
+						size = m * m * M;
+
+					//if (w < 32 || h < 32 || w / h > 2 || w / h < 2)
+					//	continue;
+
+				    imageSortData.push({
+				    	"src":		$(this).prop('src'),
+				    	"size":		size,
+				    	"ogimage":	OGImages[$(this).prop('src')]
+				    });
+				});
+
+				// Sort images by size, decreasing.
+				imageSortData.sort(function(a, b) { return b.OGImage && !a.OGImage ? 1 :
+														   a.OGImage && !b.OGImage ? -1 :
+														   b.size - a.size; })
+				$('#image_container img').remove();
+
+				i = 0
+				for (img in imageSortData) {
+					console.log('Second loop img = ' + img + ' ' + imageSortData[img]["src"] + ' => ' + imageSortData[img]["ogimage"] + ", " + imageSortData[img]["size"]);
+					$('#image_container').append( '<img id="img_'+ img +'" src="' + imageSortData[img]["src"] + '" width=110 height=66 style="padding: 2px; " />' );
+
+					i++;
+					if (i == 15) // Display 15 thumbnails max.  Otherwise, it gets out of hand on mobile.
+						break;
+				}
+
+				$('#image_container img').click(function(){
+					var id = parseInt($(this).attr('id').substr(4));
+
+					selectThumbnail(id, r.Images[id]);
+					//selectThumbnail($(this), r.Images[id]);
+				});
+
+				$('#thumbnail container').show();
+
+				selectThumbnail(0, r.Images[0]);
+			},
+			error:   function(r) { console.log("AJAX - error"); }
+		});
+	});
 });
 </script>
-
-
-{{end}}
+{{- end}}
 
 
 

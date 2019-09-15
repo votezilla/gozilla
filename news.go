@@ -277,7 +277,16 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 //////////////////////////////////////////////////////////////////////////////
 func renderNews(w http.ResponseWriter, title string, username string, userId int64,
 				articleGroups []ArticleGroup, urlPath string, template string,
-				upvotes []int64, downvotes []int64) {
+				upvotes []int64, downvotes []int64, alertMessage string) {
+	
+	script := ""
+	switch(alertMessage) {
+		case "LoggedIn": 		script = "alert('You are now logged in :)')"
+		case "LoggedOut": 		script = "alert('You are now logged out :)')"
+		case "AccountCreated": 	script = "alert('Your account has been created, good work!')"
+		case "SubmittedLink": 	script = "alert('Your link has been submitted, and will appear shortly')"
+	}
+
 	// Render the news articles.
 	newsArgs := struct {
 		PageArgs
@@ -289,7 +298,7 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 		UpVotes			[]int64
 		DownVotes		[]int64
 	}{
-		PageArgs:		PageArgs{Title: "votezilla - " + title},
+		PageArgs:		PageArgs{Title: "votezilla - " + title, Script: script},
 		Username:		username,
 		UserId:			userId,
 		ArticleGroups:	articleGroups,
@@ -315,6 +324,8 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	prVal(nw_, "r.URL.Query()", r.URL.Query())
 
 	reqCategory		:= parseUrlParam(r, "category")
+	
+	reqAlert		:= parseUrlParam(r, "alert")
 
 	// Get the username.
 	userId := GetSession(r)
@@ -337,7 +348,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, true)
 
-	renderNews(w, "News", username, userId, articleGroups, "news", "news", []int64{}, []int64{})
+	renderNews(w, "News", username, userId, articleGroups, "news", "news", []int64{}, []int64{}, reqAlert)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -350,6 +361,8 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
 	prVal(nw_, "r.URL.Query()", r.URL.Query())
+	
+	reqAlert		:= parseUrlParam(r, "alert")
 
 	// Get the username.
 	userId := GetSession(r)
@@ -363,7 +376,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	articleGroups := formatArticleGroups(articles, historyCategoryInfo, kVotedPosts, false)
 
-	renderNews(w, "History", username, userId, articleGroups, "history", "news", upvotes, downvotes)
+	renderNews(w, "History", username, userId, articleGroups, "history", "news", upvotes, downvotes, reqAlert)
 }
 
 

@@ -65,7 +65,7 @@ func replaceSchema(query string) string {
 // Executes a query that does not return anything.  Necessary for not leaking connections.
 func DbExec(query string, values ...interface{}) {
 	query = replaceSchema(query)
-	prf(db_, "DbExec query:%s", query)
+	prf(db_, "DbExec query:%s %v", query, values)
 	
 	//stmt, err := db.Prepare(query)
 	//check(err)
@@ -74,6 +74,7 @@ func DbExec(query string, values ...interface{}) {
 	//check(err)
 
 	_, err = db.Exec(query, values...)
+	check(err)
 
 	//stmt.Close()
 }
@@ -82,7 +83,7 @@ func DbExec(query string, values ...interface{}) {
 // Panics on error.
 func DbInsert(query string, values ...interface{}) int64 {
 	query = replaceSchema(query)
-	prf(db_, "DbInsert query:%s", query)
+	prf(db_, "DbInsert query:%s %v", query, values)
 	
 	var lastInsertId int64
 	
@@ -97,7 +98,7 @@ func DbInsert(query string, values ...interface{}) int64 {
 // Panics on error.
 func DbQuery(query string, values ...interface{}) *sql.Rows {
 	query = replaceSchema(query)
-	prf(db_, "DbQuery query:%s", query)
+	prf(db_, "DbQuery query:%s %v", query, values)
 	
 	rows, err := db.Query(query, values...)
 	check(err)	
@@ -108,7 +109,7 @@ func DbQuery(query string, values ...interface{}) *sql.Rows {
 // Panics on error
 func DbExists(query string, values ...interface{}) bool {
 	query = replaceSchema(query)
-	prf(db_, "DbExists query:%s", query)
+	prf(db_, "DbExists query:%s %v", query, values)
 	
 	rows := DbQuery(query, values...)
 	

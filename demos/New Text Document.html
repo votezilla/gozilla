@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no">
+    <meta name="referrer" content="unsafe-url">
+
+	<title>Submit Link - votezilla</title>
+
+	<link rel="stylesheet" type="text/css" href="/static/style.css?k1s222233ss">
+
+    <!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+    <style>
+	.marginRow{
+		 margin-top:0px !important;
+		 margin-bottom:0px !important;
+	}
+
+	.vz-col-md-12 { padding-left: 0px; padding-right: 0px; }
+
+	/* LARGE DEVICES */
+	@media (min-width:990px) {
+		.vz-col-md-6-left  	 { padding-left: 0px; padding-right: 0px; }
+		.vz-col-md-6-right   { padding-left: 15px; padding-right: 0px; }
+
+	}
+	/* SMALL DEVICES */
+	@media (max-width:990px) {
+		.vz-col-md-6-left  	 { padding-left: 0px; padding-right: 0px; width: 100%; max-width: 100%; flex: 0 0 100%; }
+		.vz-col-md-6-right   { padding-left: 0px; padding-right: 0px; width: 100%; max-width: 100%; flex: 0 0 100%; }
+	}
+	</style>
+  </head>
+  <body>
+
+<h1>Submit Link</h1>
+<h2></h2>
+<h4></h4>
+
+<br><br>
+<form method="post">
+		<table border="0">
+			<tr>
+				<td id="link label">link:</td>
+				<td><input type="text" name="link" value=""></input></td>
+			</tr>
+			<tr>
+				<td id="title label">title:</td>
+				<td><input type="text" name="title" value=""></input></td>
+			</tr>
+			<tr>
+				<td id="category label">category:</td>
+				<td><select name="category">
+<option value="news">news</option>
+<option value="world news">world news</option>
+<option value="business">business</option>
+<option value="sports">sports</option>
+<option value="entertainment">entertainment</option>
+<option value="technology">technology</option>
+<option value="science">science</option>
+</select></td>
+			</tr>
+			<tr>
+				<td id="thumbnail label">thumbnail:</td>
+				<td><input type="hidden" name="thumbnail" value=""></input></td>
+			</tr>
+			<tr>
+				<td colspan=2>
+		<div style="overflow: visible; width: 600px; height: 200px;">
+	<div id="image_container"></div>
+</div>
+</td></tr>
+
+		</table>
+		<br>
+		<input type="submit" value="Submit">
+	</form>
+
+
+  </body>
+</html>

@@ -70,7 +70,7 @@ var (
 			gforms.Required(),
 			gforms.MinLengthValidator(8),
 			gforms.MaxLengthValidator(40),
-			gforms.PasswordStrengthValidator(3), // Require strong password.
+			gforms.PasswordStrengthValidator(1), // Require at least a level 1(weak) password.  So people don't get frustrated trying to create/remember a strong one.
 		},
     )
     // Not currently used.  Keep code in case I decide to re-enable later.
@@ -219,7 +219,7 @@ var (
             gforms.Required(),
             gforms.MaxLengthValidator(50),
         },
-    )
+    )    
 	link = gforms.NewTextField(
 		"link",
 		gforms.Validators{
@@ -227,7 +227,29 @@ var (
 			gforms.URLValidator(),
 			gforms.MaxLengthValidator(250),
 		},
-    )
+    )    
+	category = gforms.NewTextField(
+		"category",
+		gforms.Validators{
+            gforms.Required(),
+        },
+        gforms.SelectWidgetEasy(
+			func() [][2]string {
+				categories := make([][2]string, len(newsCategoryInfo.CategoryOrder))
+				for i, category := range newsCategoryInfo.CategoryOrder {
+					categories[i] = [2]string{category, category}
+				}
+				return categories
+			}(),
+		),
+    )        
+	thumbnail = gforms.NewTextField(
+		"thumbnail",
+		gforms.Validators{
+            gforms.Required(),
+        },
+        gforms.HiddenInputWidget(map[string]string{}),
+    )  
 )
 
 // === FORM POST DATA ===
@@ -261,8 +283,10 @@ type RegisterDetailsData struct {
 }
 
 type SubmitLinkData struct {
-	Title					string `gforms:"title"`
 	Link					string `gforms:"link"`
+	Title					string `gforms:"title"`
+	Category				string `gforms:"category"`
+	Thumbnail				string `gforms:"thumbnail"` // Created with HTML in submitLink, since it's a hidden field.
 }
 
 // === FORMS ===
@@ -296,8 +320,10 @@ var (
     ))
     
     SubmitLinkForm = gforms.DefineForm(gforms.NewFields(
-		title,
 		link,
+		title,
+		category,
+		thumbnail,
 	))
 ) // var
 

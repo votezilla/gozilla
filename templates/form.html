@@ -2,6 +2,7 @@
 <h1>{{.Title}}</h1>
 <h2>{{.Congrats}}</h2>
 <h4>{{.Introduction}}</h4>
+{{ template "preForm" . }}
 <br><br>
 {{range $_, $form := .Forms -}}
 	<form method="post">
@@ -14,6 +15,7 @@
 				</td>
 			</tr>
 		{{- end}}
+		{{ template "additionalInput" . }}
 		</table>
 		{{- if $form.AdditionalError -}}
 		<br>
@@ -23,6 +25,11 @@
 		<br>
 		<input type="submit" value="{{$form.CallToAction}}">
 	</form>
+
+	<br>
+	<br>
+
 {{- end -}}
+{{ template "postForm" . }}
 {{.Footer}}
 {{- end}}

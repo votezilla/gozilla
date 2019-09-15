@@ -39,6 +39,7 @@
 				{{ range $j, $article := $articleCol }}
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
 						{{ if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
+
 							<a href="{{$article.Url}}" {{ if not $article.IsPoll }} target="_blank" {{ end }} rel="nofollow">
 								<img src="{{$article.UrlToImage}}" width="100%" height="280">
 							</a>

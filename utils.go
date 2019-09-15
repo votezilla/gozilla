@@ -3,12 +3,12 @@ package main
 
 import (
 	"bytes"
+//	"crypto/tls"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strings"
-	"text/template" // Faster than "html/template", and less of a pain for safeHTML	
 	"time"
 )
 
@@ -36,6 +36,8 @@ func check(err error) {
 ///////////////////////////////////////////////////////////////////////////////
 func ternary_int(b bool, i int, j int) int { if b { return i } else { return j } }
 func round(f float32) int { return int(f + .5) }
+func min_int(i int, j int) int { return ternary_int(i < j, i, j); }
+func max_int(i int, j int) int { return ternary_int(i > j, i, j); }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -60,8 +62,9 @@ const (
 	po_		= PrintMask(32)			// posts.go
 	ns_		= PrintMask(64)			// newsServer.go
 	is_		= PrintMask(128)		// imageServer.go
+	ut_		= PrintMask(256)		// utils.go
 	
-	all_	= PrintMask(256 - 1)
+	all_	= PrintMask(512 - 1)
 )
 
 func print(text string) {
@@ -105,25 +108,6 @@ func prValX(mask PrintMask, label string, v interface{}) {
 // render template files
 //
 ///////////////////////////////////////////////////////////////////////////////
-func parseTemplateFiles() {
-	T := func(page string) string {
-		return "templates/" + page + ".html"
-	}
-
-	templates = make(map[string]*template.Template)
-	
-	// HTML templates
-	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form")))
-	templates["comments"]		= template.Must(template.ParseFiles(T("base"), T("frame"), T("comments")))
-	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("frame"), T("news")))
-	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
-	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
-	templates["submitLink"]		= template.Must(template.ParseFiles(T("base"), T("submitLink")))
-	
-	// Javascript snippets
-	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
-}
-
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
 	//pr("executeTemplate: " + templateName)
 	
@@ -164,13 +148,47 @@ func serveHTML(w http.ResponseWriter, html string) {
 	fmt.Fprintf(w, html)
 }
 
+
 // http.Get with a 'timeout'-second timeout.
-func httpGet(url string, timeout float32) (*http.Response, error){
+func httpGet_Old(url string, timeout float32) (*http.Response, error){
 	var netClient = &http.Client{
 	  Timeout: time.Duration(timeout) * time.Second,
 	}
 	return netClient.Get(url)
 }
+
+
+// http.Get with a 'timeout'-second timeout.
+func httpGet(url string, timeout float32) (*http.Response, error){
+	return httpGet_Old(url, timeout)
+}
+/*
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	var netClient = &http.Client{
+	 	Timeout:	time.Duration(timeout) * time.Second,
+	 	Transport:	tr,
+	}
+	
+	prVal(ut_, "httpGet", url)
+	//prVal(ut_, "tr", tr)
+	//prVal(ut_, "netClient", netClient)
+	
+	//return netClient.Get(url)
+	
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+	    prVal(ut_, "request had error", err)
+	    return nil, err
+	}
+	
+	//prVal(ut_, "req", req)
+	
+	req.Host = "votezilla.io"  //"domain.tld"
+	return netClient.Do(req)
+} */
 
 // formatRequest generates ascii representation of a request
 func formatRequest(r *http.Request) string {
