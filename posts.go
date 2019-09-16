@@ -44,7 +44,7 @@ type Article struct {
 // If articlesPerCategory <= 0, no category partitioning takes place.
 //
 //////////////////////////////////////////////////////////////////////////////
-func _queryArticles(idCondition string, categoryCondition string, articlesPerCategory int, maxArticles int,
+func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, articlesPerCategory int, maxArticles int,
 				    fetchVotesForUserId int64) (articles []Article) {
 	var id				int64
 	var author			string
@@ -64,7 +64,7 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	bRandomizeTime := (fetchVotesForUserId == -1)
 
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
-	query := fmt.Sprintf(
+	newsPostQuery := fmt.Sprintf(
 	   `SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl,
 	   		   COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
 	   		   NewsSourceId,
@@ -72,9 +72,13 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 	   		   Language, Country,
 			   COALESCE(PublishedAt, Created) %s AS OrderBy
 		FROM $$NewsPost
-		WHERE ThumbnailStatus = 1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)
-		UNION
-		SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
+		WHERE ThumbnailStatus = 1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)`,
+		ternary_str(bRandomizeTime, "+ RANDOM() * '3:00:00'::INTERVAL", ""),
+		idCondition,
+		categoryCondition)
+	
+	linkPostQuery := fmt.Sprintf(		
+	   `SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
 			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
 			   '' AS NewsSourceId,
 			   $$GetCategory('news', U.Country) AS Category,
@@ -82,15 +86,21 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 			   P.Created %s AS OrderBy
 		FROM ONLY $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
-		WHERE (P.Id %s) AND ($$GetCategory('news', U.Country) %s)
-		ORDER BY OrderBy DESC`,
-		ternary_str(bRandomizeTime, "+ RANDOM() * '3:00:00'::INTERVAL", ""),
-		idCondition,
-		categoryCondition,
+		WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory('news', U.Country) %s)`,		
 		ternary_str(bRandomizeTime, "+ RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
-		categoryCondition,
-	)
+		userIdCondition,
+		categoryCondition)
+	
+	orderByClause := "ORDER BY OrderBy DESC"
+	
+	query := ""
+	if userIdCondition == "IS NOT NULL" {
+		query = newsPostQuery + " UNION " + linkPostQuery + orderByClause
+	} else {
+		query = linkPostQuery + orderByClause
+	}
+	
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category
 		query = fmt.Sprintf(`
@@ -259,8 +269,9 @@ func _queryArticles(idCondition string, categoryCondition string, articlesPerCat
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticle(id int64, userId int64) (Article, error) {
 	articles := _queryArticles(
-		"= " + strconv.FormatInt(id, 10),
-		"IS NOT NULL",
+		"= " + strconv.FormatInt(id, 10), // idCondition
+		"IS NOT NULL",					  // userIdCondition
+		"IS NOT NULL",					  // categoryCondition
 		-1,
 		2,	// 2, so we could potentially catch duplicate articles.
 		userId)
@@ -284,8 +295,9 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")",
-		"IS NOT NULL",
+		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition 
+		"IS NOT NULL",																						  // userIdCondition
+		"IS NOT NULL",																						  // categoryCondition
 		articlesPerCategory,
 		maxArticles,
 		-1)
@@ -299,8 +311,9 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId i
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",
-		"IS NOT NULL",
+		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")", // idCondition
+		"IS NOT NULL",																			   // userIdCondition
+		"IS NOT NULL",																			   // categoryCondition
 		-1,
 		maxArticles,
 		userId)
@@ -314,8 +327,25 @@ func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")",
-		"= '" + category + "'",
+		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition
+		"IS NOT NULL",																						  // userIdCondition
+		"= '" + category + "'",																				  // categoryCondition
+		-1,
+		maxArticles,
+		-1)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch articles posted by a user.  
+//   category - optional, can provide "" to skip.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchArticlesPostedByUser(userId int64, category string, maxArticles int) ([]Article) {
+	return _queryArticles(
+		"IS NOT NULL", 														// idCondition
+		"= " + strconv.FormatInt(userId, 10),   							// userIdCondition
+		ternary_str(category != "", "= '" + category + "'", "IS NOT NULL"),	// categoryCondition
 		-1,
 		maxArticles,
 		-1)

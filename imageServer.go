@@ -277,9 +277,6 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
         prVal(is_, "HTTP request failed", err) 
         return []ImageSizeResult{}, err
     }
-   
-    	//bodyBuffer, _ := ioutil.ReadAll(response.Body)
-   	//prVal(is_, "bodyBuffer", string(bodyBuffer))
 
     // Create a goquery document from the HTTP response
     document, err := goquery.NewDocumentFromReader(response.Body)
@@ -332,7 +329,6 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
 		imgSrc, err = makeUrlAbsolute(imgSrc, pageUrl)
 		
 		if err != nil {
-			//images = append(images, imgSrc) 
 			images[imgSrc] = 1
 		}
 	})
@@ -349,21 +345,9 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
 	// Get the sizes of the images, pick the best one with a size-based heuristic, multithreaded.	
 	c := make(chan ImageSizeResult)
 
-//	bestImageQuality := -999999
-//	bestImage = ""
 	//for _, imgSrc := range(images) {
 	for imgSrc, _ := range(images) {
 		go goDownloadImageSize(imgSrc, c)
-/*		go func() {
-			prf(is_, "calling gorouting downloadImageSize(%s)", imgSrc)
-			
-			width, height, err := downloadImageSize(imgSrc) 
-			
-			prf(is_, "   the result is %d, %d, %s", width, height, err)
-			
-			c <- ImageSizeResult{imgSrc, width, height, err}
-		} ()
-*/
 	}
 
 	timeout := time.After(30 * time.Second)
@@ -371,7 +355,7 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
 	numImages := len(images)
 	
 	imageSortResults := make([]ImageSizeResult, 0)
-//if (true) {
+
 	downsampleImagesLoop: for {
 		select {
 			case imageSizeResult := <-c: 	
@@ -392,57 +376,10 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
 	
 	sort.Slice(imageSortResults, func(i, j int) bool { return imageSortResults[i].imageQuality < 
 	                                                          imageSortResults[j].imageQuality })
-	
-/*	
-				
-} else {
-	downsampleImagesLoop: for {
-		select {
-			case imageSizeResult := <-c: 	
-				imgSrc := imageSizeResult.imgSrc
-				width  := imageSizeResult.width
-				height := imageSizeResult.height
-				err    := imageSizeResult.err
-
-				prf(is_, "Got the size of image %s: %d x %d, err = %s", imgSrc, width, height, err)
-
-				if err != nil {
-					prf(is_, "Error downloading image %s: %s", imgSrc, err)
-				} else {
-					minDim := min_int(width, height)
-					maxDim := max_int(width, height)
-					imageQuality := minDim * minDim * maxDim // Rewards both the minimum dimension (to discourage banners) while also encouraging a larger area
-
-					if imageQuality > bestImageQuality {
-						bestImageQuality = imageQuality
-						bestImage = imgSrc
-					}
-					prf(is_, "minDim: %d maxDim: %d imageQuality %d bestImageQuality %d imgSrc: %s bestImageSrc: %s",
-						minDim, maxDim, imageQuality, bestImageQuality, imgSrc, bestImage)
-				}
-
-				numImages--
-
-				if numImages == 0 {
-					pr(is_, "Processed all images!")
-					break downsampleImagesLoop
-				}
-			case <- timeout:
-				pr(is_, "Timeout!")
-
-				break downsampleImagesLoop
-		}		
-	}
-}*/
 
 	prf(is_, "With finding best image took %s", time.Since(start))	
 	
 	return imageSortResults, nil
-	//if bestImage == "" {
-	//	return "", errors.New("Unable to find a best image")
-	//}
-	//
-	//return bestImage, nil
 }
 
 // Downsample an image asynchronously, return infomation about id and error status to the channel after.
@@ -556,6 +493,12 @@ func ImageServer() {
 		}
 		return
 	}
+	
+	// TODO!: Process image thumbnail UrlToImage from LinkUrl submission.
+	//		  Require the input not blank and database not blank, so the thumbnail link is always good.
+	//		  Give user option to use Mozilla Head.
+	//        If there's a problem with the UrlToImage or it's NULL, or the image doesn't downsample
+	//		  for some reason, falls back on scraping the page.
 
 	queries := [NUM_GEN_THUMBS_PASSES]string {
 		// genThumbsPass_ScrapeUser:

@@ -28,6 +28,7 @@ const (
 	kMaxArticles = 60
 	kMaxTitleLength = 122
 
+	kSubmittedPosts = "submitted posts"
 	kVotedPosts = "voted posts"
 )
 
@@ -55,9 +56,11 @@ var (
 
 	historyCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
+			kSubmittedPosts,
 			kVotedPosts,
 		},
 		HeaderColors : map[string]string{
+			kSubmittedPosts : "#aaf",
 			kVotedPosts : "#ccc",
 		},
 	}
@@ -117,6 +120,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 	} else {
 		categoryOrder = categoryInfo.CategoryOrder
 	}
+	
 
 	articleGroups := make([]ArticleGroup, len(categoryOrder))
 
@@ -127,6 +131,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		row := 0
 		col := 0
 		filled := false
+		
 
 		// Set category header text and background color.
 		if onlyCategory == "" { // Mixed categories
@@ -151,7 +156,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		if onlyCategory == "" {
 			currArticle = 0
 		}
-
+		
 		// TODO: if a single category, with headlines, either large image should be set to always
 		// 4 article height, or all articles should stack verticlally in each column.
 		// (I prefer the second idea, because it might look nicer.)
@@ -159,11 +164,14 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		for currArticle < len(articles) {
 			article := articles[currArticle]
 			currArticle++
+			
 
 			formatArticle(&article)
+			
 
 			// This works since we've sorted by bucket/category.
 			if coalesce_str(article.Bucket, article.Category) == category {
+				
 				if row == 0 {
 					// Allocate a new column of categories
 					articleGroups[cat].Articles = append(articleGroups[cat].Articles,
@@ -368,14 +376,27 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	username := getUsername(userId)
 
+	// Get articles posted by user
+	articlesPostedByUser	:= fetchArticlesPostedByUser(userId, "", kMaxArticles)
+	prVal(nw_, "len(articlesPostedByUser)", len(articlesPostedByUser))
+	prVal(nw_, "articlesPostedByUser", articlesPostedByUser)
+	for a, _ := range articlesPostedByUser {
+		articlesPostedByUser[a].Bucket = kSubmittedPosts
+	}
+
+	articleGroups := formatArticleGroups(articlesPostedByUser, historyCategoryInfo, kSubmittedPosts, false)		
+	
+	
 	// Get articles voted on by user, and set their bucket accordingly.
-	articles	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
-	prVal(nw_, "len(articles)", len(articles))
+	articlesVotedOnByUser	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
+	prVal(nw_, "len(articlesVotedOnByUser)", len(articlesVotedOnByUser))
+	prVal(nw_, "articlesVotedOnByUser", articlesVotedOnByUser)
 
-	upvotes, downvotes := deduceVotingArrows(articles)
+	upvotes, downvotes := deduceVotingArrows(articlesVotedOnByUser)
 
-	articleGroups := formatArticleGroups(articles, historyCategoryInfo, kVotedPosts, false)
-
+	articleGroups = append(articleGroups, 
+					 formatArticleGroups(articlesVotedOnByUser, historyCategoryInfo, kVotedPosts, false)...)
+	
 	renderNews(w, "History", username, userId, articleGroups, "history", "news", upvotes, downvotes, reqAlert)
 }
 
