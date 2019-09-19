@@ -3,16 +3,16 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/puerkitobio/goquery"  
+//	"github.com/puerkitobio/goquery"  
 	"github.com/rubenfonseca/fastimage"
 	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
 	"path/filepath"
-	"sort"
+//	"sort"
 	"strconv"
-	"strings"
+//	"strings"
 	"time"
 	"willnorris.com/go/imageproxy"
 	_ "image/gif"
@@ -253,6 +253,8 @@ func makeUrlAbsolute(imgSrc, baseUrl string) (string, error) {
 	return imgSrc, nil
 }
 
+/*
+
 // Figure out which thumbnail to use based on the Url of the link submitted.
 // Return the string of the image url if it exists, or "" if there is an error.
 func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
@@ -380,7 +382,7 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
 	prf(is_, "With finding best image took %s", time.Since(start))	
 	
 	return imageSortResults, nil
-}
+}*/
 
 // Downsample an image asynchronously, return infomation about id and error status to the channel after.
 func downsamplePostImage(url string, id int, pass int, c chan DownsampleResult) {
@@ -390,53 +392,13 @@ func downsamplePostImage(url string, id int, pass int, c chan DownsampleResult) 
 	//	genThumbsPass_DownsampleNewsImage = 1
 	//	NUM_GEN_THUMBS_PASSES             = 2
 	var err error
-	if pass == genThumbsPass_ScrapeUserPostImage {
-		// Scrape website url, pick the best image, assign its url to url.
-		prVal(is_, "pass == genThumbsPass_ScrapeUserPostImage url", url)
-		images, err := scrapeWebpageForBestImage(url)
-		
-		prVal(is_, "imgUrl becomes", url)
-		
-		// If there's an error, must use the placeholder thumbnail.  Returning an error will automatically trigger this.
-		if err != nil {
-			prVal(is_, "downsamplePostImage encountered some error", err)
-			c <- DownsampleResult{id, "", err}
-			return
-		}	
-		
-		for len(images) > 0 {
-			// x = images.Pop()
-			x     := images[len(images)-1]
-			images = images[:len(images)-1]
-
-			prVal(is_,	 "x = images.Pop(), x", x)
-
-			err = downsampleImage(x.imgSrc, "thumbnails", strconv.Itoa(id), "jpeg", 125, 75)
-			if err != nil {
-				// TODO: We must elegantly recover if we get an error here!
-				prVal(is_, "downsamplePostImage called downsampleImage and then encountered some error... let's try the next image", err)
-				continue
-			}
-
-			prf(is_, "Result for #%d image %s: %v\n", id, url, err)
-
-			c <- DownsampleResult{id, url, err}
-			return
-		}
-		
-		pr(is_, "No images, or not images were able to be downsampled correctly for some reason.")
-		c <- DownsampleResult{id, "", errors.New("No images, or not images were able to be downsampled correctly for some reason.")}
-	} else { // Normal downsample
-		err = downsampleImage(url, "thumbnails", strconv.Itoa(id), "jpeg", 125, 75)
-		if err != nil {
-			// TODO: We must elegantly recover if we get an error here!
-			prVal(is_, "downsamplePostImage called downsampleImage and then encountered some error", err)
-		}
-
-		prf(is_, "Result for #%d image %s: %v\n", id, url, err)
-
-		c <- DownsampleResult{id, url, err}
+	err = downsampleImage(url, "thumbnails", strconv.Itoa(id), "jpeg", 125, 75)
+	if err != nil {
+		// TODO: Downsample the Mozilla dinosaur head in this case.
+		prVal(is_, "downsamplePostImage called downsampleImage and then encountered some error", err)
 	}
+	prf(is_, "Result for #%d image %s: %v\n", id, url, err)
+	c <- DownsampleResult{id, url, err}
 }
 
 // Remove an item from a list of ints.
@@ -502,9 +464,9 @@ func ImageServer() {
 
 	queries := [NUM_GEN_THUMBS_PASSES]string {
 		// genThumbsPass_ScrapeUser:
-		`SELECT LinkUrl, Id
+		`SELECT UrlToImage, Id
 		 FROM ONLY $$LinkPost
-		 WHERE ThumbnailStatus = 0
+		 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
 		 ORDER BY Created DESC
 		 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
 		// genThumbsPass_DownsampleNewsImage
@@ -554,11 +516,9 @@ func ImageServer() {
 						if pass == genThumbsPass_ScrapeUserPostImage {
 							DbExec(  
 								`UPDATE ONLY $$LinkPost 
-								 SET ThumbnailStatus = $1,
-								     UrlToImage = $2
-								 WHERE Id = $3::bigint`,
+								 SET ThumbnailStatus = $1
+								 WHERE Id = $2::bigint`,
 								ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
-								downsampleResult.urlToImage,
 								downsampleResult.postId)
 						} else {
 							DbExec( 

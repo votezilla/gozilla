@@ -1,5 +1,7 @@
 package main
 
+// TODO: add an attribution to News.API on the website somewhere.
+
 import (
 	"encoding/json"
 	"fmt"
@@ -24,11 +26,35 @@ type NewsSource struct {
 }
 type NewsSources map[string]NewsSource
 
+// Makes sure we don't spam the News.API.  Except let's make this code a little general in case I use it for other API requests.
+// TODO: News.API can only accept 500 requests / day (250 every 12 hours)
+//       500 / 70 (69 news sources + 1 general request) = 6, so we can do them 6 times per day:
+//
+//		Also keep a counter of requests, so we know how many we've done, and to double-check we don't go over 500.
+//
+//		Also, take note of the failed request message:
+//
+//			2019/09/16 21:51:45 Error fetching news sources: '{"status":"error","code":"rateLimited","message":"You have made too many requests recently. Developer accounts are limited to 500 requests over a 24 hour period (250 requests available every 12 hours). Please upgrade to a paid plan if you need more requests."}'
+//
+//
+//
+type NewsAPITimeManager struct {
+	maxRequestsPerDay		int
+	delayBetweenRequests	time.Duration
+	time.Time
+	
+	lastRequestTime			time.Time
+	lastRequestDay			int
+	numRequestsToday		int
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 var (
 	// Custom-written data from https://newsapi.org/v1/sources?language=en query
-	newsSources NewsSources	
+	newsSources				NewsSources	
 	
-	newsCategoryRemapping = map[string]string{
+	newsCategoryRemapping	= map[string]string{
 		"politics"			: "news",
 		"general"			: "news",
 		"business"			: "business",
@@ -41,7 +67,84 @@ var (
 		"technology"		: "technology",
 		"gaming"			: "gaming",
 	}
+	
+	pNewsErrorReportedTime	*time.Time
+	newsAPITimeManager		= MakeNewsAPITimeManager(500) // The News API allows up to 500 requests per day.
 )
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// class newsAPITimeManager
+//
+//////////////////////////////////////////////////////////////////////////////
+func MakeNewsAPITimeManager(maxRequestsPerDay int) (NewsAPITimeManager) {
+	maxReqsPerDay := int(float32(maxRequestsPerDay) * .9)
+	
+	prVal(ns_, "maxReqsPerDay", maxReqsPerDay)
+	prVal(ns_, "(24 * time.Hour).Nanoseconds()", (24 * time.Hour).Nanoseconds())
+	prVal(ns_, "(24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)", (24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay))
+	prVal(ns_, "(24 * time.Hour).Hours()", time.Duration(24 * time.Hour).Hours())
+	prVal(ns_, "(24 * time.Hour).Minutes()", (24 * time.Hour).Minutes())
+	prVal(ns_, "(24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay).Minutes()", time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)).Minutes())
+	
+	return NewsAPITimeManager{
+		maxRequestsPerDay:		maxReqsPerDay, // Give ourselves a 10% padding
+		delayBetweenRequests:	time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)),
+		lastRequestTime:		time.Now(),	
+		lastRequestDay:			time.Now().Day(),
+	}
+}
+
+func (n *NewsAPITimeManager) WaitForMyTurn() {
+	prVal(ns_, "WaitForMyTurn", n)
+	
+	// Standard waiting n.delayBetweenRequests time.
+//	if n.numRequestsToday > 0 { // Don't delay the very first call per day. // REVERT
+		//delay	:= time.Since(n.lastRequestTime) 
+		sleepDuration := n.delayBetweenRequests // - delay 
+		if pNewsErrorReportedTime != nil {
+			//delay = time.Since(*pNewsErrorReportedTime) + (12 * time.Hour) // News.API potentially gave us an error - wait 12 hours before continuing.
+			sleepDuration = 6 * time.Hour
+			
+			pNewsErrorReportedTime = nil
+		}
+		prVal(ns_, "sleepDuration minutes", sleepDuration.Minutes())
+		if sleepDuration > 0 {
+			time.Sleep(sleepDuration)
+		}
+//	}
+	
+	// Check for exceeding requests per day.
+	n.numRequestsToday++
+	prVal(ns_, "n.numRequestsToday", n.numRequestsToday)
+	if n.numRequestsToday > n.maxRequestsPerDay {
+		for {
+			pr(ns_, "Going to sleep 1 hour")
+			time.Sleep(time.Hour)
+
+			day := time.Now().Day()
+
+			if day != n.lastRequestDay {
+				pr(ns_, "New day triggered")
+				break
+			}
+		}
+	}
+	
+	n.lastRequestTime = time.Now()
+	
+	// When we enter a new day, reset the num requests.
+	day	:= time.Now().Day()
+	if day != n.lastRequestDay {
+		prf(ns_, "Finished day: %s  Num requests: %d", n.lastRequestDay, n.numRequestsToday)
+		
+		n.numRequestsToday = 0
+		n.lastRequestDay = day
+	}
+	
+	//panic("DONE!!!!!!!")
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -59,6 +162,9 @@ func fetchNewsSources() bool {
 	
 	prVal(ns_, "newsRequestUrl", newsRequestUrl)
 	
+	prVal(ns_, "newsAPITimeManager", newsAPITimeManager)
+	newsAPITimeManager.WaitForMyTurn()
+	prVal(ns_, "post-newsAPITimeManager", newsAPITimeManager)
 	resp, err := httpGet(newsRequestUrl, 60.0)
 	if err != nil {
 		prVal(ns_, "fetchNewsSources request err", err)
@@ -86,6 +192,10 @@ func fetchNewsSources() bool {
 	// News request returned an error.
 	if newsSourcesResp.Status != "ok" {
 		prf(ns_, "Error fetching news sources: '%s'\n", body)
+		
+		// Assume we got the rate limiting error, though it could be something else.  Error fetching news sources: '{"status":"error","code":"rateLimited","message":"You have made too many requests recently. Developer accounts are limited to 500 requests over a 24 hour period (250 requests available every 12 hours). Please upgrade to a paid plan if you need more requests."}'
+		now := time.Now()
+		pNewsErrorReportedTime = &now 
 		return false
 	}
 	
@@ -115,7 +225,7 @@ func fetchNewsSources() bool {
 // fetches news articles from a single source
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchNews(newsSource string, c chan []Article) {
+func fetchNews(newsSource string) []Article {
 	pr(ns_, "fetchNews")
 	
 	// Site: https://newsapi.org/
@@ -127,19 +237,19 @@ func fetchNews(newsSource string, c chan []Article) {
 	
 	prVal(ns_, "newsRequestUrl", newsRequestUrl)
 	
+	prVal(ns_, "newsAPITimeManager", newsAPITimeManager)
+	newsAPITimeManager.WaitForMyTurn()
 	resp, err := httpGet(newsRequestUrl, 60.0)
 	if err != nil {
 		prf(ns_, "Error fetching news from '%s': '%s'\n", newsSource, err)
-		c <- []Article{}
-		return
+		return []Article{}
 	}
 	defer resp.Body.Close()
 	
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		prf(ns_, "Error fetching news from '%s': '%s'\n", newsSource, err)
-		c <- []Article{}
-		return
+		return []Article{}
 	}
 	
 	// Parse the News API json.
@@ -152,15 +262,18 @@ func fetchNews(newsSource string, c chan []Article) {
 	err = json.Unmarshal(body, &news)
 	if err != nil {
 		prf(ns_, "Error fetching news from '%s': '%s' '%s'\n", newsSource, err, body)
-		c <- []Article{}
-		return
+		return []Article{}
 	}
 	
 	// News request returned an error.
 	if news.Status != "ok" {
 		prf(ns_, "Error fetching news from '%s': '%s'\n", newsSource, body)
-		c <- []Article{}
-		return
+		
+		// Assume we got the rate limiting error, though it could be something else.  Error fetching news sources: '{"status":"error","code":"rateLimited","message":"You have made too many requests recently. Developer accounts are limited to 500 requests over a 24 hour period (250 requests available every 12 hours). Please upgrade to a paid plan if you need more requests."}'
+		now := time.Now()
+		pNewsErrorReportedTime = &now 
+		
+		return []Article{}
 	}
 
 	for i := 0; i < len(news.Articles); i++ {
@@ -173,8 +286,7 @@ func fetchNews(newsSource string, c chan []Article) {
 		news.Articles[i].Country  = newsSources[newsSource].Country
 	}
 	
-	c <- news.Articles
-	return
+	return news.Articles
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -209,93 +321,68 @@ func NewsServer() {
 				continue
 			}
 
-			c := make(chan []Article)
-
-			timeout := time.After(60 * time.Second)
+			//timeout := time.After(60 * time.Second)
 
 			prVal(ns_, "len(newsSources)", len(newsSources))
 
-			// Fetch articles.
+			// TODO: Fetch headlines for the US: https://newsapi.org/v2/top-headlines?country=us
+			//prVal(ns_, "Fetching headlines")
+			//go fetchNews("", c)
+
+			// Fetch articles from each news source.
 			for _, newsSource := range newsSources {
 				prVal(ns_, "Fetching article from", newsSource.Id)
 
-				go fetchNews(newsSource.Id, c)
-			}
+				newArticles = fetchNews(newsSource.Id)
+								
+				prVal(ns_, "len(newArticles)", len(newArticles))
 
-			newArticles = []Article{}
-			numSourcesFetched := 0
-			fetchNewsLoop: for {
-				select {
-					case newArticlesFetched := <-c:
-						newArticles = append(newArticles, newArticlesFetched...)
-						numSourcesFetched++
+				// Insert the news articles all in one query.
+				sqlStr := `INSERT INTO $$NewsPost(
+							 UserId, Title, LinkURL, UrlToImage,
+							 Description, PublishedAt, NewsSourceId, Category, Language, Country)
+						   VALUES`
+				vals := []interface{}{}
 
-						prVal(ns_, "New articles fetched", numSourcesFetched)
-						
-						if numSourcesFetched == len(newsSources) {
-							pr(ns_, "Fetched all news sources!")
-							break fetchNewsLoop
-						}
-					case <- timeout:
-						pr(ns_, "Timeout!")
-						break fetchNewsLoop
+				vals = append(vals, -1) // $1 = UserId = -1
+
+				argId := 2 // arguments start at $2
+				for _, a := range newArticles {	
+					sqlStr += fmt.Sprintf("($1::bigint,$%d,$%d,$%d,$%d,$%d::timestamptz,$%d,$%d,$%d,$%d),", 
+						argId, argId+1, argId+2, argId+3, argId+4, argId+5, argId+6, argId+7, argId+8)
+					argId += 9
+
+					// Null PublishedAt causes uniqueness problems, so use zero time as a replacement in this case.
+					publishedAt := a.PublishedAt
+					if len(publishedAt) == 0 {
+						publishedAt = "epoch" //"1970-01-01 00:00:00" // January 1, year 1 00:00:00 UTC.
+					}
+
+					vals = append(vals, 
+						a.Title, a.Url, a.UrlToImage,
+						a.Description, 
+						publishedAt, 
+						a.NewsSourceId, a.Category, a.Language, a.Country)	
 				}
-			}
-			
-			if len(newArticles) < 50 {
-				pr(ns_, "Error: Failed to fetch all the news.  Probably Internet connectivity issues.  Will populate the database anyways.")
-				
-				time.Sleep(5 * time.Minute)
-				continue
-			}
-		}
-				
-		prVal(ns_, "len(newArticles)", len(newArticles))
-	
-		// Insert the news articles all in one query.
-		sqlStr := `INSERT INTO $$NewsPost(
-				     UserId, Title, LinkURL, UrlToImage,
-				     Description, PublishedAt, NewsSourceId, Category, Language, Country)
-				   VALUES`
-		vals := []interface{}{}
-		
-		vals = append(vals, -1) // $1 = UserId = -1
-		
-		argId := 2 // arguments start at $2
-		for _, a := range newArticles {	
-			sqlStr += fmt.Sprintf("($1::bigint,$%d,$%d,$%d,$%d,$%d::timestamptz,$%d,$%d,$%d,$%d),", 
-				argId, argId+1, argId+2, argId+3, argId+4, argId+5, argId+6, argId+7, argId+8)
-			argId += 9
-			
-			// Null PublishedAt causes uniqueness problems, so use zero time as a replacement in this case.
-			publishedAt := a.PublishedAt
-			if len(publishedAt) == 0 {
-				publishedAt = "epoch" //"1970-01-01 00:00:00" // January 1, year 1 00:00:00 UTC.
-			}
-			
-			vals = append(vals, 
-				a.Title, a.Url, a.UrlToImage,
-				a.Description, 
-				publishedAt, 
-				a.NewsSourceId, a.Category, a.Language, a.Country)	
-		}
-		//trim the last ',', add a trailing ';'
-		sqlStr = strings.TrimSuffix(sqlStr, ",")
-		
-		// Do not insert duplicate news articles.
-		sqlStr += " ON CONFLICT DO NOTHING"
-		
-		sqlStr += ";"
-		
-		prVal(ns_, "sqlStr", sqlStr)
-		
-		DbExec(sqlStr, vals...)
-		
-		//TODO: Remove duplicate news articles.
-		
-		DbTrackOpenConnections()
+				//trim the last ',', add a trailing ';'
+				sqlStr = strings.TrimSuffix(sqlStr, ",")
 
-		pr(ns_, "Sleeping 5 minutes")
+				// Do not insert duplicate news articles.
+				sqlStr += " ON CONFLICT DO NOTHING"
+
+				sqlStr += ";"
+
+				prVal(ns_, "sqlStr", sqlStr)
+
+				DbExec(sqlStr, vals...)
+
+				//TODO: Remove duplicate news articles.
+
+				DbTrackOpenConnections()	
+			}
+		}
+
+		pr(ns_, "Completed one news source cycle.  Sleeping 5 minutes")
 		time.Sleep(5 * time.Minute)
 	}
 }

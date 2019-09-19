@@ -366,7 +366,12 @@ select country, category, newssourceid, count(id) from vz.NewsPost group by 1, 2
 select country, thumbnailstatus, count(*) from vz.NewsPost group by 1, 2 order by 2, 1;
 
 
-SELECT LinkUrl, Id,         Created
+SELECT UrlToImage, Id,         Created
 FROM ONLY vz.LinkPost 
+WHERE ThumbnailStatus = 0
+ORDER BY Created DESC;
+
+SELECT UrlToImage, UrlToImage, Id,         Created
+FROM ONLY vz.LinkPost
 WHERE ThumbnailStatus = 0
 ORDER BY Created DESC;
