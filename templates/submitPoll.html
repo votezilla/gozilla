@@ -1,0 +1,77 @@
+{{define "body"}}
+<h1>Submit Poll</h1>
+<br>
+<br>
+<form method="post">
+	<table border="0" id=pollOptionsTable>
+		<tr>
+			<td>Ask something...</td>
+			<td><input type="text" name="title" value="" placeholder="Ask something..."></input></td>
+		</tr>
+		<tr>
+			<td>Poll option 1:</td>
+			<td><input type="text" name="link" id="option1" value="" placeholder="add option..." length=50></input></td>
+		</tr>
+		<tr>
+			<td>Poll option 2:</td>
+			<td><input type="text" name="link" id="option2" value="" placeholder="add option..." length=50></input></td>
+		</tr>
+		<tr>
+			<td>Poll option 3:</td>
+			<td><input type="text" name="link" id="option3" value="" placeholder="add option..." length=50></input></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td><a href="javascript:addOption()" style="color:blue">+ Add option...</a></td>
+		</tr>
+	</table>
+	<table>
+		<tr>
+			<td>Allow anyone to add options</td>
+			<td><input type="checkbox" name="link" id="option1" value="1" checked></input></td>
+		</tr>
+		<tr>
+			<td>Allow people to choose multiple options</td>
+			<td><input type="checkbox" name="link" id="option1" value="1" checked></input></td>
+		</tr>
+	</table>
+	<table>
+		<tr></tr>
+		<tr>
+			<td id="category">Poll category:</td>
+			<td><select name="category">
+				<option value="" selected>-</option>
+			  {{- range $category := .Categories}}
+				<option value="{{$category}}">{{$category}}</option>
+			  {{- end}}
+			</select></td>
+		</tr>
+		<tr>
+			<td id="alias">Post as:</td>
+			<td><select name="category">
+			  {{- range $value, $label := .AnonymityLevels}}
+				<option value="{{$value}}" {{if eq $value "R"}}selected{{end}}>{{$label}}</option>
+			  {{- end}}
+			</select></td>
+		</tr>
+	</table>
+	<br>
+	<br>
+	<input type="submit" value="Submit">
+</form>
+<script>
+	var numOptions = 3;
+
+	function addOption() {
+		numOptions++;
+
+		$('#pollOptionsTable tr:nth-last-child(2)').after(`
+			<tr>
+				<td>Poll option `+numOptions+`:</td>
+				<td><input type="text" name="link" id="option`+numOptions+`" value="" placeholder="add option..." length=50></input></td>
+			</tr>
+		`);
+	}
+</script>
+{{end}}
+

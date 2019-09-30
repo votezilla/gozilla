@@ -1,0 +1,192 @@
+{{/* TODO: to free up vertical real estate, try concatting articlesrc, time, vote count, num comments, ... onto the top line, all together.
+           But wait, does this work on mobile?  Have to get another phone to find out.. :?  */}}
+
+{{define "content"}}
+
+	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
+		{{ if ne $articleGroup.Category "" }}
+		<a href="/news/?category={{$articleGroup.Category}}">
+			<div class="row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
+				<div class="col-md-12 vz-col-md-12 text-uppercase">
+					<center>
+						<h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
+							<strong>
+									{{$articleGroup.Category}}
+							</strong>
+						</h5>
+					</center>
+				</div>
+			</div>
+		</a>
+		{{ end }}
+		<div class="row" style="background-color: white">
+			{{ range $i, $articleCol := $articleGroup.Articles }}
+				<div class="col-md-6 vz-col-md-6
+				{{ if eq $articleGroup.HeadlineSide 0 }}
+					{{ if eq $i 0 }}
+						vz-col-md-6-left
+					{{ else }}
+						vz-col-md-6-right
+					{{ end }}
+				{{ else }}
+					{{ if eq $i 0 }}
+						vz-col-md-6-right push-md-6
+					{{ else }}
+						vz-col-md-6-left pull-md-6
+					{{ end }}
+				{{ end }}
+				">
+				{{ range $j, $article := $articleCol }}
+					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
+						{{ if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
+
+							<a href="{{$article.Url}}" {{ if not $article.IsPoll }} target="_blank" {{ end }} rel="nofollow">
+								<img src="{{$article.UrlToImage}}" width="100%" height="280">
+							</a>
+
+							<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+								<tr>
+									<td align="left" style="width: 35%; padding-left:5px;">
+										<a href="#">
+											<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+											<span style="color: #88f">{{$article.Author}}</span>
+										</a>
+										&middot;
+										<span class="age" align="right">{{$article.TimeSince}}</span>
+									</td>
+								</tr>
+
+								<tr valign="top">
+									<td class="title" style="padding-left: 5px;">
+										<span>
+											<a href="{{$article.Url}}" {{ if not $article.IsPoll }} target="_blank" {{ end }} rel="nofollow" style="font-size:14pt;">
+												{{$article.Title}}
+											</a>
+										</span>
+									</td>
+									<td align="right" style="width: 40%;">
+										<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+											<a href="#" data-toggle="tooltip" title="To hide, flag, etc. a post">...</a>
+										</span>
+									</td>
+								</tr>
+
+								{{ if $article.IsPoll }}
+									<tr valign="top">
+										<td style="width: 100%; padding-left: 5px;">
+											<form>
+												{{ range $o, $option := $article.PollOptions }}
+													<label class="radio-inline" style="margin-bottom:0; font-size: 12pt">
+													  <input type="radio" name="optradio" {{ if eq $o 0 }} checked {{ end }}>{{$option}}
+													</label>
+												{{ end }}
+											</form>
+										</td>
+									</tr>
+								{{ end }}
+								<tr>
+									<td class="subtext" style="width: 100%; padding-left: 5px;">
+										<table width="100%"><tr>
+											<td align="left" style="width: 40%;">
+												<span class="upvote" id="upvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, true)" class="upvote">&#x25B2;</a></span>
+												<a href="#" id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
+												<span class="downvote" id="downvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, false)">&#x25BC;</a></span>
+											</td>
+										<!--	<td align="center" style="width: auto;">
+												<a href="#">...</a>
+											</td> -->
+											<td align="right" style="width: 40%;">
+												<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+													<a href="/comments/?postId={{$article.Id}}" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
+												</span>
+											</td>
+										</tr></table>
+									</td>
+								</tr>
+
+								<tr class="spacer" style="height:5px"></tr>
+							</table>
+
+						{{ else }}                  {{/*NORMAL ARTICLE SIZE*/}}
+							<table border="0" cellpadding="0" cellspacing="0">
+								<tr valign="top">
+									<td rowspan="2">
+										<a href="{{$article.Url}}" {{ if not $article.IsPoll }} target="_blank" {{ end }}  rel="nofollow">
+											<img src="{{$article.UrlToThumbnail}}" width="125" height="75">
+										</a>
+									</td>
+									<td style="min-width: 5px;"></td>
+									<td class="title">
+										<div class="subtext">
+											<span>
+												<a href="#">
+													<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+													<span style="color: #88f">{{$article.Author}}</span>
+												</a>
+												&middot;
+												<span class="age" align="right">{{$article.TimeSince}}</span>
+											</span>
+											<span>
+												...
+											</span>
+										<!--	<span style="float:right">
+												...
+											</span> -->
+										</div>
+
+										<div>
+											<a href="{{$article.Url}}" {{ if not $article.IsPoll }} target="_blank" {{ end }} rel="nofollow">
+												{{$article.Title}}
+											</a>
+											{{ if $article.IsPoll }}
+												<form>
+													{{ range $o, $option := $article.PollOptions }}
+														<label class="radio-inline" style="margin-bottom:0">
+														  <input type="radio" name="optradio" {{ if eq $o 0 }} checked {{ end }}>{{$option}}
+														</label>
+													{{ end }}
+												</form>
+											{{ end }}
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td class="subtext" style="width: 100%">
+										<table width="100%"><tr>
+											<td align="left" style="width: 40%;">
+												<span class="upvote" id="upvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, true)" class="upvote">&#x25B2;</a></span>
+												<a href="#" id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
+												<span class="downvote" id="downvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, false)">&#x25BC;</a></span>
+											</td>
+										<!--	<td align="center" style="width: auto;">
+												<a href="#">...</a>
+											</td>-->
+											<td align="right" style="width: 40%;">
+												<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+													<a href="/comments/?postId={{$article.Id}}" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
+												</span>
+											</td>
+										</tr></table>
+									</td>
+								</tr>
+								<tr class="spacer" style="height:5px"></tr>
+							</table>
+						{{ end }} {{/*article size*/}}
+					{{ end }} {{/*{{ if ne $article.Size -1 }}*/}}
+				{{ end }} {{/*range $j, $article := $articleRow*/}}
+				</div> {{/*col-md-6*/}}
+			{{end}} {{/*range $i, $articleRow := $articleGroup.Articles*/}}
+			{{ if ne $articleGroup.More "" }}
+				<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+					<tr>
+						<td align="right">
+							<a href="/news/?category={{$articleGroup.More}}&more=1" style="color:#555">more...</a>
+						</td>
+					</tr>
+				</table>
+			{{ end }}
+		</div> {{/*row*/}}
+	{{end}} {{/*range $_, $articleGroup := .ArticleGroups*/}}
+
+{{end}} {{/*body*/}}

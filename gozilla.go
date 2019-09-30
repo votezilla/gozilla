@@ -324,7 +324,7 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 		//	      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Link, data.Category)
 
 		// Update the user record with registration details.
-		DbInsert(
+		newPostId := DbInsert(
 			`INSERT INTO $$LinkPost(UserId, LinkURL, Title, Category, UrlToImage) 
 			 VALUES($1::bigint, $2, $3, $4, $5) returning id;`, 
 			userId,
@@ -333,7 +333,7 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 			data.Category,
 			data.Thumbnail)
 
-		http.Redirect(w, r, "/news?alert=SubmittedLink", http.StatusSeeOther)   
+		http.Redirect(w, r, fmt.Sprintf("/news?alert=SubmittedLink&newPostId=%d", newPostId), http.StatusSeeOther)   
 		return	
 	}  
 
@@ -348,6 +348,70 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 			Forms:		[]TableForm{tableForm},
 		}
 		executeTemplate(w, "submitLink", args)
+	}	
+}
+
+func submitPollHandler(w http.ResponseWriter, r *http.Request) {
+/*
+	form := SubmitPollForm(r)
+	tableForm := TableForm{
+		Form: form,
+		CallToAction: "Submit",
+	}
+*/
+	userId := GetSession(r)			
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		pr(go_, "Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+/*	
+	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
+
+		// Parse POST data
+		data := SubmitPollData{}
+		form.MapTo(&data)
+		
+		prVal(go_, "data", data)
+		prVal(go_, "form", form)
+
+		pr(go_, "Inserting new PollPost into database.")
+		//prf(go_, `INSERT INTO $$PollPost(UserId, Title, PollURL, Category) 
+		//	      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Poll, data.Category)
+
+		// Update the user record with registration details.
+		newPostId := DbInsert(
+			`INSERT INTO $$PollPost(UserId, PollURL, Title, Category, UrlToImage) 
+			 VALUES($1::bigint, $2, $3, $4, $5) returning id;`, 
+			userId,
+			data.Poll,
+			data.Title,
+			data.Category,
+			data.Thumbnail)
+
+		http.Redirect(w, r, fmt.Sprintf("/news?alert=SubmittedPoll&newPostId=%d", newPostId), http.StatusSeeOther)   
+		return	
+	}  
+*/
+	// handle GET, or invalid form data from POST...	
+	{
+		type PollArgs struct {
+			PageArgs
+			Categories		[]string
+			AnonymityLevels	map[string]string
+		}
+		args := PollArgs{
+			PageArgs:			PageArgs{Title: "Submit Poll"},
+			Categories:			newsCategoryInfo.CategoryOrder,
+			AnonymityLevels:	map[string]string{
+				"R":	"Real name - Aaron Smith",
+				"A":	"Alias - magicsquare666",
+				"F":	"Fully Anonymous - Wacky Panda",
+			},
+		}
+		prVal(go_, "args", args)
+		executeTemplate(w, "submitPoll", args)
 	}	
 }
 
@@ -403,6 +467,7 @@ func parseTemplateFiles() {
 	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
 	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
 	templates["submitLink"]		= template.Must(template.ParseFiles(T("base"), T("form"), T("submitLink")))
+	templates["submitPoll"]		= template.Must(template.ParseFiles(T("base"), T("submitPoll")))
 	
 	// Javascript snippets
 	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
@@ -435,6 +500,7 @@ func WebServer() {
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))
 	http.HandleFunc("/submit/",   				hwrap(submitHandler))
+	http.HandleFunc("/submitPoll/",   			hwrap(submitPollHandler))
 	http.HandleFunc("/submitLink/",   			hwrap(submitLinkHandler))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
 	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))

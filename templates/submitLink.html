@@ -1,55 +1,8 @@
-<!--
-<form method="post">
-	<table border="0">
-		<tr>
-			<td id="title label">title:</td>
-			<td><input type="text" name="title" value=""></input></td>
-		</tr>
-		<tr>
-			<td id="link label">link:</td>
-			<td><input type="text" name="link" id="link" value="" oninput="onLinkTextUpdated()"></input></td>
-		</tr>
-	<tr>
-	<tr>
-		<td id="category">category:</td>
-		<td><select name="category">
-			<option value="" selected>-</option>
-		  {{- range $_, $category := .Categories}}
-			<option value="$category">$category</option>
-		  {{- end}}
-		</select></td>
-		</tr>
-	</table>
-	<div id="thumbnail container" style="display: none;">
-		<p> Choose a thumbnail </p>
-		<div style="overflow: visible; width: 600px; height: 200px;">
-			<div id="image_container"></div>
-		</div>
-	</div>
-	<br>
-	<input type="hidden" id="thumbnail" value="-1">
-	<input type="submit" value="Submit">
-</form>
-
-<div id='data'></div>-->
-
-
 {{ define "preForm" }}{{ end }}
 
 {{ define "postForm" }}{{ end }}
 
 {{define "additionalInput" -}}
-
-<!--
-<tr id="thumbnail row">
-	<td id="thumbnail label">thumbnail:</td>
-	<td><input type="hidden" name="thumbnail" value="0"></input>
-		<div style="overflow: visible; width: 420px; /*height: 200px;*/">
-			<div id="image_container"></div>
-		</div>
-	</td>
-</tr>
--->
 
 <script>
 var urls;

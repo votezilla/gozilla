@@ -81,12 +81,12 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	   `SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
 			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
 			   '' AS NewsSourceId,
-			   $$GetCategory('news', U.Country) AS Category,
+			   $$GetCategory(Category, U.Country) AS Category,
 			   'EN' AS Language, U.Country,
 			   P.Created %s AS OrderBy
 		FROM ONLY $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
-		WHERE ThumbnailStatus = 1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory('news', U.Country) %s)`,		
+		WHERE ThumbnailStatus = 1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,		
 		ternary_str(bRandomizeTime, "+ RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
 		userIdCondition,

@@ -1,3 +1,7 @@
+// ImageServer
+//
+// TODO(BUG): Handle out of memory gracefully.  Should occur when Photoshop is open.
+
 package main
 
 import (
