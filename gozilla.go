@@ -352,6 +352,7 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func submitPollHandler(w http.ResponseWriter, r *http.Request) {
+	pr(go_, "submitPollHandler")
 /*
 	form := SubmitPollForm(r)
 	tableForm := TableForm{
@@ -365,6 +366,33 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		pr(go_, "Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
+	}
+	
+	prVal(go_, "r.Method", r.Method)
+	
+	if r.Method == "POST" {
+		prVal(go_, "r.PostForm", r.PostForm)
+		title   := r.FormValue("title")
+		option1 := r.FormValue("option1")
+		option2 := r.FormValue("option2")
+		option3 := r.FormValue("option3")
+		option4 := r.FormValue("option4")
+		option5 := r.FormValue("option5")
+		bAnyoneCanAddOptions	  := r.FormValue("bAnyoneCanAddOptions")	
+		bCanSelectMultipleOptions := r.FormValue("bCanSelectMultipleOptions")
+		category				  := r.FormValue("category")
+		anonymity				  := r.FormValue("anonymity")
+		
+		prVal(go_, "title", title)
+		prVal(go_, "option1", option1)
+		prVal(go_, "option2", option2)
+		prVal(go_, "option3", option3)
+		prVal(go_, "option4", option4)
+		prVal(go_, "option5", option5)
+		prVal(go_, "bAnyoneCanAddOptions", bAnyoneCanAddOptions)
+		prVal(go_, "bCanSelectMultipleOptions", bCanSelectMultipleOptions)
+		prVal(go_, "category", category)
+		prVal(go_, "anonymity", anonymity)
 	}
 /*	
 	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...

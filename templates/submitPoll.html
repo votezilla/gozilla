@@ -2,7 +2,7 @@
 <h1>Submit Poll</h1>
 <br>
 <br>
-<form method="post">
+<form name="form" action="/submitPoll/" onsubmit="return validateForm()" method="POST">
 	<table border="0" id=pollOptionsTable>
 		<tr>
 			<td>Ask something...</td>
@@ -10,15 +10,15 @@
 		</tr>
 		<tr>
 			<td>Poll option 1:</td>
-			<td><input type="text" name="link" id="option1" value="" placeholder="add option..." length=50></input></td>
+			<td><input type="text" name="option1" value="" placeholder="add option..." length=50></input></td>
 		</tr>
 		<tr>
 			<td>Poll option 2:</td>
-			<td><input type="text" name="link" id="option2" value="" placeholder="add option..." length=50></input></td>
+			<td><input type="text" name="option2" value="" placeholder="add option..." length=50></input></td>
 		</tr>
 		<tr>
 			<td>Poll option 3:</td>
-			<td><input type="text" name="link" id="option3" value="" placeholder="add option..." length=50></input></td>
+			<td><input type="text" name="option3" value="" placeholder="add option..." length=50></input></td>
 		</tr>
 		<tr>
 			<td></td>
@@ -28,11 +28,11 @@
 	<table>
 		<tr>
 			<td>Allow anyone to add options</td>
-			<td><input type="checkbox" name="link" id="option1" value="1" checked></input></td>
+			<td><input type="checkbox" name="bAnyoneCanAddOptions" value="1" checked></input></td>
 		</tr>
 		<tr>
 			<td>Allow people to choose multiple options</td>
-			<td><input type="checkbox" name="link" id="option1" value="1" checked></input></td>
+			<td><input type="checkbox" name="bCanSelectMultipleOptions" value="1" checked></input></td>
 		</tr>
 	</table>
 	<table>
@@ -48,7 +48,7 @@
 		</tr>
 		<tr>
 			<td id="alias">Post as:</td>
-			<td><select name="category">
+			<td><select name="anonymity">
 			  {{- range $value, $label := .AnonymityLevels}}
 				<option value="{{$value}}" {{if eq $value "R"}}selected{{end}}>{{$label}}</option>
 			  {{- end}}
@@ -71,6 +71,42 @@
 				<td><input type="text" name="link" id="option`+numOptions+`" value="" placeholder="add option..." length=50></input></td>
 			</tr>
 		`);
+	}
+
+	// Returns the number of errors
+	var ERR = 1;
+	var OK = 0;
+
+	// Validates a text input is not empty.
+	function validateRequired(fieldName) {
+		var x = document.forms["form"][fieldName].value;
+		if (x == "") {
+			$('input[name="'+fieldName+'"]').after('<label class="error">This field is required.</label>')
+
+			return ERR;
+		}
+		return OK;
+	}
+
+	// Validates a select input has something selected.
+	function validateSelected(fieldName) {
+		var x = document.forms["form"][fieldName].value;
+		if (x == "") {
+			$('select[name="'+fieldName+'"]').after('<label class="error">This field is required.</label>')
+
+			return ERR;
+		}
+		return OK;
+	}
+
+	function validateForm() {
+		$(".error").remove();
+
+		errors = validateRequired("title") +
+				 validateRequired("option1") +
+				 validateRequired("option2") +
+				 validateSelected("category");
+		return errors == 0;
 	}
 </script>
 {{end}}
