@@ -92,7 +92,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		userIdCondition,
 		categoryCondition)
 	
-	orderByClause := "ORDER BY OrderBy DESC"
+	orderByClause := "ORDER BY OrderBy DESC" // TODO: Use a Reddit-style ranking algorithm
 	
 	query := ""
 	if userIdCondition == "IS NOT NULL" {

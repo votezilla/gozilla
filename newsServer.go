@@ -355,7 +355,7 @@ func NewsServer() {
 					// Null PublishedAt causes uniqueness problems, so use zero time as a replacement in this case.
 					publishedAt := a.PublishedAt
 					if len(publishedAt) == 0 {
-						publishedAt = "epoch" //"1970-01-01 00:00:00" // January 1, year 1 00:00:00 UTC.
+						publishedAt = "epoch" //"1970-01-01 00:00:00" - January 1, year 1 00:00:00 UTC.
 					}
 
 					vals = append(vals, 
@@ -368,7 +368,7 @@ func NewsServer() {
 				sqlStr = strings.TrimSuffix(sqlStr, ",")
 
 				// Do not insert duplicate news articles.
-				sqlStr += " ON CONFLICT DO NOTHING"
+				sqlStr += " ON CONFLICT (PublishedAt, Title) DO NOTHING"
 
 				sqlStr += ";"
 

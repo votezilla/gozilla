@@ -17,6 +17,12 @@ var (
 	
 	// NavMenu (constant)
 	navMenu		= []string{"news", "submit", "history"}
+	
+	anonymityLevels = [][2]string { 
+		{"R",	"Real name - Aaron Smith"},
+		{"A",	"Alias - magicsquare666"},
+		{"F",	"Random Anonymous Name - Wacky Panda"},
+	}
 )
 
 // Template arguments for webpage template.
@@ -353,13 +359,7 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	pr(go_, "submitPollHandler")
-/*
-	form := SubmitPollForm(r)
-	tableForm := TableForm{
-		Form: form,
-		CallToAction: "Submit",
-	}
-*/
+
 	userId := GetSession(r)			
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
@@ -370,7 +370,30 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	
 	prVal(go_, "r.Method", r.Method)
 	
-	if r.Method == "POST" {
+	form := makeForm(
+		makeTextField("title", "Title:", "Ask something...", 50, 16, 255),
+		makeTextField("option1", "Poll option 1:", "add option...", 50, 1, 255),
+		makeTextField("option2", "Poll option 2:", "add option...", 50, 1, 255),
+		makeBoolField("bAnyoneCanAddOptions", "Poll options:", "Allow anyone to add options", true),
+		makeBoolField("bCanSelectMultipleOptions", "", "Allow people to select multiple options", true),
+		makeSelectField("category", "Poll category:", newsCategoryInfo.CategorySelect, true, true),
+		makeSelectField("anonymity", "Post As:", anonymityLevels, false, true),
+	)
+	
+	// Add fields for additional options that were added, there could be an arbitrary number, we'll cap it at 1024 for now.
+	for i := 3; i < 1024; i++ {
+		optionName := fmt.Sprintf("option%d", i)
+		if r.FormValue(optionName) != "" {
+			form[optionName] = makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 255)
+		}
+	}
+
+	prVal(go_, "form", form)
+	
+	if r.Method == "POST" && form.validateData(r) {
+		
+		prVal(go_, "Valid form!!", form)
+		
 		prVal(go_, "r.PostForm", r.PostForm)
 		title   := r.FormValue("title")
 		option1 := r.FormValue("option1")
@@ -378,11 +401,11 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		option3 := r.FormValue("option3")
 		option4 := r.FormValue("option4")
 		option5 := r.FormValue("option5")
-		bAnyoneCanAddOptions	  := r.FormValue("bAnyoneCanAddOptions")	
-		bCanSelectMultipleOptions := r.FormValue("bCanSelectMultipleOptions")
+		bAnyoneCanAddOptions	  := r.FormValue("bAnyoneCanAddOptions")		
+		bCanSelectMultipleOptions := r.FormValue("bCanSelectMultipleOptions")	
 		category				  := r.FormValue("category")
 		anonymity				  := r.FormValue("anonymity")
-		
+
 		prVal(go_, "title", title)
 		prVal(go_, "option1", option1)
 		prVal(go_, "option2", option2)
@@ -426,17 +449,15 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	{
 		type PollArgs struct {
 			PageArgs
-			Categories		[]string
-			AnonymityLevels	map[string]string
+			Form
+			//Categories		[]string
+			//AnonymityLevels	map[string]string
 		}
 		args := PollArgs{
 			PageArgs:			PageArgs{Title: "Submit Poll"},
-			Categories:			newsCategoryInfo.CategoryOrder,
-			AnonymityLevels:	map[string]string{
-				"R":	"Real name - Aaron Smith",
-				"A":	"Alias - magicsquare666",
-				"F":	"Fully Anonymous - Wacky Panda",
-			},
+			Form:				form,
+			//Categories:			newsCategoryInfo.CategoryOrder,
+			//AnonymityLevels:	anonymityLevels,
 		}
 		prVal(go_, "args", args)
 		executeTemplate(w, "submitPoll", args)

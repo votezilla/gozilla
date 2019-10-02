@@ -1,3 +1,6 @@
+//[] Scroll keeps bringing up new topics.  When you reach bottom, infinite scroll has MORE NEWS, MORE WORLD NEWS, etc.
+//   Then EVEN MORE NEWS, etc.  Kind of humorous.
+
 package main
 
 import (
@@ -20,6 +23,7 @@ type ArticleGroup struct {
 type CategoryInfo struct {
 	CategoryOrder	[]string
 	HeaderColors	map[string]string
+	CategorySelect	[][2]string		// for forms
 }
 
 const (
@@ -51,6 +55,15 @@ var (
 			"entertainment" 	: "#e85be4",
 			"technology" 		: "#8ff",
 			"science"			: "#8cf",
+		},
+		CategorySelect : [][2]string{
+			{"news", 			"news"},
+			{"world news",		"world news"},
+			{"business",		"business"},
+			{"sports",			"sports"},
+			{"entertainment",	"entertainment"},
+			{"technology",		"technology"},
+			{"science",			"science"},	
 		},
 	}
 
@@ -102,6 +115,8 @@ func sortArticles(articles []Article) {
 //	 onlyCategory - if == "", displays for articles grouped by category
 //				       != "", only display articles from a specific category
 //   headlines    - whether to display some articles as headlines (larger articles).
+//
+// TODO: HTML-escape this!!!
 //
 //////////////////////////////////////////////////////////////////////////////
 func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines bool) ([]ArticleGroup) {
