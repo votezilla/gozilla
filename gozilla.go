@@ -381,11 +381,18 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	
 	// Add fields for additional options that were added, there could be an arbitrary number, we'll cap it at 1024 for now.
+	pr(go_, "Adding additional poll options")
+	pollOptions := []*Field{form["option1"], form["option2"]}
+	
+	// Just use brute force for not.  Don't break at the end, as we don't want the bricks to fall when someone erases the name of an option in the middle.  
+	// TODO: optimize this later, if necessary, possibly with a hidden length field, if necessary.
 	for i := 3; i < 1024; i++ {
 		optionName := fmt.Sprintf("option%d", i)
-		if r.FormValue(optionName) != "" {
+		if r.FormValue(optionName) != "" {  // Note: Setting your option name to "" has the side-effect of erasing it... which I kind of like.
+			prVal(go_, "Adding new poll option", optionName)
 			form[optionName] = makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 255)
-		}
+			pollOptions = append(pollOptions, form[optionName])
+		} 
 	}
 
 	prVal(go_, "r.Method", r.Method)
@@ -453,12 +460,14 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		type PollArgs struct {
 			PageArgs
 			Form
+			PollOptions			[]*Field
 			//Categories		[]string
 			//AnonymityLevels	map[string]string
 		}
 		args := PollArgs{
 			PageArgs:			PageArgs{Title: "Submit Poll"},
 			Form:				form,
+			PollOptions:		pollOptions,
 			//Categories:			newsCategoryInfo.CategoryOrder,
 			//AnonymityLevels:	anonymityLevels,
 		}

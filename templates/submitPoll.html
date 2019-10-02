@@ -3,10 +3,11 @@
 <br>
 <br>
 <form name="form" method="POST">
-	<table border="0" id=pollOptionsTable>
+	<table id="pollOptionsTable">
 		{{- ( call .Form.title.HtmlRow ) -}}
-		{{- ( call .Form.option1.HtmlRow ) -}}
-		{{- ( call .Form.option2.HtmlRow ) -}}
+		{{- range $i, $option := .PollOptions -}}
+			{{- ( call $option.HtmlRow ) -}}
+		{{- end -}}
 		<tr>
 			<td></td>
 			<td><a href="javascript:addOption()" style="color:blue">+ Add option...</a></td>
@@ -37,7 +38,7 @@
 		$('#pollOptionsTable tr:nth-last-child(2)').after(`
 			<tr>
 				<td>Poll option `+numOptions+`:</td>
-				<td><input type="text" name="link" id="option`+numOptions+`" value="" placeholder="add option..." length=50></input></td>
+				<td><input type="text" name="option`+numOptions+`" id="option`+numOptions+`" value="" placeholder="add option..." length=50></input></td>
 			</tr>
 		`);
 	}

@@ -188,7 +188,7 @@ func makeTextField(name, label, placeholder string, inputLength, minLength, maxL
 	f.HtmlRow = func()string { 
 		prVal(fo_, "f.HtmlRow f", f)
 		
-		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>", f.Label, f.getHtml()) 
+		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.getHtml()) 
 	}
 	
 	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
@@ -208,7 +208,7 @@ func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 			ternary_str(f.boolVal(), "checked", ""),
 			f.getErrorHtml())
 	}
-	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s %s</td></tr>", f.Label, f.Html(), f.Placeholder) }	
+	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s %s</td></tr>\n", f.Label, f.Html(), f.Placeholder) }	
 	
 	return &f
 }
@@ -230,23 +230,23 @@ func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil
 		
 	// TODO: HTML-escape this
 	f.Html = func()string {
-		str := fmt.Sprintf("<select name=\"%s\">", f.Name)
+		str := fmt.Sprintf("\n<select name=\"%s\">\n", f.Name)
 		
 		if startAtNil {
-			str += "<option value=\"\">-</option>"
+			str += "<option value=\"\">-</option>\n"
 		}
 		
 		for _, optionKeyValue := range optionKeyValues {
-			str += fmt.Sprintf("<option value=\"%s\" %s>%s</option>",
+			str += fmt.Sprintf("<option value=\"%s\"%s>%s</option>\n",
 				optionKeyValue[0], // key
-				ternary_str(f.Value == optionKeyValue[0], "checked", ""),
+				ternary_str(f.Value == optionKeyValue[0], " selected", ""),
 				optionKeyValue[1]) // value
 		}			
-		str += "</select>";
+		str += "</select>\n";
 		str += f.getErrorHtml()
 		return str
 	}
-	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>", f.Label, f.Html()) }		
+	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.Html()) }		
 	
 	return &f
 }
