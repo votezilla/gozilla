@@ -371,7 +371,7 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	prVal(go_, "r.Method", r.Method)
 	
 	form := makeForm(
-		makeTextField("title", "Title:", "Ask something...", 50, 16, 255),
+		makeTextField("title", "Title:", "Ask something...", 50, 12, 255),
 		makeTextField("option1", "Poll option 1:", "add option...", 50, 1, 255),
 		makeTextField("option2", "Poll option 2:", "add option...", 50, 1, 255),
 		makeBoolField("bAnyoneCanAddOptions", "Poll options:", "Allow anyone to add options", true),
@@ -388,13 +388,14 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	prVal(go_, "r.Method", r.Method)
+	prVal(go_, "r.PostForm", r.PostForm)
 	prVal(go_, "form", form)
 	
 	if r.Method == "POST" && form.validateData(r) {
 		
 		prVal(go_, "Valid form!!", form)
 		
-		prVal(go_, "r.PostForm", r.PostForm)
 		title   := r.FormValue("title")
 		option1 := r.FormValue("option1")
 		option2 := r.FormValue("option2")
@@ -416,6 +417,8 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		prVal(go_, "bCanSelectMultipleOptions", bCanSelectMultipleOptions)
 		prVal(go_, "category", category)
 		prVal(go_, "anonymity", anonymity)
+	} else {
+		prVal(go_, "Invalid form!!", form)
 	}
 /*	
 	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...

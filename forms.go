@@ -30,12 +30,22 @@ type Field struct {
 	Validators	[]func(Field)(bool, string) 
 }
 
-func (f Field) validate() bool {
-	for _, validator := range f.Validators {
-		isValid, errorMsg := validator(f)
+func (f *Field) validate() bool {
+	prVal(fo_, "Field.validate() for field", f)
+	
+	for k, _ := range f.Validators {
+		validator := f.Validators[k]
+		
+		isValid, errorMsg := validator(*f)
+		
+		prf(fo_, "  Field.validate() - isValid, errorMsg = %s, %s for validator %s", bool_to_str(isValid), errorMsg, validator)
+		
 		if !isValid {
 			// Note: Just return the first error, don't accumulate them.
 			f.Error = errorMsg
+			
+			prVal(fo_, "    !isValid --> f.Error", f.Error)
+			
 			return false
 		}
 	}
@@ -52,6 +62,8 @@ func (f Field) boolVal() bool {
 }
 
 func (f Field) getErrorHtml() string {
+	prf(fo_, "Field.getErrorHtml() for field %s f.Error = %s", f, f.Error)
+	
 	return ternary_str(f.Error != "", fmt.Sprintf("<label class=\"error\">%s</label>", f.Error), "")
 }
 
@@ -96,36 +108,67 @@ func optionValidator(validOptions []string) func(Field)(bool, string) {
 // -------------------------------- struct Form -----------------------------------
 //
 // ================================================================================
-type Form map[string]Field
+type Form map[string]*Field
 
-func (f Form) processData(r *http.Request) {
-	for name, field := range f {
+func (f *Form) processData(r *http.Request) {
+	pr(fo_, "Form.processData")
+	
+	for name, field := range *f {
 		field.Value = r.FormValue(name)
+		
+		prVal(fo_, "Form.processData field", field)
 	}
+	
+	prVal(fo_, "AFTER Form.processData f", *f) // << ERROR first seen here!
 }
 
-func (f Form) validate() bool {
+func (f *Form) validate() bool {
+	prVal(fo_, "Form.validate for form", *f)
+	
 	valid := true
-	for _, field := range f {
-		valid = valid && field.validate()
+	for _, field := range *f {
+		v := field.validate()
+		
+		prf(fo_, "Form.validation is %s for field %s", bool_to_str(v), field)
+		
+		valid = valid && v
 	}
+	
+	prVal(fo_, "Form.validate return", valid)
+	
 	return valid
 }
 
-func (f Form) validateData(r *http.Request) bool {
+func (f *Form) validateData(r *http.Request) bool {
+	pr(fo_, "Form.validateData")
+	
 	f.processData(r)
+	
+	prVal(fo_, "Form.validateData processed data form", f)
+	
 	return f.validate()
 }
 
-func makeForm(fields ...Field) Form {
-	f := make(map[string]Field)
+func makeForm(fields ...*Field) Form {
+	f := make(Form)
 	for _, field := range(fields) {
 		f[field.Name] = field
 	}
 	return f
 }
 
-func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int) Field {
+func (f Field) getHtml() string {
+	return fmt.Sprintf(
+		"<input type=%s name=\"%s\" value=\"%s\" placeholder=\"%s\" length=\"%d\">%s",
+		f.Type,
+		f.Name,
+		f.Value,
+		f.Placeholder, 
+		f.InputLength,
+		f.getErrorHtml())
+}
+
+func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, InputLength: inputLength}
 	
 	if minLength > 0 {
@@ -138,23 +181,22 @@ func makeTextField(name, label, placeholder string, inputLength, minLength, maxL
 	
 	// TODO: HTML-escape this
 	f.Html = func()string {
-		return fmt.Sprintf(
-			"<input type=%s name=\"%s\" value=\"%s\" placeholder=\"%s\" length=\"%d\">%s",
-			f.Type,
-			f.Name,
-			f.Value,
-			f.Placeholder, 
-			f.InputLength,
-			f.getErrorHtml())
+		prVal(fo_, "f.Html f", f)
+		
+		return f.getHtml()
 	}
-	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>", f.Label, f.Html()) }
+	f.HtmlRow = func()string { 
+		prVal(fo_, "f.HtmlRow f", f)
+		
+		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>", f.Label, f.getHtml()) 
+	}
 	
 	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
 	
-	return f
+	return &f
 }
 
-func makeBoolField(name, label, optionText string, defaultValue bool) Field {
+func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 	// Hack: using Placeholder to hold optionText value
 	f := Field{Name: name, Type: "checkbox", Label: label, Placeholder: optionText, Value: ternary_str(defaultValue, "1", "")}
 	
@@ -168,10 +210,10 @@ func makeBoolField(name, label, optionText string, defaultValue bool) Field {
 	}
 	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s %s</td></tr>", f.Label, f.Html(), f.Placeholder) }	
 	
-	return f
+	return &f
 }
 
-func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil, required bool) Field {
+func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil, required bool) *Field {
 	f := Field{Name: name, Type: "select", Label: label}
 	
 	if required {
@@ -206,7 +248,7 @@ func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil
 	}
 	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>", f.Label, f.Html()) }		
 	
-	return f
+	return &f
 }
 
 
@@ -342,7 +384,7 @@ var (
 				prVal(fo_, "fo.Data", fo.Data)
 				if fo.Data["country"].RawStr == "US" {
 					rvl := gforms.RegexpValidator(`^\d{5}(?:[-\s]\d{4})?$`, "Invalid zip code")
-					return rvl.Validate(fi, fo)
+					return rvl.Validate(fi, fo) 
 				} else {
 					return nil // Only validating US zip codes for now
 				}

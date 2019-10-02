@@ -45,6 +45,7 @@ func max_int(i int, j int) int { return ternary_int(i > j, i, j); }
 //
 ///////////////////////////////////////////////////////////////////////////////
 func ternary_str(b bool, s1 string, s2 string) string { if b { return s1 } else { return s2 } }
+func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
 
 ///////////////////////////////////////////////////////////////////////////////
