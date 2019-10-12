@@ -4,6 +4,7 @@ package main
 import (
 	"bytes"
 	"database/sql"
+//	"encoding/json"
 	"fmt"
 	"github.com/lib/pq"
 	"net/http"
@@ -23,6 +24,12 @@ var (
 		{"A",	"Alias - magicsquare666"},
 		{"F",	"Random Anonymous Name - Wacky Panda"},
 	}
+)
+
+const (
+	//PollFlags
+	pf_AnyoneCanAddOptions		= 1 << 0
+	pf_CanSelectMultipleOptions = 1 << 1
 )
 
 // Template arguments for webpage template.
@@ -384,8 +391,9 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	pr(go_, "Adding additional poll options")
 	pollOptions := []*Field{form["option1"], form["option2"]}
 	
-	// Just use brute force for not.  Don't break at the end, as we don't want the bricks to fall when someone erases the name of an option in the middle.  
+	// Just use brute force for now.  Don't break at the end, as we don't want the bricks to fall when someone erases the name of an option in the middle.  
 	// TODO: optimize this later, if necessary, possibly with a hidden length field, if necessary.
+	
 	for i := 3; i < 1024; i++ {
 		optionName := fmt.Sprintf("option%d", i)
 		if r.FormValue(optionName) != "" {  // Note: Setting your option name to "" has the side-effect of erasing it... which I kind of like.
@@ -400,61 +408,44 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	prVal(go_, "form", form)
 	
 	if r.Method == "POST" && form.validateData(r) {
-		
 		prVal(go_, "Valid form!!", form)
 		
-		title   := r.FormValue("title")
-		option1 := r.FormValue("option1")
-		option2 := r.FormValue("option2")
-		option3 := r.FormValue("option3")
-		option4 := r.FormValue("option4")
-		option5 := r.FormValue("option5")
-		bAnyoneCanAddOptions	  := r.FormValue("bAnyoneCanAddOptions")		
-		bCanSelectMultipleOptions := r.FormValue("bCanSelectMultipleOptions")	
-		category				  := r.FormValue("category")
-		anonymity				  := r.FormValue("anonymity")
+		pr(go_, "Inserting new PollPost into database.")
 
-		prVal(go_, "title", title)
-		prVal(go_, "option1", option1)
-		prVal(go_, "option2", option2)
-		prVal(go_, "option3", option3)
-		prVal(go_, "option4", option4)
-		prVal(go_, "option5", option5)
-		prVal(go_, "bAnyoneCanAddOptions", bAnyoneCanAddOptions)
-		prVal(go_, "bCanSelectMultipleOptions", bCanSelectMultipleOptions)
-		prVal(go_, "category", category)
-		prVal(go_, "anonymity", anonymity)
-	} else {
+		// Serialize all of the poll options and flags into variables that can be inserted into database.
+		pollOptionData := make([]string, len(pollOptions))
+		for i := 1; i < 1024; i++ {
+			value := r.FormValue(fmt.Sprintf("option%d", i)) 
+			if value != "" {
+				pollOptionData = append(pollOptionData, value)
+			}
+		}		
+		pollFlags := ternary_uint64(r.FormValue("bAnyoneCanAddOptions")		 != "", pf_AnyoneCanAddOptions, 0)
+		pollFlags |= ternary_uint64(r.FormValue("bCanSelectMultipleOptions") != "", pf_CanSelectMultipleOptions, 0)
+		
+		// Create the new poll.
+		pollPostId := DbInsert(
+			`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country, UrlToImage, 
+			                        PollOptions, Flags) 
+			 VALUES($1::bigint, $2, $3, $4, $5, $6, 
+			        $7::bigint) returning id;`, 
+			userId,
+			form["title"].Value,
+			form["category"].Value,
+			"en",
+			"us",
+			"http://localhost:8080/static/ballotbox.png", // TODO: generate poll url from image search
+			pq.Array(pollOptionData),
+			pollFlags,
+		)
+		prVal(go_, "Just added a poll #", pollPostId)
+
+		http.Redirect(w, r, fmt.Sprintf("/news?alert=SubmittedPoll&pollPostId=%d", pollPostId), http.StatusSeeOther)   
+		return
+	} else if r.Method == "POST" {
 		prVal(go_, "Invalid form!!", form)
 	}
-/*	
-	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
 
-		// Parse POST data
-		data := SubmitPollData{}
-		form.MapTo(&data)
-		
-		prVal(go_, "data", data)
-		prVal(go_, "form", form)
-
-		pr(go_, "Inserting new PollPost into database.")
-		//prf(go_, `INSERT INTO $$PollPost(UserId, Title, PollURL, Category) 
-		//	      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Poll, data.Category)
-
-		// Update the user record with registration details.
-		newPostId := DbInsert(
-			`INSERT INTO $$PollPost(UserId, PollURL, Title, Category, UrlToImage) 
-			 VALUES($1::bigint, $2, $3, $4, $5) returning id;`, 
-			userId,
-			data.Poll,
-			data.Title,
-			data.Category,
-			data.Thumbnail)
-
-		http.Redirect(w, r, fmt.Sprintf("/news?alert=SubmittedPoll&newPostId=%d", newPostId), http.StatusSeeOther)   
-		return	
-	}  
-*/
 	// handle GET, or invalid form data from POST...	
 	{
 		type PollArgs struct {

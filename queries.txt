@@ -1,3 +1,64 @@
+WITH posts AS (
+	SELECT Id, Author, Title, Description, LinkUrl, UrlToImage,
+		   PublishedAt, NewsSourceId, Category, Language, Country, PollOptions, OrderBy
+	FROM (
+		SELECT
+			*,
+			ROW_NUMBER() OVER (PARTITION BY Category ORDER BY
+				OrderBy DESC) AS r
+		FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl,
+	   COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
+	   NewsSourceId,
+	   vz.GetCategory(Category, Country) AS Category,
+	   Language, Country,
+	   jsonb'{}' AS PollOptions,
+	   COALESCE(PublishedAt, Created) + RANDOM() * '3:00:00'::INTERVAL AS OrderBy
+FROM vz.NewsPost
+WHERE ThumbnailStatus = 1 AND (Id NOT IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (vz.GetCategory(Category, Country) IS NOT NULL)
+UNION ALL
+SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
+	   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+	   '' AS NewsSourceId,
+	   vz.GetCategory(Category, U.Country) AS Category,
+	   'EN' AS Language, U.Country,
+	   jsonb'{}' AS PollOptions,
+	   P.Created  AS OrderBy
+FROM vz.LinkPost P
+JOIN vz.User U ON P.UserId = U.Id
+WHERE ThumbnailStatus = 1 AND (P.Id NOT IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)
+UNION ALL
+SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, FORMAT('/poll/?postId=%s', P.Id),
+	   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+	   '' AS NewsSourceId,
+	   vz.GetCategory(Category, U.Country) AS Category,
+	   'EN' AS Language, U.Country,
+	   PollOptions,
+	   P.Created  AS OrderBy
+FROM vz.PollPost P
+JOIN vz.User U ON P.UserId = U.Id
+WHERE ThumbnailStatus = 1 AND (P.Id NOT IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)ORDER BY OrderBy DESC) x
+	) x
+	WHERE x.r <= 5 LIMIT 60),
+	 votes AS (
+		SELECT PostId,
+			   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+		FROM vz.PostVote
+		WHERE PostId IN (SELECT Id FROM posts)
+		GROUP BY PostId
+	 )
+SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
+FROM posts
+LEFT JOIN votes ON posts.Id = votes.PostId;
+
+
+
+SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
+FROM posts
+LEFT JOIN votes ON posts.Id = votes.PostId;
+                
+                
+
+
 SELECT COUNT(Id), ThumbnailStatus
 		FROM vz.NewsPost
 		WHERE UrlToImage <> ''

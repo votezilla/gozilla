@@ -37,6 +37,7 @@
 				{{ end }}
 				">
 				{{ range $j, $article := $articleCol }}
+				  IsPoll = {{ $article.IsPoll }}
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
 						{{ if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
 

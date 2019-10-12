@@ -308,6 +308,7 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 		case "LoggedOut": 		script = "alert('You are now logged out :)')"
 		case "AccountCreated": 	script = "alert('Your account has been created, good work!')"
 		case "SubmittedLink": 	script = "alert('Your link has been submitted, and will appear shortly')"
+		case "SubmittedPoll": 	script = "alert('Your poll has been submitted, and will appear shortly')"		
 	}
 
 	// Render the news articles.

@@ -34,17 +34,19 @@ func check(err error) {
 // math functions
 //
 ///////////////////////////////////////////////////////////////////////////////
-func ternary_int(b bool, i int, j int) int { if b { return i } else { return j } }
+func ternary_int(b bool, i int, j int) 			int 	{ if b { return i } else { return j } }
+func ternary_uint64(b bool, i uint64, j uint64) uint64 	{ if b { return i } else { return j } }
 func round(f float32) int { return int(f + .5) }
-func min_int(i int, j int) int { return ternary_int(i < j, i, j); }
-func max_int(i int, j int) int { return ternary_int(i > j, i, j); }
+func min_int(i int, j int) int { return ternary_int(i < j, i, j) }
+func max_int(i int, j int) int { return ternary_int(i > j, i, j) }
+func getBitFlag(flags, mask uint64) bool { return (flags & mask) != 0; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // string functions
 //
 ///////////////////////////////////////////////////////////////////////////////
-func ternary_str(b bool, s1 string, s2 string) string { if b { return s1 } else { return s2 } }
+func ternary_str(b bool, s1 string, s2 string) 	string 	{ if b { return s1 } else { return s2 } }
 func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
 

@@ -103,9 +103,10 @@ const (
 	image_Downsampled		= 1 // 125 x 75
 	image_DownsampleError	= -1
 	
-	genThumbsPass_ScrapeUserPostImage = 0
-	genThumbsPass_DownsampleNewsImage = 1
-	NUM_GEN_THUMBS_PASSES             = 2
+	genThumbPass_PollPost	= 0
+	genThumbPass_LinkPost	= 1
+	genThumbPass_NewsPost	= 2
+	NUM_GEN_THUMBS_PASSES   = 3
 	
 	kImageBatchSize = 5		// Number of images to convert to thumbnails per batch
 )
@@ -467,13 +468,19 @@ func ImageServer() {
 	//		  for some reason, falls back on scraping the page.
 
 	queries := [NUM_GEN_THUMBS_PASSES]string {
-		// genThumbsPass_ScrapeUser:
+
 		`SELECT UrlToImage, Id
-		 FROM ONLY $$LinkPost
+		 FROM $$PollPost
 		 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
 		 ORDER BY Created DESC
 		 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
-		// genThumbsPass_DownsampleNewsImage
+
+		`SELECT UrlToImage, Id
+		 FROM $$LinkPost
+		 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
+		 ORDER BY Created DESC
+		 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
+
 		`SELECT UrlToImage, Id 
 		 FROM $$NewsPost 
 		 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
@@ -510,28 +517,36 @@ func ImageServer() {
 				go downsamplePostImage(url, id, pass, c)
 			}
 			
-			//time.Sleep(5 * time.Minute)
-			//return // DON'T CHECK IN!!!!!!!!
-
 			// TODO: Generalize this code.  Can use fn callbacks for the main and timeout cases.
 			downsampleImagesLoop: for {
 				select {
 					case downsampleResult := <-c: // TODO: this code can be moved to downsamplePostImage(), which then all collectively can become the callback function.
-						if pass == genThumbsPass_ScrapeUserPostImage {
-							DbExec(  
-								`UPDATE ONLY $$LinkPost 
-								 SET ThumbnailStatus = $1
-								 WHERE Id = $2::bigint`,
-								ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
-								downsampleResult.postId)
-						} else {
-							DbExec( 
-								`UPDATE $$NewsPost 
-								 SET ThumbnailStatus = $1
-								 WHERE Id = $2::bigint`,
-								ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
-								downsampleResult.postId)
+						switch pass {
+							case genThumbPass_PollPost:
+								DbExec(  
+									`UPDATE $$PollPost 
+									 SET ThumbnailStatus = $1
+									 WHERE Id = $2::bigint`,
+									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
+									downsampleResult.postId)							
+							case genThumbPass_LinkPost:
+								DbExec(  
+									`UPDATE $$LinkPost 
+									 SET ThumbnailStatus = $1
+									 WHERE Id = $2::bigint`,
+									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
+									downsampleResult.postId)
+							case genThumbPass_NewsPost:
+								DbExec( 
+									`UPDATE $$NewsPost 
+									 SET ThumbnailStatus = $1
+									 WHERE Id = $2::bigint`,
+									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
+									downsampleResult.postId)
+							default: 
+								assert(false);
 						}
+						
 						// Remove this from the list of ids, so we can tell which ids were never processed.
 						delete(ids2urls, downsampleResult.postId)
 
@@ -545,18 +560,28 @@ func ImageServer() {
 						// Set status to -1 for any images that timed out.
 						for id, url := range ids2urls {
 							prf(is_, "Removing timed out id %d url %s", id, url)
-							if pass == genThumbsPass_ScrapeUserPostImage {
-								DbExec(
-								`UPDATE ONLY $$LinkPost 
-								 SET ThumbnailStatus = -1
-								 WHERE Id = $1::bigint`,
-								id)
-							} else {
-								DbExec(   
-								`UPDATE $$NewsPost 
-								 SET ThumbnailStatus = -1
-								 WHERE Id = $1::bigint`,
-								id)
+							
+							switch pass {
+								case genThumbPass_PollPost:
+									DbExec(
+										`UPDATE $$PollPost 
+										 SET ThumbnailStatus = -1
+										 WHERE Id = $1::bigint`,
+										id)								
+								case genThumbPass_LinkPost:
+									DbExec(
+										`UPDATE $$LinkPost 
+										 SET ThumbnailStatus = -1
+										 WHERE Id = $1::bigint`,
+										id)
+								case genThumbPass_NewsPost:
+									DbExec(   
+										`UPDATE $$NewsPost 
+										 SET ThumbnailStatus = -1
+										 WHERE Id = $1::bigint`,
+										id)								
+								default: 
+									assert(false);
 							}
 						}
 
