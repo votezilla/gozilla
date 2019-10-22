@@ -4,7 +4,7 @@ package main
 import (
 	"bytes"
 	"database/sql"
-//	"encoding/json"
+	"encoding/json"
 	"fmt"
 	"github.com/lib/pq"
 	"net/http"
@@ -413,30 +413,34 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		pr(go_, "Inserting new PollPost into database.")
 
 		// Serialize all of the poll options and flags into variables that can be inserted into database.
-		pollOptionData := make([]string, len(pollOptions))
+		var pollOptionData PollOptionData
 		for i := 1; i < 1024; i++ {
 			value := r.FormValue(fmt.Sprintf("option%d", i)) 
 			if value != "" {
-				pollOptionData = append(pollOptionData, value)
+				pollOptionData.Options = append(pollOptionData.Options, value)
 			}
 		}		
-		pollFlags := ternary_uint64(r.FormValue("bAnyoneCanAddOptions")		 != "", pf_AnyoneCanAddOptions, 0)
-		pollFlags |= ternary_uint64(r.FormValue("bCanSelectMultipleOptions") != "", pf_CanSelectMultipleOptions, 0)
+		pollOptionData.AnyoneCanAddOptions      = r.FormValue("bAnyoneCanAddOptions") != ""
+		pollOptionData.CanSelectMultipleOptions = r.FormValue("bCanSelectMultipleOptions") != ""
+		
+		pollOptionsJson, err := json.Marshal(pollOptionData)
+		check(err)
+		
+		prVal(go_, "pollOptionsJson", pollOptionsJson)
 		
 		// Create the new poll.
 		pollPostId := DbInsert(
 			`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country, UrlToImage, 
-			                        PollOptions, Flags) 
+			                        PollOptionData) 
 			 VALUES($1::bigint, $2, $3, $4, $5, $6, 
-			        $7::bigint) returning id;`, 
+			        $7) returning id;`, 
 			userId,
 			form["title"].Value,
 			form["category"].Value,
 			"en",
 			"us",
 			"http://localhost:8080/static/ballotbox.png", // TODO: generate poll url from image search
-			pq.Array(pollOptionData),
-			pollFlags,
+			pollOptionsJson,
 		)
 		prVal(go_, "Just added a poll #", pollPostId)
 

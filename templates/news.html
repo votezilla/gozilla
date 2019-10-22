@@ -37,7 +37,6 @@
 				{{ end }}
 				">
 				{{ range $j, $article := $articleCol }}
-				  IsPoll = {{ $article.IsPoll }}
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
 						{{ if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
 
@@ -71,7 +70,7 @@
 									<tr valign="top">
 										<td style="width: 100%; padding-left: 5px;">
 											<form>
-												{{ range $o, $option := $article.PollOptions }}
+												{{ range $o, $option := $article.PollOptionData.Options }}
 													<label class="radio-inline" style="margin-bottom:0; font-size: 12pt">
 													  <input type="radio" name="optradio" {{ if eq $o 0 }} checked {{ end }}>{{$option}}
 													</label>
@@ -128,7 +127,7 @@
 											</a>
 											{{ if $article.IsPoll }}
 												<form>
-													{{ range $o, $option := $article.PollOptions }}
+													{{ range $o, $option := $article.PollOptionData.Options }}
 														<label class="radio-inline" style="margin-bottom:0">
 														  <input type="radio" name="optradio" {{ if eq $o 0 }} checked {{ end }}>{{$option}}
 														</label>

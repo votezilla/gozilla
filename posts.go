@@ -11,17 +11,16 @@ import (
 	//"database/sql/driver"
 	_ "github.com/lib/pq" 
 	//"github.com/jmoiron/sqlx" 
-	//"encoding/json"
+	"encoding/json"
 )
 
 // JSON-parsed poll options - all the data that defines a poll.
-type PollOptions struct {
+type PollOptionData struct {
 	Options						[]string	//`db:"options"`
 	AnyoneCanAddOptions			bool		//`db:"bAnyoneCanAddOptions"`
 	CanSelectMultipleOptions	bool		//`db:"bCanSelectMultipleOptions"`
 } 
 
-type PropertyMap map[string]interface{}
 
 // JSON-parsed format of an article.
 type Article struct {
@@ -48,71 +47,8 @@ type Article struct {
 	VoteTally		int
 	
 	IsPoll			bool
-	PollOptions		PollOptions
+	PollOptionData	PollOptionData
 }
-
-/*
-
-// TODO: TO FIX, USE THE CODE THAT PARSES NEWS.API
-// Make the Attrs struct implement the driver.Valuer interface. This method
-// simply returns the JSON-encoded representation of the struct.
-func (a PollOptions) Value() (driver.Value, error) {
-	pr(po_, "calling PollOptions.Value")
-	
-    return json.Marshal(a)
-}
-
-// Make the Attrs struct implement the sql.Scanner interface. This method
-// simply decodes a JSON-encoded value into the struct fields.
-func (p *PollOptions) Scan(value interface{}) error {
-	pr(po_, "calling PollOptions.Scan")
-	
-    source, ok := value.([]byte)
-    prVal(po_, "source", source)
-    if !ok {
-        return errors.New("type assertion to []byte failed")
-    }
-    
-    length := len(source)
-    
-    prVal(po_, "length", length)
-    
-    if length < 3 { // "{}"
-    	return nil // {} Empty struct
-	}
-
-	var i interface{}
-    err = json.Unmarshal(source, &i)
-    prVal(po_, "i", i)
-    if err != nil {
-		return errors.New("json.Unmarshall error for PollOptions")
-	}
-    
-	*p, ok = i.(PollOptions)
-	prVal(po_, "p", p)
-	if !ok {
-		return errors.New("Type assertion .(map[string]interface{}) failed.")
-	}
-	
-	pr(po_, "done")
-
-	var i PollOptions
-    err = json.Unmarshal(source, &i)
-    prVal(po_, "i", i)
-    if err != nil {
-		return errors.New("json.Unmarshall error for PollOptions")
-	}
-	
-	prVal(po_, "i", i)
-
-	return nil
-}
-
-func (p PropertyMap) Value() (driver.Value, error) {
-	j, err := json.Marshal(p)
-	return j, err
-}
-*/
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -134,26 +70,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	var category		string
 	var language		string
 	var country			string
-	var pollOptions		[]string
-	var pollFlags		uint64
+	var pollOptionJson	string
 	var orderBy			time.Time
 	var upvoted			int
 	var voteTally		int
-	var po				[]uint8
-	
-	/*	
-	test_query := "select Id, PollOptions from vz.PollPost;" // <<<<<<<<<<<<<<<<<<<<<<<<<<<
-	rowt := DbQuery(test_query)
-	
-	for rowt.Next() {
-		check(rowt.Scan(&id, &pollOptions))
-		
-		prVal(po_, "Scanned pollOptions!", pollOptions)
-	}
-	*/
-	
-	
-	
 
 	bRandomizeTime := (fetchVotesForUserId == -1)
 
@@ -164,8 +84,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	   		   NewsSourceId,
 	   		   $$GetCategory(Category, Country) AS Category,
 	   		   Language, Country,
-			   ARRAY[]::text[] AS PollOptions,
-			   0::bigint AS PollFlags,
+			   '' AS PollOptionData,
 			   COALESCE(PublishedAt, Created) %s AS OrderBy
 		FROM $$NewsPost
 		WHERE ThumbnailStatus = 1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)`,
@@ -179,8 +98,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   '' AS NewsSourceId,
 			   $$GetCategory(Category, U.Country) AS Category,
 			   'EN' AS Language, U.Country,
-			   ARRAY[]::text[] AS PollOptions,
-			   0::bigint AS PollFlags,
+			   '' AS PollOptionData,
 			   P.Created %s AS OrderBy
 		FROM $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
@@ -196,8 +114,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   '' AS NewsSourceId,
 			   $$GetCategory(Category, U.Country) AS Category,
 			   'EN' AS Language, U.Country,
-			   PollOptions,
-			   Flags,
+			   PollOptionData,
 			   P.Created %s AS OrderBy
 		FROM $$PollPost P
 		JOIN $$User U ON P.UserId = U.Id
@@ -220,7 +137,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		// Select 5 articles of each category
 		query = fmt.Sprintf(`
 			SELECT Id, Author, Title, Description, LinkUrl, UrlToImage,
-				   PublishedAt, NewsSourceId, Category, Language, Country, PollOptions, PollFlags, OrderBy
+				   PublishedAt, NewsSourceId, Category, Language, Country, PollOptionData, OrderBy
 			FROM (
 				SELECT
 					*,
@@ -269,10 +186,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	for rows.Next() {
 		if fetchVotesForUserId >= 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &po, &pollFlags, &orderBy, &upvoted, &voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &upvoted, &voteTally))
 		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &po, &pollFlags,  &orderBy, &voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson,  &orderBy, &voteTally))
 		}
 		//prVal(po_, "id", id)
 		//prVal(po_, "author", author)
@@ -285,6 +202,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		//prVal(po_, "category", category)
 		//prVal(po_, "language", language)
 		//prVal(po_, "country", country)
+		//prVal(po_, "pollOptionJson", pollOptionJson)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
@@ -349,46 +267,13 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			Upvoted:		upvoted,
 			VoteTally:		voteTally,
 		}	
-		
-		// Hack in polls for now
-/*		if id % 6 == 0 {
+
+		if len(pollOptionJson) > 0 {
 			newArticle.IsPoll = true
-			newArticle.Title = "Poll: Who should be president in 2020?"
-			newArticle.PollOptions = []string{"Trump", "Clinton", "Sanders"}
-		} else if id % 6 == 3 {
-			newArticle.IsPoll = true
-			newArticle.Title = "Poll: Was Jeffrey Epstein murdered?"
-			newArticle.PollOptions = []string{"Yes", "No", "Maybe", "Not sure"}
-		}
-*/
 
-/*
-		// JSON-parsed poll options - all the data that defines a poll.
-		type PollOptions struct {
-			options						[]string	`db:"options"`
-			bAnyoneCanAddOptions		bool		`db:"bAnyoneCanAddOptions"`
-			bCanSelectMultipleOptions	bool		`db:"bCanSelectMultipleOptions"`
-		} 
-*/
-
-		prVal(po_, "po", po)
+			err = json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData)
+			check(err)
 		
-		prVal(po_, "string(po)", string(po))
-				
-		
-
-		prVal(po_, "pollOptions", pollOptions)
-		
-		newArticle.IsPoll = len(pollOptions) > 0
-		
-		prVal(po_, "newArticle.IsPoll", newArticle.IsPoll)
-
-		if newArticle.IsPoll {
-			newArticle.PollOptions = PollOptions {
-				Options				: pollOptions,
-				AnyoneCanAddOptions 	: getBitFlag(pollFlags, pf_AnyoneCanAddOptions),
-				CanSelectMultipleOptions: getBitFlag(pollFlags, pf_CanSelectMultipleOptions),
-			}
 			newArticle.Url = fmt.Sprintf("/comments/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
 		}
 		
@@ -435,7 +320,7 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition 
+		"IS NOT NULL", //"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition 
 		"IS NOT NULL",																						  // userIdCondition
 		"IS NOT NULL",																						  // categoryCondition
 		articlesPerCategory,
@@ -451,7 +336,7 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId i
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")", // idCondition
+		"IS NOT NULL", //"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")", // idCondition
 		"IS NOT NULL",																			   // userIdCondition
 		"IS NOT NULL",																			   // categoryCondition
 		-1,
@@ -467,7 +352,7 @@ func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition
+		"IS NOT NULL", //"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition
 		"IS NOT NULL",																						  // userIdCondition
 		"= '" + category + "'",																				  // categoryCondition
 		-1,
