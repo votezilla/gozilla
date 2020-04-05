@@ -1,3 +1,17 @@
+SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, FORMAT('/poll/?postId=%s', P.Id),
+	COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+	'' AS NewsSourceId,
+	vz.GetCategory(Category, U.Country) AS Category,
+	'EN' AS Language, U.Country,
+	PollOptionData,
+	P.Created  AS OrderBy
+	FROM vz.PollPost P
+JOIN vz.User U ON P.UserId = U.Id
+
+	WHERE ThumbnailStatus = 1
+	
+	AND (P.Id NOT IN (SELECT PostId FROM vz.PostVote WHERE UserId = 1)) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) = 'science') ORDER BY OrderBy DESC LIMIT 60);
+
 WITH posts AS (
 	SELECT Id, Author, Title, Description, LinkUrl, UrlToImage,
 		   PublishedAt, NewsSourceId, Category, Language, Country, PollOptions, OrderBy

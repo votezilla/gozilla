@@ -396,7 +396,10 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	
 	for i := 3; i < 1024; i++ {
 		optionName := fmt.Sprintf("option%d", i)
-		if r.FormValue(optionName) != "" {  // Note: Setting your option name to "" has the side-effect of erasing it... which I kind of like.
+		// TODO: How should this case work?  Could be used as a case for removing options, if poll is not yet live.
+		//       Once live, options with votes should not be removable.
+		//       Leave the ""'s in the list so the position within the array can map directly to votes and indexes.
+		if r.FormValue(optionName) != "" {  
 			prVal(go_, "Adding new poll option", optionName)
 			form[optionName] = makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 255)
 			pollOptions = append(pollOptions, form[optionName])

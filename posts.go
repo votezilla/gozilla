@@ -57,8 +57,8 @@ type Article struct {
 // If articlesPerCategory <= 0, no category partitioning takes place.
 //
 //////////////////////////////////////////////////////////////////////////////
-func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, articlesPerCategory int, maxArticles int,
-				    fetchVotesForUserId int64) (articles []Article) {
+func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, articlesPerCategory int, 
+					maxArticles int, fetchVotesForUserId int64) (articles []Article) {
 	var id				int64
 	var author			string
 	var title			string
@@ -74,6 +74,14 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	var orderBy			time.Time
 	var upvoted			int
 	var voteTally		int
+	
+	pr(po_, "_queryArticles")
+	prVal(po_, "idCondition", idCondition)
+	prVal(po_, "userIdCondition", userIdCondition)
+	prVal(po_, "categoryCondition", categoryCondition)
+	prVal(po_, "articlesPerCategory", articlesPerCategory)
+	prVal(po_, "maxArticles", maxArticles)
+	prVal(po_, "fetchVotesForUserId", fetchVotesForUserId)
 
 	bRandomizeTime := (fetchVotesForUserId == -1)
 
@@ -88,7 +96,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   COALESCE(PublishedAt, Created) %s AS OrderBy
 		FROM $$NewsPost
 		WHERE ThumbnailStatus = 1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)`,
-		ternary_str(bRandomizeTime, "+ RANDOM() * '3:00:00'::INTERVAL", ""),
+		ternary_str(bRandomizeTime, "- RANDOM() * '3:00:00'::INTERVAL", ""), // Make it randomly up to 3 hours later.
 		idCondition,
 		categoryCondition)
 	
@@ -103,7 +111,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		FROM $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
 		WHERE ThumbnailStatus = 1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,		
-		"", //ternary_str(bRandomizeTime, "+ RANDOM() * '1:00:00'::INTERVAL", ""),
+		"", //ternary_str(bRandomizeTime, "- RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
 		userIdCondition,
 		categoryCondition)
@@ -124,7 +132,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		userIdCondition,
 		categoryCondition)		
 	
-	orderByClause := "ORDER BY OrderBy DESC" // TODO: Use a Reddit-style ranking algorithm
+	orderByClause := "\nORDER BY OrderBy DESC\n" // TODO: Use a Reddit-style ranking algorithm
 	
 	query := ""
 	if userIdCondition == "IS NOT NULL" {
@@ -148,22 +156,32 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			WHERE x.r <= %d`,
 			query,
 			articlesPerCategory)
-	} else if fetchVotesForUserId >= 0 {
+	} else {
+		query = fmt.Sprintf(`
+			SELECT
+				*	
+			FROM (%s) x
+			ORDER BY x.OrderBy DESC`,
+			query)
+	}
+		
+	if fetchVotesForUserId >= 0 {
 		// Join query to post votes table.
 		query = fmt.Sprintf(`
 			SELECT x.*,
 				   CASE WHEN v.Up IS NULL THEN 0
-				        WHEN v.Up THEN 1
-				        ELSE -1
+						WHEN v.Up THEN 1
+						ELSE -1
 				   END AS Upvoted
 			FROM (%s) x
 			LEFT JOIN $$PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
-			ORDER BY v.Created`,
+			ORDER BY v.Created DESC`,
 			query,
 			fetchVotesForUserId)
 	}
+		
 	if maxArticles > 0 {
-		query += ` LIMIT ` + strconv.Itoa(maxArticles)
+		query += "\nLIMIT " + strconv.Itoa(maxArticles)
 	}
 	// Add vote tally per article.
 	query = fmt.Sprintf(`
@@ -177,7 +195,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			 )
 		SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
 		FROM posts
-		LEFT JOIN votes ON posts.Id = votes.PostId`,
+		LEFT JOIN votes ON posts.Id = votes.PostId
+		ORDER BY posts.OrderBy DESC`,
 		query)
 	query += `;`
 
