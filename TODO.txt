@@ -1,4 +1,4 @@
-- add Now() to when a post is up/down voted (will be useful for voting later!)
-- sort history by when a post is up/down voted
+- Do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link.
+
 - use pretty dinosaurs for 403 errors.
 - https!!
