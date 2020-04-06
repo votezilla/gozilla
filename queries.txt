@@ -1,3 +1,55 @@
+                WITH posts AS (
+                        SELECT
+                                *
+                        FROM (SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl,
+                           COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
+                           NewsSourceId,
+                           vz.GetCategory(Category, Country) AS Category,
+                           Language, Country,
+                           '' AS PollOptionData,
+                           COALESCE(PublishedAt, Created)  AS OrderBy
+                FROM vz.NewsPost
+                WHERE ThumbnailStatus = 1 AND (Id IS NOT NULL) AND (vz.GetCategory(Category, Country) = 'entertainment')
+UNION ALL
+SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
+                           COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+                           '' AS NewsSourceId,
+                           vz.GetCategory(Category, U.Country) AS Category,
+                           'EN' AS Language, U.Country,
+                           '' AS PollOptionData,
+                           P.Created  AS OrderBy
+                FROM vz.LinkPost P
+                JOIN vz.User U ON P.UserId = U.Id
+                WHERE ThumbnailStatus = 1 AND (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) = 'entertainment')
+UNION ALL
+SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, FORMAT('/poll/?postId=%s', P.Id),
+                           COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+                           '' AS NewsSourceId,
+                           vz.GetCategory(Category, U.Country) AS Category,
+                           'EN' AS Language, U.Country,
+                           PollOptionData,
+                           P.Created  AS OrderBy
+                FROM vz.PollPost P
+                JOIN vz.User U ON P.UserId = U.Id
+                WHERE ThumbnailStatus = 1 AND (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) = 'entertainment')
+ORDER BY OrderBy DESC
+) x
+                        ORDER BY x.OrderBy DESC
+LIMIT 60),
+                         votes AS (
+                                SELECT PostId,
+                                           SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+                                FROM vz.PostVote
+                                WHERE PostId IN (SELECT Id FROM posts)
+                                GROUP BY PostId
+                         )
+                SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
+                FROM posts
+                LEFT JOIN votes ON posts.Id = votes.PostId ORDER BY posts.OrderBy DESC;
+
+----
+
+
 SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, FORMAT('/poll/?postId=%s', P.Id),
 	COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
 	'' AS NewsSourceId,

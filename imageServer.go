@@ -510,7 +510,7 @@ func ImageServer() {
 
 			// Download and downsample the images in parallel.
 			c := make(chan DownsampleResult)
-			timeout := time.After(30 * time.Second)
+			timeout := time.After(10 * time.Second) // was 30 seconds before
 
 			for id, url := range ids2urls {
 				prf(is_, "trying to create channel to downsample id %d url %s", id, url)

@@ -126,7 +126,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   P.Created %s AS OrderBy
 		FROM $$PollPost P
 		JOIN $$User U ON P.UserId = U.Id
-		WHERE ThumbnailStatus = 1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,		
+		WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
 		"", //ternary_str(bRandomizeTime, "+ RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
 		userIdCondition,
@@ -289,6 +289,9 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 		if len(pollOptionJson) > 0 {
 			newArticle.IsPoll = true
+			newArticle.Title = "POLL: " + newArticle.Title
+			newArticle.UrlToImage = "/static/ballotbox.png"
+			newArticle.UrlToThumbnail = "/static/ballotbox small.png"
 
 			err = json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData)
 			check(err)
