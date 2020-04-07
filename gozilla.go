@@ -30,6 +30,7 @@ const (
 	//PollFlags
 	pf_AnyoneCanAddOptions		= 1 << 0
 	pf_CanSelectMultipleOptions = 1 << 1
+	pf_RankedChoiceVoting		= 1 << 2
 )
 
 // Template arguments for webpage template.
@@ -383,6 +384,7 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		makeTextField("option2", "Poll option 2:", "add option...", 50, 1, 255),
 		makeBoolField("bAnyoneCanAddOptions", "Poll options:", "Allow anyone to add options", true),
 		makeBoolField("bCanSelectMultipleOptions", "", "Allow people to select multiple options", true),
+		makeBoolField("bRankedChoiceVoting", "", "Enable ranked-choice voting", false),
 		makeSelectField("category", "Poll category:", newsCategoryInfo.CategorySelect, true, true),
 		makeSelectField("anonymity", "Post As:", anonymityLevels, false, true),
 	)
@@ -423,9 +425,10 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 				pollOptionData.Options = append(pollOptionData.Options, value)
 			}
 		}		
-		pollOptionData.AnyoneCanAddOptions      = r.FormValue("bAnyoneCanAddOptions") != ""
+		pollOptionData.AnyoneCanAddOptions      = r.FormValue("bAnyoneCanAddOptions")      != ""
 		pollOptionData.CanSelectMultipleOptions = r.FormValue("bCanSelectMultipleOptions") != ""
-		
+		pollOptionData.RankedChoiceVoting       = r.FormValue("bRankedChoiceVoting")       != ""
+				
 		pollOptionsJson, err := json.Marshal(pollOptionData)
 		check(err)
 		

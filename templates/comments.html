@@ -51,10 +51,17 @@
 					<tr valign="top">
 						<td class="title" style="padding-left: 5px;">
 						<form>
-							<table width="100%"><tr>
-								<td align="left">
+							<table width="100%">
+								{{ if $article.PollOptionData.RankedChoiceVoting }}
+									<tr><td align="left">
+										<span class="rankedVoteIntro">Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</span><br>
+									</td></tr>
+								{{ end }}
+								<tr><td align="left">
 									{{ range $o, $option := $article.PollOptionData.Options }}
-										{{ if $article.PollOptionData.CanSelectMultipleOptions }}
+										{{ if $article.PollOptionData.RankedChoiceVoting }}
+										    <input type="digit" value="" size="1" maxlength="1" style="width: 25px; padding: 0px 5px;">{{$option}}<br>
+										{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
 											<label class="vote">
 												<input type="checkbox" class="vote" value="">{{$option}}
 											</label><br>
@@ -65,8 +72,8 @@
 										{{ end }}
 									{{ end }}
 									<input type="submit" class="vote" value="Vote!">
-								</td>
-							</tr></table>
+								</td></tr>
+							</table>
 						</form>
 					</tr>
 					<tr class="spacer" style="height:10px"></tr>

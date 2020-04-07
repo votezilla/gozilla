@@ -12,7 +12,10 @@ input,select      { font-family:monospace; font-size:10pt; color:#000000; max-wi
 input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 
 .submit { cursor:pointer; }
-.vote { line-height: 1; font-size: 16px; line-height: 1.1; cursor: pointer; } /* A voting list item or submit button. */
+.vote { font-size: 16px; line-height: 1.1; cursor: pointer; } /* A voting list item or submit button. */
+.rankedVote { font-size: 16px; line-height: 1.1; width: 25px; padding: 0px 5px; }
+.rankedVoteLabel { font-size: 16px; line-height: 1.1; }
+.rankedVoteIntro { font-size: 12px; font-style: italic; }
 
 textarea { font-family:monospace; font-size:10pt; color:#000000; }
 

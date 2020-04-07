@@ -19,6 +19,7 @@ type PollOptionData struct {
 	Options						[]string	//`db:"options"`
 	AnyoneCanAddOptions			bool		//`db:"bAnyoneCanAddOptions"`
 	CanSelectMultipleOptions	bool		//`db:"bCanSelectMultipleOptions"`
+	RankedChoiceVoting			bool		//`db:"bRankedChoiceVoting"`
 } 
 
 
@@ -295,6 +296,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 			err = json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData)
 			check(err)
+			
+			prVal(po_, "newArticle.PollOptionData", newArticle.PollOptionData)
 		
 			newArticle.Url = fmt.Sprintf("/comments/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
 		}

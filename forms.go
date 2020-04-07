@@ -62,8 +62,7 @@ func (f Field) boolVal() bool {
 }
 
 func (f Field) getErrorHtml() string {
-	prf(fo_, "Field.getErrorHtml() for field %s f.Error = %s", f, f.Error)
-	
+	//prf(fo_, "Field.getErrorHtml() for field %s f.Error = %s", f, f.Error)
 	return ternary_str(f.Error != "", fmt.Sprintf("<label class=\"error\">%s</label>", f.Error), "")
 }
 
