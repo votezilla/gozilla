@@ -105,15 +105,15 @@ function findImagesFromLink(linkUrl) {
 
 			selectThumbnail(0, r.Images[0]);
 		},
-		error:   function(r) { console.log("AJAX - error"); }
+		error: function(r) { console.log("AJAX - error"); }
 	});
 }
 
 $(document).ready(function() {
-	$('input[name="thumbnail"]').parent().	append(`<div style="overflow: visible; width: 420px;">
+	$('input[name="thumbnail"]').parent().append(`
+		<div style="overflow: visible; width: 420px;">
 			<div id="image_container"></div>
 		</div>`);
-
 
 	//$('#thumbnail row').hide();
 

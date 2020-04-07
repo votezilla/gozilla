@@ -477,6 +477,49 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	}	
 }
 
+
+func submitBlogHandler(w http.ResponseWriter, r *http.Request) {
+	pr(go_, "submitBlogHandler")
+
+	userId := GetSession(r)			
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		pr(go_, "Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
+	prVal(go_, "r.Method", r.Method)
+	
+	form := makeForm(
+		makeTextField("title", "Title:", "Ask something...", 50, 12, 255),
+		makeRichTextField("blog", "Blog:", "Enter blog here...", 50, 1, 255),
+	)
+	
+	if r.Method == "POST" && form.validateData(r) {
+		prVal(go_, "Valid form!!", form)
+		
+		  
+		return
+	} else if r.Method == "POST" {
+		prVal(go_, "Invalid form!!", form)
+	}
+
+	// handle GET, or invalid form data from POST...	
+	{
+		type PollArgs struct {
+			PageArgs
+			Form
+		}
+		args := PollArgs{
+			PageArgs:			PageArgs{Title: "Submit Blog Post"},
+			Form:				form,
+		}
+		prVal(go_, "args", args)
+		executeTemplate(w, "submitBlog", args)
+	}	
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // TODO: get user's ip address
@@ -528,6 +571,7 @@ func parseTemplateFiles() {
 	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("frame"), T("news")))
 	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
 	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
+	templates["submitBlog"]		= template.Must(template.ParseFiles(T("base"), T("form"), T("submitBlog")))
 	templates["submitLink"]		= template.Must(template.ParseFiles(T("base"), T("form"), T("submitLink")))
 	templates["submitPoll"]		= template.Must(template.ParseFiles(T("base"), T("submitPoll")))
 	
@@ -562,8 +606,9 @@ func WebServer() {
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))
 	http.HandleFunc("/submit/",   				hwrap(submitHandler))
-	http.HandleFunc("/submitPoll/",   			hwrap(submitPollHandler))
+	http.HandleFunc("/submitBlog/",   			hwrap(submitBlogHandler))
 	http.HandleFunc("/submitLink/",   			hwrap(submitLinkHandler))
+	http.HandleFunc("/submitPoll/",   			hwrap(submitPollHandler))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
 	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
 	

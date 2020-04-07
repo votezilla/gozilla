@@ -116,6 +116,23 @@ $(function() {
 	    addOrRemoveVote({{$id}}, true, false, false, false) // Add a downvote presentation, but do not update the database.
     {{ end }}
 });
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// COMMENTING FUNCTIONS
+//
+///////////////////////////////////////////////////////////////////////////////
+
+// Reply to the comment with this id.
+function ReplyToComment(id) {
+	var $element = document.getElementById(id);
+	$element.insertAdjacentHTML('afterend', `
+		<form>
+			<p><textarea rows="4" cols="50"></textarea></p>
+			<p><button type="submit" onclick="" class="save">save</button></p>
+		</form>
+	`);
+}
 </script>
 
 <div class="smart-padding container vz-container">

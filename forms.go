@@ -195,6 +195,35 @@ func makeTextField(name, label, placeholder string, inputLength, minLength, maxL
 	return &f
 }
 
+// TODO: implement makeRichTextField().  It's just a copy of makeTextField at the moment.
+func makeRichTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
+	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, InputLength: inputLength}
+	
+	if minLength > 0 {
+		f.Validators = append(f.Validators, requiredValidator())
+	}
+
+	if minLength > 0 || maxLength != -1 {
+		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength))
+	}
+	
+	// TODO: HTML-escape this
+	f.Html = func()string {
+		prVal(fo_, "f.Html f", f)
+		
+		return f.getHtml()
+	}
+	f.HtmlRow = func()string { 
+		prVal(fo_, "f.HtmlRow f", f)
+		
+		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.getHtml()) 
+	}
+	
+	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
+	
+	return &f
+}
+
 func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 	// Hack: using Placeholder to hold optionText value
 	f := Field{Name: name, Type: "checkbox", Label: label, Placeholder: optionText, Value: ternary_str(defaultValue, "1", "")}

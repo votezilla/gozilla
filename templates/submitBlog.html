@@ -1,0 +1,49 @@
+{{define "body"}}
+<h1>Submit Poll</h1>
+<br>
+<br>
+<!--<form name="form" method="POST">-->
+	<table id="pollOptionsTable">
+		{{- ( call .Form.title.HtmlRow ) -}}
+		{{- ( call .Form.blog.HtmlRow ) -}}
+		<div id="editor-container" style="height:200px;"></div>
+		<div id="new-comment-html">new-comment-html</div>
+	</table>
+	<br>
+	<br>
+	<input type="submit" class="submit" name="Add comment" value="Add comment">
+<!--</form>-->
+
+<script>
+// Here's a bunch of code to support rich text via the Quill editor library.
+$(document).ready(function() {
+	var quill = new Quill('#editor-container', {
+		modules: {
+			toolbar: [
+				[{ header: [1, 2, false] }],
+				['bold', 'italic', 'underline'],
+				['image', 'code-block']
+			]
+		},
+		placeholder: 'Compose an epic...',
+		theme: 'snow'  // or 'bubble'
+	});
+
+	var $editor = $('#editor-container');
+
+	var $addCommentButton = $('input[name="Add comment"]');
+
+	$addCommentButton.click( function() {
+		console.log(quill.getContents());
+
+		console.log(quill.root.innerHTML);
+
+		// WORKS
+		//var justHtmlContent = document.getElementById('new-comment-html');
+		var justHtmlContent = $('#new-comment-html')[0];
+		justHtmlContent.innerHTML = quill.root.innerHTML;
+	});
+});
+</script>
+{{end}}
+
