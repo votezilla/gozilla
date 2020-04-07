@@ -73,19 +73,20 @@
 											<table width="100%"><tr>
 												<td align="left">
 													{{ range $o, $option := $article.PollOptionData.Options }}
-													<label class="radio-inline" style="margin-bottom:0; font-size: 12pt; cursor: pointer">
-														<input type="radio" class="vote" name="optradio" {{ if eq $o -1 }} checked {{ end }}>{{$option}}
-													</label>
+														{{ if $article.PollOptionData.CanSelectMultipleOptions }}
+															<label class="vote">
+																<input type="checkbox" class="vote" value="">{{$option}}
+															</label>
+														{{ else }}
+															<label class="radio-inline" style="margin-bottom:0; font-size: 12pt; cursor: pointer">
+																<input type="radio" class="vote" name="optradio" {{ if eq $o -1 }} checked {{ end }}>{{$option}}
+															</label>
+														{{ end }}
 													{{ end }}
 													<span style="padding-left: 5px;">
 														<input class="vote" type="submit" value="Vote!">
 													</span>
-												</td><!--
-												<td alight="right">
-													<span style="float: right;">
-														<input style="line-height: 1; font-size: 16px; line-height: 1.1;" type="submit" value="Vote!">
-													</span>
-												</td>-->
+												</td>
 											</tr></table>
 										</form>
 									</tr>
@@ -142,9 +143,15 @@
 													<table width="100%"><tr>
 														<td align="left">
 															{{ range $o, $option := $article.PollOptionData.Options }}
-																<label class="radio-inline" style="margin-bottom:0; cursor: pointer">
-																  <input class="vote" type="radio" name="optradio" {{ if eq $o -1 }} checked {{ end }}>{{$option}}
-																</label>
+																{{ if $article.PollOptionData.CanSelectMultipleOptions }}
+																	<label class="vote">
+																		<input type="checkbox" class="vote" value="">{{$option}}
+																	</label>
+																{{ else }}
+																	<label class="radio-inline" style="margin-bottom:0; cursor: pointer">
+																	  <input class="vote" type="radio" name="optradio" {{ if eq $o -1 }} checked {{ end }}>{{$option}}
+																	</label>
+																{{ end }}
 															{{ end }}
 															<span style="padding-left: 5px;">
 																<input class="vote" type="submit" value="Vote!">
