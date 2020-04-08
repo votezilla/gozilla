@@ -152,17 +152,20 @@ function ReplyToComment(id) {
 			<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
 				<tr><td bgcolor="#ff6600">
 					<!--<a href="news"><h1 style="text-align:center; margin: 0px;"><b>votezilla</b></h1></a>-->
-					<div style="background-image: url('/static/votezilla logo/votezilla 3.jpg'); height: 180px; /*background-size: 100% 100%;*/">
+					<!--<div style="background-image: url('/static/votezilla logo/votezilla 6.jpg'); height: 180px; /*background-size: 100% 100%;*/">-->
+					<div width=100% style="background-color:white"><img src='/static/votezilla logo/votezilla 6.jpg' class="center" style="max-width:100%"></div>
 				</td></tr>
-				<tr><td bgcolor="#ff6600">
+
+				<!-- 00ff1e   ff6600 --><!--
+				<tr><td bgcolor="#1af133">
 					<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
 						<tr>
-							<td style="width:18px; padding-right:4px">
-								<a href="http://www.ycombinator.com">
-									<img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;">
-								</a>
+
+							<td style="width:18px; padding:1px">
+								<div style="border: 1px solid white; color: white; font-size: 14px; text-align:center;">vz</div>
 							</td>
-							<td style="line-height:12pt; height:10px;">
+
+							<td style="line-height:12pt; height:10px; padding: 0px 5px">
 								<span class="pagetop">
 									<b class="hnname">
 										<a href="news">votezilla</a>
@@ -171,6 +174,43 @@ function ReplyToComment(id) {
 									{{- if ne $i 0 }} | {{end -}}
 									{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
 									<a href="/{{$navItem}}">{{$navItem}}</a>
+									{{- if eq $navItem $.UrlPath}}</span>{{end -}}
+								{{end -}}
+								</span>
+							</td>
+							<td style="text-align:right; padding-right:4px;">
+								<span class="pagetop">
+									{{- if .Username }}
+										<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
+									{{- else -}}
+										<a href="/login">login</a> / <a href="/register">register</a>
+									{{end -}}
+								</span>
+							</td>
+						</tr>
+					</table>
+				</td></tr>-->
+
+				<!--black-->
+				<tr><td bgcolor=white>
+					<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+						<tr>
+
+							<td style="width:18px; padding:1px">
+								<div style="border: 1px solid black; color: black; font-size: 14px; text-align:center;"><span style="color:#ff009c">v</span><span style="color:#0072ff">z</span></div>
+								<!--<img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;">-->
+
+							</td>
+
+							<td style="line-height:12pt; height:10px; padding: 0px 5px; color:white !important;">
+								<span class="pagetop">
+									<b class="hnname">
+										<a href="news" style="color:#ff009c">vote<span style="color:black">zilla</span></a>
+									</b>
+								{{- range $i, $navItem := .NavMenu}}
+									{{- if ne $i 0 }} | {{end -}}
+									{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
+									<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">{{$navItem}}</a>
 									{{- if eq $navItem $.UrlPath}}</span>{{end -}}
 								{{end -}}
 								</span>
