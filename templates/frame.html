@@ -14,7 +14,7 @@ function removeItem(arr, item) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// VOTING FUNCTIONS
+// UP/DOWN VOTING FUNCTIONS
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -119,6 +119,17 @@ $(function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// POLL VOTING FUNCTIONS
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function PollVote(id) {
+	// TODO: implement PollVote.  Needs to identify its id, and pull in children for voting somehow.
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // COMMENTING FUNCTIONS
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -183,5 +194,55 @@ function ReplyToComment(id) {
 	{{ template "content" . }}
 
 </div> {{/*smart-padding container vz-container*/}}
+
+
+  <!-- Button trigger modal test stuff:
+  <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+    Launch demo modal
+  </button>
+  -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+        </div>
+        <div class="modal-body">
+            <div class="modal-content">
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+  <script type="text/javascript">
+    // <WORKS>
+    $('.modal-content').resizable({
+      alsoResize: ".modal-dialog", // (?)
+      minHeight: 1000,//300,
+      minWidth: 300
+    });
+    $('.modal-dialog').draggable();
+
+    $('#myModal').on('show.bs.modal', function() {
+     $(this).find('.modal-body').css({
+        'max-height': '100%'
+      });
+
+      $('.modal-content').load('http://10.0.0.71:8080/viewPollResults/?postId=46272', function(){
+		//alert('Load was performed');
+		$('.modal').modal({show:true});
+	  });
+    });
+    //</WORKS>
+
+  </script>
 
 {{end}} {{/*body*/}}

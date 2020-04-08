@@ -520,6 +520,7 @@ func submitBlogHandler(w http.ResponseWriter, r *http.Request) {
 	}	
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // TODO: get user's ip address
@@ -575,6 +576,9 @@ func parseTemplateFiles() {
 	templates["submitLink"]		= template.Must(template.ParseFiles(T("base"), T("form"), T("submitLink")))
 	templates["submitPoll"]		= template.Must(template.ParseFiles(T("base"), T("submitPoll")))
 	
+	// Popup forms (they do not inherit from 'base')
+	templates["viewPollResults"]= template.Must(template.ParseFiles(T("viewPollResults")))
+	
 	// Javascript snippets
 	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
 }
@@ -609,6 +613,7 @@ func WebServer() {
 	http.HandleFunc("/submitBlog/",   			hwrap(submitBlogHandler))
 	http.HandleFunc("/submitLink/",   			hwrap(submitLinkHandler))
 	http.HandleFunc("/submitPoll/",   			hwrap(submitPollHandler))
+	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
 	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
 	

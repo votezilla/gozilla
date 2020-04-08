@@ -1,5 +1,6 @@
 - Add vote to DB and display results, also allow user to change vote.
 
+- Change between alias and real name depending on a post's (or comment's) privacy settings.
 - Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
 - Test input as a properly-ranked digit for ranked polls.
 - Do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link.
