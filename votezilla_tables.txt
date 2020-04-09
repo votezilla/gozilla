@@ -79,10 +79,11 @@ CREATE TABLE vz.PollPost (
 CREATE TABLE vz.PollVote (
     PollId            BIGINT          NOT NULL,
     UserId            BIGINT          NOT NULL,	
-    Vote              JSONB           NOT NULL, -- TODO: make this TEXT, like PollOptionData
+    Vote              TEXT	      NOT NULL,	-- JSON
     
     PRIMARY KEY (PollId, UserId)
 );
+CREATE INDEX poll_index ON vz.PollVote (PollId);
 
 
 
