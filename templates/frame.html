@@ -237,29 +237,32 @@ function ReplyToComment(id) {
 
   <!-- Modal -->
   <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
 
-        <div class="modal-header">
-         	<h4 class="modal-title" id="myModalLabel" style="align:center;">
-				You just voted!  Results below:
-			</h4>
-			<button type="button" class="btn btn-default" data-dismiss="modal" style="position:absolute; right:20px; cursor: pointer !important;">Close</button>
-        </div>
+			<div class="modal-header">
+				<h4 class="modal-title" id="myModalLabel" style="align:center;">
+					You just voted!
+				</h4>
+				<button type="button" class="btn btn-default" data-dismiss="modal"
+				        style="position:absolute; right:20px; cursor: pointer !important;">
+					Close
+				</button>
+			</div>
 
-        <div class="modal-body">
-        </div>
-      </div>
-    </div>
+			<div class="modal-body"></div>
+		</div>
+	</div>
   </div>
   <script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
   <script type="text/javascript">
+    $('.modal-dialog').draggable();
+
     $('.modal-content').resizable({
       alsoResize: ".modal-dialog", // (?)
       minHeight: 1000,
       minWidth: 300
     });
-    $('.modal-dialog').draggable();
 
     $('#myModal').on('show.bs.modal', function() {
       $(this).find('.modal-body').css({
