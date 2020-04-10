@@ -8,10 +8,11 @@ import (
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// display comments
+// view poll results
 //
 //////////////////////////////////////////////////////////////////////////////
-func commentsHandler(w http.ResponseWriter, r *http.Request) {
+// TODO: This is just duplicate code, make it view the results.  (Same or different handler for adding the vote?)
+func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 	  
 	prVal(nw_, "r.URL.Query()", r.URL.Query())
@@ -50,7 +51,7 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 		DownVotes		[]int64
 		Comments		string
 	}{
-		PageArgs:		PageArgs{Title: "votezilla - Comments"},
+		PageArgs:		PageArgs{Title: "View Poll Results"},
 		Username:		username,
 		UserId:			userId,
 		NavMenu:		navMenu,
@@ -61,5 +62,5 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 		Comments:		comments,
 	}
 	
-	executeTemplate(w, "comments", commentsArgs)
+	executeTemplate(w, "viewPollResults", commentsArgs)	
 }
