@@ -35,27 +35,10 @@
 							<td align="right" style="width: 40%; padding-right: 5px;">
 								<a href="#">...</a>
 							</td>
-							<!-- Cause we already have the comments below
-							<td align="right" style="width: 40%;">
-								<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-									<a href="/comments/?postId={{$article.Id}}" data-toggle="tooltip" title="Comment!"><img src="/static/comment.png" width=16 height=16> 100</a>
-								</span>
-							</td>
-							-->
 						</tr></table>
 					</td>
 				</tr>
 
-				<tr>
-					<td align="left" style="width: 100%; padding-left:5px;">
-						<!--
-						<img src="{{$article.UrlToImage}}" width="100%" height="280">
-						<div style="width: 520px; height: 280px; background: url('{{$article.UrlToImage}}') no-repeat center; background-size: cover;">
-							<h1>Hello World H1</div>
-						</div>
-						-->
-					</td>
-				</tr>
 				<tr>
 					<td align="left" style="width: 100%; padding-left:5px; font-size: 14px;">
 						<table width=100%>
@@ -111,44 +94,6 @@
 						You voted Trump.  <a href="/comments/?postId={{$article.Id}}">Change your vote?</a> <br>
 				    </td>
 				</tr>
-<!-- For changing their vote... but I think we can redirect them to the comments.html page for this.
-				<br>
-				{{$article.Title}}
-				<div style="display: none">
-					{{ if $article.IsPoll }}
-						<tr valign="top">
-							<td class="title" style="padding-left: 5px;">
-							<form>
-								<table width="100%">
-									{{ if $article.PollOptionData.RankedChoiceVoting }}
-										<tr><td align="left">
-											<span class="rankedVoteIntro">Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</span><br>
-										</td></tr>
-									{{ end }}
-									<tr><td align="left">
-										{{ range $o, $option := $article.PollOptionData.Options }}
-											{{ if $article.PollOptionData.RankedChoiceVoting }}
-												<input type="digit" value="" size="1" maxlength="1" style="width: 25px; padding: 0px 5px;">{{$option}}<br>
-											{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
-												<label class="vote">
-													<input type="checkbox" class="vote" value="">{{$option}}
-												</label><br>
-											{{ else }}
-												<label class="radio" style="margin-bottom:0; cursor: pointer">
-												  <input type="radio" class="vote" name="optradio" {{ if eq $o -1 }} checked {{ end }}>{{$option}}
-												</label><br>
-											{{ end }}
-										{{ end }}
-										<input type="submit" class="vote" value="Change Vote!">
-									</td></tr>
-								</table>
-							</form>
-						</tr>
-						<tr class="spacer" style="height:10px"></tr>
-					{{ end }}
-				</div>
--->
-
 				<tr class="spacer" style="height:5px"></tr>
 			</table>
 		</div> {{/*col-md-12*/}}
