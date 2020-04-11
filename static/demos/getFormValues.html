@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Get Values Of Form Elements Using jQuery</title>
+<!-- Include CSS File Here -->
+<link rel="stylesheet" href="form_value.css"/>
+<!-- Include JS File Here -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript" src="form_value.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="main">
+			<h2>Get Values Of Form Elements Using jQuery</h2>
+			<form action="">
+				<!-- Text -->
+				<label>Input :</label>
+				<input type="text" id="text" name="name" value="" />
+				<input type="button" id="text_value" value="Get Value"/>
+				<input type="button" id="text_reset" value=" Reset "/>
+				<!-- Radio Button -->
+				<label>Radio Button :</label>
+				<input type="radio" name="radio" id="radio0" value="Radio 1">Radio 1
+				<input type="radio" name="radio" id="radio1" value="Radio 2">Radio 2
+				<input type="radio" name="radio" id="radio2" value="Radio 3">Radio 3
+				<input type="radio" name="radio" id="radio3" value="Radio 4">Radio 4
+				<input type="button" id="radio_value" value="Get Value"/>
+				<input type="button" id="radio_reset" value=" Reset "/>
+				<p id="result"></p>
+				<!-- Checkbox -->
+				<label>Checkbox :</label>
+				<input type="checkbox" id="check_value" value="Checked" />
+				<!-- Textarea -->
+				<label>Textarea :</label>
+				<textarea id="textarea" ></textarea>
+				<input type="button" id="textarea_value" value="Get Value"/>
+				<input type="button" id="textarea_reset" value=" Reset "/>
+				<input type="button" id="getAllValues" value="Get All Values" />
+			</form>
+		</div>
+	</div>
+
+<script>
+
+/*
+
+// TODO: use these accessors to get vote data.
+var text_value = $("#text").val();							// text
+var check_value = $("#check_value").is(':checked');			// checkbox
+var value = $("form input[type='radio']:checked").val();	// radio
+
+var textarea_value = $("#textarea").val();					// textarea
+*/
+
+
+$(document).ready(function() {
+	$('#getAllValues').click(function() {
+		var text_value = $("#text").val();							// text
+		var check_value = $("#check_value").is(':checked');			// checkbox
+		var radio_value = $("form input[type='radio']:checked").val();	// radio
+
+		var textarea_value = $("#textarea").val();					// textarea
+
+
+		var radio_values = $("#radio0").val();
+
+		alert(`radio_values = ${radio_values} text_value = ${text_value} \n check_value = ${check_value} \n radio_value = ${radio_value} \n textarea_value = ${textarea_value}`);
+	});
+
+	// Function to get input value.
+	$('#text_value').click(function() {
+		var text_value = $("#text").val();
+		if(text_value=='') {
+			alert("Enter Some Text In Input Field");
+		}else{
+			alert(text_value);
+		}
+	});
+
+	// Function to get checkbox value
+	$('#check_value').click(function() {
+		var check_value = $("#check_value").is(':checked');
+		alert(check_value);
+	});
+
+	// Function to get checked radio's value.
+	$('#radio_value').click(function() {
+		$('#result').empty();
+		var value = $("form input[type='radio']:checked").val();
+		if($("form input[type='radio']").is(':checked')) {
+			$('#result').append("Checked Radio Button Value is :<span> "+ value +" </span>");
+		}else{
+			alert(" Please Select any Option ");
+		}
+	});
+
+	// To get value of textarea.
+	$('#textarea_value').click(function() {
+		var textarea_value = $("#textarea").val();
+		if(textarea_value=='') {
+			alert("Enter Some Text In Textarea");
+		}else{
+			alert(textarea_value);
+		}
+	});
+});
+</script>
+</body>
+</html>

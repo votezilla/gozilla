@@ -1,10 +1,67 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 )
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// ajax poll vote
+//
+//////////////////////////////////////////////////////////////////////////////
+func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
+	pr(vo_, "ajaxPollVoteHandler")
+	prVal(vo_, "r.Method", r.Method)
+	
+	if r.Method != "POST" {
+		http.NotFound(w, r)
+		return
+	}
+    
+    //parse request to struct
+    var vote struct {
+		PollId		int
+		UserId		int
+		VoteData	[]string
+	}
+	
+    err := json.NewDecoder(r.Body).Decode(&vote)
+    if err != nil {
+		prVal(vo_, "Failed to decode json body", r.Body)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    prVal(vo_, "=======>>>>> vote", vote)
+	
+	/*
+	if vote.Add {
+    	DbExec( // sprintf necessary cause ::bool produces incorrect value in driver.
+			`INSERT INTO $$PostVote(PostId, UserId, Up)
+			 VALUES ($1::bigint, $2::bigint, $3::bool)
+			 ON CONFLICT (PostId, UserId) DO UPDATE 
+			 SET Up = $3::bool;`,
+			vote.PostId,
+			vote.UserId,
+			vote.Up)
+	} else { // remove
+		DbExec(
+			`DELETE FROM $$PostVote 
+			 WHERE PostId = $1::bigint AND UserId = $2::bigint;`,
+			vote.PostId,
+			vote.UserId)
+	}*/
+    
+    // create json response from struct
+    a, err := json.Marshal(vote)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    w.Write(a)
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

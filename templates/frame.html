@@ -71,7 +71,7 @@ function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
 			url: '/ajaxVote/',
 			type: "post",
 			contentType: 'application/json; charset=utf-8',
-			data: JSON.stringify({ PostId: id, UserId: {{.UserId}}, Add: add, Up: up}), // Hmmm <-- should be UserId not Username
+			data: JSON.stringify({PostId: id, UserId: {{.UserId}}, Add: add, Up: up}), // Hmmm <-- should be UserId not Username
 			dataType: 'json',
 			success: function(r) { console.log("AJAX - success"); },
 			error:   function(r) { console.log("AJAX - error"); }
@@ -116,17 +116,6 @@ $(function() {
 	    addOrRemoveVote({{$id}}, true, false, false, false) // Add a downvote presentation, but do not update the database.
     {{ end }}
 });
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// POLL VOTING FUNCTIONS
-//
-///////////////////////////////////////////////////////////////////////////////
-
-function PollVote(id) {
-	// TODO: implement PollVote.  Needs to identify its id, and pull in children for voting somehow.
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -253,28 +242,108 @@ function ReplyToComment(id) {
 			<div class="modal-body"></div>
 		</div>
 	</div>
-  </div>
-  <script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
-  <script type="text/javascript">
+</div>
+<script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+<script type="text/javascript">
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// POLL VOTING FUNCTIONS
+//
+///////////////////////////////////////////////////////////////////////////////
+
+// Get the vote data from the form - how the user voted on this poll, i.e. what their vote is.
+function getVoteData(pollId, pollType) {
+	console.log(`getVoteData(${pollId}, ${pollType})`);
+
+	var numOptions = $('input[name="vote_' + pollId + '_len"]').val();
+
+	console.log(`numOptions = ${numOptions}`);
+
+	var voteData = [];
+
+	for (var o = 0; o < numOptions; o++) {
+		switch(pollType) {
+			case "radio":
+			case "checkbox":
+				voteData.push($(`#vote_${pollId}_${o}`).is(':checked'));
+				break;
+			case "text":
+				voteData.push($(`#vote_${pollId}_${o}`).val());
+				break;
+			default:
+				alert("Unhandled poll type: " + pollType);
+		}
+	}
+	console.log(voteData);
+
+	return voteData;
+}
+
+
+// TODO: refactor and move code to here?
+//function PollVote(pollId) {}
+
     $('.modal-dialog').draggable();
 
     $('.modal-content').resizable({
-      alsoResize: ".modal-dialog", // (?)
-      minHeight: 1000,
-      minWidth: 300
+		alsoResize: ".modal-dialog", // (?)
+		minHeight: 1000,
+		minWidth: 300
     });
 
-    $('#myModal').on('show.bs.modal', function() {
-      $(this).find('.modal-body').css({
-        'max-height': '100%'
-      });
 
-      $('.modal-body').load('http://10.0.0.71:8080/viewPollResults/?postId=46272', function(){
-		//alert('Load was performed');
-		$('.modal').modal({show:true});
-	  });
-    });
+//triggered when modal is about to be shown
+$('#my_modal').on('show.bs.modal', function(e) {
 
-  </script>
+	//get data-id attribute of the clicked element
+	var bookId = $(e.relatedTarget).data('book-id');
+
+	//populate the textbox
+	$(e.currentTarget).find('input[name="bookId"]').val(bookId);
+});
+
+$('#myModal').on('show.bs.modal', function(e) {
+	//get poll-id attribute of the clicked element
+	var pollId	 = $(e.relatedTarget).data('poll-id');
+	var pollType = $(e.relatedTarget).data('poll-type');
+
+	console.log("pollId = " + pollId);
+
+	voteData = getVoteData(pollId, pollType);
+
+	$(this).find('.modal-body').css({
+		'max-height': '100%'
+	});
+
+	$data = {PollId: pollId, UserId: {{.UserId}}, VoteData: voteData};
+
+	console.log($data);
+
+	// TODO: add vote validation here
+
+
+	// Place poll vote
+	$.ajax({
+		url: '/ajaxPollVote/',
+		type: "post",
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify({PollId: pollId, UserId: {{.UserId}}, VoteData: voteData}),
+		dataType: 'json',
+		success: function(r) {
+			console.log("AJAX Poll Vote - success");
+
+			// Open the View Poll Results modal dialog
+			$('.modal-body').load(`/viewPollResults/?postId=${pollId}`, function() {
+				//alert('Load was performed');
+				$('.modal').modal({show: true});
+			});
+		},
+		error:   function(r) { console.log("AJAX Poll Vote - error"); }
+	});
+});
+
+
+</script>
 
 {{end}} {{/*body*/}}

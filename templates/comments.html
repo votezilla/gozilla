@@ -49,24 +49,47 @@
 						<table width="100%">
 							{{ if $article.PollOptionData.RankedChoiceVoting }}
 								<tr><td align="left">
-									<span class="rankedVoteIntro">Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</span><br>
+									<span class="rankedVoteIntro">
+										Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.
+									</span>
+									<br>
 								</td></tr>
 							{{ end }}
 							<tr><td align="left">
 								{{ range $o, $option := $article.PollOptionData.Options }}
 									{{ if $article.PollOptionData.RankedChoiceVoting }}
-										<input type="digit" value="" size="1" maxlength="1" style="width: 25px; padding: 0px 5px;">{{$option}}<br>
+										<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
+											   maxlength="1" style="width: 25px; padding: 0px 5px;">{{$option}}<br>
 									{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
 										<label class="vote">
-											<input type="checkbox" class="vote" value="">{{$option}}
+											<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
+												   value="{{$o}}">
+											{{$option}}
 										</label><br>
 									{{ else }}
 										<label class="radio" style="margin-bottom:0; cursor: pointer">
-										  <input type="radio" class="vote" name="optradio" {{ if eq $o -1 }} checked {{ end }}>{{$option}}
+										  	<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+										  		   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
+											{{$option}}
 										</label><br>
 									{{ end }}
 								{{ end }}
-								<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">Vote!</button>
+
+								<input name="vote_{{$article.Id}}_len" type=hidden
+									   value="{{len $article.PollOptionData.Options}}">
+
+								<button type="button" class="btn btn-primary btn-sm"
+										data-toggle="modal" data-target="#myModal" data-poll-id="{{$article.Id}}"
+									{{ if $article.PollOptionData.RankedChoiceVoting }}
+										data-poll-type="text"
+									{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
+										data-poll-type="checkbox"
+									{{ else }}
+										data-poll-type="radio"
+									{{ end }}
+								>
+									Vote!
+								</button>
 							</td></tr>
 						</table>
 					</form>

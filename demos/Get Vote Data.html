@@ -1,0 +1,546 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no">
+    <meta name="referrer" content="unsafe-url">
+
+	<title>votezilla - Comments - votezilla</title>
+
+	<link rel="stylesheet" type="text/css" href="/static/style.css?k1ds3223372ss">
+
+    <!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+	<!-- Include the Quill library (for rich text editing) -->
+	<!-- TODO: only include Quill when editing rich text? -->
+	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+	<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+    <style>
+	.marginRow{
+		 margin-top:0px !important;
+		 margin-bottom:0px !important;
+	}
+
+	.vz-col-md-12 { padding-left: 0px; padding-right: 0px; }
+
+	/* LARGE DEVICES */
+	@media (min-width:990px) {
+		.vz-col-md-6-left  	 { padding-left: 0px; padding-right: 0px; }
+		.vz-col-md-6-right   { padding-left: 15px; padding-right: 0px; }
+
+	}
+	/* SMALL DEVICES */
+	@media (max-width:990px) {
+		.vz-col-md-6-left  	 { padding-left: 0px; padding-right: 0px; width: 100%; max-width: 100%; flex: 0 0 100%; }
+		.vz-col-md-6-right   { padding-left: 0px; padding-right: 0px; width: 100%; max-width: 100%; flex: 0 0 100%; }
+	}
+
+	input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
+
+	/* TODO: Move these to the CSS file, they're only here for quick iteration.  Maybe the line above it too. Maybe(???) the device size stuff too?? */
+	.X {
+	    width: 400px;
+	    height: 400px;
+	    position: absolute;
+	    right:0;
+	    top:0;
+	}
+
+	.w3-border {
+		border: 1px solid #ccc !important;
+	}
+
+	.w3-grey {
+		color: #000 !important;
+		background-color: #9e9eff !important;
+	}
+
+	.center {
+	  display: block;
+	  margin-left: auto;
+	  margin-right: auto;
+	}
+
+	.btn-vote {
+	    color: #fff;
+	    background-color: #0030ff; /* #0495c9; */
+	    border-color: #2092ff;
+	    cursor: pointer;
+	}
+	.btn-vote:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open>.dropdown-toggle.btn-primary {
+	    color: #fff;
+	    background-color: #0072ff; /* #30a2ff;  #00b3db; */
+	    border-color: #62b7ff; /* #4297ff */
+	    cursor: pointer;
+	}
+	</style>
+  </head>
+  <body>
+
+
+<script>
+loggedIn =  false  ;
+
+var votedPosts = [[], []];
+
+function removeItem(arr, item) {
+	var index = arr.indexOf(item);
+	if (index > -1) {
+	    arr.splice(index, 1);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// UP/DOWN VOTING FUNCTIONS
+//
+///////////////////////////////////////////////////////////////////////////////
+
+// Whether an upvote or down with this id is enabled.
+function hasVote(id, up) {
+	return votedPosts[up ? 1 : 0].includes(id)
+}
+
+// Add or remove the voting state.  Also updates the vote tally text.
+function addOrRemoveVoteState(id, add, up) {
+	if (add) {
+		votedPosts[up ? 1 : 0].push(id)
+
+	} else { // remove
+		removeItem(votedPosts[up ? 1 : 0], id)
+	}
+}
+
+// Increment or decrement vote tally text.
+function incVoteLabel(id, voteInc) {
+	label = $("#votetally" + id)
+	count = parseInt(label.text())
+	label.text(count + voteInc)
+}
+
+// Add or remove a vote via state, CSS, and updating of database via AJAX.
+function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
+	// state
+	addOrRemoveVoteState(id, add, up)
+
+	// glowing arrow CSS
+	if (add) {
+		if (up) {
+			$("#upvote" + id).addClass("upvoted")
+		} else {
+			$("#downvote" + id).addClass("downvoted")
+		}
+	} else { // remove
+		if (up) {
+			$("#upvote" + id).removeClass("upvoted")
+		} else {
+			$("#downvote" + id).removeClass("downvoted")
+		}
+	}
+
+	// vote tally text
+	if (updateText) {
+		incVoteLabel(id, (add && up || !add && !up) ? 1 : -1)
+	}
+
+	// AJAX - database state
+	if (updateDatabase) {
+		$.ajax({
+			url: '/ajaxVote/',
+			type: "post",
+			contentType: 'application/json; charset=utf-8',
+			data: JSON.stringify({PostId: id, UserId: -1, Add: add, Up: up}), // Hmmm <-- should be UserId not Username
+			dataType: 'json',
+			success: function(r) { console.log("AJAX - success"); },
+			error:   function(r) { console.log("AJAX - error"); }
+		});
+	}
+}
+
+// Cancel an up or down vote
+function cancelVote(id, up) {
+	if (hasVote(id, up)) {
+		addOrRemoveVote(id, false, up, false, true) // cancel
+	}
+}
+
+// Toggle an up or down vote
+// (Only toggleVote should send the AJAX, otherwise there will be a race condition in updating the database.)
+function toggleVote(id, up) {
+	if (hasVote(id, up)) {
+		addOrRemoveVote(id, false, up, true, true) // cancel.
+	} else {
+		addOrRemoveVote(id, true,  up, true, true) // enable
+	}
+}
+
+// Vote up or down on a post.  Or if already voted, cancels the vote.
+// id: postId
+// up: true for up, false for down
+function Vote(id, up) {
+	if (loggedIn) {
+		cancelVote(id, !up) // cancel opposite type of vote
+		toggleVote(id, up)  // toggle this type of vote
+	} else {
+		alert("You must be logged in to do that!")
+	}
+}
+
+$(function() {
+
+
+});
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// COMMENTING FUNCTIONS
+//
+///////////////////////////////////////////////////////////////////////////////
+
+// Reply to the comment with this id.
+function ReplyToComment(id) {
+	var $element = document.getElementById(id);
+	$element.insertAdjacentHTML('afterend', `
+		<form>
+			<p><textarea rows="4" cols="50"></textarea></p>
+			<p><button type="submit" onclick="" class="save">save</button></p>
+		</form>
+	`);
+}
+</script>
+
+<div class="smart-padding container vz-container">
+	<div class="row vz-row">
+		<div class="col-md-12 vz-col-md-12">
+			<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
+				<tr><td bgcolor="#ff6600">
+					<!--<a href="news"><h1 style="text-align:center; margin: 0px;"><b>votezilla</b></h1></a>-->
+					<!--<div style="background-image: url('/static/votezilla logo/votezilla 6.jpg'); height: 180px; /*background-size: 100% 100%;*/">-->
+					<div width=100% style="background-color:white"><img src='/static/votezilla logo/votezilla 6.jpg' class="center" style="max-width:100%"></div>
+				</td></tr>
+
+				<!-- 00ff1e   ff6600 --><!--
+				<tr><td bgcolor="#1af133">
+					<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+						<tr>
+
+							<td style="width:18px; padding:1px">
+								<div style="border: 1px solid white; color: white; font-size: 14px; text-align:center;">vz</div>
+							</td>
+
+							<td style="line-height:12pt; height:10px; padding: 0px 5px">
+								<span class="pagetop">
+									<b class="hnname">
+										<a href="news">votezilla</a>
+									</b><span class="topsel"><a href="/news">news</a></span> | <a href="/submit">submit</a> | <a href="/history">history</a></span>
+							</td>
+							<td style="text-align:right; padding-right:4px;">
+								<span class="pagetop"><a href="/login">login</a> / <a href="/register">register</a>
+									</span>
+							</td>
+						</tr>
+					</table>
+				</td></tr>-->
+
+				<!--black-->
+				<tr><td bgcolor=white>
+					<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+						<tr>
+
+							<td style="width:18px; padding:1px">
+								<div style="border: 1px solid black; color: black; font-size: 14px; text-align:center;"><span style="color:#ff009c">v</span><span style="color:#0072ff">z</span></div>
+								<!--<img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;">-->
+
+							</td>
+
+							<td style="line-height:12pt; height:10px; padding: 0px 5px; color:white !important;">
+								<span class="pagetop">
+									<b class="hnname">
+										<a href="news" style="color:#ff009c">vote<span style="color:black">zilla</span></a>
+									</b><span class="topsel"><a href="/news" style="color:#0072ff;">news</a></span> | <a href="/submit" style="color:black;">submit</a> | <a href="/history" style="color:black;">history</a></span>
+							</td>
+							<td style="text-align:right; padding-right:4px;">
+								<span class="pagetop"><a href="/login">login</a> / <a href="/register">register</a>
+									</span>
+							</td>
+						</tr>
+					</table>
+				</td></tr>
+			</table>
+		</div>
+	</div>
+
+
+
+<div class="row vz-row">
+	<div class="col-md-6 vz-col-md-6-left">
+
+		<a href="/comments/?postId=46270" target="_blank" class="storylink" rel="nofollow">
+			<img src="/static/ballotbox.png" width="100%" height="280">
+		</a>
+
+		<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+			<tr>
+				<td align="left" style="width: 35%; padding-left:5px;">
+					<a href="#">
+						<span><img src="/static/mozilla dinosaur head.png" width=16 height=16></span>
+						<span style="color: #88f">magicsquare666</span>
+					</a>
+					&middot;
+					<span class="age" align="right">4d</span>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td class="title" style="padding-left: 5px;">
+					<span>
+						<a href="/comments/?postId=46270" target="_blank" class="storylink" rel="nofollow" style="font-size:14pt;">POLL: Ranked-choice voting for President in 2020</a>
+					</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="subtext" style="width: 100%; padding-left: 5px;">
+					<table width="100%"><tr>
+						<td align="left" style="width: 40%;">
+							<span class="upvote" id="upvote46270"><a href="javascript:Vote(46270, true)" class="upvote">&#x25B2;</a></span>
+							<a href="#" id="votetally46270">0</a>
+							<span class="downvote" id="downvote46270"><a href="javascript:Vote(46270, false)">&#x25BC;</a></span>
+						</td>
+						<td align="right" style="width: auto;">
+							<a href="#">...</a>
+						</td>
+					</tr></table>
+				</td>
+			</tr>
+
+
+				<tr valign="top">
+					<td class="title" style="padding-left: 5px;">
+					<form>
+						<table width="100%">
+
+							<tr><td align="left">
+
+
+										<label class="radio" style="margin-bottom:0; cursor: pointer">
+										  <input name="vote_46270_0" type="radio" class="vote" name="optradio" >Trump
+										</label><br>
+
+
+
+										<label class="radio" style="margin-bottom:0; cursor: pointer">
+										  <input name="vote_46270_1" type="radio" class="vote" name="optradio" >Biden
+										</label><br>
+
+
+
+										<label class="radio" style="margin-bottom:0; cursor: pointer">
+										  <input name="vote_46270_2" type="radio" class="vote" name="optradio" >Sanders
+										</label><br>
+
+
+
+								<input name="vote_46270_len" type=hidden value="3">
+
+								<button type="button" class="btn btn-primary btn-sm"
+										data-toggle="modal" data-target="#myModal" data-poll-id="46270">
+									Vote!
+								</button>
+							</td></tr>
+						</table>
+
+
+
+					</form>
+				</tr>
+				<tr class="spacer" style="height:10px"></tr>
+
+
+			<tr class="spacer" style="height:5px"></tr>
+		</table>
+	</div>
+	<div class="col-md-6 vz-col-md-6">
+	</div>
+</div>
+
+<div class="row vz-row">
+	<div class="col-md-12 vz-col-md-12">
+		<div class="vzcomment">
+			<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+			<p>I was half expecting it to be an act and him to start doing some crazy shit </p>
+			<p><span class="comment" id="comment0"><a href="javascript:ReplyToComment('comment0')">
+				<img src="/static/comment.png" width="16" height="16"> Reply
+			</span></p>
+			<div class="vzcomment_children">
+				<div class="vzcomment">
+					<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+					<p>Wait for it... wait for itttt..... waaaiittt ffooorrr iiittttt..........</p>
+					<p><span class="comment" id="comment1"><a href="javascript:ReplyToComment('comment1')">
+						<img src="/static/comment.png" width="16" height="16"> Reply
+					</span></p>
+					<div class="vzcomment_children">
+						<div class="vzcomment">
+							<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+							<p>You hear about Pluto? That?s messed up. </p>
+							<p><span class="comment" id="comment2"><a href="javascript:ReplyToComment('comment2')">
+								<img src="/static/comment.png" width="16" height="16"> Reply
+							</span></p>
+						</div>
+						<div class="vzcomment">
+							<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+							<p>What about the other 99 "plantets"?? </p>
+
+							<p><span class="comment" id="comment3"><a href="javascript:ReplyToComment('comment3')">
+								<img src="/static/comment.png" width="16" height="16"> Reply
+							</span></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+</div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h4 class="modal-title" id="myModalLabel" style="align:center;">
+					You just voted!
+				</h4>
+				<button type="button" class="btn btn-default" data-dismiss="modal"
+				        style="position:absolute; right:20px; cursor: pointer !important;">
+					Close
+				</button>
+			</div>
+
+			<div class="modal-body"></div>
+		</div>
+	</div>
+</div>
+<script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+<script type="text/javascript">
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// POLL VOTING FUNCTIONS
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function getVoteData(pollId) {
+	const five = 5;
+	const ten = 10;
+
+	console.log(`Fifteen is ${five + ten} and not ${2 * five + ten}.`);
+
+	console.log("getVoteData(" + pollId + ")");
+
+//	console.log(`input[name='vote_${pollId}_len']`);
+	var numOptions = $('input[name="vote_' + pollId + '_len"]').val();
+
+//	console.log(`vote_${pollId} => Type ${$('input[name="vote_${pollId}"]').attr('type')}`);
+
+	var options = [];
+	for (var o = 0; o < numOptions; o++) {
+//		console.log(`vote_${pollId}}_${o} => Type ${$('input[name="vote_${pollId}_${o}"]').attr('type')}`);
+
+
+		options.push($('input[name="vote_' + pollId + '_' + o + ']:checked').val());
+
+		            // $('input[name="thumbnail"]').val(urlToImage);
+	}
+
+	// HACK TEST
+	options.push($('input[name="vote_' + pollId + ']:checked').val());
+
+	console.log(`numOptions = ${numOptions}`);
+	console.log(options);//console.log(`options = ${options}`);
+
+	return options;
+}
+
+
+// TODO: refactor and move code to here?
+//function PollVote(pollId) {}
+
+    $('.modal-dialog').draggable();
+
+    $('.modal-content').resizable({
+		alsoResize: ".modal-dialog", // (?)
+		minHeight: 1000,
+		minWidth: 300
+    });
+
+
+//triggered when modal is about to be shown
+$('#my_modal').on('show.bs.modal', function(e) {
+
+	//get data-id attribute of the clicked element
+	var bookId = $(e.relatedTarget).data('book-id');
+
+	//populate the textbox
+	$(e.currentTarget).find('input[name="bookId"]').val(bookId);
+});
+
+$('#myModal').on('show.bs.modal', function(e) {
+	//get poll-id attribute of the clicked element
+	var pollId = $(e.relatedTarget).data('poll-id');
+
+	console.log("pollId = " + pollId);
+
+	voteData = getVoteData(pollId);
+
+	$(this).find('.modal-body').css({
+		'max-height': '100%'
+	});
+
+	$data = {PollId: pollId, UserId: -1, VoteData: voteData};
+
+	console.log($data);
+
+	// Place poll vote
+	$.ajax({
+		url: '/ajaxPollVote/',
+		type: "post",
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify({PollId: pollId, UserId: -1, VotingData: voteData}),
+		dataType: 'json',
+		success: function(r) {
+			console.log("AJAX Poll Vote - success");
+
+			// Open the View Poll Results modal dialog
+			$('.modal-body').load('/viewPollResults/?postId=46272', function() {
+				//alert('Load was performed');
+				$('.modal').modal({show: true});
+			});
+		},
+		error:   function(r) { console.log("AJAX Poll Vote - error"); }
+	});
+});
+
+/*
+
+console.log($(`input[name="vote_${46269}_${0}"]`).val());
+console.log($(`input[name="vote_${46269}_${1}"]`).val());
+console.log($(`input[name="vote_${46269}_${2}"]`).val());
+
+*/
+
+</script>
+
+  </body>
+</html>

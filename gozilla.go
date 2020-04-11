@@ -547,6 +547,8 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+	// TODO: we could add DNS Attack code defense here.
+	
 	return func(w http.ResponseWriter, r *http.Request) {
 		prf(go_, "\nHandling request from: %s\n", formatRequest(r))
     	
@@ -615,6 +617,7 @@ func WebServer() {
 	http.HandleFunc("/submitPoll/",   			hwrap(submitPollHandler))
 	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
+	http.HandleFunc("/ajaxPollVote/",			hwrap(ajaxPollVoteHandler))
 	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
 	
 	// Server static file.

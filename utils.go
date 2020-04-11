@@ -66,8 +66,9 @@ const (
 	ns_		= PrintMask(64)			// newsServer.go
 	is_		= PrintMask(128)		// imageServer.go
 	ut_		= PrintMask(256)		// utils.go
+	vo_		= PrintMask(512)		// voting.go
 	
-	all_	= PrintMask(512 - 1)
+	all_	= PrintMask(1024 - 1)
 )
 
 func print(text string) {
