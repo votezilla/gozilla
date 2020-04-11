@@ -227,7 +227,7 @@ function getVoteData(pollId, pollType) {
 		switch(pollType) {
 			case "radio":
 			case "checkbox":
-				voteData.push($(`#vote_${pollId}_${o}`).is(':checked'));
+				voteData.push($(`#vote_${pollId}_${o}`).is(':checked') ? "x" : "");
 				break;
 			case "text":
 				voteData.push($(`#vote_${pollId}_${o}`).val());
