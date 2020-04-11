@@ -24,11 +24,18 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	
+	userId := GetSession(r);
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		pr(go_, "Must be logged in to vote.")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
     
     //parse request to struct
     var vote struct {
 		PostId	int
-		UserId	int
 		Add		bool
 		Up		bool
 	}
@@ -43,20 +50,20 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
     prVal(go_, "vote", vote)
 	
 	if vote.Add {
-    	DbExec( // sprintf necessary cause ::bool produces incorrect value in driver.
+    	DbExec(
 			`INSERT INTO $$PostVote(PostId, UserId, Up)
 			 VALUES ($1::bigint, $2::bigint, $3::bool)
 			 ON CONFLICT (PostId, UserId) DO UPDATE 
 			 SET Up = $3::bool;`,
 			vote.PostId,
-			vote.UserId,
+			userId,
 			vote.Up)
 	} else { // remove
 		DbExec(
 			`DELETE FROM $$PostVote 
 			 WHERE PostId = $1::bigint AND UserId = $2::bigint;`,
 			vote.PostId,
-			vote.UserId)
+			userId)
 	}
     
     // create json response from struct

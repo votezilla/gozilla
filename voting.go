@@ -19,11 +19,19 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	
+	userId := GetSession(r);
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		pr(go_, "Must be logged in to vote.")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	prVal(vo_, "userId", userId);
     
     //parse request to struct
     var vote struct {
 		PollId		int
-		UserId		int
 		VoteData	[]string
 	}
 	
@@ -35,24 +43,26 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
     }
     
     prVal(vo_, "=======>>>>> vote", vote)
-	
-	/*
-	if vote.Add {
-    	DbExec( // sprintf necessary cause ::bool produces incorrect value in driver.
-			`INSERT INTO $$PostVote(PostId, UserId, Up)
-			 VALUES ($1::bigint, $2::bigint, $3::bool)
-			 ON CONFLICT (PostId, UserId) DO UPDATE 
-			 SET Up = $3::bool;`,
-			vote.PostId,
-			vote.UserId,
-			vote.Up)
-	} else { // remove
-		DbExec(
-			`DELETE FROM $$PostVote 
-			 WHERE PostId = $1::bigint AND UserId = $2::bigint;`,
-			vote.PostId,
-			vote.UserId)
-	}*/
+    
+    // TODO: there is vote data validation on the client, but it may need to be added
+    //       on the server eventually.
+    
+    voteDataJson, err := json.Marshal(vote.VoteData);
+    if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+    }
+    prVal(vo_, "voteDataJson", voteDataJson)
+       
+    // Send poll vote to the database.
+	DbExec( 
+		`INSERT INTO $$PollVote(PollId, UserId, Vote)
+		 VALUES ($1::bigint, $2::bigint, $3)
+		 ON CONFLICT (PollId, UserId) DO UPDATE
+		 SET Vote = $3;`,
+		vote.PollId,
+		userId,
+		voteDataJson);			
     
     // create json response from struct
     a, err := json.Marshal(vote)

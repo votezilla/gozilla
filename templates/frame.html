@@ -71,7 +71,7 @@ function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
 			url: '/ajaxVote/',
 			type: "post",
 			contentType: 'application/json; charset=utf-8',
-			data: JSON.stringify({PostId: id, UserId: {{.UserId}}, Add: add, Up: up}), // Hmmm <-- should be UserId not Username
+			data: JSON.stringify({PostId: id, Add: add, Up: up}), // Hmmm <-- should be UserId not Username
 			dataType: 'json',
 			success: function(r) { console.log("AJAX - success"); },
 			error:   function(r) { console.log("AJAX - error"); }
@@ -95,6 +95,8 @@ function toggleVote(id, up) {
 		addOrRemoveVote(id, true,  up, true, true) // enable
 	}
 }
+
+// TODO: there is a bug somewhere where you upvote, then downvote, and it ends up at a 0.
 
 // Vote up or down on a post.  Or if already voted, cancels the vote.
 // id: postId
@@ -250,7 +252,7 @@ function ordinal(num) {
 
 function validateVoteData(pollType, voteData) {
 	switch(pollType) {
-		case "radio": 
+		case "radio":
 			return voteData.reduce((a, b) => a || b); // Make sure one is picked.
 		case "checkbox": // Multiple choices valid
 			return true;
@@ -293,10 +295,10 @@ $('.modal-content').resizable({
 $('#myModal').on('show.bs.modal', function(e) {
 	if ({{.UserId}} == -1) {
 		alert("You must be logged in to do that!");
-		
+
 		// Cancel opening the modal
 		$('#myModal').modal('dispose');
-	
+
 		return;
 	}
 
@@ -306,10 +308,11 @@ $('#myModal').on('show.bs.modal', function(e) {
 
 	console.log("pollId = " + pollId);
 	console.log("pollType = " + pollType);
+	console.log("userId = " + {{.UserId}});
 
 	voteData = getVoteData(pollId, pollType);
 
-	console.log({PollId: pollId, UserId: {{.UserId}}, VoteData: voteData});
+	console.log({PollId: pollId, VoteData: voteData});
 
 	if (validateVoteData(pollType, voteData)) { // Check if voting data is valid.
 		$(this).find('.modal-body').css({
@@ -321,18 +324,27 @@ $('#myModal').on('show.bs.modal', function(e) {
 			url: '/ajaxPollVote/',
 			type: "post",
 			contentType: 'application/json; charset=utf-8',
-			data: JSON.stringify({PollId: pollId, UserId: {{.UserId}}, VoteData: voteData}),
+			data: JSON.stringify({PollId: pollId, VoteData: voteData}),
 			dataType: 'json',
 			success: function(r) {
 				console.log("AJAX Poll Vote - success");
 
+				console.log(r);
+
 				// Open the View Poll Results modal dialog
 				$('.modal-body').load(`/viewPollResults/?postId=${pollId}`, function() {
-					//alert('Load was performed');
+					console.log('Load was performed');
 					$('.modal').modal({show: true});
 				});
 			},
-			error:   function(r) { console.log("AJAX Poll Vote - error"); }
+			error: function(r) {
+				console.log("AJAX Poll Vote - error");
+
+				alert("Vote failed for some reason.");
+
+				// Cancel opening the modal
+				$('#myModal').modal('dispose');
+			}
 		});
 	} else {
 		// Cancel opening the modal
