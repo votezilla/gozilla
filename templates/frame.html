@@ -140,57 +140,16 @@ function ReplyToComment(id) {
 		<div class="col-md-12 vz-col-md-12">
 			<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
 				<tr><td bgcolor="#ff6600">
-					<!--<a href="news"><h1 style="text-align:center; margin: 0px;"><b>votezilla</b></h1></a>-->
-					<!--<div style="background-image: url('/static/votezilla logo/votezilla 6.jpg'); height: 180px; /*background-size: 100% 100%;*/">-->
 					<div width=100% style="background-color:white"><img src='/static/votezilla logo/votezilla 6.jpg' class="center" style="max-width:100%"></div>
 				</td></tr>
-
-				<!-- 00ff1e   ff6600 --><!--
-				<tr><td bgcolor="#1af133">
-					<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
-						<tr>
-
-							<td style="width:18px; padding:1px">
-								<div style="border: 1px solid white; color: white; font-size: 14px; text-align:center;">vz</div>
-							</td>
-
-							<td style="line-height:12pt; height:10px; padding: 0px 5px">
-								<span class="pagetop">
-									<b class="hnname">
-										<a href="news">votezilla</a>
-									</b>
-								{{- range $i, $navItem := .NavMenu}}
-									{{- if ne $i 0 }} | {{end -}}
-									{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
-									<a href="/{{$navItem}}">{{$navItem}}</a>
-									{{- if eq $navItem $.UrlPath}}</span>{{end -}}
-								{{end -}}
-								</span>
-							</td>
-							<td style="text-align:right; padding-right:4px;">
-								<span class="pagetop">
-									{{- if .Username }}
-										<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
-									{{- else -}}
-										<a href="/login">login</a> / <a href="/register">register</a>
-									{{end -}}
-								</span>
-							</td>
-						</tr>
-					</table>
-				</td></tr>-->
 
 				<!--black-->
 				<tr><td bgcolor=white>
 					<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
 						<tr>
-
 							<td style="width:18px; padding:1px">
 								<div style="border: 1px solid black; color: black; font-size: 14px; text-align:center;"><span style="color:#ff009c">v</span><span style="color:#0072ff">z</span></div>
-								<!--<img src="/static/y18.gif" width="18" height="18" style="border:1px white solid;">-->
-
 							</td>
-
 							<td style="line-height:12pt; height:10px; padding: 0px 5px; color:white !important;">
 								<span class="pagetop">
 									<b class="hnname">
@@ -224,8 +183,8 @@ function ReplyToComment(id) {
 
 </div> {{/*smart-padding container vz-container*/}}
 
-  <!-- Modal -->
-  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 
@@ -272,7 +231,7 @@ function getVoteData(pollId, pollType) {
 				voteData.push($(`#vote_${pollId}_${o}`).val());
 				break;
 			default:
-				alert("Unhandled poll type: " + pollType);
+				alert("Unhandled poll type AAA: " + pollType);
 		}
 	}
 	console.log(voteData);
@@ -280,67 +239,105 @@ function getVoteData(pollId, pollType) {
 	return voteData;
 }
 
+function ordinal(num) {
+	switch(num) {
+		case 1: return "1st";
+		case 2: return "2nd";
+		case 3: return "3rd";
+		default: return `${num}th`;
+	}
+}
 
-// TODO: refactor and move code to here?
-//function PollVote(pollId) {}
+function validateVoteData(pollType, voteData) {
+	switch(pollType) {
+		case "radio": 
+			return voteData.reduce((a, b) => a || b); // Make sure one is picked.
+		case "checkbox": // Multiple choices valid
+			return true;
+		case "text": // Ranked voting
+			sorted = voteData.filter(x => x != "").sort(); // creates a copy of voteData, then sorts it
 
-    $('.modal-dialog').draggable();
+			console.log(voteData);
+			console.log(sorted);
 
-    $('.modal-content').resizable({
-		alsoResize: ".modal-dialog", // (?)
-		minHeight: 1000,
-		minWidth: 300
-    });
+			// Check for valid ranked voting, i.e. "1", "2", ...
+			if (sorted[0] != "1") {
+				alert('You must mark your 1st choice with a "1"');
+				return false;
+			}
+			var gap = false;
+			for (var i = 1; i < sorted.length; i++) {
+				if (sorted[i] != (i + 1).toString(10)) {
+					alert(`You must mark your ${ordinal(i + 1)} choice with a "${i + 1}" (if you care to pick one).`);
+					console.log("return false");
+					return false;
+				}
+			}
+			console.log("return true");
+			return true;
+		default:
+			alert("Unhandled poll type BBB: " + pollType);
+			return false;
+	}
+}
 
+$('.modal-dialog').draggable();
 
-//triggered when modal is about to be shown
-$('#my_modal').on('show.bs.modal', function(e) {
-
-	//get data-id attribute of the clicked element
-	var bookId = $(e.relatedTarget).data('book-id');
-
-	//populate the textbox
-	$(e.currentTarget).find('input[name="bookId"]').val(bookId);
+$('.modal-content').resizable({
+	alsoResize: ".modal-dialog", // (?)
+	minHeight: 1000,
+	minWidth: 300
 });
 
+// Clicked Vote button
 $('#myModal').on('show.bs.modal', function(e) {
+	if ({{.UserId}} == -1) {
+		alert("You must be logged in to do that!");
+		
+		// Cancel opening the modal
+		$('#myModal').modal('dispose');
+	
+		return;
+	}
+
 	//get poll-id attribute of the clicked element
 	var pollId	 = $(e.relatedTarget).data('poll-id');
 	var pollType = $(e.relatedTarget).data('poll-type');
 
 	console.log("pollId = " + pollId);
+	console.log("pollType = " + pollType);
 
 	voteData = getVoteData(pollId, pollType);
 
-	$(this).find('.modal-body').css({
-		'max-height': '100%'
-	});
+	console.log({PollId: pollId, UserId: {{.UserId}}, VoteData: voteData});
 
-	$data = {PollId: pollId, UserId: {{.UserId}}, VoteData: voteData};
+	if (validateVoteData(pollType, voteData)) { // Check if voting data is valid.
+		$(this).find('.modal-body').css({
+			'max-height': '100%'
+		});
 
-	console.log($data);
+		// Place poll vote
+		$.ajax({
+			url: '/ajaxPollVote/',
+			type: "post",
+			contentType: 'application/json; charset=utf-8',
+			data: JSON.stringify({PollId: pollId, UserId: {{.UserId}}, VoteData: voteData}),
+			dataType: 'json',
+			success: function(r) {
+				console.log("AJAX Poll Vote - success");
 
-	// TODO: add vote validation here
-
-
-	// Place poll vote
-	$.ajax({
-		url: '/ajaxPollVote/',
-		type: "post",
-		contentType: 'application/json; charset=utf-8',
-		data: JSON.stringify({PollId: pollId, UserId: {{.UserId}}, VoteData: voteData}),
-		dataType: 'json',
-		success: function(r) {
-			console.log("AJAX Poll Vote - success");
-
-			// Open the View Poll Results modal dialog
-			$('.modal-body').load(`/viewPollResults/?postId=${pollId}`, function() {
-				//alert('Load was performed');
-				$('.modal').modal({show: true});
-			});
-		},
-		error:   function(r) { console.log("AJAX Poll Vote - error"); }
-	});
+				// Open the View Poll Results modal dialog
+				$('.modal-body').load(`/viewPollResults/?postId=${pollId}`, function() {
+					//alert('Load was performed');
+					$('.modal').modal({show: true});
+				});
+			},
+			error:   function(r) { console.log("AJAX Poll Vote - error"); }
+		});
+	} else {
+		// Cancel opening the modal
+		$('#myModal').modal('dispose');
+	}
 });
 
 

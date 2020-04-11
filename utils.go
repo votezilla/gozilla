@@ -67,8 +67,9 @@ const (
 	is_		= PrintMask(128)		// imageServer.go
 	ut_		= PrintMask(256)		// utils.go
 	vo_		= PrintMask(512)		// voting.go
+	co_		= PrintMask(1024)		// comments.go
 	
-	all_	= PrintMask(1024 - 1)
+	all_	= PrintMask(2048 - 1)
 )
 
 func print(text string) {

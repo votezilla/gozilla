@@ -14,7 +14,7 @@ import (
 func commentsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 	  
-	prVal(nw_, "r.URL.Query()", r.URL.Query())
+	prVal(co_, "r.URL.Query()", r.URL.Query())
 
 	reqPostId := parseUrlParam(r, "postId")
 	postId, err := strconv.ParseInt(reqPostId, 10, 64)
@@ -26,6 +26,9 @@ func commentsHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the username.
 	userId := GetSession(r)
 	username := getUsername(userId)	
+	
+	prVal(co_, "userId", userId);
+	prVal(co_, "username", username);
 	
 	// TODO_REFACTOR: unify articles and posts in database.
 	article, err := fetchArticle(postId, userId)
