@@ -55,8 +55,6 @@
 							</tr>
 							{{ $pollTallyResults := .PollTallyResults }}
 							{{ range $o, $option := $poll.Options }}
-								o = {{$o}}<br>
-								option = {{$option}}<br>
 								{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
 								<tr>
 									<td width=20% nowrap>{{$option}}</td>
