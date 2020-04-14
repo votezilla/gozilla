@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
+	"net/url"
 )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -86,6 +88,12 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	reqVoteData := parseUrlParam(r, "voteData")
 	prVal(vo_, "reqVoteData", reqVoteData)
+	
+	decodedVoteData, err := url.QueryUnescape(reqVoteData)
+	check(err)
+	prVal(vo_, "decodedVoteData", decodedVoteData)
+	
+	voteData := strings.Split(decodedVoteData, ",")
 
 	reqPostId := parseUrlParam(r, "postId")
 	
@@ -108,6 +116,14 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	upvotes, downvotes := deduceVotingArrows([]Article{article})
 	
+	userVoteString := "" // userVoteString is a textual representation the user's vote(s)."
+	for i, option := range(article.PollOptionData.Options) {
+		userVoteString += ternary_str(voteData[i] != "",  // if the vote was checked:
+			ternary_str(userVoteString != "", ", ", "") + //   concat with ", "
+				option,                                   //   all votes that were checked
+				"")
+	}
+	
 	comments := "TODO: NESTED COMMENTS!"
 	
 	// Render the news articles.
@@ -121,7 +137,8 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UpVotes			[]int64
 		DownVotes		[]int64
 		Comments		string
-		VoteData		string
+		VoteData		[]string
+		UserVoteString	string
 	}{
 		PageArgs:		PageArgs{Title: "View Poll Results"},
 		Username:		username,
@@ -132,7 +149,8 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UpVotes:		upvotes, 
 		DownVotes:		downvotes,
 		Comments:		comments,
-		VoteData:		reqVoteData,	// The way this user just voted.
+		VoteData:		voteData,	// The way this user just voted.
+		UserVoteString:	userVoteString, 
 	}
 	
 	executeTemplate(w, "viewPollResults", viewPollArgs)	

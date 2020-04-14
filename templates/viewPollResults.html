@@ -4,9 +4,10 @@
 			{{ $article := .Article }}
 			{{ $poll := $article.PollOptionData }}
 			{{ $vote := $.VoteData }}
-
+			{{/*
 			Poll = {{ $poll }}
 			Vote Data = {{ $vote }}
+			*/}}
 
 			<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
 				<tr>
@@ -62,12 +63,12 @@
 										</div>
 									</td>
 									<td width=5%>40%</td>
-									<td width=5%>{{ if eq $o 0 }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td><!-- TODO: replace licensed art -->
+									<td width=5%>{{ if index $vote $o }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td><!-- TODO: replace licensed art -->
 								</tr>
 							{{ end }}
 						</table>
 						<br>
-						You voted Trump.  <a href="/comments/?postId={{$article.Id}}">Change your vote?</a> <br>
+						You voted {{$.UserVoteString}}.  <a href="/comments/?postId={{$article.Id}}">Change your vote?</a> <br>
 				    </td>
 				</tr>
 				<tr class="spacer" style="height:5px"></tr>
