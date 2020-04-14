@@ -133,13 +133,13 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 
 	var categoryOrder []string
 	if onlyCategory != "" {
-		prVal(nw_, "headlines", headlines)
+		//prVal(nw_, "headlines", headlines)
 		articlesPerCategoryGroup := 
 			switch_int(headlines, 
 				kNoHeadlines,		 kRowsPerCategory * kNumCols,
 				kAlternateHeadlines, kRowsPerCategory + 1,
 				kAllHeadlines, 		 2)
-		prVal(nw_, "articlesPerCategoryGroup", articlesPerCategoryGroup)
+		//prVal(nw_, "articlesPerCategoryGroup", articlesPerCategoryGroup)
 		
 		assert(articlesPerCategoryGroup != -1)
 		
@@ -305,8 +305,8 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 		}
 	}
 
-	prVal(nw_, "upvotes", upvotes)
-	prVal(nw_, "downvotes", downvotes)
+	//prVal(nw_, "upvotes", upvotes)
+	//prVal(nw_, "downvotes", downvotes)
 
 	return upvotes, downvotes
 }
@@ -363,7 +363,7 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	prVal(nw_, "r.URL.Query()", r.URL.Query())
+	//prVal(nw_, "r.URL.Query()", r.URL.Query())
 
 	reqCategory		:= parseUrlParam(r, "category")
 	
@@ -402,7 +402,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 func historyHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	prVal(nw_, "r.URL.Query()", r.URL.Query())
+	//prVal(nw_, "r.URL.Query()", r.URL.Query())
 	
 	reqAlert		:= parseUrlParam(r, "alert")
 
@@ -422,8 +422,8 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 		
 	// Get articles voted on by user, and set their bucket accordingly.
 	articlesVotedOnByUser	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
-	prVal(nw_, "len(articlesVotedOnByUser)", len(articlesVotedOnByUser))
-	prVal(nw_, "articlesVotedOnByUser", articlesVotedOnByUser)
+//	prVal(nw_, "len(articlesVotedOnByUser)", len(articlesVotedOnByUser))
+//	prVal(nw_, "articlesVotedOnByUser", articlesVotedOnByUser)
 
 	upvotes, downvotes := deduceVotingArrows(articlesVotedOnByUser)
 

@@ -66,8 +66,9 @@
 									</td>
 								</tr>
 
-								{{ if $article.IsPoll }}
-									{{ if $article.PollOptionData.RankedChoiceVoting }}
+								{{- if $article.IsPoll -}}
+									{{- $poll := $article.PollOptionData }}
+									{{ if $poll.RankedChoiceVoting }}
 										<tr valign="top">
 											<td style="width: 100%; padding-left: 5px;">
 											<i>Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</i>
@@ -82,11 +83,11 @@
 
 													<!-- idea: could we make a callback for rendering each poll option? -->
 
-													{{ range $o, $option := $article.PollOptionData.Options }}
-														{{ if $article.PollOptionData.RankedChoiceVoting }}
+													{{ range $o, $option := $poll.Options }}
+														{{ if $poll.RankedChoiceVoting }}
 															<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
 															<label class="rankedVoteLabel">{{$option}}</label>
-														{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
+														{{ else if $poll.CanSelectMultipleOptions }}
 															<label class="vote">
 																<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
 																	{{$option}}
@@ -101,13 +102,13 @@
 													{{ end }}
 
 													<input name="vote_{{$article.Id}}_len" type=hidden
-														   value="{{len $article.PollOptionData.Options}}">
+														   value="{{len $poll.Options}}">
 
 													<span style="padding-left: 5px;">
 														<button type="button" class="btn btn-vote btn-sm" data-toggle="modal" data-target="#myModal" data-poll-id="{{$article.Id}}"
-															{{ if $article.PollOptionData.RankedChoiceVoting }}
+															{{ if $poll.RankedChoiceVoting }}
 																data-poll-type="text"
-															{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
+															{{ else if $poll.CanSelectMultipleOptions }}
 																data-poll-type="checkbox"
 															{{ else }}
 																data-poll-type="radio"
@@ -168,20 +169,21 @@
 											<a href="{{$article.Url}}" target="_blank" rel="nofollow">
 												{{$article.Title}}
 											</a>
-											{{ if $article.IsPoll }}
+											{{- if $article.IsPoll -}}
+												{{- $poll := $article.PollOptionData }}
 												<form>
 													<table width="100%">
-														{{ if $article.PollOptionData.RankedChoiceVoting }}
+														{{ if $poll.RankedChoiceVoting }}
 															<tr><td align="left">
 																<span class="rankedVoteIntro">Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</span>
 															</td></tr>
 														{{ end }}
 														<tr><td align="left">
-															{{ range $o, $option := $article.PollOptionData.Options }}
-																{{ if $article.PollOptionData.RankedChoiceVoting }}
+															{{ range $o, $option := $poll.Options }}
+																{{ if $poll.RankedChoiceVoting }}
 																	<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
 																		  <label class="rankedVoteLabel">{{$option}}</label>
-																{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
+																{{ else if $poll.CanSelectMultipleOptions }}
 																	<label class="vote">
 																		<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
 																			   value="{{$o}}">
@@ -197,14 +199,14 @@
 															{{ end }}
 
 															<input name="vote_{{$article.Id}}_len" type=hidden
-															   value="{{len $article.PollOptionData.Options}}">
+															   value="{{len $poll.Options}}">
 
 															<span style="padding-left: 5px;">
 																<button type="button" class="btn btn-vote btn-sm"
 																		data-toggle="modal" data-target="#myModal" data-poll-id="{{$article.Id}}"
-																	{{ if $article.PollOptionData.RankedChoiceVoting }}
+																	{{ if $poll.RankedChoiceVoting }}
 																		data-poll-type="text"
-																	{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
+																	{{ else if $poll.CanSelectMultipleOptions }}
 																		data-poll-type="checkbox"
 																	{{ else }}
 																		data-poll-type="radio"

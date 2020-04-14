@@ -42,12 +42,13 @@
 				</td>
 			</tr>
 
-			{{ if $article.IsPoll }}
+			{{- if $article.IsPoll -}}
+				{{- $poll := $article.PollOptionData }}
 				<tr valign="top">
 					<td class="title" style="padding-left: 5px;">
 					<form>
 						<table width="100%">
-							{{ if $article.PollOptionData.RankedChoiceVoting }}
+							{{ if $poll.RankedChoiceVoting }}
 								<tr><td align="left">
 									<span class="rankedVoteIntro">
 										Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.
@@ -56,11 +57,11 @@
 								</td></tr>
 							{{ end }}
 							<tr><td align="left">
-								{{ range $o, $option := $article.PollOptionData.Options }}
-									{{ if $article.PollOptionData.RankedChoiceVoting }}
+								{{ range $o, $option := $poll.Options }}
+									{{ if $poll.RankedChoiceVoting }}
 										<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
 											   maxlength="1" style="width: 25px; padding: 0px 5px;">{{$option}}<br>
-									{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
+									{{ else if $poll.CanSelectMultipleOptions }}
 										<label class="vote">
 											<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
 												   value="{{$o}}">
@@ -76,13 +77,13 @@
 								{{ end }}
 
 								<input name="vote_{{$article.Id}}_len" type=hidden
-									   value="{{len $article.PollOptionData.Options}}">
+									   value="{{len $poll.Options}}">
 
 								<button type="button" class="btn btn-vote btn-sm"
 										data-toggle="modal" data-target="#myModal" data-poll-id="{{$article.Id}}"
-									{{ if $article.PollOptionData.RankedChoiceVoting }}
+									{{ if $poll.RankedChoiceVoting }}
 										data-poll-type="text"
-									{{ else if $article.PollOptionData.CanSelectMultipleOptions }}
+									{{ else if $poll.CanSelectMultipleOptions }}
 										data-poll-type="checkbox"
 									{{ else }}
 										data-poll-type="radio"

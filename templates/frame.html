@@ -342,7 +342,7 @@ $('#myModal').on('show.bs.modal', function(e) {
 				console.log(r);
 
 				// Open the View Poll Results modal dialog
-				$('.modal-body').load(`/viewPollResults/?postId=${pollId}`, function() {
+				$('.modal-body').load(`/viewPollResults/?postId=${pollId}&voteData=${voteData}`, function() {
 					console.log('Load was performed');
 			//		$('.modal').modal({show: true});
 				});
@@ -359,9 +359,9 @@ $('#myModal').on('show.bs.modal', function(e) {
 	} else {
 		// Cancel opening the modal
 		console.log("invalid vote data, disposing of modal");
-		
+
 		$('#myModal').modal('dispose');
-	
+
 	}
 });
 

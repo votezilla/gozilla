@@ -83,9 +83,13 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 	  
 	prVal(nw_, "r.URL.Query()", r.URL.Query())
+	
+	reqVoteData := parseUrlParam(r, "voteData")
+	prVal(vo_, "reqVoteData", reqVoteData)
 
 	reqPostId := parseUrlParam(r, "postId")
-	postId, err := strconv.ParseInt(reqPostId, 10, 64)
+	
+	postId, err := strconv.ParseInt(reqPostId, 10, 64) // Convert from string to int64.
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
 		return
@@ -107,7 +111,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	comments := "TODO: NESTED COMMENTS!"
 	
 	// Render the news articles.
-	commentsArgs := struct {
+	viewPollArgs := struct {
 		PageArgs
 		Username		string
 		UserId			int64
@@ -117,6 +121,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UpVotes			[]int64
 		DownVotes		[]int64
 		Comments		string
+		VoteData		string
 	}{
 		PageArgs:		PageArgs{Title: "View Poll Results"},
 		Username:		username,
@@ -127,7 +132,8 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UpVotes:		upvotes, 
 		DownVotes:		downvotes,
 		Comments:		comments,
+		VoteData:		reqVoteData,	// The way this user just voted.
 	}
 	
-	executeTemplate(w, "viewPollResults", commentsArgs)	
+	executeTemplate(w, "viewPollResults", viewPollArgs)	
 }
