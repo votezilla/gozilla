@@ -41,6 +41,24 @@ func min_int(i int, j int) int { return ternary_int(i < j, i, j) }
 func max_int(i int, j int) int { return ternary_int(i > j, i, j) }
 func getBitFlag(flags, mask uint64) bool { return (flags & mask) != 0; }
 
+// Inline switch which takes and returns int values.
+// e.g. switch_int(2, // switch value:
+//			0, 100,   // case 0: return 100
+//			1, 200,   // case 1: return 200
+//			2, 300)   // case 2: return 300
+//		returns 300;
+func switch_int(switch_val int, cases_and_values ...int) int {
+	prVal(ut_, "switch_val", switch_val);
+	prVal(ut_, "cases_and_values", cases_and_values);
+	
+	for c := 0; c + 1 < len(cases_and_values); c += 2 {	
+		if switch_val == cases_and_values[c] {
+			return cases_and_values[c + 1]
+		}
+	}
+	return -1; // This is the default (not found) flag value.
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // string functions

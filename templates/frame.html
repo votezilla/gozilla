@@ -253,9 +253,17 @@ function ordinal(num) {
 function validateVoteData(pollType, voteData) {
 	switch(pollType) {
 		case "radio":
-			return voteData.reduce((a, b) => a || b); // Make sure one is picked.
 		case "checkbox": // Multiple choices valid
-			return true;
+			console.log(voteData);
+
+			valid = voteData.reduce((a, b) => a || b)  // OR all the choices together.
+			console.log("valid = " + valid);
+
+			if (!valid) {
+				alert(`You must select ${pollType == "checkbox" ? "at least " : ""}one option`);
+			}
+
+			return valid; // Make sure one is picked.
 		case "text": // Ranked voting
 			sorted = voteData.filter(x => x != "").sort(); // creates a copy of voteData, then sorts it
 
@@ -315,6 +323,8 @@ $('#myModal').on('show.bs.modal', function(e) {
 	console.log({PollId: pollId, VoteData: voteData});
 
 	if (validateVoteData(pollType, voteData)) { // Check if voting data is valid.
+		console.log("valid vote data");
+
 		$(this).find('.modal-body').css({
 			'max-height': '100%'
 		});
@@ -334,7 +344,7 @@ $('#myModal').on('show.bs.modal', function(e) {
 				// Open the View Poll Results modal dialog
 				$('.modal-body').load(`/viewPollResults/?postId=${pollId}`, function() {
 					console.log('Load was performed');
-					$('.modal').modal({show: true});
+			//		$('.modal').modal({show: true});
 				});
 			},
 			error: function(r) {
@@ -348,7 +358,10 @@ $('#myModal').on('show.bs.modal', function(e) {
 		});
 	} else {
 		// Cancel opening the modal
+		console.log("invalid vote data, disposing of modal");
+		
 		$('#myModal').modal('dispose');
+	
 	}
 });
 

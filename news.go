@@ -34,6 +34,10 @@ const (
 
 	kSubmittedPosts = "submitted posts"
 	kVotedPosts = "voted posts"
+	
+	kNoHeadlines = 0
+	kAlternateHeadlines = 1
+	kAllHeadlines = 2
 )
 
 var (
@@ -114,20 +118,33 @@ func sortArticles(articles []Article) {
 //	 categoryInfo - describes the category names and banner background colors.
 //	 onlyCategory - if == "", displays for articles grouped by category
 //				       != "", only display articles from a specific category
-//   headlines    - whether to display some articles as headlines (larger articles).
+//   headlines    - whether to display some articles as headlines (larger articles): 
+//		    kNoHeadlines, kAlternateHeadlines, or kAllHeadlines.
 //
 // TODO: HTML-escape this!!!
 //
 //////////////////////////////////////////////////////////////////////////////
-func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines bool) ([]ArticleGroup) {
+func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines int) ([]ArticleGroup) {
 	//sortArticle(articles)
 
 	//rowsPerCategory := ternary_int(onlyCategory == "", kRowsPerCategory, kMaxArticles)
 
+	pr(nw_, "formatArticleGroups")
+
 	var categoryOrder []string
 	if onlyCategory != "" {
-		numCategoryGroups := kMaxArticles / (ternary_int(headlines, (kRowsPerCategory + 1),
-																    kRowsPerCategory * kNumCols))
+		prVal(nw_, "headlines", headlines)
+		articlesPerCategoryGroup := 
+			switch_int(headlines, 
+				kNoHeadlines,		 kRowsPerCategory * kNumCols,
+				kAlternateHeadlines, kRowsPerCategory + 1,
+				kAllHeadlines, 		 2)
+		prVal(nw_, "articlesPerCategoryGroup", articlesPerCategoryGroup)
+		
+		assert(articlesPerCategoryGroup != -1)
+		
+		numCategoryGroups := kMaxArticles / articlesPerCategoryGroup;
+							
 		categoryOrder = make([]string, numCategoryGroups)
 		for i := range categoryOrder {
 			categoryOrder[i] = onlyCategory
@@ -196,8 +213,9 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 				// The first article is always the headline.  Articles after the headline get skipped.
 				size := 0
 
-				if headlines {
-					if col == 0 {
+
+				if headlines != kNoHeadlines {
+					if col == 0 || headlines == kAllHeadlines {
 						if row == 0 { // first article is the headline, i.e. big
 							size =  1 // 1 means large article (headline)
 						} else {      // the rest of the articles get skipped, since the headline takes all the space.
@@ -258,7 +276,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 
 		cat++
 
-		if headlines {
+		if headlines == kAlternateHeadlines {
 			headlineSide = (headlineSide + 1) % 2 // The side with the headline switches each time, to look nice.
 		}
 	}
@@ -370,7 +388,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
 
-	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, true)
+	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
 
 	renderNews(w, "News", username, userId, articleGroups, "news", "news", []int64{}, []int64{}, reqAlert)
 }
@@ -395,14 +413,13 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	// Get articles posted by user
 	articlesPostedByUser	:= fetchArticlesPostedByUser(userId, "", kMaxArticles)
 	prVal(nw_, "len(articlesPostedByUser)", len(articlesPostedByUser))
-	prVal(nw_, "articlesPostedByUser", articlesPostedByUser)
+//	prVal(nw_, "articlesPostedByUser", articlesPostedByUser)
 	for a, _ := range articlesPostedByUser {
 		articlesPostedByUser[a].Bucket = kSubmittedPosts
 	}
 
-	articleGroups := formatArticleGroups(articlesPostedByUser, historyCategoryInfo, kSubmittedPosts, false)		
-	
-	
+	articleGroups := formatArticleGroups(articlesPostedByUser, historyCategoryInfo, kSubmittedPosts, kAlternateHeadlines/*kNoHeadlines*/)		
+		
 	// Get articles voted on by user, and set their bucket accordingly.
 	articlesVotedOnByUser	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
 	prVal(nw_, "len(articlesVotedOnByUser)", len(articlesVotedOnByUser))
@@ -411,7 +428,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	upvotes, downvotes := deduceVotingArrows(articlesVotedOnByUser)
 
 	articleGroups = append(articleGroups, 
-					 formatArticleGroups(articlesVotedOnByUser, historyCategoryInfo, kVotedPosts, false)...)
+					 formatArticleGroups(articlesVotedOnByUser, historyCategoryInfo, kVotedPosts, kAlternateHeadlines)...)
 	
 	renderNews(w, "History", username, userId, articleGroups, "history", "news", upvotes, downvotes, reqAlert)
 }
