@@ -2,11 +2,19 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/lib/pq"
 	"net/http"
-	"strconv"
-	"strings"
 	"net/url"
+	"strconv"
+	"strings"	
 )
+
+type PollTallyResult struct {
+	Count		int
+	Percentage	float32
+}
+
+type PollTallyResults []PollTallyResult
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -48,23 +56,41 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
     
     // TODO: there is vote data validation on the client, but it may need to be added
     //       on the server eventually.
-    
+ /*   
     voteDataJson, err := json.Marshal(vote.VoteData);
     if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
     }
-    prVal(vo_, "voteDataJson", voteDataJson)
-       
-    // Send poll vote to the database.
+    prVal(vo_, "voteDataJson", voteDataJson) 
+ */   
+    // Convert voteDataJson into parallel arrays for more compact database storage.
+    voteOptionIds := make([]int, 0)
+    voteAmounts := make([]int, 0)
+    
+    for optionId, str := range vote.VoteData {
+		if str != "" {
+			voteOptionIds = append(voteOptionIds, optionId)
+			
+			if str != "x" { // Ranked Voting
+				voteAmount, err := strconv.Atoi(str)
+				check(err)
+				
+				voteAmounts = append(voteAmounts, voteAmount)
+			}
+		}
+	}
+   
+    // Send poll vote to the database, removing any prior vote.
 	DbExec( 
-		`INSERT INTO $$PollVote(PollId, UserId, Vote)
-		 VALUES ($1::bigint, $2::bigint, $3)
+		`INSERT INTO $$PollVote(PollId, UserId, VoteOptionIds, VoteAmounts)
+		 VALUES ($1::bigint, $2::bigint, $3::int[], $4::int[])
 		 ON CONFLICT (PollId, UserId) DO UPDATE
-		 SET Vote = $3;`,
+		 SET (VoteOptionIds, VoteAmounts) = ($3::int[], $4::int[])`,
 		vote.PollId,
 		userId,
-		voteDataJson);			
+		pq.Array(voteOptionIds),
+		pq.Array(voteAmounts));			
     
     // create json response from struct
     a, err := json.Marshal(vote)
@@ -73,6 +99,94 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
     w.Write(a)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// calc poll tally
+//
+//////////////////////////////////////////////////////////////////////////////
+func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults {	
+	pollTallyResults := make(PollTallyResults, len(pollOptionData.Options))
+	
+	if (!pollOptionData.RankedChoiceVoting) { // Regular single or multi-select voting
+		rows := DbQuery("SELECT VoteOptionIds FROM $$PollVote WHERE PollId = $1::bigint", pollId)
+	
+		defer rows.Close()
+		for rows.Next() {
+			var voteOptionIds []int64	// This is the only type possible for scanning into an array of ints.
+
+			err := rows.Scan(pq.Array(&voteOptionIds))
+			check(err)
+			
+			// Sum the votes.
+			for _, voteOption := range voteOptionIds {
+				pollTallyResults[voteOption].Count++
+			}
+			
+			dividend := 0
+			
+			if !pollOptionData.CanSelectMultipleOptions { // Single select - basic survey.
+				sum := 0
+				for i := range pollTallyResults {
+					sum += pollTallyResults[i].Count
+				} 
+				dividend = sum
+			} else {                       // Multi-select survey.
+				greatest := 0
+				for i := range pollTallyResults {
+					greatest = max_int(greatest, pollTallyResults[i].Count)
+				}
+				dividend = greatest
+			}
+			
+			invDividend := float32(1.0 / dividend)
+			for i := range pollTallyResults {
+				pollTallyResults[i].Percentage = float32(100.0) * float32(pollTallyResults[i].Count) * invDividend
+			}
+		}
+		check(rows.Err())	
+		
+		return pollTallyResults
+	} else { // RankedChoiceVoting
+		nyi()
+		/* TODO: implement vote tallying for RankedChoiceVoting
+		voteRankings := make([][]int, len(pollOptionData.Options))
+
+		rows := DbQuery("SELECT VoteOptionIds, VoteAmounts FROM $$PollVote WHERE PollId = $1::bigint", pollId)
+	
+		defer rows.Close()
+		for rows.Next() {
+			var voteOptionIds, voteAmounts []int
+
+			err := rows.Scan(pq.Array(&voteOptionIds), pq.Array(&voteAmounts))
+			check(err)
+			
+			voteTally := make([]int, len(pollOptionData.Options))
+			for {
+				for v, rank := range voteAmounts {
+					//if rank == "1"
+				}
+				
+				nyi()
+			
+				// Clear voteTally back to 0.
+				for i := range voteTally {
+					voteTally[i] = 0
+				}
+			}
+			
+			//for _, voteOption := range voteOptionIds {
+			//	pollTallyResults = append(pollTallyResults, voteOption)
+			//}
+			
+			return pollTallyResults
+		}
+		check(rows.Err())	
+		*/
+	}
+	
+	return pollTallyResults
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -116,6 +230,9 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	
 	upvotes, downvotes := deduceVotingArrows([]Article{article})
 	
+	// Tally the votes
+	pollTallyResults := calcPollTally(postId, article.PollOptionData)
+	
 	userVoteString := "" // userVoteString is a textual representation the user's vote(s)."
 	for i, option := range(article.PollOptionData.Options) {
 		userVoteString += ternary_str(voteData[i] != "",  // if the vote was checked:
@@ -129,28 +246,30 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	// Render the news articles.
 	viewPollArgs := struct {
 		PageArgs
-		Username		string
-		UserId			int64
-		NavMenu			[]string
-		UrlPath			string
-		Article			Article
-		UpVotes			[]int64
-		DownVotes		[]int64
-		Comments		string
-		VoteData		[]string
-		UserVoteString	string
+		Username			string
+		UserId				int64
+		NavMenu				[]string
+		UrlPath				string
+		Article				Article
+		UpVotes				[]int64
+		DownVotes			[]int64
+		Comments			string
+		VoteData			[]string
+		UserVoteString		string
+		PollTallyResults	PollTallyResults
 	}{
-		PageArgs:		PageArgs{Title: "View Poll Results"},
-		Username:		username,
-		UserId:			userId,
-		NavMenu:		navMenu,
-		UrlPath:		"news",
-		Article:		article,
-		UpVotes:		upvotes, 
-		DownVotes:		downvotes,
-		Comments:		comments,
-		VoteData:		voteData,	// The way this user just voted.
-		UserVoteString:	userVoteString, 
+		PageArgs:			PageArgs{Title: "View Poll Results"},
+		Username:			username,
+		UserId:				userId,
+		NavMenu:			navMenu,
+		UrlPath:			"news",
+		Article:			article,
+		UpVotes:			upvotes, 
+		DownVotes:			downvotes,
+		Comments:			comments,
+		VoteData:			voteData,	// The way this user just voted.
+		UserVoteString:		userVoteString, 
+		PollTallyResults:	pollTallyResults,
 	}
 	
 	executeTemplate(w, "viewPollResults", viewPollArgs)	

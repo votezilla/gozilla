@@ -29,6 +29,8 @@ func check(err error) {
     }
 }
 
+func nyi() { panic("Not yet implemented!") }
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // math functions
