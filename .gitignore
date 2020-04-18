@@ -6,4 +6,5 @@ test.html
 demos/*
 static/downloads/*
 static/thumbnails/*
+.vscode/
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"	
+	"strings"
 )
 
 type PollTallyResult struct {
@@ -24,12 +24,12 @@ type PollTallyResults []PollTallyResult
 func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 	pr(vo_, "ajaxPollVoteHandler")
 	prVal(vo_, "r.Method", r.Method)
-	
+
 	if r.Method != "POST" {
 		http.NotFound(w, r)
 		return
 	}
-	
+
 	userId := GetSession(r);
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
@@ -38,51 +38,51 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	prVal(vo_, "userId", userId);
-    
+
     //parse request to struct
     var vote struct {
 		PollId		int
 		VoteData	[]string
 	}
-	
+
     err := json.NewDecoder(r.Body).Decode(&vote)
     if err != nil {
 		prVal(vo_, "Failed to decode json body", r.Body)
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-    
+
     prVal(vo_, "=======>>>>> vote", vote)
-    
+
     // TODO: there is vote data validation on the client, but it may need to be added
     //       on the server eventually.
- /*   
+ /*
     voteDataJson, err := json.Marshal(vote.VoteData);
     if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
     }
-    prVal(vo_, "voteDataJson", voteDataJson) 
- */   
+    prVal(vo_, "voteDataJson", voteDataJson)
+ */
     // Convert voteDataJson into parallel arrays for more compact database storage.
     voteOptionIds := make([]int, 0)
     voteAmounts := make([]int, 0)
-    
+
     for optionId, str := range vote.VoteData {
 		if str != "" {
 			voteOptionIds = append(voteOptionIds, optionId)
-			
+
 			if str != "x" { // Ranked Voting
 				voteAmount, err := strconv.Atoi(str)
 				check(err)
-				
+
 				voteAmounts = append(voteAmounts, voteAmount)
 			}
 		}
 	}
-   
+
     // Send poll vote to the database, removing any prior vote.
-	DbExec( 
+	DbExec(
 		`INSERT INTO $$PollVote(PollId, UserId, VoteOptionIds, VoteAmounts)
 		 VALUES ($1::bigint, $2::bigint, $3::int[], $4::int[])
 		 ON CONFLICT (PollId, UserId) DO UPDATE
@@ -90,8 +90,8 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 		vote.PollId,
 		userId,
 		pq.Array(voteOptionIds),
-		pq.Array(voteAmounts));			
-    
+		pq.Array(voteAmounts));
+
     // create json response from struct
     a, err := json.Marshal(vote)
     if err != nil {
@@ -106,86 +106,166 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 // calc poll tally
 //
 //////////////////////////////////////////////////////////////////////////////
-func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults {	
-	pollTallyResults := make(PollTallyResults, len(pollOptionData.Options))
-	
+func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults {
+	numOptions := len(pollOptionData.Options)
+
+	pollTallyResults := make(PollTallyResults, numOptions)
+
 	if (!pollOptionData.RankedChoiceVoting) { // Regular single or multi-select voting
+
+		// Get the votes from the database.
 		rows := DbQuery("SELECT VoteOptionIds FROM $$PollVote WHERE PollId = $1::bigint", pollId)
-	
 		defer rows.Close()
 		for rows.Next() {
-			var voteOptionIds []int64	// This is the only type possible for scanning into an array of ints.
+			var voteOptions []int64	// This is the only type possible for scanning into an array of ints.
 
-			err := rows.Scan(pq.Array(&voteOptionIds))
+			err := rows.Scan(pq.Array(&voteOptions))
 			check(err)
-			
-			// Sum the votes.
-			for _, voteOption := range voteOptionIds {
+
+			// Tally the votes.
+			for _, voteOption := range voteOptions {
 				pollTallyResults[voteOption].Count++
 			}
-			
-			dividend := 0
-			
-			if !pollOptionData.CanSelectMultipleOptions { // Single select - basic survey.
-				sum := 0
-				for i := range pollTallyResults {
-					sum += pollTallyResults[i].Count
-				} 
-				dividend = sum
-			} else {                       // Multi-select survey.
-				greatest := 0
-				for i := range pollTallyResults {
-					greatest = max_int(greatest, pollTallyResults[i].Count)
-				}
-				dividend = greatest
-			}
-			
-			invDividend := float32(1.0 / dividend)
-			for i := range pollTallyResults {
-				pollTallyResults[i].Percentage = float32(100.0) * float32(pollTallyResults[i].Count) * invDividend
-			}
 		}
-		check(rows.Err())	
-		
+		check(rows.Err())
+
+		dividend := 0
+		if !pollOptionData.CanSelectMultipleOptions { // Single select - basic survey - get the sum.
+			sum := 0
+			for i := range pollTallyResults {
+				sum += pollTallyResults[i].Count
+			}
+			dividend = sum
+		} else {                                      // Multi-select survey - get the greatest value.
+			greatest := 0
+			for i := range pollTallyResults {
+				greatest = max_int(greatest, pollTallyResults[i].Count)
+			}
+			dividend = greatest
+		}
+
+		invDividendPercent := 100.0 / float32(dividend)
+		for i := range pollTallyResults {
+			pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
+		}
+
 		return pollTallyResults
 	} else { // RankedChoiceVoting
-		nyi()
-		/* TODO: implement vote tallying for RankedChoiceVoting
-		voteRankings := make([][]int, len(pollOptionData.Options))
 
+		type UserRankedVotes struct {
+			VoteOptions	[]int64
+			VoteRanks	[]int64
+
+			BestOption	int64
+		}
+		userRankedVotes := make([]UserRankedVotes, 0)
+
+		// Get the votes from the database.
 		rows := DbQuery("SELECT VoteOptionIds, VoteAmounts FROM $$PollVote WHERE PollId = $1::bigint", pollId)
-	
 		defer rows.Close()
 		for rows.Next() {
-			var voteOptionIds, voteAmounts []int
+			var voteOptions, voteRanks []int64	// []int64 is the only type possible for scanning into an array of ints.
 
-			err := rows.Scan(pq.Array(&voteOptionIds), pq.Array(&voteAmounts))
+			err := rows.Scan(pq.Array(&voteOptions), pq.Array(&voteRanks))
 			check(err)
-			
-			voteTally := make([]int, len(pollOptionData.Options))
-			for {
-				for v, rank := range voteAmounts {
-					//if rank == "1"
-				}
-				
-				nyi()
-			
-				// Clear voteTally back to 0.
-				for i := range voteTally {
-					voteTally[i] = 0
+
+			assert(len(voteOptions) == len(voteRanks))
+
+			userRankedVotes = append(userRankedVotes,
+								     UserRankedVotes {
+										 VoteOptions:	voteOptions,
+										 VoteRanks:		voteRanks })
+		}
+		check(rows.Err())
+
+		// Do the ranked voting algorithm.
+		eliminatedVoteOptions := make([]int64, 0)
+		round := 1
+		rankedVotingLoop: for {
+			// For each user...
+			for u, userRankedVote := range(userRankedVotes) {
+
+				// ...Find the best option for the user...
+				userRankedVotes[u].BestOption = -1
+				minRank	  					 := MaxInt64
+				for r, rank := range(userRankedVote.VoteRanks) {
+					option := userRankedVote.VoteOptions[r]
+
+					// ...Based on the candidates still available.
+					if contains_int64(eliminatedVoteOptions, option) {
+						continue
+					}
+
+					if rank < minRank { // The best option has the lowest rank (closest to "1").
+						minRank 	   				  = rank
+						userRankedVotes[u].BestOption = option
+					}
 				}
 			}
-			
-			//for _, voteOption := range voteOptionIds {
-			//	pollTallyResults = append(pollTallyResults, voteOption)
+
+			// Clear the tally results
+			for i := range pollTallyResults {
+				pollTallyResults[i].Count = 0
+			}
+			sum := 0
+
+			// Tally the votes.
+			for _, userRankedVote := range(userRankedVotes) {
+				pollTallyResults[userRankedVote.BestOption].Count++
+				sum++
+			}
+
+			prVal(vo_, "sum", sum)
+
+			// Calculate the percentage.
+			invDividendPercent := 100.0 / float32(sum)
+			for i := range pollTallyResults {
+				pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
+			}
+
+			prf(vo_, "Round %d results:", round)
+			for i, pollTallyResult := range pollTallyResults {
+				prf(vo_, "\tOption %d\tCount %d\tPercentage %f", i, pollTallyResult.Count, pollTallyResult.Percentage)
+			}
+
+			// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
+			//for i := range pollTallyResults {
+			//	if pollTallyResults[i].Percentage > 50.0 {
+			//		break rankedVotingLoop
+			//	}
 			//}
-			
-			return pollTallyResults
+
+			// Otherwise, eliminate the remaining vote option with the fewest votes and recount the votes.
+			leastVotes  := MaxInt
+			worstOption := -1
+			for option, pollTallyResult := range pollTallyResults {
+				// It must be from one of the options remaining.
+				if contains_int64(eliminatedVoteOptions, int64(option)) {
+					continue
+				}
+
+				if pollTallyResult.Count < leastVotes {
+					leastVotes = pollTallyResult.Count
+					worstOption = option
+				}
+			}
+			eliminatedVoteOptions = append(eliminatedVoteOptions, int64(worstOption))
+
+			prf(vo_, "Eliminated vote option %d, it had the lowest vote count: %d", worstOption, leastVotes)
+
+			// Stop when we have one candidate remaining.
+			if round == numOptions - 1 {
+				assert(len(eliminatedVoteOptions) == numOptions - 1)
+
+				break rankedVotingLoop
+			}
+
+			round++
 		}
-		check(rows.Err())	
-		*/
+
+		return pollTallyResults
 	}
-	
+
 	return pollTallyResults
 }
 
@@ -197,42 +277,42 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 // TODO: This is just duplicate code, make it view the results.  (Same or different handler for adding the vote?)
 func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
-	  
+
 	prVal(nw_, "r.URL.Query()", r.URL.Query())
-	
+
 	reqVoteData := parseUrlParam(r, "voteData")
 	prVal(vo_, "reqVoteData", reqVoteData)
-	
+
 	decodedVoteData, err := url.QueryUnescape(reqVoteData)
 	check(err)
 	prVal(vo_, "decodedVoteData", decodedVoteData)
-	
+
 	voteData := strings.Split(decodedVoteData, ",")
 
 	reqPostId := parseUrlParam(r, "postId")
-	
+
 	postId, err := strconv.ParseInt(reqPostId, 10, 64) // Convert from string to int64.
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
 		return
 	}
-	
+
 	// Get the username.
 	userId := GetSession(r)
-	username := getUsername(userId)	
-	
+	username := getUsername(userId)
+
 	// TODO_REFACTOR: unify articles and posts in database.
 	article, err := fetchArticle(postId, userId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
 		return
 	}
-	
+
 	upvotes, downvotes := deduceVotingArrows([]Article{article})
-	
+
 	// Tally the votes
 	pollTallyResults := calcPollTally(postId, article.PollOptionData)
-	
+
 	userVoteString := "" // userVoteString is a textual representation the user's vote(s)."
 	for i, option := range(article.PollOptionData.Options) {
 		userVoteString += ternary_str(voteData[i] != "",  // if the vote was checked:
@@ -240,9 +320,9 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 				option,                                   //   all votes that were checked
 				"")
 	}
-	
+
 	comments := "TODO: NESTED COMMENTS!"
-	
+
 	// Render the news articles.
 	viewPollArgs := struct {
 		PageArgs
@@ -264,13 +344,13 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		NavMenu:			navMenu,
 		UrlPath:			"news",
 		Article:			article,
-		UpVotes:			upvotes, 
+		UpVotes:			upvotes,
 		DownVotes:			downvotes,
 		Comments:			comments,
 		VoteData:			voteData,	// The way this user just voted.
-		UserVoteString:		userVoteString, 
+		UserVoteString:		userVoteString,
 		PollTallyResults:	pollTallyResults,
 	}
-	
-	executeTemplate(w, "viewPollResults", viewPollArgs)	
+
+	executeTemplate(w, "viewPollResults", viewPollArgs)
 }

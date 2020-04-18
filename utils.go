@@ -33,6 +33,14 @@ func nyi() { panic("Not yet implemented!") }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// math constants
+//
+///////////////////////////////////////////////////////////////////////////////
+const MaxInt   = int(^uint(0) >> 1)
+const MaxInt64 = int64(^uint64(0) >> 1)
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // math functions
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,8 +60,8 @@ func getBitFlag(flags, mask uint64) bool { return (flags & mask) != 0; }
 func switch_int(switch_val int, cases_and_values ...int) int {
 	prVal(ut_, "switch_val", switch_val);
 	prVal(ut_, "cases_and_values", cases_and_values);
-	
-	for c := 0; c + 1 < len(cases_and_values); c += 2 {	
+
+	for c := 0; c + 1 < len(cases_and_values); c += 2 {
 		if switch_val == cases_and_values[c] {
 			return cases_and_values[c + 1]
 		}
@@ -69,6 +77,22 @@ func switch_int(switch_val int, cases_and_values ...int) int {
 func ternary_str(b bool, s1 string, s2 string) 	string 	{ if b { return s1 } else { return s2 } }
 func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// array functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
+// Return true if item is in array.
+func contains_int64(array []int64, item int64) bool {
+	for _, a := range array {
+		if a == item {
+			return true
+		}
+	}
+	return false
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -88,7 +112,7 @@ const (
 	ut_		= PrintMask(256)		// utils.go
 	vo_		= PrintMask(512)		// voting.go
 	co_		= PrintMask(1024)		// comments.go
-	
+
 	all_	= PrintMask(2048 - 1)
 )
 
@@ -107,7 +131,7 @@ func printf(format string, args... interface{}) {
 func prf(mask PrintMask, format string, args... interface{}) {
 	if (mask & flags.printMask) != 0 {
 		printf(format, args...)
-	}	
+	}
 }
 
 func printVal(label string, v interface{}) {
@@ -135,7 +159,7 @@ func prValX(mask PrintMask, label string, v interface{}) {
 ///////////////////////////////////////////////////////////////////////////////
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
 	//pr("executeTemplate: " + templateName)
-	
+
 	if flags.debug != "" {
 		parseTemplateFiles()
 	}
@@ -151,7 +175,7 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 // writes to io.Writer instead of http.ResponseWriter
 func renderTemplate(w io.Writer, templateName string, data interface{}) {
 	//pr("renderTemplate: " + templateName)
-	
+
 	if flags.debug != "" {
 		parseTemplateFiles()
 	}
@@ -196,21 +220,21 @@ func httpGet(url string, timeout float32) (*http.Response, error){
 	 	Timeout:	time.Duration(timeout) * time.Second,
 	 	Transport:	tr,
 	}
-	
+
 	prVal(ut_, "httpGet", url)
 	//prVal(ut_, "tr", tr)
 	//prVal(ut_, "netClient", netClient)
-	
+
 	//return netClient.Get(url)
-	
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 	    prVal(ut_, "request had error", err)
 	    return nil, err
 	}
-	
+
 	//prVal(ut_, "req", req)
-	
+
 	req.Host = "votezilla.io"  //"domain.tld"
 	return netClient.Do(req)
 } */
@@ -237,7 +261,7 @@ func formatRequest(r *http.Request) string {
 		r.ParseForm()
 		request = append(request, "\n")
 		request = append(request, r.Form.Encode())
-	} 
+	}
 	// Return the request as a string
 	return strings.Join(request, "\n")
 }

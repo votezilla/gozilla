@@ -1,0 +1,83 @@
+; TextPad syntax definitions for Google Go
+
+C=1
+
+
+[Syntax]
+IgnoreCase = No
+InitKeyWordChars = A-Za-z_
+KeyWordChars = A-Za-z0-9_
+BracketChars = {[()]}
+OperatorChars = -+*/<>!~%^&|=.?:
+PreprocStart = #
+SyntaxStart =
+SyntaxEnd =
+CommentStart = /*
+CommentEnd = */
+CommentStartAlt =
+CommentEndAlt =
+SingleComment = //
+SingleCommentCol =
+SingleCommentAlt =
+SingleCommentColAlt =
+StringStart = "
+StringEnd = "
+StringAlt =
+StringEsc = \
+CharStart = '
+CharEnd = '
+CharEsc = \
+
+[Keywords 1]
+type
+break
+default
+func
+interface
+select
+case
+defer
+go
+map
+struct
+chan
+else
+goto
+package
+switch
+const
+fallthrough
+if
+range
+type
+continue
+for
+import
+return
+var
+this
+
+[Keywords 2]
+true
+false
+new
+
+[Keywords 3]
+uint8
+uint16
+uint32
+uint64
+int8
+int16
+int32
+int64
+float32
+float64
+byte
+uint
+int
+float
+uintptr
+string
+nil
+bool
