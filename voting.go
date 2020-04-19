@@ -54,16 +54,6 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 
     prVal(vo_, "=======>>>>> vote", vote)
 
-    // TODO: there is vote data validation on the client, but it may need to be added
-    //       on the server eventually.
- /*
-    voteDataJson, err := json.Marshal(vote.VoteData);
-    if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-    }
-    prVal(vo_, "voteDataJson", voteDataJson)
- */
     // Convert voteDataJson into parallel arrays for more compact database storage.
     voteOptionIds := make([]int, 0)
     voteAmounts := make([]int, 0)
