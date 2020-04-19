@@ -105,42 +105,7 @@
 	</div>
 </div> {{/*row*/}}
 
-<div class="row vz-row">
-	<div class="col-md-12 vz-col-md-12">
-		<div class="vzcomment">
-			<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
-			<p>I was half expecting it to be an act and him to start doing some crazy shit </p>
-			<p><span class="comment" id="comment0"><a href="javascript:ReplyToComment('comment0')">
-				<img src="/static/comment.png" width="16" height="16"> Reply
-			</span></p>
-			<div class="vzcomment_children">
-				<div class="vzcomment">
-					<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
-					<p>Wait for it... wait for itttt..... waaaiittt ffooorrr iiittttt..........</p>
-					<p><span class="comment" id="comment1"><a href="javascript:ReplyToComment('comment1')">
-						<img src="/static/comment.png" width="16" height="16"> Reply
-					</span></p>
-					<div class="vzcomment_children">
-						<div class="vzcomment">
-							<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
-							<p>You hear about Pluto? That’s messed up. </p>
-							<p><span class="comment" id="comment2"><a href="javascript:ReplyToComment('comment2')">
-								<img src="/static/comment.png" width="16" height="16"> Reply
-							</span></p>
-						</div>
-						<div class="vzcomment">
-							<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
-							<p>What about the other 99 "plantets"?? </p>
+{{ template "comments" .Comments }}
 
-							<p><span class="comment" id="comment3"><a href="javascript:ReplyToComment('comment3')">
-								<img src="/static/comment.png" width="16" height="16"> Reply
-							</span></p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div> {{/*col-md-12*/}}
-</div> {{/*row*/}}
 
 {{end}} {{/*content*/}}

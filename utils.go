@@ -23,6 +23,12 @@ func assert(ok bool) {
     }
 }
 
+func assertMsg(ok bool, errorMsg string) {
+    if !ok {
+        panic(errorMsg)
+    }
+}
+
 func check(err error) {
     if err != nil {
         panic(err)

@@ -112,6 +112,9 @@ CREATE TABLE vz.Comment (
     MaterializedPath    BIGINT NOT NULL, -- int64, bits used as follows:
                                          --    16b, 16b, 8b, 8b, 4b, 4b, 4b, 4b
                                          --     L0   L1  L2  L3  L4  L5  L6, L7
+    -- The simpler way: vvv
+    Path				INT[] NOT NULL,
+                                         
     -- Note: for now we'll fetch all comments for a post,
     --       then SORT BY MaterializedPath.
     --       in Go, we'll parse these into a hierarchy, will need pointers.
@@ -121,7 +124,8 @@ CREATE TABLE vz.Comment (
     Created             TIMESTAMPTZ  NOT NULL DEFAULT now(),
     Deleted             BOOL DEFAULT false
 );
-CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, MaterializedPath);  -- UNIQUE index is a btree, so sorting by MaterializedPath should be fast.
+-- CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, MaterializedPath);  -- UNIQUE index is a btree, so sorting by MaterializedPath should be fast.
+CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, Path);  -- The simpler way
 
 -- FUNCTIONS
 -- Gets the category based on the category and user's country of origin.

@@ -502,3 +502,11 @@ SELECT UrlToImage, UrlToImage, Id,         Created
 FROM ONLY vz.LinkPost
 WHERE ThumbnailStatus = 0
 ORDER BY Created DESC;
+
+SELECT PostId, UserId, Text, Path FROM vz.Comment ORDER BY Path;
+
+SELECT PostId, Text, array_length(Path, 1), u.Name FROM vz.Comment c
+ LEFT JOIN vz.User u 
+ ON c.UserId = u.Id
+ WHERE PostId = 0
+ ORDER BY Path;

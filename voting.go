@@ -321,8 +321,6 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 				"")
 	}
 
-	comments := "TODO: NESTED COMMENTS!"
-
 	// Render the news articles.
 	viewPollArgs := struct {
 		PageArgs
@@ -333,10 +331,10 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		Article				Article
 		UpVotes				[]int64
 		DownVotes			[]int64
-		Comments			string
 		VoteData			[]string
 		UserVoteString		string
 		PollTallyResults	PollTallyResults
+		Comments			[]CommentTag
 	}{
 		PageArgs:			PageArgs{Title: "View Poll Results"},
 		Username:			username,
@@ -346,10 +344,10 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		Article:			article,
 		UpVotes:			upvotes,
 		DownVotes:			downvotes,
-		Comments:			comments,
 		VoteData:			voteData,	// The way this user just voted.
 		UserVoteString:		userVoteString,
 		PollTallyResults:	pollTallyResults,
+		Comments:			ReadCommentTagsFromDB(article.Id),
 	}
 
 	executeTemplate(w, "viewPollResults", viewPollArgs)

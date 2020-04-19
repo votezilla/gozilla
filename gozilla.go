@@ -570,7 +570,7 @@ func parseTemplateFiles() {
 
 	// HTML templates
 	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form"), T("defaultForm")))
-	templates["article"]		= template.Must(template.ParseFiles(T("base"), T("frame"), T("article")))
+	templates["article"]		= template.Must(template.ParseFiles(T("base"), T("frame"), T("article"), T("comments")))
 	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("frame"), T("news")))
 	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
 	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
@@ -579,7 +579,7 @@ func parseTemplateFiles() {
 	templates["submitPoll"]		= template.Must(template.ParseFiles(T("base"), T("submitPoll")))
 
 	// Popup forms (they do not inherit from 'base')
-	templates["viewPollResults"]= template.Must(template.ParseFiles(T("viewPollResults")))
+	templates["viewPollResults"]= template.Must(template.ParseFiles(T("viewPollResults"), T("comments")))
 
 	// Javascript snippets
 	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
