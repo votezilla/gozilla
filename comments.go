@@ -71,7 +71,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	comments := "TODO: NESTED COMMENTS!"
 
 	// Render the news articles.
-	commentsArgs := struct {
+	articleArgs := struct {
 		PageArgs
 		Username		string
 		UserId			int64
@@ -93,5 +93,5 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		Comments:		comments,
 	}
 
-	executeTemplate(w, "comments", commentsArgs)
+	executeTemplate(w, "article", articleArgs)
 }

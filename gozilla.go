@@ -570,7 +570,7 @@ func parseTemplateFiles() {
 
 	// HTML templates
 	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form"), T("defaultForm")))
-	templates["comments"]		= template.Must(template.ParseFiles(T("base"), T("frame"), T("article")))
+	templates["article"]		= template.Must(template.ParseFiles(T("base"), T("frame"), T("article")))
 	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("frame"), T("news")))
 	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
 	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
