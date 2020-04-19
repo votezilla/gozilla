@@ -20,7 +20,7 @@ CREATE TABLE vz.User (
     -- Details
     Country         TEXT,
     Location        TEXT,
-    -- TODO: ++ Language	TEXT.  Will default to "English (US)" if Country is "US".  Otherwise, will unhide a request for language, which was previously hidden by JQuery
+    -- TODO: ++ Language    TEXT.  Will default to "English (US)" if Country is "US".  Otherwise, will unhide a request for language, which was previously hidden by JQuery
     
     BirthYear       INT,
     Gender          TEXT,
@@ -61,7 +61,7 @@ CREATE TABLE vz.LinkPost (
 ) INHERITS (vz.Post);
 
 CREATE TABLE vz.BlogPost (
-    Blog            TEXT		-- The actual blog article.  Text vs byte?  In this case, the description would give a preview or short summary in the zoomed in view.
+    Blog            TEXT        -- The actual blog article.  Text vs byte?  In this case, the description would give a preview or short summary in the zoomed in view.
 ) INHERITS (vz.Post);
 
 CREATE TABLE vz.NewsPost (
@@ -72,15 +72,15 @@ CREATE TABLE vz.NewsPost (
 ) INHERITS (vz.LinkPost);
 
 CREATE TABLE vz.PollPost (
-    PollOptionData  TEXT		-- JSON
+    PollOptionData  TEXT        -- JSON  
 ) INHERITS (vz.Post);
 
 
 CREATE TABLE vz.PollVote (
     PollId          BIGINT          NOT NULL,
-    UserId          BIGINT          NOT NULL,	
-    Vote            TEXT,	    	-- JSON	 -- TODO: remove this
-    VoteOptionIds   INT[],	    -- TODO: make this NOT NULL eventually
+    UserId          BIGINT          NOT NULL,    
+    Vote            TEXT,            -- JSON     -- TODO: remove this
+    VoteOptionIds   INT[],        -- TODO: make this NOT NULL eventually
     VoteAmounts     INT[],
     
     PRIMARY KEY (PollId, UserId)
@@ -88,65 +88,55 @@ CREATE TABLE vz.PollVote (
 CREATE INDEX poll_index ON vz.PollVote (PollId);
 
 
-
 CREATE TABLE vz.PostVote (
     PostId            BIGINT        NOT NULL,
     UserId            BIGINT        NOT NULL,
     Up                BOOL          NOT NULL,
-    Created            TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    Created           TIMESTAMPTZ  NOT NULL DEFAULT now(),
     UNIQUE(PostId, UserId)
 );
+
+CREATE TABLE vz.Comment (
+    Id                  BIGSERIAL   PRIMARY KEY,   
+    
+    PostId              BIGINT NOT NULL, -- Which post this is a comment on.
+    UserId              BIGINT NOT NULL, -- The user who left this comment.        
+    ParentId            BIGINT,          -- The parent comment, hierarchially.         
+    
+    Text                VARCHAR(40000) NOT NULL, -- 40,000 is Reddit's maximum text length.
+    PrevRevisions       VARCHAR(40000)[],
+    
+    -- Materialized path - this sorts it into a tree hierarchy for us, though 
+    --                     we'll still need to sort by aye/nay vote later... 
+    --                     think if this is the right algorithm.
+    MaterializedPath    BIGINT NOT NULL, -- int64, bits used as follows:
+                                         --    16b, 16b, 8b, 8b, 4b, 4b, 4b, 4b
+                                         --     L0   L1  L2  L3  L4  L5  L6, L7
+    -- Note: for now we'll fetch all comments for a post,
+    --       then SORT BY MaterializedPath.
+    --       in Go, we'll parse these into a hierarchy, will need pointers.
+    --              Then sort each list by aye/nay vote.
+    --       Eventually... we'll need to optimize this.
+    
+    Created             TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    Deleted             BOOL DEFAULT false
+);
+CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, MaterializedPath);  -- UNIQUE index is a btree, so sorting by MaterializedPath should be fast.
 
 -- FUNCTIONS
 -- Gets the category based on the category and user's country of origin.
 -- Note: Using lower because users use uppercase countries while posts use lowercase.  Fix someday?
 CREATE FUNCTION vz.GetCategory(category TEXT, country TEXT) RETURNS TEXT
     AS $$SELECT CASE 
-    	WHEN $1 <> 'news' THEN $1
-    	WHEN lower($2) <> 'us' THEN 'world news'
+        WHEN $1 <> 'news' THEN $1
+        WHEN lower($2) <> 'us' THEN 'world news'
         ELSE 'news'
     END;$$
     LANGUAGE SQL
     IMMUTABLE
     RETURNS NULL ON NULL INPUT;
     
-
+    
+---
 
 DROP TABLE vz.xxx;
-
---
-
-CREATE TABLE PollPost EXTENDS Post
-Question VARCHAR
-
-CREATE TABLE Choice
-Id
-PollId
-Text
-
-CREATE TABLE Vote
-Id
-CustomerId
-Date
-
-CREATE TABLE Comment
-CommentID INTEGER PRIMARY KEY AUTO-INC
-DateTime
-PostId FOREIGN KEY Post
-CustomerId FOREIGN KEY Customer
-ParentId FOREIGN KEY Comment
-PrevRevisionId FOREIGN KEY Comment
-Text VARCHAR(10,000)
-MaterializedPath (4b,4b,2b,2b,2b,2b = 64 bits, so can use bitwise math!)  If stored MSB order, you can sort by it!
-Tombstone BOOL
-INDEX ParentId
-INDEX MaterializedPath
-
-CREATE TABLE Like
-Direction: 1 or -1
-CustomerId
-
-T PostLike E Like
-PostId
-
-same forCommentLike

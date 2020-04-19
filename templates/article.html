@@ -1,0 +1,146 @@
+{{define "content"}}
+
+<div class="row vz-row">
+	<div class="col-md-6 vz-col-md-6-left">
+		{{ $article := .Article }}
+		<a href="{{$article.Url}}" target="_blank" class="storylink" rel="nofollow">
+			<img src="{{$article.UrlToImage}}" width="100%" height="280">
+		</a>
+
+		<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+			<tr>
+				<td align="left" style="width: 35%; padding-left:5px;">
+					<a href="#">
+						<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+						<span style="color: #88f">{{$article.Author}}</span>
+					</a>
+					&middot;
+					<span class="age" align="right">{{$article.TimeSince}}</span>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td class="title" style="padding-left: 5px;">
+					<span>
+						<a href="{{$article.Url}}" target="_blank" class="storylink" rel="nofollow" style="font-size:14pt;">{{$article.Title}}</a>
+					</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="subtext" style="width: 100%; padding-left: 5px;">
+					<table width="100%"><tr>
+						<td align="left" style="width: 40%;">
+							<span class="upvote" id="upvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, true)" class="upvote">&#x25B2;</a></span>
+							<a href="#" id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
+							<span class="downvote" id="downvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, false)">&#x25BC;</a></span>
+						</td>
+						<td align="right" style="width: auto;">
+							<a href="#">...</a>
+						</td>
+					</tr></table>
+				</td>
+			</tr>
+
+			{{- if $article.IsPoll -}}
+				{{- $poll := $article.PollOptionData }}
+				<tr valign="top">
+					<td class="title" style="padding-left: 5px;">
+					<form>
+						<table width="100%">
+							{{ if $poll.RankedChoiceVoting }}
+								<tr><td align="left">
+									<span class="rankedVoteIntro">
+										Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.
+									</span>
+									<br>
+								</td></tr>
+							{{ end }}
+							<tr><td align="left">
+								{{ range $o, $option := $poll.Options }}
+									{{ if $poll.RankedChoiceVoting }}
+										<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
+											   maxlength="1" style="width: 25px; padding: 0px 5px;">{{$option}}<br>
+									{{ else if $poll.CanSelectMultipleOptions }}
+										<label class="vote">
+											<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
+												   value="{{$o}}">
+											{{$option}}
+										</label><br>
+									{{ else }}
+										<label class="radio" style="margin-bottom:0; cursor: pointer">
+										  	<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+										  		   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
+											{{$option}}
+										</label><br>
+									{{ end }}
+								{{ end }}
+
+								<input name="vote_{{$article.Id}}_len" type=hidden
+									   value="{{len $poll.Options}}">
+
+								<button type="button" class="btn btn-vote btn-sm"
+										data-toggle="modal" data-target="#myModal" data-poll-id="{{$article.Id}}"
+									{{ if $poll.RankedChoiceVoting }}
+										data-poll-type="text"
+									{{ else if $poll.CanSelectMultipleOptions }}
+										data-poll-type="checkbox"
+									{{ else }}
+										data-poll-type="radio"
+									{{ end }}
+								>
+									Vote!
+								</button>
+							</td></tr>
+						</table>
+					</form>
+				</tr>
+				<tr class="spacer" style="height:10px"></tr>
+			{{ end }}
+
+			<tr class="spacer" style="height:5px"></tr>
+		</table>
+	</div> {{/*col-md-6*/}}
+	<div class="col-md-6 vz-col-md-6">
+	</div>
+</div> {{/*row*/}}
+
+<div class="row vz-row">
+	<div class="col-md-12 vz-col-md-12">
+		<div class="vzcomment">
+			<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+			<p>I was half expecting it to be an act and him to start doing some crazy shit </p>
+			<p><span class="comment" id="comment0"><a href="javascript:ReplyToComment('comment0')">
+				<img src="/static/comment.png" width="16" height="16"> Reply
+			</span></p>
+			<div class="vzcomment_children">
+				<div class="vzcomment">
+					<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+					<p>Wait for it... wait for itttt..... waaaiittt ffooorrr iiittttt..........</p>
+					<p><span class="comment" id="comment1"><a href="javascript:ReplyToComment('comment1')">
+						<img src="/static/comment.png" width="16" height="16"> Reply
+					</span></p>
+					<div class="vzcomment_children">
+						<div class="vzcomment">
+							<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+							<p>You hear about Pluto? That’s messed up. </p>
+							<p><span class="comment" id="comment2"><a href="javascript:ReplyToComment('comment2')">
+								<img src="/static/comment.png" width="16" height="16"> Reply
+							</span></p>
+						</div>
+						<div class="vzcomment">
+							<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#"> username1</a></p>
+							<p>What about the other 99 "plantets"?? </p>
+
+							<p><span class="comment" id="comment3"><a href="javascript:ReplyToComment('comment3')">
+								<img src="/static/comment.png" width="16" height="16"> Reply
+							</span></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> {{/*col-md-12*/}}
+</div> {{/*row*/}}
+
+{{end}} {{/*content*/}}

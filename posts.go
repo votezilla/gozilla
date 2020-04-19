@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	
+
 	//"database/sql/driver"
-	_ "github.com/lib/pq" 
-	//"github.com/jmoiron/sqlx" 
+	_ "github.com/lib/pq"
+	//"github.com/jmoiron/sqlx"
 	"encoding/json"
 )
 
@@ -20,12 +20,12 @@ type PollOptionData struct {
 	AnyoneCanAddOptions			bool		//`db:"bAnyoneCanAddOptions"`
 	CanSelectMultipleOptions	bool		//`db:"bCanSelectMultipleOptions"`
 	RankedChoiceVoting			bool		//`db:"bRankedChoiceVoting"`
-} 
+}
 
 
 // JSON-parsed format of an article.
 type Article struct {
-	Author			string	
+	Author			string
 	Title			string
 	Description		string
 	Url				string
@@ -46,7 +46,7 @@ type Article struct {
 	Bucket			string  // "" by default, but can override Category as a way to categorize articles
 	Upvoted			int
 	VoteTally		int
-	
+
 	IsPoll			bool
 	PollOptionData	PollOptionData
 }
@@ -58,7 +58,7 @@ type Article struct {
 // If articlesPerCategory <= 0, no category partitioning takes place.
 //
 //////////////////////////////////////////////////////////////////////////////
-func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, articlesPerCategory int, 
+func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, articlesPerCategory int,
 					maxArticles int, fetchVotesForUserId int64) (articles []Article) {
 	var id				int64
 	var author			string
@@ -75,7 +75,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	var orderBy			time.Time
 	var upvoted			int
 	var voteTally		int
-	
+
 	pr(po_, "_queryArticles")
 	prVal(po_, "idCondition", idCondition)
 	prVal(po_, "userIdCondition", userIdCondition)
@@ -100,8 +100,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		ternary_str(bRandomizeTime, "- RANDOM() * '3:00:00'::INTERVAL", ""), // Make it randomly up to 3 hours later.
 		idCondition,
 		categoryCondition)
-	
-	linkPostQuery := fmt.Sprintf(		
+
+	linkPostQuery := fmt.Sprintf(
 	   `SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
 			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
 			   '' AS NewsSourceId,
@@ -111,13 +111,13 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   P.Created %s AS OrderBy
 		FROM $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
-		WHERE ThumbnailStatus = 1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,		
+		WHERE ThumbnailStatus = 1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,
 		"", //ternary_str(bRandomizeTime, "- RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
 		userIdCondition,
 		categoryCondition)
-		
-	pollPostQuery := fmt.Sprintf(		
+
+	pollPostQuery := fmt.Sprintf(
 	   `SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, FORMAT('/poll/?postId=%%s', P.Id),
 			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
 			   '' AS NewsSourceId,
@@ -131,17 +131,17 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		"", //ternary_str(bRandomizeTime, "+ RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
 		userIdCondition,
-		categoryCondition)		
-	
+		categoryCondition)
+
 	orderByClause := "\nORDER BY OrderBy DESC\n" // TODO: Use a Reddit-style ranking algorithm
-	
+
 	query := ""
 	if userIdCondition == "IS NOT NULL" {
 		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n") + orderByClause
 	} else { // Looking up posts that target a user - so there can be no news posts, which are not user posted.
 		query = strings.Join([]string{linkPostQuery, pollPostQuery}, "\nUNION ALL\n") + orderByClause
 	}
-	
+
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category
 		query = fmt.Sprintf(`
@@ -160,12 +160,12 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	} else {
 		query = fmt.Sprintf(`
 			SELECT
-				*	
+				*
 			FROM (%s) x
 			ORDER BY x.OrderBy DESC`,
 			query)
 	}
-		
+
 	if fetchVotesForUserId >= 0 {
 		// Join query to post votes table.
 		query = fmt.Sprintf(`
@@ -180,7 +180,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			query,
 			fetchVotesForUserId)
 	}
-		
+
 	if maxArticles > 0 {
 		query += "\nLIMIT " + strconv.Itoa(maxArticles)
 	}
@@ -286,7 +286,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			AuthorIconUrl:	authorIconUrl,
 			Upvoted:		upvoted,
 			VoteTally:		voteTally,
-		}	
+		}
 
 		if len(pollOptionJson) > 0 {
 			newArticle.IsPoll = true
@@ -296,12 +296,12 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 			err = json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData)
 			check(err)
-			
+
 			prVal(po_, "newArticle.PollOptionData", newArticle.PollOptionData)
-		
-			newArticle.Url = fmt.Sprintf("/comments/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
+
+			newArticle.Url = fmt.Sprintf("/article/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
 		}
-		
+
 		articles = append(articles, newArticle)
 	}
 	check(rows.Err())
@@ -345,7 +345,7 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IS NOT NULL", //"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition 
+		"IS NOT NULL", //"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition
 		"IS NOT NULL",																						  // userIdCondition
 		"IS NOT NULL",																						  // categoryCondition
 		articlesPerCategory,
@@ -387,7 +387,7 @@ func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticl
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch articles posted by a user.  
+// fetch articles posted by a user.
 //   category - optional, can provide "" to skip.
 //
 //////////////////////////////////////////////////////////////////////////////
