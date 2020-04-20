@@ -510,3 +510,21 @@ SELECT PostId, Text, array_length(Path, 1), u.Name FROM vz.Comment c
  ON c.UserId = u.Id
  WHERE PostId = 0
  ORDER BY Path;
+ 
+ 
+ SELECT PostId, ParentId, Text, array_length(Path, 1), u.Name
+                                          FROM vz.Comment c
+                                          LEFT JOIN vz.User u
+                                          ON c.UserId = u.Id
+                                          WHERE PostId = 47977
+                                         ORDER BY Path;
+                                         
+                                         
+SELECT PostId, ParentId, Text, array_length(Path, 1), u.Name
+  FROM vz.Comment c LEFT JOIN vz.User u ON c.UserId = u.Id ORDER BY Path;        
+  
+SELECT PostId, ParentId, Text, array_length(Path, 1), COALESCE(array_length(Path, 1), 0), u.Name
+  FROM vz.Comment c LEFT JOIN vz.User u ON c.UserId = u.Id ORDER BY Path;   
+  
+SELECT PostId,ParentId, Text, COALESCE(array_length(Path, 1), 0), u.Name
+  FROM vz.Comment c LEFT JOIN vz.User u ON c.UserId = u.Id ORDER BY Path; 

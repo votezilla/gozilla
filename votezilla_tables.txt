@@ -96,6 +96,7 @@ CREATE TABLE vz.PostVote (
     UNIQUE(PostId, UserId)
 );
 
+DROP TABLE vz.Comment;
 CREATE TABLE vz.Comment (
     Id                  BIGSERIAL   PRIMARY KEY,   
     
@@ -103,17 +104,20 @@ CREATE TABLE vz.Comment (
     UserId              BIGINT NOT NULL, -- The user who left this comment.        
     ParentId            BIGINT,          -- The parent comment, hierarchially.         
     
-    Text                VARCHAR(40000) NOT NULL, -- 40,000 is Reddit's maximum text length.
+    Text                TEXT NOT NULL,			
     PrevRevisions       VARCHAR(40000)[],
     
     -- Materialized path - this sorts it into a tree hierarchy for us, though 
     --                     we'll still need to sort by aye/nay vote later... 
     --                     think if this is the right algorithm.
-    MaterializedPath    BIGINT NOT NULL, -- int64, bits used as follows:
-                                         --    16b, 16b, 8b, 8b, 4b, 4b, 4b, 4b
-                                         --     L0   L1  L2  L3  L4  L5  L6, L7
+    -- MaterializedPath    BIGINT NOT NULL, -- int64, bits used as follows:
+    --                                      --    16b, 16b, 8b, 8b, 4b, 4b, 4b, 4b
+    --                                      --     L0   L1  L2  L3  L4  L5  L6, L7
+  
     -- The simpler way: vvv
-    Path				INT[] NOT NULL,
+    Path                INT[] NOT NULL,
+    
+    NumChildren         BIGINT DEFAULT 0,
                                          
     -- Note: for now we'll fetch all comments for a post,
     --       then SORT BY MaterializedPath.

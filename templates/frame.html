@@ -125,25 +125,88 @@ $(function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+function onReplyToCommentClicked(postId, parentId) {
+	console.log(`#text_${parentId}`);
+
+	var text = $(`#text_${parentId}`).val();
+
+
+	console.log(text);
+
+	data = JSON.stringify({
+			PostId:	  	 postId,
+			ParentId: 	 parentId,
+			CommentText: "hello"});
+
+	console.log(data);
+
+	$.ajax({
+		url: '/ajaxCreateComment/',
+		type: "post",
+		contentType: 'application/json; charset=utf-8',
+		data: data, // Hmmm <-- should be UserId not Username
+		dataType: 'json',
+		success: function(r) {
+			console.log("AJAX - success");
+
+			//location.reload();
+		},
+		error:   function(r) { console.log("AJAX - error"); }
+	});
+}
+
 // Reply to the comment with this id.
-function ReplyToComment(id) {
-	var $element = document.getElementById(id);
-	$element.insertAdjacentHTML('afterend', `
-		<form>
-			<p>
-				<table>
-					<tr>
-						<td valign="bottom">
-							<textarea rows="4" cols="60"></textarea>
-						</td>
-						<td valign="bottom">
-							<button type="submit" onclick="" class="save" style="margin: 5.5px;">post</button>
-						</td>
-					</tr>
-				</table>
-			</p>
-		</form>
-	`);
+function ReplyToComment(postId, parentId) {
+//	if (parentId < 0)
+//		parentId = 'head'
+//
+//	var parent;
+////
+//	if (parentId < 0) {
+//		parent = document.getElementById(`comment_head`);
+//		parentId = "'head'"
+//	} else {
+//		parent = document.getElementById(`comment_${parentId}`);
+//	}
+
+	parent = document.getElementById(`comment_${parentId}`);
+	if (parentId == 'head') {
+		parentId = "'head'"
+	}
+
+	console.log(parentId)
+	console.log(parent)
+
+	console.log(`<p>
+			<table>
+				<tr>
+					<td valign="bottom">
+						<textarea id="text_${parentId}" rows="4" cols="60"></textarea>
+					</td>
+					<td valign="bottom">
+						<button type="submit" onclick="onReplyToCommentClicked(${postId}, ${parentId})" class="save" style="margin: 5.5px;">
+							Create
+						</button>
+					</td>
+				</tr>
+			</table>
+		</p>`);
+
+	parent.insertAdjacentHTML('afterend',
+	    `<p>
+			<table>
+				<tr>
+					<td valign="bottom">
+						<textarea id="text_${parentId}" rows="4" cols="60"></textarea>
+					</td>
+					<td valign="bottom">
+						<button type="submit" onclick="onReplyToCommentClicked(${postId}, ${parentId})" class="save" style="margin: 5.5px;">
+							Create
+						</button>
+					</td>
+				</tr>
+			</table>
+		</p>`);
 }
 </script>
 
