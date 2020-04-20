@@ -17,7 +17,7 @@ var (
 	err		 	error
 
 	// NavMenu (constant)
-	navMenu		= []string{"news", "submit", "history"}
+	navMenu		= []string{"news", "create", "history"}
 
 	anonymityLevels = [][2]string {
 		{"R",	"Real name - Aaron Smith"},
@@ -302,7 +302,7 @@ func registerDoneHandler(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// submit new post
+// create link
 //
 ///////////////////////////////////////////////////////////////////////////////
 func submitHandler(w http.ResponseWriter, r *http.Request) {
@@ -313,7 +313,7 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 	form := SubmitLinkForm(r)
 	tableForm := TableForm{
 		Form: form,
-		CallToAction: "Submit",
+		CallToAction: "Create",
 	}
 
 	userId := GetSession(r)
@@ -358,7 +358,7 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 			Categories	[]string
 		}*/
 		args := FormArgs{
-			PageArgs:	PageArgs{Title: "Submit Link"},
+			PageArgs:	PageArgs{Title: "Create Link"},
 			Forms:		[]TableForm{tableForm},
 		}
 		executeTemplate(w, "submitLink", args)
@@ -466,7 +466,7 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 			//AnonymityLevels	map[string]string
 		}
 		args := PollArgs{
-			PageArgs:			PageArgs{Title: "Submit Poll"},
+			PageArgs:			PageArgs{Title: "Create Poll"},
 			Form:				form,
 			PollOptions:		pollOptions,
 			//Categories:			newsCategoryInfo.CategoryOrder,
@@ -512,7 +512,7 @@ func submitBlogHandler(w http.ResponseWriter, r *http.Request) {
 			Form
 		}
 		args := PollArgs{
-			PageArgs:			PageArgs{Title: "Submit Blog Post"},
+			PageArgs:			PageArgs{Title: "Create Blog Post"},
 			Form:				form,
 		}
 		prVal(go_, "args", args)
@@ -611,10 +611,10 @@ func WebServer() {
 	http.HandleFunc("/register/",       		hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))
-	http.HandleFunc("/submit/",   				hwrap(submitHandler))
-	http.HandleFunc("/submitBlog/",   			hwrap(submitBlogHandler))
-	http.HandleFunc("/submitLink/",   			hwrap(submitLinkHandler))
-	http.HandleFunc("/submitPoll/",   			hwrap(submitPollHandler))
+	http.HandleFunc("/create/",   				hwrap(submitHandler))
+	http.HandleFunc("/createBlog/",   			hwrap(submitBlogHandler))
+	http.HandleFunc("/createLink/",   			hwrap(submitLinkHandler))
+	http.HandleFunc("/createPoll/",   			hwrap(submitPollHandler))
 	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
 	http.HandleFunc("/ajaxPollVote/",			hwrap(ajaxPollVoteHandler))

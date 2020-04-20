@@ -24,6 +24,11 @@ type CommentTag struct {
 }
 
 
+
+// TODO: IT NEEDS TO DO IT THIS WAY, SINCE WE MUST SORT THE CHILDREN BY RANK VOTE.  ANYWAYS... LET'S KEEP IT HOW WE HAVE IT
+//       FOR NOW, AND IMPLEMENT THIS A BIT LATER.   vvv
+
+
 // NOTE: We're not using this code at the moment, so it's untested!
 // Read the comment tree for a post fromm the database.
 func ReadCommentsFromDB(postId int) *Comment {

@@ -1,21 +1,24 @@
+{{/* TODO: try recursiveness - template "comments" .Comments */}}
 {{define "comments"}}
 <div class="row vz-row">
 	<div class="col-md-12 vz-col-md-12">
 		<div class="vzcomment">
 			<p><span class="comment" id="newComment"><a href="javascript:ReplyToComment('newComment')">
-				<img src="/static/comment.png" width="16" height="16"> Reply
+				<img src="/static/comment.png" width="16" height="16">
+				<span style="font-size: 16px !important">Post a New Comment</span>
 			</span></p>
 			{{ range $t, $tag := . -}}{{/* . = CommentTags */}}
+				{{ $tag }}
 				{{- if $tag.IsChildrenStart -}}
 					<div class="vzcomment_children">
 						<div class="vzcomment">
 				{{- else if $tag.IsChildrenEnd -}}
 						</div>
 					</div>
-				{{- else -}}
+				{{- else -}} {{/* comment text */}}
 					<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#">{{$tag.Username}}</a></p>
 					<p>{{$tag.Text}}</p>
-					<p><span class="comment" id="comment{{$tag.Id}}"><a href="javascript:ReplyToComment('comment{{$tag.Id}}')">
+					<p><span id="comment{{$tag.Id}}" style="size: 16px"><a href="javascript:ReplyToComment('comment{{$tag.Id}}')">
 						<img src="/static/comment.png" width="16" height="16"> Reply
 					</span></p>
 				{{- end -}}

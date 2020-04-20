@@ -32,9 +32,9 @@ const (
 	kMaxArticles = 60
 	kMaxTitleLength = 122
 
-	kSubmittedPosts = "submitted posts"
+	kSubmittedPosts = "created posts"
 	kVotedPosts = "voted posts"
-	
+
 	kNoHeadlines = 0
 	kAlternateHeadlines = 1
 	kAllHeadlines = 2
@@ -67,7 +67,7 @@ var (
 			{"sports",			"sports"},
 			{"entertainment",	"entertainment"},
 			{"technology",		"technology"},
-			{"science",			"science"},	
+			{"science",			"science"},
 		},
 	}
 
@@ -118,7 +118,7 @@ func sortArticles(articles []Article) {
 //	 categoryInfo - describes the category names and banner background colors.
 //	 onlyCategory - if == "", displays for articles grouped by category
 //				       != "", only display articles from a specific category
-//   headlines    - whether to display some articles as headlines (larger articles): 
+//   headlines    - whether to display some articles as headlines (larger articles):
 //		    kNoHeadlines, kAlternateHeadlines, or kAllHeadlines.
 //
 // TODO: HTML-escape this!!!
@@ -134,17 +134,17 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 	var categoryOrder []string
 	if onlyCategory != "" {
 		//prVal(nw_, "headlines", headlines)
-		articlesPerCategoryGroup := 
-			switch_int(headlines, 
+		articlesPerCategoryGroup :=
+			switch_int(headlines,
 				kNoHeadlines,		 kRowsPerCategory * kNumCols,
 				kAlternateHeadlines, kRowsPerCategory + 1,
 				kAllHeadlines, 		 2)
 		//prVal(nw_, "articlesPerCategoryGroup", articlesPerCategoryGroup)
-		
+
 		assert(articlesPerCategoryGroup != -1)
-		
+
 		numCategoryGroups := kMaxArticles / articlesPerCategoryGroup;
-							
+
 		categoryOrder = make([]string, numCategoryGroups)
 		for i := range categoryOrder {
 			categoryOrder[i] = onlyCategory
@@ -152,7 +152,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 	} else {
 		categoryOrder = categoryInfo.CategoryOrder
 	}
-	
+
 
 	articleGroups := make([]ArticleGroup, len(categoryOrder))
 
@@ -163,7 +163,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		row := 0
 		col := 0
 		filled := false
-		
+
 
 		// Set category header text and background color.
 		if onlyCategory == "" { // Mixed categories
@@ -188,7 +188,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		if onlyCategory == "" {
 			currArticle = 0
 		}
-		
+
 		// TODO: if a single category, with headlines, either large image should be set to always
 		// 4 article height, or all articles should stack verticlally in each column.
 		// (I prefer the second idea, because it might look nicer.)
@@ -196,14 +196,14 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		for currArticle < len(articles) {
 			article := articles[currArticle]
 			currArticle++
-			
+
 
 			formatArticle(&article)
-			
+
 
 			// This works since we've sorted by bucket/category.
 			if coalesce_str(article.Bucket, article.Category) == category {
-				
+
 				if row == 0 {
 					// Allocate a new column of categories
 					articleGroups[cat].Articles = append(articleGroups[cat].Articles,
@@ -319,14 +319,14 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 func renderNews(w http.ResponseWriter, title string, username string, userId int64,
 				articleGroups []ArticleGroup, urlPath string, template string,
 				upvotes []int64, downvotes []int64, alertMessage string) {
-	
+
 	script := ""
 	switch(alertMessage) {
 		case "LoggedIn": 		script = "alert('You are now logged in :)')"
 		case "LoggedOut": 		script = "alert('You are now logged out :)')"
 		case "AccountCreated": 	script = "alert('Your account has been created, good work!')"
-		case "SubmittedLink": 	script = "alert('Your link has been submitted, and will appear shortly')"
-		case "SubmittedPoll": 	script = "alert('Your poll has been submitted, and will appear shortly')"		
+		case "SubmittedLink": 	script = "alert('Your link has been created, and will appear shortly')"
+		case "SubmittedPoll": 	script = "alert('Your poll has been created, and will appear shortly')"
 	}
 
 	// Render the news articles.
@@ -366,7 +366,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	//prVal(nw_, "r.URL.Query()", r.URL.Query())
 
 	reqCategory		:= parseUrlParam(r, "category")
-	
+
 	reqAlert		:= parseUrlParam(r, "alert")
 
 	// Get the username.
@@ -403,7 +403,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
 	//prVal(nw_, "r.URL.Query()", r.URL.Query())
-	
+
 	reqAlert		:= parseUrlParam(r, "alert")
 
 	// Get the username.
@@ -418,8 +418,8 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 		articlesPostedByUser[a].Bucket = kSubmittedPosts
 	}
 
-	articleGroups := formatArticleGroups(articlesPostedByUser, historyCategoryInfo, kSubmittedPosts, kAlternateHeadlines/*kNoHeadlines*/)		
-		
+	articleGroups := formatArticleGroups(articlesPostedByUser, historyCategoryInfo, kSubmittedPosts, kAlternateHeadlines/*kNoHeadlines*/)
+
 	// Get articles voted on by user, and set their bucket accordingly.
 	articlesVotedOnByUser	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
 //	prVal(nw_, "len(articlesVotedOnByUser)", len(articlesVotedOnByUser))
@@ -427,9 +427,9 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	upvotes, downvotes := deduceVotingArrows(articlesVotedOnByUser)
 
-	articleGroups = append(articleGroups, 
+	articleGroups = append(articleGroups,
 					 formatArticleGroups(articlesVotedOnByUser, historyCategoryInfo, kVotedPosts, kAlternateHeadlines)...)
-	
+
 	renderNews(w, "History", username, userId, articleGroups, "history", "news", upvotes, downvotes, reqAlert)
 }
 

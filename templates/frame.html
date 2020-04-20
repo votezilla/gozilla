@@ -130,8 +130,18 @@ function ReplyToComment(id) {
 	var $element = document.getElementById(id);
 	$element.insertAdjacentHTML('afterend', `
 		<form>
-			<p><textarea rows="4" cols="50"></textarea></p>
-			<p><button type="submit" onclick="" class="save">save</button></p>
+			<p>
+				<table>
+					<tr>
+						<td valign="bottom">
+							<textarea rows="4" cols="60"></textarea>
+						</td>
+						<td valign="bottom">
+							<button type="submit" onclick="" class="save" style="margin: 5.5px;">post</button>
+						</td>
+					</tr>
+				</table>
+			</p>
 		</form>
 	`);
 }
