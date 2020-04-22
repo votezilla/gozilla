@@ -130,13 +130,12 @@ function onReplyToCommentClicked(postId, parentId) {
 
 	var text = $(`#text_${parentId}`).val();
 
-
 	console.log(text);
 
 	data = JSON.stringify({
 			PostId:	  	 postId,
 			ParentId: 	 parentId,
-			CommentText: "hello"});
+			CommentText: text});
 
 	console.log(data);
 
@@ -149,7 +148,7 @@ function onReplyToCommentClicked(postId, parentId) {
 		success: function(r) {
 			console.log("AJAX - success");
 
-			//location.reload();
+			location.reload();
 		},
 		error:   function(r) { console.log("AJAX - error"); }
 	});
@@ -157,22 +156,7 @@ function onReplyToCommentClicked(postId, parentId) {
 
 // Reply to the comment with this id.
 function ReplyToComment(postId, parentId) {
-//	if (parentId < 0)
-//		parentId = 'head'
-//
-//	var parent;
-////
-//	if (parentId < 0) {
-//		parent = document.getElementById(`comment_head`);
-//		parentId = "'head'"
-//	} else {
-//		parent = document.getElementById(`comment_${parentId}`);
-//	}
-
 	parent = document.getElementById(`comment_${parentId}`);
-	if (parentId == 'head') {
-		parentId = "'head'"
-	}
 
 	console.log(parentId)
 	console.log(parent)
@@ -207,6 +191,8 @@ function ReplyToComment(postId, parentId) {
 				</tr>
 			</table>
 		</p>`);
+
+	$(`#text_${parentId}`).focus();  // Focus on the new comment.
 }
 </script>
 

@@ -29,10 +29,9 @@ type CommentTag struct {
 }
 
 
-
 //////////////////////////////////////////////////////////////////////////////
 //
-// ajax poll vote
+// ajax create comment
 //
 //////////////////////////////////////////////////////////////////////////////
 func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
@@ -71,38 +70,34 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 
 
 	// Get the postId and path from the parent's info, in the database.
-	var postId		int64
-	var numChildren	int64
-	var parentPath	[]int64
+	newPath := []int64{} // New path = append(parent's path, num children).
 	{
-		rows := DbQuery("SELECT PostId, NumChildren, Path FROM $$Comment WHERE Id = $1::bigint", newComment.ParentId)
+		// Have the database determine what the new path should be.
+		// e.g	Parent path:	1, 2, 3
+		//      Child0 path: 	1, 2, 3, 0
+		//      Child1 path: 	1, 2, 3, 1
+		//      New Child path: [1, 2, 3] + (NumChildren)
+		rows := DbQuery("SELECT ARRAY_APPEND(Path, NumChildren) FROM $$Comment WHERE Id = $1::bigint", newComment.ParentId)
 		defer rows.Close()
 		if rows.Next() {
-			err := rows.Scan(&postId, &numChildren, pq.Array(&parentPath))
+			arr := pq.Int64Array{}  // This weirdness is required for scanning into []int64
+
+			err := rows.Scan(&arr)
 			check(err)
+
+			newPath = []int64(arr)  // This weirdness is required for scanning into []int64
 		} else {
 			// If it's not in the database, it must be because it has Id = -1 (the top-level post)...
 			assert(newComment.ParentId == -1)
 
 	 		// The head comment of the tree, must be added!
 	 		// This allows us to maintain a count of top-level posts, in this head record's NumChildren.
-			DbExec(`INSERT INTO vz.Comment (Id, PostId, UserId, ParentId, Text, Path, NumChildren)
+			DbExec(`INSERT INTO $$Comment (Id, PostId, UserId, ParentId, Text, Path, NumChildren)
 					VALUES (-1, $1::bigint, -1, -1, '', '{}'::bigint[], 0);`,
 					newComment.PostId)
 		}
 		check(rows.Err())
 	}
-
-	// Determine what the new path should be.
-	// e.g	Parent path:	1, 2, 3
-	//      Child0 path: 	1, 2, 3, 0
-	//      Child1 path: 	1, 2, 3, 1
-	//      New Child path: [1, 2, 3] + (NumChildren + 1)
-
-	prVal(co_, "parentPath", parentPath)
-	prVal(co_, "len(parentPath)", len(parentPath))
-
-	newPath := append(parentPath, numChildren)
 
 	// TODO: add a database transaction here.
 	//       See: http://go-database-sql.org/prepared.html
@@ -111,13 +106,15 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 	DbExec(
 		`INSERT INTO $$Comment (PostId, UserId, ParentId, Text, Path)
 	     VALUES ($1::bigint, $2::bigint, $3::bigint, $4, $5::bigint[])`,
-		postId,
+		newComment.PostId,
 		userId,
 		newComment.ParentId,
 		newComment.CommentText,
 		pq.Array(newPath))
 	// Increment the parent's number of children.
 	DbExec(`UPDATE $$Comment SET NumChildren = NumChildren + 1 WHERE Id = $1::bigint`, newComment.ParentId)
+
+	// TODO: inc the Post's NumComments field here.  (Also need to create that column.)
 
     // create json response from struct
     a, err := json.Marshal(true)
@@ -128,18 +125,22 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
     w.Write(a)
 }
 
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// read comment tags from db
+//
 // This is the one we're using.
 // Read comments from the database, then convert it into a flattened tag format that the template file can easily render.
+//
+// TODO: We'll eventually need to call ReadCommentsFromDB, so the children of each comment can be sorted by upvote.
+//
+//////////////////////////////////////////////////////////////////////////////
 func ReadCommentTagsFromDB(postId int64) []CommentTag {
 	prevPathDepth := int64(0)
 	var pathLengthDiff int64
 
-	commentTags := []CommentTag{} /*
-		CommentTag{
-			Id:		  -1,
-			ParentId: -1,
-			IsHead:	  true,
-	}}*/
+	commentTags := []CommentTag{}
 
 	// The simpler way for now:
 	rows := DbQuery(`SELECT c.Id, Text, COALESCE(u.Name, ''), COALESCE(array_length(Path, 1), 0)

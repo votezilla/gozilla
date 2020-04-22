@@ -115,7 +115,7 @@ CREATE TABLE vz.Comment (
     --                                      --     L0   L1  L2  L3  L4  L5  L6, L7
   
     -- The simpler way: vvv
-    Path                INT[] NOT NULL,
+    Path                BIGINT[] NOT NULL,
     
     NumChildren         BIGINT DEFAULT 0,
                                          
