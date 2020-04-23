@@ -610,7 +610,7 @@ func WebServer() {
 	http.HandleFunc("/createLink/",   			hwrap(submitLinkHandler))
 	http.HandleFunc("/createPoll/",   			hwrap(submitPollHandler))
 	http.HandleFunc("/forgotPassword/", 		hwrap(forgotPasswordHandler))
-	http.HandleFunc("/history/",        		hwrap(historyHandler)) // <-- TODO: Implement this!
+	http.HandleFunc("/history/",        		hwrap(historyHandler))
 	http.HandleFunc("/ip/",             		hwrap(ipHandler))
 	http.HandleFunc("/login/",          		hwrap(loginHandler))
 	http.HandleFunc("/logout/",         		hwrap(logoutHandler))

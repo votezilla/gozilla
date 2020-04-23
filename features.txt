@@ -1,0 +1,30 @@
+EXTERNAL FEATURES SO FAR:
+
+- Display news from News.API
+
+- Allow user to create Link
+
+- Allow user to create Poll.
+
+- Display articles in newspaper format.
+
+- Display single article.
+
+- Allow postingn and display of nested comments.
+
+- Log-in & register - basic functionality.
+
+- History page that shows what you've posted & voted on.
+
+
+INTERNAL FEATURES SO FAR:
+
+- Gozilla server.
+
+- News server - Downloads news articles from News.API
+
+- Image server - Downloads news images and converts them to image thumbnail.
+
+- Image scraping code.
+
+- Gozilla form library.

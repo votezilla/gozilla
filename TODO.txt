@@ -1,11 +1,155 @@
-- Add vote to DB and display results, also allow user to change vote.
+HIGH PRIORITY (for test w/ Tom, Tyler): 
+	-- DEPLOY May 1, LAUNCH May 4 --
+ 
+[Est - Rushed Est - Date I'd like to hit]
+1 - .5 - 4/22 - Display actual number of comments, by the article.
+
+1 - .5 -      - Do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link!  (and/or: add http:// or https:// to start of link if it wasn't there, in javascript.
+
+2 -  1 - 4/23 - Fix ranking system for posts by up/down vote!!
+
+2 -  1 - 4/24 - Https!!
+
+2 -  1 - 4/27 - Prettify the comments - make user info layout similar to how articles are displayed.
+
+2 -  1 - 4/28 - Replace all the gforms with our form system.
+
+2 -  1 - 4/29 - Switch to template/html, make sure test for any glaring html injection stuff.  Maybe a unit test, even?
+
+4 -  2 - 5/01 - Launch Votezilla on the cloud!!  (Try Digital Ocean!)
+
+16 - 8 - 5/01 - Total estimate (Estimate - date I'd like to hit.)
+
+Estimated to be done: May 14.  (I'd like it to be done by EOD May 1.  Hmmm...??)
+
+
+MED-HIGH PRIORITY (for test w/ 10 friends):
+	-- DEPLOY May 8, LAUNCH May 11 --
 
 - Add POLLS to main news page, right after NEWS.  (A category just of polls.)
 
-- Change between alias and real name depending on a post's (or comment's) privacy settings.
-- Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
-- Test input as a properly-ranked digit for ranked polls.
-- Do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link.
+- Allow user to create richtext Blog.
 
-- use pretty dinosaurs for 403 errors.
-- https!!
+- Change between alias and real name depending on a post's (or comment's) privacy settings.
+
+- Dynamic menu drop items for Creating...Link, Poll, etc.
+
+- Email system.  Needs to:
+
+  + Implement Email verification.
+
+  + Implement Forgot password.
+  
+- Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
+
+- Register, Log in, Create, Alert-for-needing-to-log-in pages should use the focus windows, like viewVoteResults does.
+  
+
+
+MED PRIORITY (for test with 100 friends):
+
+- Add news sources.
+
+- Allow updating & deleting of posts & comments.
+
+- Create some mission statement / google doc / blog posts.
+
+- Get the user's IP address.  (Needed for spam account & spam vote prevention.)
+
+- Implement limitation to downvoting.
+
+- Let people customize their dinosaur heads.  How about when they post an article?
+
+- Let people pick cool dinosaur heads.
+
+- Prettier forms.
+
+- Replaced copyrighted art, or request permission to use.
+
+- Sort comment siblings by up/down vote.
+
+- Start promoting.
+
+- Optimization:
+
+  + Profile front + back end
+
+  + Move thumbnails to a CDN
+
+  + Move all JS code to a commen .js file.
+
+  + Move all/most style html stuff to the common .cs file.
+  
+  + Golang + Postgres
+  
+  + JS
+  
+  + Other
+
+
+LOW PRIORITY (for launch with 1000 friends):
+
+- Add vote to DB and display results, also allow user to change vote.
+
+- Facebook:
+
+  + Invite friends.
+  
+  + Share article via FB button.
+
+- Add an attribution to News.API on the website somewhere.
+
+- Add database transactions.
+
+- Checkboxes for users to pick their news sources.
+
+- Defend DNS attack.
+
+- Display the steps going on, for a ranked 
+
+- Fix up/down voting for articles
+
+- Let people update their information.
+
+- Marketing
+
+- Optimize some?
+
+- Rich text for posts/blog
+
+- Share article via email button.
+
+- Suggest poll thumbnails from the user description, via Google search.
+
+- Unit tests, especially for voting.  Double-especially for ranked voting.
+
+- Use pretty dinosaurs for 403 errors.
+
+
+LOWER PRIORITY (10k):
+
+- Business registration.  Singapore LLC?
+
+- Check security with accunix vulnerability scanning program
+
+- Legal - eula
+
+- Legal - trademark
+
+- Searchzilla
+
+
+SUPER-LOW PRIORITY (100k)
+
+- Can I get demographics from user cookie?
+
+- Httprouter library?
+
+- Ledger / coinzilla
+
+- Prioritize news based on search trending
+
+- Start thinking about ads and making money?
+
+- The up/downvote of an article is also a vote, and you can see a graph of it.
+
