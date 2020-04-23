@@ -168,7 +168,7 @@ function ReplyToComment(postId, parentId) {
 						<textarea id="text_${parentId}" rows="4" cols="60"></textarea>
 					</td>
 					<td valign="bottom">
-						<button type="submit" onclick="onReplyToCommentClicked(${postId}, ${parentId})" class="save" style="margin: 5.5px;">
+						<button type="submit" id="reply_button_${parentId}" onclick="onReplyToCommentClicked(${postId}, ${parentId})" class="save" style="margin: 5.5px;">
 							Create
 						</button>
 					</td>
@@ -184,7 +184,7 @@ function ReplyToComment(postId, parentId) {
 						<textarea id="text_${parentId}" rows="4" cols="60"></textarea>
 					</td>
 					<td valign="bottom">
-						<button type="submit" onclick="onReplyToCommentClicked(${postId}, ${parentId})" class="save" style="margin: 5.5px;">
+						<button type="submit" id="reply_button_${parentId}" onclick="onReplyToCommentClicked(${postId}, ${parentId})" class="save" style="margin: 5.5px;">
 							Create
 						</button>
 					</td>
@@ -192,7 +192,7 @@ function ReplyToComment(postId, parentId) {
 			</table>
 		</p>`);
 
-	$(`#text_${parentId}`).focus();  // Focus on the new comment.
+	$(`#reply_button_${parentId}`).focus();  // Focus on the new comment.
 }
 </script>
 

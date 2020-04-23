@@ -114,7 +114,8 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 	// Increment the parent's number of children.
 	DbExec(`UPDATE $$Comment SET NumChildren = NumChildren + 1 WHERE Id = $1::bigint`, newComment.ParentId)
 
-	// TODO: inc the Post's NumComments field here.  (Also need to create that column.)
+	// Increment the Post's NumComments field here.
+	DbExec(`UPDATE $$Post SET NumComments = NumComments + 1 WHERE Id = $1::bigint`, newComment.PostId)
 
     // create json response from struct
     a, err := json.Marshal(true)

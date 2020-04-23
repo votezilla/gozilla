@@ -46,6 +46,7 @@ type Article struct {
 	Bucket			string  // "" by default, but can override Category as a way to categorize articles
 	Upvoted			int
 	VoteTally		int
+	NumComments		int
 
 	IsPoll			bool
 	PollOptionData	PollOptionData
@@ -75,6 +76,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	var orderBy			time.Time
 	var upvoted			int
 	var voteTally		int
+	var numComments		int
 
 	pr(po_, "_queryArticles")
 	prVal(po_, "idCondition", idCondition)
@@ -94,7 +96,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	   		   $$GetCategory(Category, Country) AS Category,
 	   		   Language, Country,
 			   '' AS PollOptionData,
-			   COALESCE(PublishedAt, Created) %s AS OrderBy
+			   COALESCE(PublishedAt, Created) %s AS OrderBy,
+			   NumComments
 		FROM $$NewsPost
 		WHERE ThumbnailStatus = 1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)`,
 		ternary_str(bRandomizeTime, "- RANDOM() * '3:00:00'::INTERVAL", ""), // Make it randomly up to 3 hours later.
@@ -108,7 +111,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   $$GetCategory(Category, U.Country) AS Category,
 			   'EN' AS Language, U.Country,
 			   '' AS PollOptionData,
-			   P.Created %s AS OrderBy
+			   P.Created %s AS OrderBy,
+			   NumComments
 		FROM $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
 		WHERE ThumbnailStatus = 1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,
@@ -124,7 +128,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   $$GetCategory(Category, U.Country) AS Category,
 			   'EN' AS Language, U.Country,
 			   PollOptionData,
-			   P.Created %s AS OrderBy
+			   P.Created %s AS OrderBy,
+			   NumComments
 		FROM $$PollPost P
 		JOIN $$User U ON P.UserId = U.Id
 		WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
@@ -142,11 +147,12 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		query = strings.Join([]string{linkPostQuery, pollPostQuery}, "\nUNION ALL\n") + orderByClause
 	}
 
+
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category
 		query = fmt.Sprintf(`
 			SELECT Id, Author, Title, Description, LinkUrl, UrlToImage,
-				   PublishedAt, NewsSourceId, Category, Language, Country, PollOptionData, OrderBy
+				   PublishedAt, NewsSourceId, Category, Language, Country, PollOptionData, OrderBy, NumComments
 			FROM (
 				SELECT
 					*,
@@ -206,10 +212,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	for rows.Next() {
 		if fetchVotesForUserId >= 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &upvoted, &voteTally))
-		} else {
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &upvoted, &voteTally))
+		} else { 
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson,  &orderBy, &voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &voteTally))
 		}
 		//prVal(po_, "id", id)
 		//prVal(po_, "author", author)
@@ -286,6 +292,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			AuthorIconUrl:	authorIconUrl,
 			Upvoted:		upvoted,
 			VoteTally:		voteTally,
+			NumComments:	numComments,
 		}
 
 		if len(pollOptionJson) > 0 {
