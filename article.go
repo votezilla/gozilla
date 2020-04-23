@@ -13,7 +13,9 @@ import (
 func articleHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	prVal(co_, "r.URL.Query()", r.URL.Query())
+	pr("articleHandler")
+
+	prVal("r.URL.Query()", r.URL.Query())
 
 	reqPostId := parseUrlParam(r, "postId")
 	postId, err := strconv.ParseInt(reqPostId, 10, 64)
@@ -26,8 +28,8 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	username := getUsername(userId)
 
-	prVal(co_, "userId", userId);
-	prVal(co_, "username", username);
+	prVal("userId", userId);
+	prVal("username", username);
 
 	// TODO_REFACTOR: unify articles and posts in database.
 	article, err := fetchArticle(postId, userId)

@@ -35,8 +35,8 @@ type CommentTag struct {
 //
 //////////////////////////////////////////////////////////////////////////////
 func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
-	pr(co_, "ajaxCreateComment")
-	prVal(co_, "r.Method", r.Method)
+	pr("ajaxCreateComment")
+	prVal("r.Method", r.Method)
 
 	if r.Method != "POST" {
 		http.NotFound(w, r)
@@ -46,11 +46,11 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r);
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
-		pr(go_, "Must be logged in to create a comment.")
+		pr("Must be logged in to create a comment.")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	prVal(co_, "userId", userId);
+	prVal("userId", userId);
 
     //parse request to struct
     var newComment struct {
@@ -61,12 +61,12 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 
     err := json.NewDecoder(r.Body).Decode(&newComment)
     if err != nil {
-		prVal(co_, "Failed to decode json body", r.Body)
+		prVal("Failed to decode json body", r.Body)
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
-    prVal(co_, "=======>>>>> newComment", newComment)
+    prVal("=======>>>>> newComment", newComment)
 
 
 	// Get the postId and path from the parent's info, in the database.
@@ -186,7 +186,7 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 		commentTags = append(commentTags, CommentTag{ IsChildrenEnd: true })
 	}
 
-	prVal(co_, "ReadCommentTagsFromDB returning", commentTags)
+	prVal("ReadCommentTagsFromDB returning", commentTags)
 
 	return commentTags
 }

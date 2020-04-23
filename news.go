@@ -33,6 +33,7 @@ const (
 	kMaxTitleLength = 122
 
 	kSubmittedPosts = "created posts"
+	kCommentedPosts = "commented posts"
 	kVotedPosts = "voted posts"
 
 	kNoHeadlines = 0
@@ -73,10 +74,12 @@ var (
 
 	historyCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
+			kCommentedPosts,
 			kSubmittedPosts,
 			kVotedPosts,
 		},
 		HeaderColors : map[string]string{
+			kCommentedPosts: "#f90",
 			kSubmittedPosts : "#aaf",
 			kVotedPosts : "#ccc",
 		},
@@ -125,21 +128,19 @@ func sortArticles(articles []Article) {
 //
 //////////////////////////////////////////////////////////////////////////////
 func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines int) ([]ArticleGroup) {
-	//sortArticle(articles)
-
 	//rowsPerCategory := ternary_int(onlyCategory == "", kRowsPerCategory, kMaxArticles)
 
-	pr(nw_, "formatArticleGroups")
+	pr("formatArticleGroups")
 
 	var categoryOrder []string
 	if onlyCategory != "" {
-		//prVal(nw_, "headlines", headlines)
+		//prVal("headlines", headlines)
 		articlesPerCategoryGroup :=
 			switch_int(headlines,
 				kNoHeadlines,		 kRowsPerCategory * kNumCols,
 				kAlternateHeadlines, kRowsPerCategory + 1,
 				kAllHeadlines, 		 2)
-		//prVal(nw_, "articlesPerCategoryGroup", articlesPerCategoryGroup)
+		//prVal("articlesPerCategoryGroup", articlesPerCategoryGroup)
 
 		assert(articlesPerCategoryGroup != -1)
 
@@ -305,8 +306,8 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 		}
 	}
 
-	//prVal(nw_, "upvotes", upvotes)
-	//prVal(nw_, "downvotes", downvotes)
+	prVal("upvotes", upvotes)
+	prVal("downvotes", downvotes)
 
 	return upvotes, downvotes
 }
@@ -363,7 +364,7 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	//prVal(nw_, "r.URL.Query()", r.URL.Query())
+	//prVal("r.URL.Query()", r.URL.Query())
 
 	reqCategory		:= parseUrlParam(r, "category")
 
@@ -402,7 +403,9 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 func historyHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	//prVal(nw_, "r.URL.Query()", r.URL.Query())
+	pr("historyHandler")
+
+	//prVal("r.URL.Query()", r.URL.Query())
 
 	reqAlert		:= parseUrlParam(r, "alert")
 
@@ -412,8 +415,8 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get articles posted by user
 	articlesPostedByUser	:= fetchArticlesPostedByUser(userId, "", kMaxArticles)
-	prVal(nw_, "len(articlesPostedByUser)", len(articlesPostedByUser))
-//	prVal(nw_, "articlesPostedByUser", articlesPostedByUser)
+	prVal("len(articlesPostedByUser)", len(articlesPostedByUser))
+//	prVal("articlesPostedByUser", articlesPostedByUser)
 	for a, _ := range articlesPostedByUser {
 		articlesPostedByUser[a].Bucket = kSubmittedPosts
 	}
@@ -422,8 +425,8 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get articles voted on by user, and set their bucket accordingly.
 	articlesVotedOnByUser	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
-//	prVal(nw_, "len(articlesVotedOnByUser)", len(articlesVotedOnByUser))
-//	prVal(nw_, "articlesVotedOnByUser", articlesVotedOnByUser)
+//	prVal("len(articlesVotedOnByUser)", len(articlesVotedOnByUser))
+//	prVal("articlesVotedOnByUser", articlesVotedOnByUser)
 
 	upvotes, downvotes := deduceVotingArrows(articlesVotedOnByUser)
 

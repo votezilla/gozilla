@@ -78,7 +78,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			err := rows.Scan(&userId, &passwordHashInts[0], &passwordHashInts[1], &passwordHashInts[2], &passwordHashInts[3]);
 			check(err)
 			check(rows.Err())
-			prf(go_, "User found! - id: '%d' passwordHashInts: %#v\n", userId, passwordHashInts)
+			prf("User found! - id: '%d' passwordHashInts: %#v\n", userId, passwordHashInts)
 
 			passwordHash := GetPasswordHash256(data.Password)
 			if  passwordHash[0] != passwordHashInts[0] ||
@@ -157,7 +157,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Check for duplicate email
 		if DbExists("SELECT * FROM $$User WHERE Email = $1;", data.Email) {
-			pr(go_, "That email is taken... have you registered already?")
+			pr("That email is taken... have you registered already?")
 
 			field, err := form.GetField("email")
 			assert(err)
@@ -165,13 +165,13 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         } else {
         	// Check for duplicate username
 			if DbExists("SELECT * FROM $$User WHERE Username = $1;", data.Username) {
-				pr(go_, "That username is taken... try another one.  Or, have you registered already?")
+				pr("That username is taken... try another one.  Or, have you registered already?")
 				field, err := form.GetField("username")
 				assert(err)
 				field.SetErrors([]string{"That username is taken... try another one.  Or, have you registered already?"})
 			} else {
 				// Add new user to the database
-				prf(go_, "passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
+				prf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
 				userId := DbInsert(
 					"INSERT INTO $$User(Email, Username, PasswordHash) " +
 					"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;",
@@ -221,7 +221,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
-		pr(go_, "secure cookie not found")
+		pr("secure cookie not found")
 		http.Redirect(w, r, "/register", http.StatusSeeOther)
 		return
 	}
@@ -233,7 +233,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		data := RegisterDetailsData{}
 		form.MapTo(&data)
 
-		prVal(go_, "userId", userId)
+		prVal("userId", userId)
 
 		// Update the user record with registration details.
 		DbQuery(
@@ -319,7 +319,7 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
-		pr(go_, "Must be logged in submit a post.  TODO: add submitLinkHandler to stack somehow.")
+		pr("Must be logged in submit a post.  TODO: add submitLinkHandler to stack somehow.")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -330,11 +330,11 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 		data := SubmitLinkData{}
 		form.MapTo(&data)
 
-		prVal(go_, "data", data)
-		prVal(go_, "form", form)
+		prVal("data", data)
+		prVal("form", form)
 
-		pr(go_, "Inserting new LinkPost into database.")
-		//prf(go_, `INSERT INTO $$LinkPost(UserId, Title, LinkURL, Category)
+		pr("Inserting new LinkPost into database.")
+		//prf(`INSERT INTO $$LinkPost(UserId, Title, LinkURL, Category)
 		//	      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Link, data.Category)
 
 		// Update the user record with registration details.
@@ -366,17 +366,17 @@ func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func submitPollHandler(w http.ResponseWriter, r *http.Request) {
-	pr(go_, "submitPollHandler")
+	pr("submitPollHandler")
 
 	userId := GetSession(r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
-		pr(go_, "Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
+		pr("Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	prVal(go_, "r.Method", r.Method)
+	prVal("r.Method", r.Method)
 
 	form := makeForm(
 		makeTextField("title", "Title:", "Ask something...", 50, 12, 255),
@@ -390,7 +390,7 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// Add fields for additional options that were added, there could be an arbitrary number, we'll cap it at 1024 for now.
-	pr(go_, "Adding additional poll options")
+	pr("Adding additional poll options")
 	pollOptions := []*Field{form["option1"], form["option2"]}
 
 	// Just use brute force for now.  Don't break at the end, as we don't want the bricks to fall when someone erases the name of an option in the middle.
@@ -402,20 +402,20 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		//       Once live, options with votes should not be removable.
 		//       Leave the ""'s in the list so the position within the array can map directly to votes and indexes.
 		if r.FormValue(optionName) != "" {
-			prVal(go_, "Adding new poll option", optionName)
+			prVal("Adding new poll option", optionName)
 			form[optionName] = makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 255)
 			pollOptions = append(pollOptions, form[optionName])
 		}
 	}
 
-	prVal(go_, "r.Method", r.Method)
-	prVal(go_, "r.PostForm", r.PostForm)
-	prVal(go_, "form", form)
+	prVal("r.Method", r.Method)
+	prVal("r.PostForm", r.PostForm)
+	prVal("form", form)
 
 	if r.Method == "POST" && form.validateData(r) {
-		prVal(go_, "Valid form!!", form)
+		prVal("Valid form!!", form)
 
-		pr(go_, "Inserting new PollPost into database.")
+		pr("Inserting new PollPost into database.")
 
 		// Serialize all of the poll options and flags into variables that can be inserted into database.
 		var pollOptionData PollOptionData
@@ -432,7 +432,7 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 		pollOptionsJson, err := json.Marshal(pollOptionData)
 		check(err)
 
-		prVal(go_, "pollOptionsJson", pollOptionsJson)
+		prVal("pollOptionsJson", pollOptionsJson)
 
 		// Create the new poll.
 		pollPostId := DbInsert(
@@ -448,12 +448,12 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 			"http://localhost:8080/static/ballotbox.png", // TODO: generate poll url from image search
 			pollOptionsJson,
 		)
-		prVal(go_, "Just added a poll #", pollPostId)
+		prVal("Just added a poll #", pollPostId)
 
 		http.Redirect(w, r, fmt.Sprintf("/news?alert=SubmittedPoll&pollPostId=%d", pollPostId), http.StatusSeeOther)
 		return
 	} else if r.Method == "POST" {
-		prVal(go_, "Invalid form!!", form)
+		prVal("Invalid form!!", form)
 	}
 
 	// handle GET, or invalid form data from POST...
@@ -472,24 +472,24 @@ func submitPollHandler(w http.ResponseWriter, r *http.Request) {
 			//Categories:			newsCategoryInfo.CategoryOrder,
 			//AnonymityLevels:	anonymityLevels,
 		}
-		prVal(go_, "args", args)
+		prVal("args", args)
 		executeTemplate(w, "submitPoll", args)
 	}
 }
 
 
 func submitBlogHandler(w http.ResponseWriter, r *http.Request) {
-	pr(go_, "submitBlogHandler")
+	pr("submitBlogHandler")
 
 	userId := GetSession(r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
-		pr(go_, "Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
+		pr("Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	prVal(go_, "r.Method", r.Method)
+	prVal("r.Method", r.Method)
 
 	form := makeForm(
 		makeTextField("title", "Title:", "Ask something...", 50, 12, 255),
@@ -497,12 +497,12 @@ func submitBlogHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if r.Method == "POST" && form.validateData(r) {
-		prVal(go_, "Valid form!!", form)
+		prVal("Valid form!!", form)
 
 
 		return
 	} else if r.Method == "POST" {
-		prVal(go_, "Invalid form!!", form)
+		prVal("Invalid form!!", form)
 	}
 
 	// handle GET, or invalid form data from POST...
@@ -515,7 +515,7 @@ func submitBlogHandler(w http.ResponseWriter, r *http.Request) {
 			PageArgs:			PageArgs{Title: "Create Blog Post"},
 			Form:				form,
 		}
-		prVal(go_, "args", args)
+		prVal("args", args)
 		executeTemplate(w, "submitBlog", args)
 	}
 }
@@ -550,7 +550,7 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 	// TODO: we could add DNS Attack code defense here.
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		prf(go_, "\nHandling request from: %s\n", formatRequest(r))
+		prf("\nHandling request from: %s\n", formatRequest(r))
 
 		handler(w, r)
 	}
@@ -626,7 +626,7 @@ func WebServer() {
 	// Special handling for favicon.ico.
 	http.Handle("/favicon.ico", http.FileServer(http.Dir("./static")))
 
-	pr(go_, "Listening on http://localhost:" + flags.port + "...")
+	pr("Listening on http://localhost:" + flags.port + "...")
 	http.ListenAndServe(":" + flags.port, nil)
 }
 

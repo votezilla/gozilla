@@ -78,15 +78,16 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	var voteTally		int
 	var numComments		int
 
-	pr(po_, "_queryArticles")
-	prVal(po_, "idCondition", idCondition)
-	prVal(po_, "userIdCondition", userIdCondition)
-	prVal(po_, "categoryCondition", categoryCondition)
-	prVal(po_, "articlesPerCategory", articlesPerCategory)
-	prVal(po_, "maxArticles", maxArticles)
-	prVal(po_, "fetchVotesForUserId", fetchVotesForUserId)
+	pr("_queryArticles")
+	prVal("idCondition", idCondition)
+	prVal("userIdCondition", userIdCondition)
+	prVal("categoryCondition", categoryCondition)
+	prVal("articlesPerCategory", articlesPerCategory)
+	prVal("maxArticles", maxArticles)
+	prVal("fetchVotesForUserId", fetchVotesForUserId)
 
-	bRandomizeTime := (fetchVotesForUserId == -1)
+	bRandomizeTime := false  // REVERT!!!
+	//bRandomizeTime := (fetchVotesForUserId == -1)
 
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
 	newsPostQuery := fmt.Sprintf(
@@ -213,22 +214,22 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		if fetchVotesForUserId >= 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
 							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &upvoted, &voteTally))
-		} else { 
+		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
 							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &voteTally))
 		}
-		//prVal(po_, "id", id)
-		//prVal(po_, "author", author)
-		//prVal(po_, "title", title)
-		//prVal(po_, "description", description)
-		//prVal(po_, "linkUrl", linkUrl)
-		//prVal(po_, "urlToImage", urlToImage)
-		//prVal(po_, "publishedAt", publishedAt)
-		//prVal(po_, "newsSourceId", newsSourceId)
-		//prVal(po_, "category", category)
-		//prVal(po_, "language", language)
-		//prVal(po_, "country", country)
-		//prVal(po_, "pollOptionJson", pollOptionJson)
+		//prVal("id", id)
+		//prVal("author", author)
+		//prVal("title", title)
+		//prVal("description", description)
+		//prVal("linkUrl", linkUrl)
+		//prVal("urlToImage", urlToImage)
+		//prVal("publishedAt", publishedAt)
+		//prVal("newsSourceId", newsSourceId)
+		//prVal("category", category)
+		//prVal("language", language)
+		//prVal("country", country)
+		//prVal("pollOptionJson", pollOptionJson)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
@@ -304,7 +305,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			err = json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData)
 			check(err)
 
-			prVal(po_, "newArticle.PollOptionData", newArticle.PollOptionData)
+			prVal("newArticle.PollOptionData", newArticle.PollOptionData)
 
 			newArticle.Url = fmt.Sprintf("/article/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
 		}

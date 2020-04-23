@@ -24,9 +24,9 @@ const (
 
 func packInt256(buffer []byte) (q int256) {
 	err := binary.Read(bytes.NewBuffer(buffer[:]), binary.LittleEndian, &q)
-	check(err)	
+	check(err)
 	return
-}    	
+}
 
 // Hashes password with salt into [4]int64 and returns result.
 func GetPasswordHash256(password string) int256 {
@@ -48,12 +48,12 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 		Expires	: expiration,
 		Domain	: r.URL.Host,
 		Secure	: false, // TODO: set cookie.Secure to true once SSL is enabled.
-		HttpOnly: true,  // Prevent XSFR attacks. 
+		HttpOnly: true,  // Prevent XSFR attacks.
 		Path	: "/",
 	}
-	
-	prVal(sc_, "setCookie", cookie)
-	prVal(sc_, "  expiration", expiration.Format(time.UnixDate))
+
+	prVal("setCookie", cookie)
+	prVal("  expiration", expiration.Format(time.UnixDate))
 
 	http.SetCookie(w, &cookie)
 }
@@ -64,7 +64,7 @@ func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
 	if err != nil { // likely ErrNoCookie
 		return "", err
 	}
-	
+
 	if encrypted {
 		var decoded string
 		err := cookieCypher.Decode(name, cookie.Value, &decoded)
@@ -79,26 +79,26 @@ func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
 
 // Refreshes a cookie by potentially extending its expiration.
 func refreshCookie(w http.ResponseWriter, r *http.Request, name string, expiration time.Time) {
-	pr(sc_, "RefreshCookie")
-	
+	pr("RefreshCookie")
+
 	cookieVal, err := getCookie(r, name, false)
-	
-	prVal(sc_, "  cookieVal", cookieVal)
-	prVal(sc_, "  err", err)
-	
+
+	prVal("  cookieVal", cookieVal)
+	prVal("  err", err)
+
 	if err != nil { // likely ErrNoCookie
-		pr(sc_, "  No cookie found to refresh")
+		pr("  No cookie found to refresh")
 		setCookie(w, r, name, cookieVal, expiration, false)
 	}
-	
-	prVal(sc_, "  Setting expiration to", expiration.Format(time.UnixDate))
-	
+
+	prVal("  Setting expiration to", expiration.Format(time.UnixDate))
+
 	cookie, err := r.Cookie(name)
 	if err != nil { // likely ErrNoCookie
 		return
 	}
-	
-		
+
+
 	cookie.Expires = expiration
 	http.SetCookie(w, cookie)
 }
@@ -116,11 +116,11 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userId int64, remembe
 	} else {
 		expiration = shortExpiration()
 	}
-	
-	prVal(sc_, "CreateSession userId", userId)
-	prVal(sc_, "              rememberMe", rememberMe)
-	prVal(sc_, "              expiration", expiration.Format(time.UnixDate))
-	
+
+	prVal("CreateSession userId", userId)
+	prVal("              rememberMe", rememberMe)
+	prVal("              expiration", expiration.Format(time.UnixDate))
+
 	setCookie(w, r, kUserId, strconv.FormatInt(userId, 10), expiration, true)
 	if rememberMe {
 		setCookie(w, r, kRememberMe, "true", expiration, false)
@@ -130,8 +130,8 @@ func CreateSession(w http.ResponseWriter, r *http.Request, userId int64, remembe
 }
 
 func DestroySession(w http.ResponseWriter, r *http.Request) {
-	pr(sc_, "DestroySession")
-	
+	pr("DestroySession")
+
 	setCookie(w, r, kUserId, "", time.Now(), false)
 	setCookie(w, r, kRememberMe, "", time.Now(), false)
 }
@@ -147,49 +147,49 @@ func GetSession(r *http.Request) (userId int64) {
 	if err != nil { // Cannot parse cookie
 		return -1
 	}
-	
+
 	return userId
 }
 
 // Get username from userId.
-func getUsername(userId int64) string {		
+func getUsername(userId int64) string {
 	username := ""
 	if userId != -1 {
 		rows := DbQuery("SELECT Username FROM $$User WHERE Id = $1::bigint;", userId)
 		if rows.Next() {
 			err := rows.Scan(&username)
-			check(err)	
+			check(err)
 		}
 		check(rows.Err())
 		rows.Close()
 	}
-	
+
 	return username
 }
 
 func RefreshSession(w http.ResponseWriter, r *http.Request) {
-	pr(sc_, "RefreshSession")
-	
+	pr("RefreshSession")
+
 	rememberMeCookie, _ := getCookie(r, kRememberMe, false)
-	prVal(sc_, "  rememberMeCookie", rememberMeCookie)
-	
+	prVal("  rememberMeCookie", rememberMeCookie)
+
 	if rememberMeCookie == "true" {
-		pr(sc_, "  rememberMeCookie == true")
+		pr("  rememberMeCookie == true")
 	} else {
-		pr(sc_, "  rememberMeCookie == false")
+		pr("  rememberMeCookie == false")
 	}
 
 	if rememberMeCookie == "true" {
-		pr(sc_, "  RememberMe = true!")
+		pr("  RememberMe = true!")
 		return // Don't refresh the cookie if rememberMe is set - it lasts for a year.
 	}
 
-	
+
 	// Refresh by extending the expiration by 10 minutes.
 	refreshCookie(w, r, kUserId, shortExpiration())
 }
 
 // Should be called from init()
 func InitSecurity() {
-	cookieCypher = securecookie.New([]byte(flags.secureCookieHashKey), []byte(flags.secureCookieBlockKey))	
+	cookieCypher = securecookie.New([]byte(flags.secureCookieHashKey), []byte(flags.secureCookieBlockKey))
 }

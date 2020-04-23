@@ -22,8 +22,8 @@ type PollTallyResults []PollTallyResult
 //
 //////////////////////////////////////////////////////////////////////////////
 func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
-	pr(vo_, "ajaxPollVoteHandler")
-	prVal(vo_, "r.Method", r.Method)
+	pr("ajaxPollVoteHandler")
+	prVal("r.Method", r.Method)
 
 	if r.Method != "POST" {
 		http.NotFound(w, r)
@@ -33,11 +33,11 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r);
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
-		pr(go_, "Must be logged in to vote.")
+		pr("Must be logged in to vote.")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	prVal(vo_, "userId", userId);
+	prVal("userId", userId);
 
     //parse request to struct
     var vote struct {
@@ -47,12 +47,12 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 
     err := json.NewDecoder(r.Body).Decode(&vote)
     if err != nil {
-		prVal(vo_, "Failed to decode json body", r.Body)
+		prVal("Failed to decode json body", r.Body)
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
-    prVal(vo_, "=======>>>>> vote", vote)
+    prVal("=======>>>>> vote", vote)
 
     // Convert voteDataJson into parallel arrays for more compact database storage.
     voteOptionIds := make([]int, 0)
@@ -205,7 +205,7 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 				sum++
 			}
 
-			prVal(vo_, "sum", sum)
+			prVal("sum", sum)
 
 			// Calculate the percentage.
 			invDividendPercent := 100.0 / float32(sum)
@@ -213,9 +213,9 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 				pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
 			}
 
-			prf(vo_, "Round %d results:", round)
+			prf("Round %d results:", round)
 			for i, pollTallyResult := range pollTallyResults {
-				prf(vo_, "\tOption %d\tCount %d\tPercentage %f", i, pollTallyResult.Count, pollTallyResult.Percentage)
+				prf("\tOption %d\tCount %d\tPercentage %f", i, pollTallyResult.Count, pollTallyResult.Percentage)
 			}
 
 			// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
@@ -241,7 +241,7 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 			}
 			eliminatedVoteOptions = append(eliminatedVoteOptions, int64(worstOption))
 
-			prf(vo_, "Eliminated vote option %d, it had the lowest vote count: %d", worstOption, leastVotes)
+			prf("Eliminated vote option %d, it had the lowest vote count: %d", worstOption, leastVotes)
 
 			// Stop when we have one candidate remaining.
 			if round == numOptions - 1 {
@@ -268,14 +268,16 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	prVal(nw_, "r.URL.Query()", r.URL.Query())
+	pr("viewPollResultsHandler")
+
+	prVal("r.URL.Query()", r.URL.Query())
 
 	reqVoteData := parseUrlParam(r, "voteData")
-	prVal(vo_, "reqVoteData", reqVoteData)
+	prVal("reqVoteData", reqVoteData)
 
 	decodedVoteData, err := url.QueryUnescape(reqVoteData)
 	check(err)
-	prVal(vo_, "decodedVoteData", decodedVoteData)
+	prVal("decodedVoteData", decodedVoteData)
 
 	voteData := strings.Split(decodedVoteData, ",")
 

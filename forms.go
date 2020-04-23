@@ -20,32 +20,32 @@ type Field struct {
 	Name			string
 	Type			string
 	Value			string
-	Label			string 
+	Label			string
 	Placeholder		string
 	Error			string
 	InputLength		int
 	Html			func() string // Closure that outputs the html of this field
 	HtmlRow			func() string // Closure that outputs the html of this field's entire table row
-	
-	Validators	[]func(Field)(bool, string) 
+
+	Validators	[]func(Field)(bool, string)
 }
 
 func (f *Field) validate() bool {
-	prVal(fo_, "Field.validate() for field", f)
-	
+	prVal("Field.validate() for field", f)
+
 	for k, _ := range f.Validators {
 		validator := f.Validators[k]
-		
+
 		isValid, errorMsg := validator(*f)
-		
-		prf(fo_, "  Field.validate() - isValid, errorMsg = %s, %s for validator %s", bool_to_str(isValid), errorMsg, validator)
-		
+
+		prf("  Field.validate() - isValid, errorMsg = %s, %s for validator %s", bool_to_str(isValid), errorMsg, validator)
+
 		if !isValid {
 			// Note: Just return the first error, don't accumulate them.
 			f.Error = errorMsg
-			
-			prVal(fo_, "    !isValid --> f.Error", f.Error)
-			
+
+			prVal("    !isValid --> f.Error", f.Error)
+
 			return false
 		}
 	}
@@ -62,7 +62,7 @@ func (f Field) boolVal() bool {
 }
 
 func (f Field) getErrorHtml() string {
-	//prf(fo_, "Field.getErrorHtml() for field %s f.Error = %s", f, f.Error)
+	//prf("Field.getErrorHtml() for field %s f.Error = %s", f, f.Error)
 	return ternary_str(f.Error != "", fmt.Sprintf("<label class=\"error\">%s</label>", f.Error), "")
 }
 
@@ -79,14 +79,14 @@ func requiredValidator() func(Field)(bool, string) {
 func minMaxLengthValidator(minLength, maxLength int) func(Field)(bool, string) {
 	return func(f Field)(bool, string) {
 		length := len(f.Value)
-			
+
 		if length < minLength {
 			return false, fmt.Sprintf("Ensure this value has at least %v characters", minLength)
 		} else if length > maxLength {
 			return false, fmt.Sprintf("Ensure this value has at most %v characters", maxLength)
 		} else {
 			return true, ""
-		}	
+		}
 	}
 }
 
@@ -110,41 +110,41 @@ func optionValidator(validOptions []string) func(Field)(bool, string) {
 type Form map[string]*Field
 
 func (f *Form) processData(r *http.Request) {
-	pr(fo_, "Form.processData")
-	
+	pr("Form.processData")
+
 	for name, field := range *f {
 		field.Value = r.FormValue(name)
-		
-		prVal(fo_, "Form.processData field", field)
+
+		prVal("Form.processData field", field)
 	}
-	
-	prVal(fo_, "AFTER Form.processData f", *f) // << ERROR first seen here!
+
+	prVal("AFTER Form.processData f", *f) // << ERROR first seen here!
 }
 
 func (f *Form) validate() bool {
-	prVal(fo_, "Form.validate for form", *f)
-	
+	prVal("Form.validate for form", *f)
+
 	valid := true
 	for _, field := range *f {
 		v := field.validate()
-		
-		prf(fo_, "Form.validation is %s for field %s", bool_to_str(v), field)
-		
+
+		prf("Form.validation is %s for field %s", bool_to_str(v), field)
+
 		valid = valid && v
 	}
-	
-	prVal(fo_, "Form.validate return", valid)
-	
+
+	prVal("Form.validate return", valid)
+
 	return valid
 }
 
 func (f *Form) validateData(r *http.Request) bool {
-	pr(fo_, "Form.validateData")
-	
+	pr("Form.validateData")
+
 	f.processData(r)
-	
-	prVal(fo_, "Form.validateData processed data form", f)
-	
+
+	prVal("Form.validateData processed data form", f)
+
 	return f.validate()
 }
 
@@ -162,14 +162,14 @@ func (f Field) getHtml() string {
 		f.Type,
 		f.Name,
 		f.Value,
-		f.Placeholder, 
+		f.Placeholder,
 		f.InputLength,
 		f.getErrorHtml())
 }
 
 func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, InputLength: inputLength}
-	
+
 	if minLength > 0 {
 		f.Validators = append(f.Validators, requiredValidator())
 	}
@@ -177,28 +177,28 @@ func makeTextField(name, label, placeholder string, inputLength, minLength, maxL
 	if minLength > 0 || maxLength != -1 {
 		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength))
 	}
-	
+
 	// TODO: HTML-escape this
 	f.Html = func()string {
-		prVal(fo_, "f.Html f", f)
-		
+		prVal("f.Html f", f)
+
 		return f.getHtml()
 	}
-	f.HtmlRow = func()string { 
-		prVal(fo_, "f.HtmlRow f", f)
-		
-		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.getHtml()) 
+	f.HtmlRow = func()string {
+		prVal("f.HtmlRow f", f)
+
+		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.getHtml())
 	}
-	
+
 	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
-	
+
 	return &f
 }
 
 // TODO: implement makeRichTextField().  It's just a copy of makeTextField at the moment.
 func makeRichTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, InputLength: inputLength}
-	
+
 	if minLength > 0 {
 		f.Validators = append(f.Validators, requiredValidator())
 	}
@@ -206,28 +206,28 @@ func makeRichTextField(name, label, placeholder string, inputLength, minLength, 
 	if minLength > 0 || maxLength != -1 {
 		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength))
 	}
-	
+
 	// TODO: HTML-escape this
 	f.Html = func()string {
-		prVal(fo_, "f.Html f", f)
-		
+		prVal("f.Html f", f)
+
 		return f.getHtml()
 	}
-	f.HtmlRow = func()string { 
-		prVal(fo_, "f.HtmlRow f", f)
-		
-		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.getHtml()) 
+	f.HtmlRow = func()string {
+		prVal("f.HtmlRow f", f)
+
+		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.getHtml())
 	}
-	
+
 	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
-	
+
 	return &f
 }
 
 func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 	// Hack: using Placeholder to hold optionText value
 	f := Field{Name: name, Type: "checkbox", Label: label, Placeholder: optionText, Value: ternary_str(defaultValue, "1", "")}
-	
+
 	// TODO: HTML-escape this
 	f.Html = func()string {
 		return fmt.Sprintf(
@@ -236,46 +236,46 @@ func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 			ternary_str(f.boolVal(), "checked", ""),
 			f.getErrorHtml())
 	}
-	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s %s</td></tr>\n", f.Label, f.Html(), f.Placeholder) }	
-	
+	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s %s</td></tr>\n", f.Label, f.Html(), f.Placeholder) }
+
 	return &f
 }
 
 func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil, required bool) *Field {
 	f := Field{Name: name, Type: "select", Label: label}
-	
+
 	if required {
 		f.Validators = append(f.Validators, requiredValidator())
 	}
-	
+
 	validOptions := make([]string, len(optionKeyValues) + 1)
-	
+
 	for _, optionKeyValue := range optionKeyValues {
 		validOptions = append(validOptions, optionKeyValue[0]) // add the key
 	}
-	
+
 	f.Validators = append(f.Validators, optionValidator(validOptions))
-		
+
 	// TODO: HTML-escape this
 	f.Html = func()string {
 		str := fmt.Sprintf("\n<select name=\"%s\">\n", f.Name)
-		
+
 		if startAtNil {
 			str += "<option value=\"\">-</option>\n"
 		}
-		
+
 		for _, optionKeyValue := range optionKeyValues {
 			str += fmt.Sprintf("<option value=\"%s\"%s>%s</option>\n",
 				optionKeyValue[0], // key
 				ternary_str(f.Value == optionKeyValue[0], " selected", ""),
 				optionKeyValue[1]) // value
-		}			
+		}
 		str += "</select>\n";
 		str += f.getErrorHtml()
 		return str
 	}
-	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.Html()) }		
-	
+	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.Html()) }
+
 	return &f
 }
 
@@ -285,8 +285,8 @@ func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil
 var (
 	// NEW:
 
-	
-	
+
+
 	// vv OLD!!! vv
 	// Login data
     email = gforms.NewTextField(
@@ -362,7 +362,7 @@ var (
 		"remember me",
         gforms.Validators{},
 	)
-    
+
     // Demographics
     name = gforms.NewTextField(
         "full name",
@@ -409,10 +409,10 @@ var (
             gforms.Required(),
             gforms.MaxLengthValidator(60),
             gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
-				prVal(fo_, "fo.Data", fo.Data)
+				prVal("fo.Data", fo.Data)
 				if fo.Data["country"].RawStr == "US" {
 					rvl := gforms.RegexpValidator(`^\d{5}(?:[-\s]\d{4})?$`, "Invalid zip code")
-					return rvl.Validate(fi, fo) 
+					return rvl.Validate(fi, fo)
 				} else {
 					return nil // Only validating US zip codes for now
 				}
@@ -473,7 +473,7 @@ var (
 			{"Widowed",                         "W"},
 			{"Married or Domestic Partnership", "M"},
 		}),
-    )   
+    )
     schooling = gforms.NewTextField(
         "furthest schooling completed",
         gforms.Validators{
@@ -488,7 +488,7 @@ var (
 			{"Postgraduate study",               "P"},
 		}),
     )
-    
+
     // Submit post
     title = gforms.NewTextField(
         "title",
@@ -496,7 +496,7 @@ var (
             gforms.Required(),
             gforms.MaxLengthValidator(50),
         },
-    )    
+    )
 	link = gforms.NewTextField(
 		"link",
 		gforms.Validators{
@@ -504,7 +504,7 @@ var (
 			gforms.URLValidator(),
 			gforms.MaxLengthValidator(250),
 		},
-    )    
+    )
 	category = gforms.NewTextField(
 		"category",
 		gforms.Validators{
@@ -519,14 +519,14 @@ var (
 				return categories
 			}(),
 		),
-    )        
+    )
 	thumbnail = gforms.NewTextField(
 		"thumbnail",
 		gforms.Validators{
             gforms.Required(),
         },
         gforms.HiddenInputWidget(map[string]string{}),
-    )  
+    )
 )
 
 // === FORM POST DATA ===
@@ -582,7 +582,7 @@ var (
     RegisterDetailsForm = gforms.DefineForm(gforms.NewFields(
         // name
         name,
-        
+
         // location
         country,
         location,
@@ -593,9 +593,9 @@ var (
         party,
         race,
         marital,
-        schooling,      
+        schooling,
     ))
-    
+
     SubmitLinkForm = gforms.DefineForm(gforms.NewFields(
 		link,
 		title,

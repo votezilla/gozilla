@@ -3,7 +3,6 @@ package main
 
 import (
 	"bytes"
-//	"crypto/tls"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +10,7 @@ import (
 	"strings"
 	"time"
 )
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -37,6 +37,7 @@ func check(err error) {
 
 func nyi() { panic("Not yet implemented!") }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // math constants
@@ -44,6 +45,7 @@ func nyi() { panic("Not yet implemented!") }
 ///////////////////////////////////////////////////////////////////////////////
 const MaxInt   = int(^uint(0) >> 1)
 const MaxInt64 = int64(^uint64(0) >> 1)
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -64,8 +66,8 @@ func getBitFlag(flags, mask uint64) bool { return (flags & mask) != 0; }
 //			2, 300)   // case 2: return 300
 //		returns 300;
 func switch_int(switch_val int, cases_and_values ...int) int {
-	prVal(ut_, "switch_val", switch_val);
-	prVal(ut_, "cases_and_values", cases_and_values);
+	prVal("switch_val", switch_val);
+	prVal("cases_and_values", cases_and_values);
 
 	for c := 0; c + 1 < len(cases_and_values); c += 2 {
 		if switch_val == cases_and_values[c] {
@@ -75,6 +77,7 @@ func switch_int(switch_val int, cases_and_values ...int) int {
 	return -1; // This is the default (not found) flag value.
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // string functions
@@ -83,6 +86,7 @@ func switch_int(switch_val int, cases_and_values ...int) int {
 func ternary_str(b bool, s1 string, s2 string) 	string 	{ if b { return s1 } else { return s2 } }
 func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -100,63 +104,28 @@ func contains_int64(array []int64, item int64) bool {
 	return false
 }
 
-///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////
 //
 // logging
 //
 ///////////////////////////////////////////////////////////////////////////////
-type PrintMask uint
-const (
-	nw_		= PrintMask( 1)			// news.go
-	go_		= PrintMask( 2)			// gozilla.go
-	sc_		= PrintMask( 4)			// security.go
-	db_ 	= PrintMask( 8)			// db.go
-	fo_		= PrintMask(16)			// forms.go
-	po_		= PrintMask(32)			// posts.go
-	ns_		= PrintMask(64)			// newsServer.go
-	is_		= PrintMask(128)		// imageServer.go
-	ut_		= PrintMask(256)		// utils.go
-	vo_		= PrintMask(512)		// voting.go
-	co_		= PrintMask(1024)		// comments.go
-
-	all_	= PrintMask(2048 - 1)
-)
-
-func print(text string) {
+func pr(text string) {
 	log.Println(text)
 }
-func pr(mask PrintMask, text string) {
-	if (mask & flags.printMask) != 0 {
-		print(text)
-	}
-}
 
-func printf(format string, args... interface{}) {
+func prf(format string, args... interface{}) {
 	log.Printf(format, args...)
 }
-func prf(mask PrintMask, format string, args... interface{}) {
-	if (mask & flags.printMask) != 0 {
-		printf(format, args...)
-	}
-}
 
-func printVal(label string, v interface{}) {
+func prVal(label string, v interface{}) {
 	log.Printf("%s: %#v", label, v)
 }
-func prVal(mask PrintMask, label string, v interface{}) {
-	if (mask & flags.printMask) != 0 {
-		printVal(label, v)
-	}
-}
 
-func printValX(label string, v interface{}) {
+func prValX(label string, v interface{}) {
 	log.Printf("%s: %x", label, v)
 }
-func prValX(mask PrintMask, label string, v interface{}) {
-	if (mask & flags.printMask) != 0 {
-		printValX(label, v)
-	}
-}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -172,7 +141,7 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 
 	err := templates[templateName].Execute(w, data)
 	if err != nil {
-		printf("executeTemplate err: %s", err)
+		prVal("executeTemplate err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -217,33 +186,6 @@ func httpGet_Old(url string, timeout float32) (*http.Response, error){
 func httpGet(url string, timeout float32) (*http.Response, error){
 	return httpGet_Old(url, timeout)
 }
-/*
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	var netClient = &http.Client{
-	 	Timeout:	time.Duration(timeout) * time.Second,
-	 	Transport:	tr,
-	}
-
-	prVal(ut_, "httpGet", url)
-	//prVal(ut_, "tr", tr)
-	//prVal(ut_, "netClient", netClient)
-
-	//return netClient.Get(url)
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-	    prVal(ut_, "request had error", err)
-	    return nil, err
-	}
-
-	//prVal(ut_, "req", req)
-
-	req.Host = "votezilla.io"  //"domain.tld"
-	return netClient.Do(req)
-} */
 
 // formatRequest generates ascii representation of a request
 func formatRequest(r *http.Request) string {
@@ -261,7 +203,6 @@ func formatRequest(r *http.Request) string {
 			request = append(request, fmt.Sprintf("%v: %v", name, h))
 		}
 	}
-
 	// If this is a POST, add post data
 	if r.Method == "POST" {
 		r.ParseForm()

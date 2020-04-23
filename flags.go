@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"strconv"
+	//"strconv"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 		secureCookieHashKey		string 		// Secure key for encrypting secure cookies.
 		secureCookieBlockKey	string		// Even more secure key for encrypting secure cookies.
 		newsAPIKey				string		// News API key.
-		printMask				PrintMask	// For selective logging.
+		//printMask				PrintMask	// For selective logging.
 		port					string		// Which port to serve webpages from.
 		offlineNews				string		// Whether to use offline cached news, when working without Internet connection.
 		newsServer				string		// Whether to be the news server.
@@ -40,8 +40,8 @@ func parseCommandLineFlags() {
 	f6 := flag.String("cookieHashKey",	"very-secret",	"secure cookie hash key");
 	f7 := flag.String("cookieBlockKey",	"a-lot-secret", "secure cookie block key");
 	// TODO: register for a new News Api key, since mine expired.  Be sure to not run it very often.
-	f8 := flag.String("newsAPIKey",		"",				"news API key from https://newsapi.org");	
-	f9 := flag.String("printMask",		"65535",		"log output mask");
+	f8 := flag.String("newsAPIKey",		"",				"news API key from https://newsapi.org");
+	//f9 := flag.String("printMask",		"65535",		"log output mask");
 	fa := flag.String("port",			"8080",			"which port to serve webpages from");
 	fb := flag.String("offlineNews",    "",				"whether to use offline news");
 	fc := flag.String("newsServer",		"",				"whether to be the news server");
@@ -59,13 +59,13 @@ func parseCommandLineFlags() {
 	flags.secureCookieHashKey	= *f6
 	flags.secureCookieBlockKey	= *f7
 	flags.newsAPIKey			= *f8
-
+/*
 	printMask, err        		:= strconv.Atoi(*f9)
 	flags.printMask = PrintMask(printMask)
 	if err != nil {
 		flags.printMask = PrintMask(all_)
 	}
-
+*/
 	flags.port					= *fa
 	flags.offlineNews			= *fb
 	flags.newsServer			= *fc
@@ -73,5 +73,5 @@ func parseCommandLineFlags() {
 	flags.test					= *fe
 	flags.mode					= *ff
 
-	printf("flags: %#v\n", flags)
+	prf("flags: %#v\n", flags)
 }

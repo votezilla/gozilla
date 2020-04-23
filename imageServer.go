@@ -7,7 +7,7 @@ package main
 import (
 	"errors"
 	"fmt"
-//	"github.com/puerkitobio/goquery"  
+//	"github.com/puerkitobio/goquery"
 	"github.com/rubenfonseca/fastimage"
 	"io"
 	"io/ioutil"
@@ -24,7 +24,7 @@ import (
 	_ "image/png"
 )
 
-var (	
+var (
 	newsSourceIcons map[string]string = map[string]string{
 		"abc-news-au": "https://icons.better-idea.org/icon?url=http://www.abc.net.au/news&size=70..120..200",
 		"al-jazeera-english": "https://icons.better-idea.org/icon?url=http://www.aljazeera.com&size=70..120..200",
@@ -102,12 +102,12 @@ const (
 	image_Unprocessed		= 0
 	image_Downsampled		= 1 // 125 x 75
 	image_DownsampleError	= -1
-	
+
 	genThumbPass_PollPost	= 0
 	genThumbPass_LinkPost	= 1
 	genThumbPass_NewsPost	= 2
 	NUM_GEN_THUMBS_PASSES   = 3
-	
+
 	kImageBatchSize = 5		// Number of images to convert to thumbnails per batch
 )
 
@@ -121,9 +121,9 @@ type ImageSizeResult struct {
 	imgSrc			string
 	width			int
 	height			int
-	imageQuality	int		// quality, in terms of size.  
+	imageQuality	int		// quality, in terms of size.
 	err				error
-}				
+}
 
 // Download image from imageUrl, use outputNameId to form name before extension, extension stays the same.
 func downloadImage(imageUrl string, outputNameId int) error {
@@ -139,7 +139,7 @@ func downloadImage(imageUrl string, outputNameId int) error {
 		return err
 	}
     defer file.Close()
-    
+
     _, err = io.Copy(file, resp.Body)
     if err != nil {
 		return err
@@ -151,36 +151,36 @@ func downloadImage(imageUrl string, outputNameId int) error {
 
 // Downloads just enough of the image (from the web) to determine its width and height.
 func downloadImageSize(imageUrl string) (int, int, error) {
-	prVal(is_, "downloadImageSize", imageUrl)
+	prVal("downloadImageSize", imageUrl)
 	_, size, err := fastimage.DetectImageType(imageUrl)
-	prVal(is_, "  size", size)
+	prVal("  size", size)
 	if err != nil {
 		return -1, -1, err
-	}	
+	}
 	if size == nil {
-		pr(is_, "  size is nil")
+		pr("  size is nil")
 		return -1, -1, errors.New("downloadImageSize gets nil size and must abort")
 	}
 	return int(size.Width), int(size.Height), nil
 }
-		
+
 // Download image from imageUrl, use outputName to form name before extension, extension stays the same.
 func downsampleImage(imageUrl string, directory string, outputName string, extension string, width int, height int) error {
-	prf(is_, "downsampleImage %s -> %s.%s", imageUrl, outputName, extension)
-	
+	prf("downsampleImage %s -> %s.%s", imageUrl, outputName, extension)
+
 	resp, err := httpGet(imageUrl, 10.0)
     if err != nil {
-		prVal(is_, "  ERR 1", err)
+		prVal("  ERR 1", err)
 		return err
 	}
     defer resp.Body.Close()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
     if err != nil {
-		prVal(is_, "  ERR 2", err)
+		prVal("  ERR 2", err)
 		return err
 	}
-	
+
 	downsampledImg, err := imageproxy.Transform(
 		bytes,
 		imageproxy.Options{
@@ -191,68 +191,68 @@ func downsampleImage(imageUrl string, directory string, outputName string, exten
 		},
 	)
     if err != nil {
-		prVal(is_, "  ERR 3", err)
+		prVal("  ERR 3", err)
 		return err
 	}
-	
+
 	err = ioutil.WriteFile(
 		"./static/" + directory + "/" + outputName + "." + extension,
 		downsampledImg,
 		0644,
 	)
-	
+
 	if err != nil {
-		prVal(is_, "  ERR 4", err)
+		prVal("  ERR 4", err)
 	} else {
-		pr(is_, "Success downsampling image!")
+		pr("Success downsampling image!")
 	}
 	return nil
 }
 
 func goDownloadImageSize(imgSrc string, c chan ImageSizeResult) {
-	prf(is_, "calling gorouting downloadImageSize(%s)", imgSrc)
+	prf("calling gorouting downloadImageSize(%s)", imgSrc)
 
-	width, height, err := downloadImageSize(imgSrc) 
+	width, height, err := downloadImageSize(imgSrc)
 
-	//prf(is_, "   the result is %d, %d, %s", width, height, err)
-	
+	//prf("   the result is %d, %d, %s", width, height, err)
+
 	minDim := min_int(width, height)
 	maxDim := max_int(width, height)
 	imageQuality := minDim * minDim * maxDim // Rewards both the minimum dimension (to discourage banners) while also encouraging a larger area
-	
-	prf(is_, "minDim: %d maxDim: %d imageQuality %d imgSrc: %s",
+
+	prf("minDim: %d maxDim: %d imageQuality %d imgSrc: %s",
 			minDim, maxDim, imageQuality, imgSrc)
 
 	c <- ImageSizeResult{imgSrc, width, height, imageQuality, err}
-} 
+}
 
 
 // If imgSrc is a relative URL, converts it to an absolute URL (using baseUrl).  Returns the result, or an error if unsuccessful.
 func makeUrlAbsolute(imgSrc, baseUrl string) (string, error) {
-	
+
 	imgUrl, err := url.Parse(imgSrc)
-	
+
 	if err != nil {
-	//	prf(go_, "Error parsing URL: %s %v %s", imgSrc, imgUrl, err)
+	//	prf("Error parsing URL: %s %v %s", imgSrc, imgUrl, err)
 		return "", err
 	}
 
 	if !imgUrl.IsAbs() {
-	//	pr(go_, "Image URL is not absolute")
+	//	pr("Image URL is not absolute")
 
 		baseUrl, err := url.Parse(baseUrl)
 		if err != nil {
-	//		prf(go_, "Error parsing base URL: %s %s", linkUrl.Url, err)
+	//		prf("Error parsing base URL: %s %s", linkUrl.Url, err)
 			return "", err
 		}
 
 		imgUrl := baseUrl.ResolveReference(imgUrl)
 
-		//prVal(go_, "Fixed Image Url:", imgUrl)
+		//prVal("Fixed Image Url:", imgUrl)
 
 		imgSrc = imgUrl.String()
 
-		//prVal(go_, "Fixed imgSrc:", imgSrc)
+		//prVal("Fixed imgSrc:", imgSrc)
 	}
 
 	return imgSrc, nil
@@ -263,96 +263,95 @@ func makeUrlAbsolute(imgSrc, baseUrl string) (string, error) {
 // Figure out which thumbnail to use based on the Url of the link submitted.
 // Return the string of the image url if it exists, or "" if there is an error.
 func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
-	prVal(is_, "scrapeWebpageForBestImage pageUrl", pageUrl)
-	
+	prVal("scrapeWebpageForBestImage pageUrl", pageUrl)
+
     // Fix the URL scheme
     if !strings.HasPrefix(pageUrl, "http://") && !strings.HasPrefix(pageUrl, "https://") {
        pageUrl = "http://" + pageUrl
-       
-       prVal(is_, "fixed linkUrl", pageUrl)
+
+       prVal("fixed linkUrl", pageUrl)
 	}
 
     // Make HTTP request
-    pr(is_, "Making HTTP Response")
+    pr("Making HTTP Response")
     response, err := httpGet(pageUrl, 30.0)
-    
-    prVal(is_, "response", response)
-    prVal(is_, "response.Body", response.Body)
-    
+
+    prVal("response", response)
+    prVal("response.Body", response.Body)
+
     defer response.Body.Close()
     if err != nil {
-        prVal(is_, "HTTP request failed", err) 
+        prVal("HTTP request failed", err)
         return []ImageSizeResult{}, err
     }
 
     // Create a goquery document from the HTTP response
     document, err := goquery.NewDocumentFromReader(response.Body)
     if err != nil {
-        prVal(is_, "Error loading body. ", err)
+        prVal("Error loading body. ", err)
         return []ImageSizeResult{}, err
     }
-    
-    prVal(is_, "document", document)
+
+    prVal("document", document)
 
     // Find and return all image URLs
     // Which image is the right one?
     // Excellent article!: https://tech.shareaholic.com/2012/11/02/how-to-find-the-image-that-best-respresents-a-web-page/
-    
+
     // Look for the meta og:image tag, which indicates this is the image this website wants for its thumbnail!
     ogImage := ""
 	document.Find("meta").Each(func(i int, s *goquery.Selection) {
-	    property, _ := s.Attr("property"); 
-	    
-	    if property == "og:image" {	
-			
+	    property, _ := s.Attr("property");
+
+	    if property == "og:image" {
+
 	        ogImage, _ = s.Attr("content")
-	        
+
 	        ogImage, _ = makeUrlAbsolute(ogImage, pageUrl)
-				        
+
 	        return // continue
 	    }
 	})
 	if ogImage != "" {
-		prVal(is_, "ogImage Found!", ogImage)
+		prVal("ogImage Found!", ogImage)
 		return []ImageSizeResult{ImageSizeResult{imgSrc:ogImage}}, nil
 	}
-	
+
 	// If ogimage wan't found, we need to scrape all images, download them all, and pick the best (largest) one!
 	//var images []string
 	images := map[string]int{}
 	document.Find("img").Each(func(index int, element *goquery.Selection) {
 		imgSrc, exists := element.Attr("src")
-		
+
 		if !exists {
 			return // continue - returns us from the lambda fn, so this basically a continue
 		}
 
 		imgUrl, err := url.Parse(imgSrc)
 		if err != nil {
-			prf(is_, "Error parsing URL: %s %v %s", imgSrc, imgUrl, err)
+			prf("Error parsing URL: %s %v %s", imgSrc, imgUrl, err)
 			return // continue
 		}
 
 		imgSrc, err = makeUrlAbsolute(imgSrc, pageUrl)
-		
+
 		if err != nil {
 			images[imgSrc] = 1
 		}
 	})
-	
-	prVal(is_, "images", images)
-	//bestImage := "" // default to the placeholder image	
-	
+
+	prVal("images", images)
+	//bestImage := "" // default to the placeholder image
+
 	if len(images) == 0 {
 		return []ImageSizeResult{}, errors.New("No images found on website")
 	}
-		
+
 	start := time.Now()
-		
-	// Get the sizes of the images, pick the best one with a size-based heuristic, multithreaded.	
+
+	// Get the sizes of the images, pick the best one with a size-based heuristic, multithreaded.
 	c := make(chan ImageSizeResult)
 
-	//for _, imgSrc := range(images) {
 	for imgSrc, _ := range(images) {
 		go goDownloadImageSize(imgSrc, c)
 	}
@@ -360,39 +359,39 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
 	timeout := time.After(30 * time.Second)
 
 	numImages := len(images)
-	
+
 	imageSortResults := make([]ImageSizeResult, 0)
 
 	downsampleImagesLoop: for {
 		select {
-			case imageSizeResult := <-c: 	
+			case imageSizeResult := <-c:
 				imageSortResults = append(imageSortResults, imageSizeResult)
-				
+
 				numImages--
-				
+
 				if numImages == 0 {
-					pr(is_, "Processed all images!")
+					pr("Processed all images!")
 					break downsampleImagesLoop
 				}
 			case <- timeout:
-				pr(is_, "Timeout!")
+				pr("Timeout!")
 
 				break downsampleImagesLoop
-		}		
+		}
 	}
-	
-	sort.Slice(imageSortResults, func(i, j int) bool { return imageSortResults[i].imageQuality < 
+
+	sort.Slice(imageSortResults, func(i, j int) bool { return imageSortResults[i].imageQuality <
 	                                                          imageSortResults[j].imageQuality })
 
-	prf(is_, "With finding best image took %s", time.Since(start))	
-	
+	prf("With finding best image took %s", time.Since(start))
+
 	return imageSortResults, nil
 }*/
 
 // Downsample an image asynchronously, return infomation about id and error status to the channel after.
 func downsamplePostImage(url string, id int, pass int, c chan DownsampleResult) {
-	prf(is_, "Downsampling image #%d pass %d urls %s\n", id, pass, url)
-	
+	prf("Downsampling image #%d pass %d urls %s\n", id, pass, url)
+
 	//	genThumbsPass_ScrapeUserPostImage = 0
 	//	genThumbsPass_DownsampleNewsImage = 1
 	//	NUM_GEN_THUMBS_PASSES             = 2
@@ -400,9 +399,9 @@ func downsamplePostImage(url string, id int, pass int, c chan DownsampleResult) 
 	err = downsampleImage(url, "thumbnails", strconv.Itoa(id), "jpeg", 125, 75)
 	if err != nil {
 		// TODO: Downsample the Mozilla dinosaur head in this case.
-		prVal(is_, "downsamplePostImage called downsampleImage and then encountered some error", err)
+		prVal("downsamplePostImage called downsampleImage and then encountered some error", err)
 	}
-	prf(is_, "Result for #%d image %s: %v\n", id, url, err)
+	prf("Result for #%d image %s: %v\n", id, url, err)
 	c <- DownsampleResult{id, url, err}
 }
 
@@ -424,26 +423,26 @@ func removeItem(s []int, item int) []int {
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchPostIds2Urls(query string) (ids2urls map[int]string) { //(urls []string, ids []int){
-	pr(is_, "fetchPostUrlIds")
-	
+	pr("fetchPostUrlIds")
+
 	ids2urls = make(map[int]string)
-	
+
 	rows := DbQuery(query)
 
 	defer rows.Close()
 	for rows.Next() {
 		var url string
 		var id int
-		
+
 		err := rows.Scan(&url, &id)
 		check(err)
-		
+
 		ids2urls[id] = url
 	}
 	check(rows.Err())
-	
-	prVal(is_, "ids2urls", ids2urls)	
-	prVal(is_, "Num Post Urls Fetched", len(ids2urls))
+
+	prVal("ids2urls", ids2urls)
+	prVal("Num Post Urls Fetched", len(ids2urls))
 	return
 }
 
@@ -460,7 +459,7 @@ func ImageServer() {
 		}
 		return
 	}
-	
+
 	// TODO!: Process image thumbnail UrlToImage from LinkUrl submission.
 	//		  Require the input not blank and database not blank, so the thumbnail link is always good.
 	//		  Give user option to use Mozilla Head.
@@ -481,28 +480,28 @@ func ImageServer() {
 		 ORDER BY Created DESC
 		 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
 
-		`SELECT UrlToImage, Id 
-		 FROM $$NewsPost 
+		`SELECT UrlToImage, Id
+		 FROM $$NewsPost
 		 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
 		 ORDER BY COALESCE(PublishedAt, Created) DESC
 		 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
 	}
 
-	pr(is_, "========================================")
-	pr(is_, "======== STARTING IMAGE SERVER =========")
-	pr(is_, "========================================\n")
-	
+	pr("========================================")
+	pr("======== STARTING IMAGE SERVER =========")
+	pr("========================================\n")
+
 	for {
 		// Downsample news images
 		for pass := 0; pass < NUM_GEN_THUMBS_PASSES; pass++ { // REVERT!!!
-			pr(is_, "========================================")
-			prf(is_, "======= FETCHING IMAGES PASS: %d =======", pass)
-			pr(is_, "========================================\n")
+			pr("========================================")
+			prf("======= FETCHING IMAGES PASS: %d =======", pass)
+			pr("========================================\n")
 
-			
+
 			// Grab a batch of images to downsample from new news posts.
 			ids2urls := fetchPostIds2Urls(queries[pass])
-			
+
 			if len(ids2urls) == 0 { // If no URLS, wait 10 seconds and continue checking queries.
 				time.Sleep(10 * time.Second)
 				continue
@@ -513,83 +512,83 @@ func ImageServer() {
 			timeout := time.After(10 * time.Second) // was 30 seconds before
 
 			for id, url := range ids2urls {
-				prf(is_, "trying to create channel to downsample id %d url %s", id, url)
+				prf("trying to create channel to downsample id %d url %s", id, url)
 				go downsamplePostImage(url, id, pass, c)
 			}
-			
+
 			// TODO: Generalize this code.  Can use fn callbacks for the main and timeout cases.
 			downsampleImagesLoop: for {
 				select {
 					case downsampleResult := <-c: // TODO: this code can be moved to downsamplePostImage(), which then all collectively can become the callback function.
 						switch pass {
 							case genThumbPass_PollPost:
-								DbExec(  
-									`UPDATE $$PollPost 
+								DbExec(
+									`UPDATE $$PollPost
 									 SET ThumbnailStatus = $1
 									 WHERE Id = $2::bigint`,
 									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
-									downsampleResult.postId)							
+									downsampleResult.postId)
 							case genThumbPass_LinkPost:
-								DbExec(  
-									`UPDATE $$LinkPost 
+								DbExec(
+									`UPDATE $$LinkPost
 									 SET ThumbnailStatus = $1
 									 WHERE Id = $2::bigint`,
 									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
 									downsampleResult.postId)
 							case genThumbPass_NewsPost:
-								DbExec( 
-									`UPDATE $$NewsPost 
+								DbExec(
+									`UPDATE $$NewsPost
 									 SET ThumbnailStatus = $1
 									 WHERE Id = $2::bigint`,
 									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
 									downsampleResult.postId)
-							default: 
+							default:
 								assert(false);
 						}
-						
+
 						// Remove this from the list of ids, so we can tell which ids were never processed.
 						delete(ids2urls, downsampleResult.postId)
 
 						if len(ids2urls) == 0 {
-							pr(is_, "Processed all images!")
+							pr("Processed all images!")
 							break downsampleImagesLoop
 						}
 					case <- timeout:
-						pr(is_, "Timeout!")
+						pr("Timeout!")
 
 						// Set status to -1 for any images that timed out.
 						for id, url := range ids2urls {
-							prf(is_, "Removing timed out id %d url %s", id, url)
-							
+							prf("Removing timed out id %d url %s", id, url)
+
 							switch pass {
 								case genThumbPass_PollPost:
 									DbExec(
-										`UPDATE $$PollPost 
+										`UPDATE $$PollPost
 										 SET ThumbnailStatus = -1
 										 WHERE Id = $1::bigint`,
-										id)								
+										id)
 								case genThumbPass_LinkPost:
 									DbExec(
-										`UPDATE $$LinkPost 
+										`UPDATE $$LinkPost
 										 SET ThumbnailStatus = -1
 										 WHERE Id = $1::bigint`,
 										id)
 								case genThumbPass_NewsPost:
-									DbExec(   
-										`UPDATE $$NewsPost 
+									DbExec(
+										`UPDATE $$NewsPost
 										 SET ThumbnailStatus = -1
 										 WHERE Id = $1::bigint`,
-										id)								
-								default: 
+										id)
+								default:
 									assert(false);
 							}
 						}
 
 						break downsampleImagesLoop
-				}		
+				}
 			}
-			
+
 			DbTrackOpenConnections()
-		}		
+		}
 	}
 }

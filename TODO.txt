@@ -2,7 +2,6 @@ HIGH PRIORITY (for test w/ Tom, Tyler):
 	-- DEPLOY May 1, LAUNCH May 4 --
  
 [Est - Rushed Est - Date I'd like to hit]
-1 - .5 - 4/22 - Display actual number of comments, by the article.
 
 1 - .5 -      - Do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link!  (and/or: add http:// or https:// to start of link if it wasn't there, in javascript.
 
@@ -21,6 +20,10 @@ HIGH PRIORITY (for test w/ Tom, Tyler):
 16 - 8 - 5/01 - Total estimate (Estimate - date I'd like to hit.)
 
 Estimated to be done: May 14.  (I'd like it to be done by EOD May 1.  Hmmm...??)
+
+COMPLETED TASKS THIS MILESTONE:
+1 - .5 - 4/22 - Display actual number of comments, by the article.
+
 
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
