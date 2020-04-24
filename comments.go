@@ -197,7 +197,7 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 		commentTags = append(commentTags, CommentTag{ IsChildrenEnd: true })
 	}
 
-	prVal("ReadCommentTagsFromDB returning", commentTags)
+	//prVal("ReadCommentTagsFromDB returning", commentTags)
 
 	return commentTags
 }
