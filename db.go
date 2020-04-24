@@ -67,16 +67,8 @@ func DbExec(query string, values ...interface{}) {
 	query = replaceSchema(query)
 	prf("DbExec query:%s %v", query, values)
 
-	//stmt, err := db.Prepare(query)
-	//check(err)
-	//
-	//_, err = stmt.Exec(values...)
-	//check(err)
-
 	_, err = db.Exec(query, values...)
 	check(err)
-
-	//stmt.Close()
 }
 
 // Inserts a new record into the database and returns the Id of the inserted record.

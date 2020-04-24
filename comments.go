@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"net/http"
 	"github.com/lib/pq"
+	"net/http"
+	"strings"
 )
 
 // This is also a comment tree.
@@ -54,9 +55,10 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 
     //parse request to struct
     var newComment struct {
+		Id			int64
 		PostId		int64
 		ParentId	int64
-		CommentText	string
+		Text		string
 	}
 
     err := json.NewDecoder(r.Body).Decode(&newComment)
@@ -103,22 +105,24 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 	//       See: http://go-database-sql.org/prepared.html
 
     // Send the new comment to the database.
-	DbExec(
+	newComment.Id = DbInsert(
 		`INSERT INTO $$Comment (PostId, UserId, ParentId, Text, Path)
-	     VALUES ($1::bigint, $2::bigint, $3::bigint, $4, $5::bigint[])`,
+	     VALUES ($1::bigint, $2::bigint, $3::bigint, $4, $5::bigint[])
+	     returning Id;`,
 		newComment.PostId,
 		userId,
 		newComment.ParentId,
-		newComment.CommentText,
+		newComment.Text,
 		pq.Array(newPath))
+
 	// Increment the parent's number of children.
 	DbExec(`UPDATE $$Comment SET NumChildren = NumChildren + 1 WHERE Id = $1::bigint`, newComment.ParentId)
 
 	// Increment the Post's NumComments field here.
 	DbExec(`UPDATE $$Post SET NumComments = NumComments + 1 WHERE Id = $1::bigint`, newComment.PostId)
 
-    // create json response from struct
-    a, err := json.Marshal(true)
+    // create json response from struct.  It needs to know newCommentId so it knows where to put the focus after the window reload.
+    a, err := json.Marshal(newComment)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -174,7 +178,10 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 			// Note: We made it here, so we're a sibling of the previous comment.
 		}
 
-		// Add the text of the comment
+		// Convert newlines to be HTML-friendly.
+		newCommentTag.Text = strings.Replace(newCommentTag.Text, "\n", "<br>", -1)
+
+		// Add this comment tag to the list.
 		commentTags = append(commentTags, newCommentTag)
 
 		prevPathDepth = pathLen
