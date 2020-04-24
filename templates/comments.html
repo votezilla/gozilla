@@ -71,8 +71,8 @@ function onReplyToCommentClicked(postId, parentId) {
 			console.log("r.Text: " + r.Text);
 
 			// Inject new comment html for the new comment.
-			var vparent = document.getElementById(`comment_${r.ParentId}`);
-			parent.insertAdjacentHTML('afterend',  // Note: this HTML code is duplicated in comments.html
+			var parent = document.getElementById(`comment_${r.ParentId}`);
+			parent.insertAdjacentHTML('beforeend',  // Note: this HTML code is duplicated in comments.html
 				`<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#">{{.Username}}</a></p>
 				 <p>${r.Text}</p>
 				 <p><span id="comment_${r.Id}" style="size: 16px">
@@ -80,6 +80,16 @@ function onReplyToCommentClicked(postId, parentId) {
 						<img src="/static/comment.png" width="16" height="16"> Reply
 					</a>
 				 </span></p>`);
+
+			// Focus on the new comment
+			document.getElementById(`comment_${r.Id}`).focus();
+
+			console.log(`$("#text_${r.ParentId}").remove();`);
+
+			// Remove the old new comment form inputs.
+			// Note: Due to some jquery weirdness, I can't find a subtree remove, just yet.
+			document.getElementById(`text_${r.ParentId}`).remove();
+			document.getElementById(`reply_button_${r.ParentId}`).remove();
 		},
 		error:   function(r) { console.log("AJAX - error"); }
 	});
@@ -92,7 +102,7 @@ function ReplyToComment(postId, parentId) {
 	console.log(parentId)
 	console.log(parent)
 
-	console.log(`<p>
+	console.log( `<p id="reply_text_${parentId}">
 			<table>
 				<tr>
 					<td valign="bottom">

@@ -121,6 +121,10 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 	// Increment the Post's NumComments field here.
 	DbExec(`UPDATE $$Post SET NumComments = NumComments + 1 WHERE Id = $1::bigint`, newComment.PostId)
 
+	// Convert newlines to be HTML-friendly.  (Do it here so the JSON response gets it and also it will get reapplied
+	// in ReadCommentTagsFromDB.)
+	newComment.Text = strings.Replace(newComment.Text, "\n", "<br>", -1)
+
     // create json response from struct.  It needs to know newCommentId so it knows where to put the focus after the window reload.
     a, err := json.Marshal(newComment)
     if err != nil {
