@@ -413,26 +413,51 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	username := getUsername(userId)
 
+	articleGroups := []ArticleGroup{}
+
 	// Get articles posted by user
-	articlesPostedByUser	:= fetchArticlesPostedByUser(userId, "", kMaxArticles)
-	prVal("len(articlesPostedByUser)", len(articlesPostedByUser))
-//	prVal("articlesPostedByUser", articlesPostedByUser)
-	for a, _ := range articlesPostedByUser {
-		articlesPostedByUser[a].Bucket = kSubmittedPosts
+	pr("Get articles posted by user")
+	{
+		articles := fetchArticlesPostedByUser(userId, kNumCols * kRowsPerCategory)
+
+		for a, _ := range articles {
+			articles[a].Bucket = kSubmittedPosts
+		}
+
+		articleGroups = append(articleGroups,
+			formatArticleGroups(articles, historyCategoryInfo, kSubmittedPosts, kNoHeadlines)...)
 	}
 
-	articleGroups := formatArticleGroups(articlesPostedByUser, historyCategoryInfo, kSubmittedPosts, kAlternateHeadlines/*kNoHeadlines*/)
+	// Get articles commented on by user
+	pr("Get articles commented on by user")
+	{
+		articles := fetchArticlesCommentedOnByUser(userId, kNumCols * kRowsPerCategory)
 
-	// Get articles voted on by user, and set their bucket accordingly.
-	articlesVotedOnByUser	:= fetchArticlesVotedOnByUser(userId, kMaxArticles)
-//	prVal("len(articlesVotedOnByUser)", len(articlesVotedOnByUser))
-//	prVal("articlesVotedOnByUser", articlesVotedOnByUser)
+		for a, _ := range articles {
+			articles[a].Bucket = kCommentedPosts
+		}
 
-	upvotes, downvotes := deduceVotingArrows(articlesVotedOnByUser)
+		articleGroups = append(articleGroups,
+			formatArticleGroups(articles, historyCategoryInfo, kCommentedPosts, kNoHeadlines)...)
+	}
 
-	articleGroups = append(articleGroups,
-					 formatArticleGroups(articlesVotedOnByUser, historyCategoryInfo, kVotedPosts, kAlternateHeadlines)...)
+	// Get articles up/down voted on by user, and set their bucket accordingly.
+	var upvotes, downvotes []int64
+	pr("Get articles voted on by user, and set their bucket accordingly.")
+	{
+		articles := fetchArticlesUpDownVotedOnByUser(userId, kNumCols * kRowsPerCategory)
 
+		upvotes, downvotes = deduceVotingArrows(articles)
+
+		prVal("upvotes", upvotes)
+		prVal("downvotes", downvotes)
+
+		articleGroups = append(articleGroups,
+			formatArticleGroups(articles, historyCategoryInfo, kVotedPosts, kNoHeadlines)...)
+	}
+
+
+	// Render the history just like we render the news.
 	renderNews(w, "History", username, userId, articleGroups, "history", "news", upvotes, downvotes, reqAlert)
 }
 

@@ -3,27 +3,30 @@ HIGH PRIORITY (for test w/ Tom, Tyler):
  
 [Est - Rushed Est - Date I'd like to hit]
 
-1 - .5 -      - Do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link!  (and/or: add http:// or https:// to start of link if it wasn't there, in javascript.
+v Done
+     v Est # Days
+          v Hopeful # Days
+              v Rough Due Date
 
-2 -  1 - 4/23 - Fix ranking system for posts by up/down vote!!
+X  - 1 - .5 - 4/22 - Display actual number of comments, by the article.
 
-2 -  1 - 4/24 - Https!!
+   - 1 - .5 -      - Create Link Post: do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link!  (and/or: add http:// or https:// to start of link if it wasn't there, in javascript.
 
-2 -  1 - 4/27 - Prettify the comments - make user info layout similar to how articles are displayed.
+   - 2 -  1 - 4/23 - Fix ranking system for posts by up/down vote!!
 
-2 -  1 - 4/28 - Replace all the gforms with our form system.
+   - 2 -  1 - 4/24 - Https!!
 
-2 -  1 - 4/29 - Switch to template/html, make sure test for any glaring html injection stuff.  Maybe a unit test, even?
+   - 2 -  1 - 4/27 - Prettify the comments - make user info layout similar to how articles are displayed.
 
-4 -  2 - 5/01 - Launch Votezilla on the cloud!!  (Try Digital Ocean!)
+   - 2 -  1 - 4/28 - Replace all the gforms with our form system.
+ 
+   - 2 -  1 - 4/29 - Switch to template/html, make sure test for any glaring html injection stuff.  Maybe a unit test, even?
+ 
+   - 4 -  2 - 5/01 - Launch Votezilla on the cloud!!  (Try Digital Ocean!)
 
 16 - 8 - 5/01 - Total estimate (Estimate - date I'd like to hit.)
 
 Estimated to be done: May 14.  (I'd like it to be done by EOD May 1.  Hmmm...??)
-
-COMPLETED TASKS THIS MILESTONE:
-1 - .5 - 4/22 - Display actual number of comments, by the article.
-
 
 
 MED-HIGH PRIORITY (for test w/ 10 friends):

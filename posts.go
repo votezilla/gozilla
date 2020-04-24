@@ -230,6 +230,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		//prVal("language", language)
 		//prVal("country", country)
 		//prVal("pollOptionJson", pollOptionJson)
+		//prVal("orderBy", orderBy)
+		//prVal("upvoted", upvoted)
+		//prVal("voteTally", voteTally)
+		//prVal("numComments", numComments)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
@@ -353,9 +357,9 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IS NOT NULL", //"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition
-		"IS NOT NULL",																						  // userIdCondition
-		"IS NOT NULL",																						  // categoryCondition
+		"IS NOT NULL",  // idCondition
+		"IS NOT NULL",  // userIdCondition
+		"IS NOT NULL",  // categoryCondition
 		articlesPerCategory,
 		maxArticles,
 		-1)
@@ -363,15 +367,30 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId i
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch news articles within a particular category, up to maxArticles total,
+// fetch articles comented on by a user.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchArticlesCommentedOnByUser(userId int64, maxArticles int) ([]Article) {
+	return _queryArticles(
+		"IN (SELECT PostId FROM $$Comment WHERE UserId = " + strconv.FormatInt(userId, 10) + ")", // idCondition
+		"IS NOT NULL",																			  // userIdCondition
+		"IS NOT NULL",																			  // categoryCondition
+		-1,
+		maxArticles,
+		-1)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch articles within a particular category, up to maxArticles total,
 // which userId voted on.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
+func fetchArticlesUpDownVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IS NOT NULL", //"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")", // idCondition
-		"IS NOT NULL",																			   // userIdCondition
-		"IS NOT NULL",																			   // categoryCondition
+		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  // idCondition
+		"IS NOT NULL",  // userIdCondition
+		"IS NOT NULL",  // categoryCondition
 		-1,
 		maxArticles,
 		userId)
@@ -379,15 +398,15 @@ func fetchArticlesVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch news articles within a particular category, up to maxArticles total,
+// fetch articles within a particular category, up to maxArticles total,
 // which excludeUserId did not vote on.
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IS NOT NULL", //"NOT IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(excludeUserId, 10) + ")", // idCondition
-		"IS NOT NULL",																						  // userIdCondition
-		"= '" + category + "'",																				  // categoryCondition
+		"IS NOT NULL",           // idCondition
+		"IS NOT NULL",	         // userIdCondition
+		"= '" + category + "'",  // categoryCondition
 		-1,
 		maxArticles,
 		-1)
@@ -399,11 +418,11 @@ func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticl
 //   category - optional, can provide "" to skip.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesPostedByUser(userId int64, category string, maxArticles int) ([]Article) {
+func fetchArticlesPostedByUser(userId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
 		"IS NOT NULL", 														// idCondition
 		"= " + strconv.FormatInt(userId, 10),   							// userIdCondition
-		ternary_str(category != "", "= '" + category + "'", "IS NOT NULL"),	// categoryCondition
+		"IS NOT NULL",
 		-1,
 		maxArticles,
 		-1)
