@@ -4,7 +4,8 @@
 <br>
 <form name="form" method="POST">
 	<table id="pollOptionsTable">
-		{{- ( call .Form.title.HtmlRow ) -}}
+		{{$f := .Form.FieldMap }}
+		{{- ( call $f.title.HtmlRow ) -}}
 		{{- range $i, $option := .PollOptions -}}
 			{{- ( call $option.HtmlRow ) -}}
 		{{- end -}}
@@ -14,14 +15,14 @@
 		</tr>
 	</table>
 	<table>
-		{{- ( call .Form.bAnyoneCanAddOptions.HtmlRow ) -}}
-		{{- ( call .Form.bCanSelectMultipleOptions.HtmlRow ) -}}
-		{{- ( call .Form.bRankedChoiceVoting.HtmlRow ) -}}
+		{{- ( call $f.bAnyoneCanAddOptions.HtmlRow ) -}}
+		{{- ( call $f.bCanSelectMultipleOptions.HtmlRow ) -}}
+		{{- ( call $f.bRankedChoiceVoting.HtmlRow ) -}}
 	</table>
 	<table>
 		<tr></tr>
-		{{- ( call .Form.category.HtmlRow ) -}}
-		{{- ( call .Form.anonymity.HtmlRow ) -}}
+		{{- ( call $f.category.HtmlRow ) -}}
+		{{- ( call $f.anonymity.HtmlRow ) -}}
 	</table>
 	<br>
 	<br>

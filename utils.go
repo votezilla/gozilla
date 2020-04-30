@@ -53,21 +53,22 @@ const MaxInt64 = int64(^uint64(0) >> 1)
 //
 ///////////////////////////////////////////////////////////////////////////////
 func ternary_int(b bool, i int, j int) 			int 	{ if b { return i } else { return j } }
+func ternary_int64(b bool, i int64, j int64)    int64 	{ if b { return i } else { return j } }
 func ternary_uint64(b bool, i uint64, j uint64) uint64 	{ if b { return i } else { return j } }
 func round(f float32) int { return int(f + .5) }
 func min_int(i int, j int) int { return ternary_int(i < j, i, j) }
 func max_int(i int, j int) int { return ternary_int(i > j, i, j) }
-func getBitFlag(flags, mask uint64) bool { return (flags & mask) != 0; }
+func getBitFlag(flags, mask uint64) bool { return (flags & mask) != 0 }
 
 // Inline switch which takes and returns int values.
 // e.g. switch_int(2, // switch value:
 //			0, 100,   // case 0: return 100
 //			1, 200,   // case 1: return 200
 //			2, 300)   // case 2: return 300
-//		returns 300;
+//		returns 300
 func switch_int(switch_val int, cases_and_values ...int) int {
-	prVal("switch_val", switch_val);
-	prVal("cases_and_values", cases_and_values);
+	prVal("switch_val", switch_val)
+	prVal("cases_and_values", cases_and_values)
 
 	for c := 0; c + 1 < len(cases_and_values); c += 2 {
 		if switch_val == cases_and_values[c] {
@@ -85,6 +86,7 @@ func switch_int(switch_val int, cases_and_values ...int) int {
 ///////////////////////////////////////////////////////////////////////////////
 func ternary_str(b bool, s1 string, s2 string) 	string 	{ if b { return s1 } else { return s2 } }
 func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
+func str_to_bool(s string) bool { return s == "true" }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
 
 
@@ -133,13 +135,21 @@ func prValX(label string, v interface{}) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
-	//pr("executeTemplate: " + templateName)
+	pr("executeTemplate: " + templateName)
 
 	if flags.debug != "" {
 		parseTemplateFiles()
 	}
 
-	err := templates[templateName].Execute(w, data)
+	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
+	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
+	_, ok := htemplates[templateName]
+	var err error
+	if ok {
+		err = htemplates[templateName].Execute(w, data)
+	} else {
+		err = ttemplates[templateName].Execute(w, data)
+	}
 	if err != nil {
 		prVal("executeTemplate err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -149,13 +159,21 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 
 // writes to io.Writer instead of http.ResponseWriter
 func renderTemplate(w io.Writer, templateName string, data interface{}) {
-	//pr("renderTemplate: " + templateName)
+	pr("renderTemplate: " + templateName)
 
 	if flags.debug != "" {
 		parseTemplateFiles()
 	}
 
-	err := templates[templateName].Execute(w, data)
+	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
+	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
+	_, ok := htemplates[templateName]
+	var err error
+	if ok {
+		err = htemplates[templateName].Execute(w, data)
+	} else {
+		err = ttemplates[templateName].Execute(w, data)
+	}
 	check(err)
 }
 

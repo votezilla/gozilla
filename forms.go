@@ -2,14 +2,101 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-    "github.com/votezilla/gforms"
+	"html"
     "net/http"
+	"regexp"
     "strconv"
-	"strings"
-	"time"
 )
+
+type Attributes map[string]string
+
+var (
+	NoSpellCheck = Attributes{
+		"autocorrect": "off",
+		"spellcheck": "false",
+		"autocapitalize": "off",
+	}
+)
+
+
+// ================================================================================
+//
+// -------------------------------- type Validator --------------------------------
+//
+// ================================================================================
+type Validator func(value string)(bool, string)
+
+func requiredValidator() func(string)(bool, string) {
+
+	return func(value string)(bool, string) {
+		if value != "" {
+			return true, ""
+		} else {
+			return false, "This field is required."
+		}
+	}
+}
+
+func minMaxLengthValidator(minLength, maxLength int) Validator {
+
+	return func(value string)(bool, string) {
+		length := len(value)
+
+		if length < minLength {
+			return false, fmt.Sprintf("Ensure this value has at least %v characters", minLength)
+		} else if length > maxLength {
+			return false, fmt.Sprintf("Ensure this value has at most %v characters", maxLength)
+		} else {
+			return true, ""
+		}
+	}
+}
+
+func optionValidator(validOptions []string) Validator {
+
+	return func(value string)(bool, string) {
+		for _, validOption := range validOptions {
+	        if value == validOption {
+	            return true, ""
+	        }
+	    }
+	    return false, fmt.Sprintf("Invalid option selected")
+	}
+}
+
+
+// The regular expression pattern to search for the provided value.
+// Returns error if regxp#MatchString is False.
+func regexValidator(regex, errorMsg string) Validator {
+	return func(value string)(bool, string) {
+		rx, err := regexp.Compile(regex)
+		if err != nil {
+			return false, err.Error()
+		}
+
+		if rx.MatchString(value) {
+			return true, ""
+		} else {
+			return false, errorMsg
+		}
+	}
+}
+
+// An EmailValidator that ensures a value looks like an international email address.
+func emailValidator() Validator {
+	return regexValidator(`^.+@.+$`, "Enter a valid email address.")
+}
+
+// A FullNameValidator that ensures that we have a full name (e.g. 'John Doe').
+func fullNameValidator() Validator {
+	return regexValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe').")
+}
+
+// An URLValidator that ensures a value looks like an url.
+func urlValidator() Validator {
+	return regexValidator(`^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$`, "Enter a valid url.")
+}
 
 // ================================================================================
 //
@@ -27,7 +114,8 @@ type Field struct {
 	Html			func() string // Closure that outputs the html of this field
 	HtmlRow			func() string // Closure that outputs the html of this field's entire table row
 
-	Validators	[]func(Field)(bool, string)
+	Validators		[]Validator
+	Attributes		Attributes
 }
 
 func (f *Field) validate() bool {
@@ -36,7 +124,7 @@ func (f *Field) validate() bool {
 	for k, _ := range f.Validators {
 		validator := f.Validators[k]
 
-		isValid, errorMsg := validator(*f)
+		isValid, errorMsg := validator(f.Value)
 
 		prf("  Field.validate() - isValid, errorMsg = %s, %s for validator %s", bool_to_str(isValid), errorMsg, validator)
 
@@ -52,9 +140,20 @@ func (f *Field) validate() bool {
 	return true
 }
 
+func (f Field) val() string {
+	return f.Value
+}
+
 func (f Field) intVal() int {
 	val, err := strconv.Atoi(f.Value)
+	check(err)
 	return ternary_int(err != nil, 0, val)
+}
+
+func (f Field) int64Val() int64 {
+	val, err := strconv.ParseInt(f.Value, 10, 64)
+	check(err)
+	return ternary_int64(err != nil, int64(0), val)
 }
 
 func (f Field) boolVal() bool {
@@ -66,39 +165,21 @@ func (f Field) getErrorHtml() string {
 	return ternary_str(f.Error != "", fmt.Sprintf("<label class=\"error\">%s</label>", f.Error), "")
 }
 
-func requiredValidator() func(Field)(bool, string) {
-	return func(f Field)(bool, string) {
-		if f.Value != "" {
-			return true, ""
-		} else {
-			return false, "This field is required."
-		}
-	}
+func (f *Field) setError(errorMsg string) {
+	f.Error = errorMsg
 }
 
-func minMaxLengthValidator(minLength, maxLength int) func(Field)(bool, string) {
-	return func(f Field)(bool, string) {
-		length := len(f.Value)
-
-		if length < minLength {
-			return false, fmt.Sprintf("Ensure this value has at least %v characters", minLength)
-		} else if length > maxLength {
-			return false, fmt.Sprintf("Ensure this value has at most %v characters", maxLength)
-		} else {
-			return true, ""
-		}
-	}
+func (f *Field) noSpellCheck() *Field {
+	f.Attributes = NoSpellCheck
+	return f
 }
 
-func optionValidator(validOptions []string) func(Field)(bool, string) {
-	return func(f Field)(bool, string) {
-		for _, validOption := range validOptions {
-	        if f.Value == validOption {
-	            return true, ""
-	        }
-	    }
-	    return false, fmt.Sprintf("Invalid option selected")
-	}
+func (f *Field) addFnValidator(validator Validator) {
+	f.Validators = append(f.Validators, validator)
+}
+
+func (f *Field) addRegexValidator(regexp, errorMsg string) {
+	f.Validators = append(f.Validators, regexValidator(regexp, errorMsg))
 }
 
 
@@ -107,25 +188,39 @@ func optionValidator(validOptions []string) func(Field)(bool, string) {
 // -------------------------------- struct Form -----------------------------------
 //
 // ================================================================================
-type Form map[string]*Field
+type Form struct {
+	FieldList	[]*Field			// To remember the sequential order of field.
+	FieldMap	map[string]*Field	// To lookup fields by name.
+}
 
 func (f *Form) processData(r *http.Request) {
 	pr("Form.processData")
 
-	for name, field := range *f {
-		field.Value = r.FormValue(name)
+	for name, _ := range f.FieldMap {
+		f.FieldMap[name].Value = r.FormValue(name)
 
-		prVal("Form.processData field", field)
+		prVal("Form.processData field", name)
 	}
 
 	prVal("AFTER Form.processData f", *f) // << ERROR first seen here!
+}
+
+// Accessors
+func (f Form) field(fieldName string) *Field	{ return f.FieldMap[fieldName] 		   }
+func (f Form) val(fieldName string) 	 string { return f.field(fieldName).val()	   }
+func (f Form) intVal(fieldName string) 	 int 	{ return f.field(fieldName).intVal()   }
+func (f Form) int64Val(fieldName string) int64	{ return f.field(fieldName).int64Val() }
+func (f Form) boolVal(fieldName string)  bool 	{ return f.field(fieldName).boolVal()  }
+
+func (f *Form) setFieldError(fieldName string, errorMsg string) {
+	f.field(fieldName).setError(errorMsg)
 }
 
 func (f *Form) validate() bool {
 	prVal("Form.validate for form", *f)
 
 	valid := true
-	for _, field := range *f {
+	for _, field := range f.FieldList {
 		v := field.validate()
 
 		prf("Form.validation is %s for field %s", bool_to_str(v), field)
@@ -148,12 +243,22 @@ func (f *Form) validateData(r *http.Request) bool {
 	return f.validate()
 }
 
-func makeForm(fields ...*Field) Form {
-	f := make(Form)
-	for _, field := range(fields) {
-		f[field.Name] = field
+func makeForm(fields ...*Field) *Form {
+	f := new(Form)
+	f.FieldList = make([]*Field, len(fields))
+	f.FieldMap = make(map[string]*Field)
+
+	for i, field := range(fields) {
+		f.FieldList[i] = field
+		f.FieldMap[field.Name] = field
 	}
+
 	return f
+}
+
+func (f *Form) addField(field *Field) {
+	f.FieldList = append(f.FieldList, field)
+	f.FieldMap[field.Name] = field
 }
 
 func (f Field) getHtml() string {
@@ -161,11 +266,13 @@ func (f Field) getHtml() string {
 		"<input type=%s name=\"%s\" value=\"%s\" placeholder=\"%s\" length=\"%d\">%s",
 		f.Type,
 		f.Name,
-		f.Value,
+		html.EscapeString(f.Value),  // Prevents HTML-injection attack!!!  (Since the user can affect this value.)
 		f.Placeholder,
 		f.InputLength,
 		f.getErrorHtml())
 }
+
+// Field factories
 
 func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, InputLength: inputLength}
@@ -194,9 +301,38 @@ func makeTextField(name, label, placeholder string, inputLength, minLength, maxL
 
 	return &f
 }
+func MakeTextField(name string, inputLength, minLength, maxLength int) *Field {
+	return makeTextField(name, name + ":", name + "...", inputLength, minLength, maxLength)
+}
+
+func makePasswordField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
+	f := makeTextField(name, label, placeholder, inputLength, minLength, maxLength)
+	f.Type = "password"
+	return f
+}
+func MakePasswordField(name string, inputLength, minLength, maxLength int) *Field {
+	return makePasswordField(name,  name + ":", name + "...", inputLength, minLength, maxLength)
+}
+
+
+func makeHiddenField(name, defaultValue string) *Field {
+	f := Field{Name: name, Value: defaultValue}
+
+	// TODO: HTML-escape this
+	f.Html = func()string {
+		return fmt.Sprintf(
+			"<input type=hidden name=\"%s\" value=\"%s\">",
+			f.Name,
+			html.EscapeString(f.Value),  // Prevents against HTML-injection attacks!
+	)}
+	f.HtmlRow = func()string { return f.Html() }
+
+	return &f
+}
 
 // TODO: implement makeRichTextField().  It's just a copy of makeTextField at the moment.
 func makeRichTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
+	nyi()
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, InputLength: inputLength}
 
 	if minLength > 0 {
@@ -223,15 +359,18 @@ func makeRichTextField(name, label, placeholder string, inputLength, minLength, 
 
 	return &f
 }
+func MakeRichTextField(name string, inputLength, minLength, maxLength int) *Field {
+	return makeRichTextField(name,  name + ":", name + "...", inputLength, minLength, maxLength)
+}
 
 func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 	// Hack: using Placeholder to hold optionText value
-	f := Field{Name: name, Type: "checkbox", Label: label, Placeholder: optionText, Value: ternary_str(defaultValue, "1", "")}
+	f := Field{Name: name, Type: "checkbox", Label: label, Placeholder: optionText, Value: ternary_str(defaultValue, "true", "")}
 
 	// TODO: HTML-escape this
 	f.Html = func()string {
 		return fmt.Sprintf(
-			"<input type=checkbox name=\"%s\" value=\"1\" %s>%s",
+			"<input type=checkbox name=\"%s\" value=\"true\" %s>%s",
 			f.Name,
 			ternary_str(f.boolVal(), "checked", ""),
 			f.getErrorHtml())
@@ -240,8 +379,11 @@ func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 
 	return &f
 }
+func MakeBoolField(name string, defaultValue bool) *Field {
+	return makeBoolField(name, name + ":", "", defaultValue)
+}
 
-func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil, required bool) *Field {
+func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil, required, hasOther bool) *Field {
 	f := Field{Name: name, Type: "select", Label: label}
 
 	if required {
@@ -264,13 +406,17 @@ func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil
 			str += "<option value=\"\">-</option>\n"
 		}
 
+		if hasOther {
+			str += "<option value=\"0\">Other</option>\n"
+		}
+
 		for _, optionKeyValue := range optionKeyValues {
 			str += fmt.Sprintf("<option value=\"%s\"%s>%s</option>\n",
 				optionKeyValue[0], // key
 				ternary_str(f.Value == optionKeyValue[0], " selected", ""),
 				optionKeyValue[1]) // value
 		}
-		str += "</select>\n";
+		str += "</select>\n"
 		str += f.getErrorHtml()
 		return str
 	}
@@ -278,257 +424,14 @@ func makeSelectField(name, label string, optionKeyValues [][2]string, startAtNil
 
 	return &f
 }
+func MakeSelectField(name string, optionKeyValues OptionData, startAtNil, required, hasOther bool) *Field {
+	return makeSelectField(name, name + ":", optionKeyValues, startAtNil, required, hasOther)
+}
 
 
 
-// === FIELDS ===
-var (
-	// NEW:
 
-
-
-	// vv OLD!!! vv
-	// Login data
-    email = gforms.NewTextField(
-        "email",
-        gforms.Validators{
-			gforms.EmailValidator(),
-            gforms.Required(),
-            gforms.MaxLengthValidator(345),
-        },
-        gforms.TextInputWidget(map[string]string{
-            "autocorrect": "off",
-            "spellcheck": "false",
-            "autocapitalize": "off",
-        }),
-    )
-    username = gforms.NewTextField( // TODO: validate the username does not contain the '@' symbol, and is not a substring of the email.
-        "username",
-        gforms.Validators{
-            gforms.Required(),
-            gforms.MinLengthValidator(4),
-            gforms.MaxLengthValidator(50),
-        	gforms.RegexpValidator(`^[^@]+$`, "Username cannot contain the '@' symbol."),
-			gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
-				if strings.Contains(fo.Data["email"].RawStr, fo.Data["username"].RawStr) {
-					return errors.New("Username cannot be contained in the email.")
-				}
-    			return nil
-			}),
-        },
-        gforms.TextInputWidget(map[string]string{
-            "autocorrect": "off",
-            "spellcheck": "false",
-            "autocapitalize": "off",
-        }),
-    )
-    password = gforms.NewTextField( // TODO: get rid of validators for entry form
-        "password",
-        gforms.Validators{
-            gforms.Required(),
-        },
-		gforms.PasswordInputWidget(map[string]string{}),
-	)
-    emailOrUsername = gforms.NewTextField(
-		"email or username",
-		gforms.Validators{
-			gforms.Required(),
-			gforms.MaxLengthValidator(345),
-		},
-		gforms.TextInputWidget(map[string]string{
-			"autocorrect": "off",
-			"spellcheck": "false",
-			"autocapitalize": "off",
-		}),
-    )
-    createPassword = gforms.NewTextField( // TODO: get rid of validators for entry form
-		"password",
-		gforms.Validators{
-			gforms.Required(),
-			gforms.MinLengthValidator(8),
-			gforms.MaxLengthValidator(40),
-			gforms.PasswordStrengthValidator(1), // Require at least a level 1(weak) password.  So people don't get frustrated trying to create/remember a strong one.
-		},
-    )
-    // Not currently used.  Keep code in case I decide to re-enable later.
-    //confirmPassword = gforms.NewTextField(
-    //    "confirm password",
-    //    gforms.Validators{
-    //        gforms.FieldMatchValidator("password"),
-    //    },
-    //    gforms.PasswordInputWidget(map[string]string{}),
-    //)
-    rememberMe = gforms.NewBooleanField(
-		"remember me",
-        gforms.Validators{},
-	)
-
-    // Demographics
-    name = gforms.NewTextField(
-        "full name",
-        gforms.Validators{
-            gforms.Required(),
-            gforms.MaxLengthValidator(100),
-            gforms.RegexpValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe')."),
-        },
-        gforms.TextInputWidget(map[string]string{
-            "autocorrect": "off",
-            "spellcheck": "false",
-        }),
-    )
-    birthYear = gforms.NewTextField( //TODO: validate date
-        "year of birth",
-        gforms.Validators{
-            gforms.Required(),
-            gforms.MinLengthValidator(4),
-            gforms.MaxLengthValidator(4),
-            gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
-				year, err := strconv.Atoi(fo.Data["year of birth"].RawStr)
-				if err != nil {
-					return errors.New("Please enter a valid year.")
-				}
-				currentYear := time.Now().Year()
-				age := currentYear - year // true age would be either this expression, or this minus 1
-				if age < 0 || age > 200 {
-					return errors.New("Please enter the year you were born.")
-				} else {
-					return nil
-				}
-			}),
-    })
-    country = gforms.NewTextField(
-        "country",
-        gforms.Validators{
-            gforms.Required(),
-        },
-        gforms.SelectWidgetEasy(countries),
-    )
-    location = gforms.NewTextField( // TODO: validate countries with a state to have ',', add JS to set location to US by default... eventually base it on the user's IP address.
-        "location",
-        gforms.Validators{
-            gforms.Required(),
-            gforms.MaxLengthValidator(60),
-            gforms.FnValidator(func(fi *gforms.FieldInstance, fo *gforms.FormInstance) error {
-				prVal("fo.Data", fo.Data)
-				if fo.Data["country"].RawStr == "US" {
-					rvl := gforms.RegexpValidator(`^\d{5}(?:[-\s]\d{4})?$`, "Invalid zip code")
-					return rvl.Validate(fi, fo)
-				} else {
-					return nil // Only validating US zip codes for now
-				}
-			}),
-    })
-    gender = gforms.NewTextField(
-        "gender",
-        gforms.Validators{
-            gforms.Required(),
-        },
-        gforms.SelectWidgetEasy([][2]string{
-			{"-",      ""},
-            {"Male",   "M"},
-            {"Female", "F"},
-            {"Other",  "O"},
-		}),
-    )
-    party = gforms.NewTextField(
-        "party",
-        gforms.Validators{
-            gforms.Required(),
-        },
-		gforms.SelectWidgetEasy([][2]string{
-			{"-",           "" },
-			{"Republican",  "R"},
-			{"Democrat",    "D"},
-			{"Independent", "I"},
-			{"Other",       "O"},
-		}),
-    )
-    race = gforms.NewMultipleTextField(
-		"race / ethnicity",
-        gforms.Validators{
-            gforms.Required(),
-        },
-        gforms.CheckboxMultipleWidget(
-            map[string]string{},
-            func() gforms.CheckboxOptions { return gforms.StringCheckboxOptions([][]string{
-                {"American Indian or Alaska Native",    "I", "false", "false"},
-                {"Asian",                               "A", "false", "false"},
-                {"Black or African American",           "B", "false", "false"},
-                {"Hispanic, Latino, or Spanish",        "H", "false", "false"},
-                {"Native Hawaiian or Pacific Islander", "P", "false", "false"},
-                {"White",                               "W", "false", "false"},
-                {"Other",                               "O", "false", "false"},
-            })},
-        ),
-    )
-    marital = gforms.NewTextField(
-        "marital status",
-        gforms.Validators{
-            gforms.Required(),
-        },
-        gforms.SelectWidgetEasy([][2]string{
-			{"-",                               "" },
-			{"Single (Never Married)",          "S"},
-			{"Divorced or Separated",           "D"},
-			{"Widowed",                         "W"},
-			{"Married or Domestic Partnership", "M"},
-		}),
-    )
-    schooling = gforms.NewTextField(
-        "furthest schooling completed",
-        gforms.Validators{
-            gforms.Required(),
-        },
-        gforms.SelectWidgetEasy([][2]string{
-			{"-",                                "" },
-			{"Less than a high school diploma",  "L"},
-			{"High school degree or equivalent", "H"},
-			{"Some college, but no degree",      "S"},
-			{"College graduate",                 "C"},
-			{"Postgraduate study",               "P"},
-		}),
-    )
-
-    // Submit post
-    title = gforms.NewTextField(
-        "title",
-        gforms.Validators{
-            gforms.Required(),
-            gforms.MaxLengthValidator(50),
-        },
-    )
-	link = gforms.NewTextField(
-		"link",
-		gforms.Validators{
-			gforms.Required(),
-			gforms.URLValidator(),
-			gforms.MaxLengthValidator(250),
-		},
-    )
-	category = gforms.NewTextField(
-		"category",
-		gforms.Validators{
-            gforms.Required(),
-        },
-        gforms.SelectWidgetEasy(
-			func() [][2]string {
-				categories := make([][2]string, len(newsCategoryInfo.CategoryOrder))
-				for i, category := range newsCategoryInfo.CategoryOrder {
-					categories[i] = [2]string{category, category}
-				}
-				return categories
-			}(),
-		),
-    )
-	thumbnail = gforms.NewTextField(
-		"thumbnail",
-		gforms.Validators{
-            gforms.Required(),
-        },
-        gforms.HiddenInputWidget(map[string]string{}),
-    )
-)
-
+/*
 // === FORM POST DATA ===
 type LoginData struct {
     EmailOrUsername         string `gforms:"email or username"`
@@ -557,56 +460,14 @@ type RegisterDetailsData struct {
     Races					[]string `gforms:"race / ethnicity"`
     Marital                 string `gforms:"marital status"`
     Schooling               string `gforms:"furthest schooling completed"`
-}
+}*/
 
-type SubmitLinkData struct {
-	Link					string `gforms:"link"`
-	Title					string `gforms:"title"`
-	Category				string `gforms:"category"`
-	Thumbnail				string `gforms:"thumbnail"` // Created with HTML in submitLink, since it's a hidden field.
-}
 
-// === FORMS ===
-var (
-    LoginForm = gforms.DefineForm(gforms.NewFields(
-        emailOrUsername,
-        password,
-        rememberMe,
-    ))
-    RegisterForm = gforms.DefineForm(gforms.NewFields(
-        email,
-        username,
-        createPassword,
-        rememberMe,
-    ))
-    RegisterDetailsForm = gforms.DefineForm(gforms.NewFields(
-        // name
-        name,
 
-        // location
-        country,
-        location,
-
-        // demographic
-        birthYear,
-        gender,
-        party,
-        race,
-        marital,
-        schooling,
-    ))
-
-    SubmitLinkForm = gforms.DefineForm(gforms.NewFields(
-		link,
-		title,
-		category,
-		thumbnail,
-	))
-) // var
 
 // === FORM TYPES ===
 type TableForm struct {
-	Form			*gforms.FormInstance
+	Form		Form
 	CallToAction	string
 	AdditionalError string
 }
@@ -614,7 +475,7 @@ type TableForm struct {
 // Template arguments for form webpage template.
 type FormArgs struct {
 	PageArgs
-	Forms			[]TableForm
+	Form			TableForm
 	Congrats		string
 	Introduction	string
 	Footer			string

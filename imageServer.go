@@ -301,7 +301,7 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
     // Look for the meta og:image tag, which indicates this is the image this website wants for its thumbnail!
     ogImage := ""
 	document.Find("meta").Each(func(i int, s *goquery.Selection) {
-	    property, _ := s.Attr("property");
+	    property, _ := s.Attr("property")
 
 	    if property == "og:image" {
 
@@ -543,7 +543,7 @@ func ImageServer() {
 									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
 									downsampleResult.postId)
 							default:
-								assert(false);
+								assert(false)
 						}
 
 						// Remove this from the list of ids, so we can tell which ids were never processed.
@@ -580,7 +580,7 @@ func ImageServer() {
 										 WHERE Id = $1::bigint`,
 										id)
 								default:
-									assert(false);
+									assert(false)
 							}
 						}
 

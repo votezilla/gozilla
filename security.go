@@ -19,7 +19,6 @@ var (
 
 const (
 	kUserId		= "UserId"
-	kRememberMe	= "RememberMe"
 )
 
 func packInt256(buffer []byte) (q int256) {
@@ -61,7 +60,7 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 // Gets a secure cookie value.
 func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
 	cookie, err := r.Cookie(name)
-	if err != nil { // likely ErrNoCookie
+	if err != nil {  // likely ErrNoCookie
 		return "", err
 	}
 
@@ -77,9 +76,24 @@ func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
 	}
 }
 
+// Sets a cookie the easy way.
+func SetCookie(w http.ResponseWriter, r *http.Request, name string, value string) {
+	setCookie(w, r, name, value, longExpiration(), false)
+}
+
+// Gets a cookie the easy way.
+func GetCookie(r *http.Request, name string, defaultValue string) string {
+	value, err := getCookie(r, name, false)
+	if err != nil {
+		return defaultValue  // likely ErrNoCookie
+	} else {
+		return value
+	}
+}
+
 // Refreshes a cookie by potentially extending its expiration.
 func refreshCookie(w http.ResponseWriter, r *http.Request, name string, expiration time.Time) {
-	pr("RefreshCookie")
+	prVal("RefreshCookie", name)
 
 	cookieVal, err := getCookie(r, name, false)
 
@@ -133,7 +147,10 @@ func DestroySession(w http.ResponseWriter, r *http.Request) {
 	pr("DestroySession")
 
 	setCookie(w, r, kUserId, "", time.Now(), false)
-	setCookie(w, r, kRememberMe, "", time.Now(), false)
+	setCookie(w, r, kRememberMe, "false", time.Now(), false)
+
+	pr("Test DestroySession:")
+	prVal("  getCookie(kUserId)", GetCookie(r, kUserId, "not found"))
 }
 
 // Returns the User.Id if the secure cookie exists, ok=false otherwise.
@@ -173,17 +190,12 @@ func RefreshSession(w http.ResponseWriter, r *http.Request) {
 	rememberMeCookie, _ := getCookie(r, kRememberMe, false)
 	prVal("  rememberMeCookie", rememberMeCookie)
 
-	if rememberMeCookie == "true" {
-		pr("  rememberMeCookie == true")
-	} else {
-		pr("  rememberMeCookie == false")
-	}
+	prVal("rememberMeCookie", rememberMeCookie)
 
 	if rememberMeCookie == "true" {
 		pr("  RememberMe = true!")
 		return // Don't refresh the cookie if rememberMe is set - it lasts for a year.
 	}
-
 
 	// Refresh by extending the expiration by 10 minutes.
 	refreshCookie(w, r, kUserId, shortExpiration())

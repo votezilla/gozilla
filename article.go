@@ -28,8 +28,8 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	username := getUsername(userId)
 
-	prVal("userId", userId);
-	prVal("username", username);
+	prVal("userId", userId)
+	prVal("username", username)
 
 	// TODO_REFACTOR: unify articles and posts in database.
 	article, err := fetchArticle(postId, userId)
@@ -63,5 +63,5 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		Comments:		ReadCommentTagsFromDB(article.Id),
 	}
 
-	executeTemplate(w, "article", articleArgs)
+	executeTemplate(w, kArticle, articleArgs)
 }

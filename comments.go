@@ -44,14 +44,14 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := GetSession(r);
+	userId := GetSession(r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in to create a comment.")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	prVal("userId", userId);
+	prVal("userId", userId)
 
     //parse request to struct
     var newComment struct {

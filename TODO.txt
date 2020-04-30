@@ -12,44 +12,51 @@ X  - 1 - .5 - 4/22 - Display actual number of comments, by the article.
 
    - 1 - .5 -      - Create Link Post: do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link!  (and/or: add http:// or https:// to start of link if it wasn't there, in javascript.
 
-   - 2 -  1 - 4/23 - Fix ranking system for posts by up/down vote!!
 
    - 2 -  1 - 4/24 - Https!!
 
-   - 2 -  1 - 4/27 - Prettify the comments - make user info layout similar to how articles are displayed.
+.33- 2 -  1 - 4/27 - Prettify the comments - make user info layout similar to how articles are displayed.
+                      X  Got the comments posting immediately, via JS.  However...
+                      [] Make it look similar to an article                      
+                      [] The new comments post slightly in the wrong position hierarcially.  Fix this.
 
-   - 2 -  1 - 4/28 - Replace all the gforms with our form system.
- 
-   - 2 -  1 - 4/29 - Switch to template/html, make sure test for any glaring html injection stuff.  Maybe a unit test, even?
+
+X  - 2 -  1 - 4/28 - Replace all the gforms with our form system.
+   
+   - 2 -  1 - 4/29 - HTML injection security:
+                     X  Switch to template/html, 
+                     [] Make sure test for any glaring html injection stuff.  Maybe a unit test, even?
+   
+   - 2 -  1 -        Register, Log in, Create, Alert-for-needing-to-log-in pages should use the focus windows, like viewVoteResults does.
  
    - 4 -  2 - 5/01 - Launch Votezilla on the cloud!!  (Try Digital Ocean!)
 
 16 - 8 - 5/01 - Total estimate (Estimate - date I'd like to hit.)
 
-Estimated to be done: May 14.  (I'd like it to be done by EOD May 1.  Hmmm...??)
 
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
 
-- Add POLLS to main news page, right after NEWS.  (A category just of polls.)
+  - Add POLLS to main news page, right after NEWS.  (A category just of polls.)
 
-- Allow user to create richtext Blog.
+  - Allow user to create richtext Blog.
 
-- Change between alias and real name depending on a post's (or comment's) privacy settings.
+  - Change between alias and real name depending on a post's (or comment's) privacy settings.
 
-- Dynamic menu drop items for Creating...Link, Poll, etc.
+  - Dynamic menu drop items for Creating...Link, Poll, etc.
 
-- Email system.  Needs to:
+T - Email system.  Needs to:
 
-  + Implement Email verification.
+T   + Implement Email verification.
 
-  + Implement Forgot password.
+T   + Implement Forgot password.
   
-- Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
+  - Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
 
-- Register, Log in, Create, Alert-for-needing-to-log-in pages should use the focus windows, like viewVoteResults does.
-  
+  -                 Prettify & add explanation to Login / Register pages.  Some bootstrap.
+ 
+  - 2 -  1 - 4/23 - Fix ranking system for posts by up/down vote!! 
 
 
 MED PRIORITY (for test with 100 friends):
