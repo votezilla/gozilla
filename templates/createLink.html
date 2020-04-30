@@ -1,9 +1,7 @@
 {{ define "preForm" }}{{ end }}
-
-{{ define "postForm" }}{{ end }}
-
-{{define "additionalInput" -}}
-
+{{ define "additionalInput" }}{{ end }}
+{{define "postForm" -}}
+<div id="thumbnail_img_anchor">
 <script>
 var urls;
 
@@ -110,7 +108,7 @@ function findImagesFromLink(linkUrl) {
 }
 
 $(document).ready(function() {
-	$('input[name="thumbnail"]').parent().append(`
+	$('#thumbnail_img_anchor').parent().append(`
 		<div style="overflow: visible; width: 420px;">
 			<div id="image_container"></div>
 		</div>`);

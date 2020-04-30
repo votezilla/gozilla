@@ -32,21 +32,21 @@ var (
 ///////////////////////////////////////////////////////////////////////////////
 func parseCommandLineFlags() {
 	// Grab command line flags
-	f1 := flag.String("dbname",			"vz",			"Database to connect to");
-	f2 := flag.String("dbuser",			"",				"Database user");
-	f3 := flag.String("dbpassword", 	"",				"Database password");
-	f4 := flag.String("dbsalt",			"SALT",			"Database salt (for security)");
-	f5 := flag.String("debug",		  	"",				"debug=true for development");
-	f6 := flag.String("cookieHashKey",	"very-secret",	"secure cookie hash key");
-	f7 := flag.String("cookieBlockKey",	"a-lot-secret", "secure cookie block key");
+	f1 := flag.String("dbname",			"vz",			"Database to connect to")
+	f2 := flag.String("dbuser",			"",				"Database user")
+	f3 := flag.String("dbpassword", 	"",				"Database password")
+	f4 := flag.String("dbsalt",			"SALT",			"Database salt (for security)")
+	f5 := flag.String("debug",		  	"",				"debug=true for development")
+	f6 := flag.String("cookieHashKey",	"very-secret",	"secure cookie hash key")
+	f7 := flag.String("cookieBlockKey",	"a-lot-secret", "secure cookie block key")
 	// TODO: register for a new News Api key, since mine expired.  Be sure to not run it very often.
-	f8 := flag.String("newsAPIKey",		"",				"news API key from https://newsapi.org");
-	//f9 := flag.String("printMask",		"65535",		"log output mask");
-	fa := flag.String("port",			"8080",			"which port to serve webpages from");
-	fb := flag.String("offlineNews",    "",				"whether to use offline news");
-	fc := flag.String("newsServer",		"",				"whether to be the news server");
-	fd := flag.String("imageServer",	"",				"whether to be the image server");
-	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server");
+	f8 := flag.String("newsAPIKey",		"",				"news API key from https://newsapi.org")
+	//f9 := flag.String("printMask",		"65535",		"log output mask")
+	fa := flag.String("port",			"8080",			"which port to serve webpages from")
+	fb := flag.String("offlineNews",    "",				"whether to use offline news")
+	fc := flag.String("newsServer",		"",				"whether to be the news server")
+	fd := flag.String("imageServer",	"",				"whether to be the image server")
+	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server")
 	ff := flag.String("mode",			"",				"a special mode to run a server in")
 
 	flag.Parse()

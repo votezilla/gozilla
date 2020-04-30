@@ -4,32 +4,18 @@
 <h4>{{.Introduction}}</h4>
 {{ template "preForm" . }}
 <br><br>
-{{range $_, $form := .Forms -}}
 	<form method="post">
 		<table border="0">
-		{{- range $_, $field := $form.Form.Fields}}
-			<tr>
-				<td id="{{$field.GetName}} label">{{$field.GetName}}:</td>
-				<td>{{$field.Html -}}
-					{{range $_, $err := $field.Errors}}<label class="error"> {{$err}}</label>{{end -}}
-				</td>
-			</tr>
+		{{$form := .Form}}
+		{{- range $_, $field := $form.Form.FieldList}}
+			{{ ( call $field.HtmlRow) }}
 		{{- end}}
 		{{ template "additionalInput" . }}
 		</table>
-		{{- if $form.AdditionalError -}}
-		<br>
-		<label class="error">{{$form.AdditionalError}}</label>
-		<br>
-		{{end}}
 		<br>
 		<input type="submit" class="submit" value="{{$form.CallToAction}}">
 	</form>
-
-	<br>
-	<br>
-
-{{- end -}}
+<br><br>
 {{ template "postForm" . }}
 {{.Footer}}
 {{- end}}

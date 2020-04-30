@@ -118,3 +118,14 @@ func ConvertNullString(s string) sql.NullString {
          Valid: true,
     }
 }
+
+
+// For future reference, here's how to do a map scan, for handling columns abstractly:
+//
+// rows, err := db.Queryx("SELECT * FROM place")
+// for rows.Next() {
+//     results := make(map[string]interface{})
+//     err = rows.MapScan(results)
+// }
+//
+// Source: https://jmoiron.github.io/sqlx/

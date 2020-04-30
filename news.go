@@ -144,7 +144,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 
 		assert(articlesPerCategoryGroup != -1)
 
-		numCategoryGroups := kMaxArticles / articlesPerCategoryGroup;
+		numCategoryGroups := kMaxArticles / articlesPerCategoryGroup
 
 		categoryOrder = make([]string, numCategoryGroups)
 		for i := range categoryOrder {
@@ -480,6 +480,6 @@ func newsSourcesHandler(w http.ResponseWriter, r *http.Request) {
 		NewsSources: newsSources,
 	}
 	fmt.Println("newsSourcesArgs: %#v\n", newsSourcesArgs)
-	executeTemplate(w, "newsSources", newsSourcesArgs)
+	executeTemplate(w, kNewsSources, newsSourcesArgs)
 }
 */

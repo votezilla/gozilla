@@ -30,14 +30,14 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := GetSession(r);
+	userId := GetSession(r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in to vote.")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	prVal("userId", userId);
+	prVal("userId", userId)
 
     //parse request to struct
     var vote struct {
@@ -80,7 +80,7 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 		vote.PollId,
 		userId,
 		pq.Array(voteOptionIds),
-		pq.Array(voteAmounts));
+		pq.Array(voteAmounts))
 
     // create json response from struct
     a, err := json.Marshal(vote)
@@ -342,5 +342,5 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		Comments:			ReadCommentTagsFromDB(article.Id),
 	}
 
-	executeTemplate(w, "viewPollResults", viewPollArgs)
+	executeTemplate(w, kViewPollResults, viewPollArgs)
 }

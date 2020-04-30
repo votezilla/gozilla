@@ -75,7 +75,7 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
     w.Write(a)
 }
 
-// Figure out which thumbnail to use based on the Url of the link submitted.
+// Figure out which thumbnail to use based on the Url of the link created.
 func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 	pr("ajaxScrapeImageURLs")
 	prVal("r.Method", r.Method)

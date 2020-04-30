@@ -80,12 +80,12 @@ var (
 func MakeNewsAPITimeManager(maxRequestsPerDay int) (NewsAPITimeManager) {
 	maxReqsPerDay := int(float32(maxRequestsPerDay) * .9)
 
-	prVal("maxReqsPerDay", maxReqsPerDay)
-	prVal("(24 * time.Hour).Nanoseconds()", (24 * time.Hour).Nanoseconds())
-	prVal("(24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)", (24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay))
-	prVal("(24 * time.Hour).Hours()", time.Duration(24 * time.Hour).Hours())
-	prVal("(24 * time.Hour).Minutes()", (24 * time.Hour).Minutes())
-	prVal("(24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay).Minutes()", time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)).Minutes())
+	//prVal("maxReqsPerDay", maxReqsPerDay)
+	//prVal("(24 * time.Hour).Nanoseconds()", (24 * time.Hour).Nanoseconds())
+	//prVal("(24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)", (24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay))
+	//prVal("(24 * time.Hour).Hours()", time.Duration(24 * time.Hour).Hours())
+	//prVal("(24 * time.Hour).Minutes()", (24 * time.Hour).Minutes())
+	//prVal("(24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay).Minutes()", time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)).Minutes())
 
 	return NewsAPITimeManager{
 		maxRequestsPerDay:		maxReqsPerDay, // Give ourselves a 10% padding

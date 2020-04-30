@@ -2,36 +2,25 @@
 package main
 
 import (
-	"bytes"
-	"database/sql"
-	"encoding/json"
 	"fmt"
-	"github.com/lib/pq"
 	"net/http"
-	"strings"
-	"text/template" // Faster than "html/template", and less of a pain for safeHTML
+
+	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
+	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
+	htemplate "html/template"
+	ttemplate "text/template"
 )
 
 var (
-	templates   map[string]*template.Template
+	htemplates  map[string]*htemplate.Template
+	ttemplates  map[string]*ttemplate.Template
+
 	err		 	error
 
 	// NavMenu (constant)
 	navMenu		= []string{"news", "create", "history"}
-
-	anonymityLevels = [][2]string {
-		{"R",	"Real name - Aaron Smith"},
-		{"A",	"Alias - magicsquare666"},
-		{"F",	"Random Anonymous Name - Wacky Panda"},
-	}
 )
 
-const (
-	//PollFlags
-	pf_AnyoneCanAddOptions		= 1 << 0
-	pf_CanSelectMultipleOptions = 1 << 1
-	pf_RankedChoiceVoting		= 1 << 2
-)
 
 // Template arguments for webpage template.
 type PageArgs struct {
@@ -39,487 +28,18 @@ type PageArgs struct {
 	Script			string
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// login
-//
-///////////////////////////////////////////////////////////////////////////////
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	userId := GetSession(r)
-	assert(userId == -1) // User must not be already logged in!
-
-	form := LoginForm(r)
-
-	if r.Method == "POST" && form.IsValid(){ // Handle POST, with valid data...
-		// Parse POST data.
-		data := LoginData{}
-		form.MapTo(&data)
-
-		var rows *sql.Rows
-		if strings.Contains(data.EmailOrUsername, "@") {
-			rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " +
-							"FROM $$User WHERE Email = $1;",
-							data.EmailOrUsername)
-		} else {
-			rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " +
-							"FROM $$User WHERE Username = $1;",
-							data.EmailOrUsername)
-		}
-
-		var userId int64
-		var passwordHashInts int256
-
-		defer rows.Close()
-		if !rows.Next() {
-			field, err := form.GetField("email or username")
-			assert(err)
-			field.SetErrors([]string{"That email does not exist. Do you need to register?"})
-		} else {
-			err := rows.Scan(&userId, &passwordHashInts[0], &passwordHashInts[1], &passwordHashInts[2], &passwordHashInts[3]);
-			check(err)
-			check(rows.Err())
-			prf("User found! - id: '%d' passwordHashInts: %#v\n", userId, passwordHashInts)
-
-			passwordHash := GetPasswordHash256(data.Password)
-			if  passwordHash[0] != passwordHashInts[0] ||
-				passwordHash[1] != passwordHashInts[1] ||
-				passwordHash[2] != passwordHashInts[2] ||
-				passwordHash[3] != passwordHashInts[3] {
-
-				field, err := form.GetField("password")
-				assert(err)
-				field.SetErrors([]string{"Invalid password.  Forgot password?"})
-			} else {
-				CreateSession(w, r, userId, data.RememberMe)
-
-				http.Redirect(w, r, "/news?alert=LoggedIn", http.StatusSeeOther)
-				return
-			}
-		}
-	}
-
-	// handle GET, or invalid form data from POST...
-	{
-		args := FormArgs {
-			PageArgs: PageArgs{Title: "Login"},
-			Footer: `<a href="/forgotPassword">Forgot your password?</a>`,
-			Forms: []TableForm{{
-				Form: form,
-				CallToAction: "Login",
-			}}}
-		executeTemplate(w, "form", args)
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// logout
-//
-///////////////////////////////////////////////////////////////////////////////
-func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	DestroySession(w, r)
-
-	http.Redirect(w, r, "/news?alert=LoggedOut", http.StatusSeeOther)
-	return
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// forgotPassword
-//
-///////////////////////////////////////////////////////////////////////////////
-func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: implement forgotPassword
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// register
-//
-///////////////////////////////////////////////////////////////////////////////
-func registerHandler(w http.ResponseWriter, r *http.Request) {
-	form := RegisterForm(r)
-	tableForm := TableForm{
-		Form: form,
-		CallToAction: "Register",
-	}
-
-	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
-		// Parse POST data.
-		data := RegisterData{}
-		form.MapTo(&data)
-
-		// Use a hashed password for security.
-		passwordHashInts := GetPasswordHash256(data.Password)
-
-		// TODO: Gotta send verification email... user doesn't get created until email gets verified.
-		// TODO: Verify email and set emailverified=True when email is verified
-
-		// Check for duplicate email
-		if DbExists("SELECT * FROM $$User WHERE Email = $1;", data.Email) {
-			pr("That email is taken... have you registered already?")
-
-			field, err := form.GetField("email")
-			assert(err)
-			field.SetErrors([]string{"That email is taken... have you registered already?"})
-        } else {
-        	// Check for duplicate username
-			if DbExists("SELECT * FROM $$User WHERE Username = $1;", data.Username) {
-				pr("That username is taken... try another one.  Or, have you registered already?")
-				field, err := form.GetField("username")
-				assert(err)
-				field.SetErrors([]string{"That username is taken... try another one.  Or, have you registered already?"})
-			} else {
-				// Add new user to the database
-				prf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
-				userId := DbInsert(
-					"INSERT INTO $$User(Email, Username, PasswordHash) " +
-					"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;",
-					data.Email,
-					data.Username,
-					passwordHashInts[0],
-					passwordHashInts[1],
-					passwordHashInts[2],
-					passwordHashInts[3])
-
-				// Create session (encrypted userId).
-				CreateSession(w, r, userId, data.RememberMe)
-				// Set "RememberMe" cookie
-				if data.RememberMe {
-					setCookie(w, r, "RememberMe", "true", longExpiration(), false)
-				} else {
-					setCookie(w, r, "RememberMe", "false", longExpiration(), false)
-				}
-
-				http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)
-				return
-			}
-		}
-	}
-
-	// handle GET, or invalid form data from POST...
-	{
-		args := FormArgs {
-			PageArgs: PageArgs{Title: "Register"},
-			Forms: []TableForm{
-				tableForm,
-		}}
-		executeTemplate(w, "form", args)
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// register details about the user
-//
-///////////////////////////////////////////////////////////////////////////////
-func registerDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
-
-	form := RegisterDetailsForm(r)
-
-	userId := GetSession(r)
-	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
-		// So go to the register page.
-		pr("secure cookie not found")
-		http.Redirect(w, r, "/register", http.StatusSeeOther)
-		return
-	}
-
-	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
-		// Passwords match, everything is good - Register the user
-
-		// Parse POST data into "data".
-		data := RegisterDetailsData{}
-		form.MapTo(&data)
-
-		prVal("userId", userId)
-
-		// Update the user record with registration details.
-		DbQuery(
-			`UPDATE $$User
-				SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
-				= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
-				WHERE Id = $1::bigint`,
-			userId,
-			data.Name,
-			data.Country,
-			data.Location,
-			data.BirthYear,
-			data.Gender,
-			data.Party,
-			pq.Array(data.Races),
-			data.Marital,
-			data.Schooling)
-
-		http.Redirect(w, r, "/news?alert=AccountCreated", http.StatusSeeOther)
-		return
-	}
-
-	// handle GET, or invalid form data from POST...
-	{
-		// render registerDetailsScript template
-		var scriptString string
-		{
-			scriptData := struct {
-				CountriesWithStates			map[string]bool
-				CountriesWithPostalCodes	map[string]bool
-			}{
-			    CountriesWithStates,
-			    CountriesWithPostalCodes,
-			}
-
-			var scriptHTML bytes.Buffer
-			renderTemplate(&scriptHTML, "registerDetailsScript", scriptData)
-			scriptString = scriptHTML.String()
-		}
-
-		congrats := ""
-		if r.Method == "GET" {
-			congrats = "Congrats for registering" // Congrats for registering... now enter more information.
-		}
-
-		args := FormArgs {
-			PageArgs: PageArgs{
-				Title: "Voter Information",
-				Script: scriptString},
-			Congrats: congrats,
-			Introduction: "A good voting system ensures everyone is represented.<br>" +
-			              "Your information is confidential.",
-			Forms: []TableForm{{
-				Form: form,
-				CallToAction: "Submit",
-		}}}
-		executeTemplate(w, "form", args)
-	}
-}
-
-func registerDoneHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
-	serveHTML(w, `<h2>Congrats, you just registered</h2>
-			      <script>alert('Congrats, you just registered')</script>`)
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// create link
-//
-///////////////////////////////////////////////////////////////////////////////
-func submitHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, "submit", PageArgs{Title: "Submit"})
-}
-
-func submitLinkHandler(w http.ResponseWriter, r *http.Request) {
-	form := SubmitLinkForm(r)
-	tableForm := TableForm{
-		Form: form,
-		CallToAction: "Create",
-	}
-
-	userId := GetSession(r)
-	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
-		// So go to the register page.
-		pr("Must be logged in submit a post.  TODO: add submitLinkHandler to stack somehow.")
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	if r.Method == "POST" && form.IsValid() { // Handle POST, with valid data...
-
-		// Parse POST data
-		data := SubmitLinkData{}
-		form.MapTo(&data)
-
-		prVal("data", data)
-		prVal("form", form)
-
-		pr("Inserting new LinkPost into database.")
-		//prf(`INSERT INTO $$LinkPost(UserId, Title, LinkURL, Category)
-		//	      VALUES(%v::bigint, %v, %v) returning id;`, userId, data.Title, data.Link, data.Category)
-
-		// Update the user record with registration details.
-		newPostId := DbInsert(
-			`INSERT INTO $$LinkPost(UserId, LinkURL, Title, Category, UrlToImage)
-			 VALUES($1::bigint, $2, $3, $4, $5) returning id;`,
-			userId,
-			data.Link,
-			data.Title,
-			data.Category,
-			data.Thumbnail)
-
-		http.Redirect(w, r, fmt.Sprintf("/news?alert=SubmittedLink&newPostId=%d", newPostId), http.StatusSeeOther)
-		return
-	}
-
-	// handle GET, or invalid form data from POST...
-	{
-		/*type SubmitLinkArgs struct {
-			FormArgs
-			Categories	[]string
-		}*/
-		args := FormArgs{
-			PageArgs:	PageArgs{Title: "Create Link"},
-			Forms:		[]TableForm{tableForm},
-		}
-		executeTemplate(w, "submitLink", args)
-	}
-}
-
-func submitPollHandler(w http.ResponseWriter, r *http.Request) {
-	pr("submitPollHandler")
-
-	userId := GetSession(r)
-	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
-		// So go to the register page.
-		pr("Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	prVal("r.Method", r.Method)
-
-	form := makeForm(
-		makeTextField("title", "Title:", "Ask something...", 50, 12, 255),
-		makeTextField("option1", "Poll option 1:", "add option...", 50, 1, 255),
-		makeTextField("option2", "Poll option 2:", "add option...", 50, 1, 255),
-		makeBoolField("bAnyoneCanAddOptions", "Poll options:", "Allow anyone to add options", true),
-		makeBoolField("bCanSelectMultipleOptions", "", "Allow people to select multiple options", true),
-		makeBoolField("bRankedChoiceVoting", "", "Enable ranked-choice voting", false),
-		makeSelectField("category", "Poll category:", newsCategoryInfo.CategorySelect, true, true),
-		makeSelectField("anonymity", "Post As:", anonymityLevels, false, true),
-	)
-
-	// Add fields for additional options that were added, there could be an arbitrary number, we'll cap it at 1024 for now.
-	pr("Adding additional poll options")
-	pollOptions := []*Field{form["option1"], form["option2"]}
-
-	// Just use brute force for now.  Don't break at the end, as we don't want the bricks to fall when someone erases the name of an option in the middle.
-	// TODO: optimize this later, if necessary, possibly with a hidden length field, if necessary.
-
-	for i := 3; i < 1024; i++ {
-		optionName := fmt.Sprintf("option%d", i)
-		// TODO: How should this case work?  Could be used as a case for removing options, if poll is not yet live.
-		//       Once live, options with votes should not be removable.
-		//       Leave the ""'s in the list so the position within the array can map directly to votes and indexes.
-		if r.FormValue(optionName) != "" {
-			prVal("Adding new poll option", optionName)
-			form[optionName] = makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 255)
-			pollOptions = append(pollOptions, form[optionName])
-		}
-	}
-
-	prVal("r.Method", r.Method)
-	prVal("r.PostForm", r.PostForm)
-	prVal("form", form)
-
-	if r.Method == "POST" && form.validateData(r) {
-		prVal("Valid form!!", form)
-
-		pr("Inserting new PollPost into database.")
-
-		// Serialize all of the poll options and flags into variables that can be inserted into database.
-		var pollOptionData PollOptionData
-		for i := 1; i < 1024; i++ {
-			value := r.FormValue(fmt.Sprintf("option%d", i))
-			if value != "" {
-				pollOptionData.Options = append(pollOptionData.Options, value)
-			}
-		}
-		pollOptionData.AnyoneCanAddOptions      = r.FormValue("bAnyoneCanAddOptions")      != ""
-		pollOptionData.CanSelectMultipleOptions = r.FormValue("bCanSelectMultipleOptions") != ""
-		pollOptionData.RankedChoiceVoting       = r.FormValue("bRankedChoiceVoting")       != ""
-
-		pollOptionsJson, err := json.Marshal(pollOptionData)
-		check(err)
-
-		prVal("pollOptionsJson", pollOptionsJson)
-
-		// Create the new poll.
-		pollPostId := DbInsert(
-			`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country, UrlToImage,
-			                        PollOptionData)
-			 VALUES($1::bigint, $2, $3, $4, $5, $6,
-			        $7) returning id;`,
-			userId,
-			form["title"].Value,
-			form["category"].Value,
-			"en",
-			"us",
-			"http://localhost:8080/static/ballotbox.png", // TODO: generate poll url from image search
-			pollOptionsJson,
-		)
-		prVal("Just added a poll #", pollPostId)
-
-		http.Redirect(w, r, fmt.Sprintf("/news?alert=SubmittedPoll&pollPostId=%d", pollPostId), http.StatusSeeOther)
-		return
-	} else if r.Method == "POST" {
-		prVal("Invalid form!!", form)
-	}
-
-	// handle GET, or invalid form data from POST...
-	{
-		type PollArgs struct {
-			PageArgs
-			Form
-			PollOptions			[]*Field
-			//Categories		[]string
-			//AnonymityLevels	map[string]string
-		}
-		args := PollArgs{
-			PageArgs:			PageArgs{Title: "Create Poll"},
-			Form:				form,
-			PollOptions:		pollOptions,
-			//Categories:			newsCategoryInfo.CategoryOrder,
-			//AnonymityLevels:	anonymityLevels,
-		}
-		prVal("args", args)
-		executeTemplate(w, "submitPoll", args)
-	}
-}
-
-
-func submitBlogHandler(w http.ResponseWriter, r *http.Request) {
-	pr("submitBlogHandler")
-
-	userId := GetSession(r)
-	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
-		// So go to the register page.
-		pr("Must be logged in submit a post.  TODO: add submitPollHandler to stack somehow.")
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	prVal("r.Method", r.Method)
-
-	form := makeForm(
-		makeTextField("title", "Title:", "Ask something...", 50, 12, 255),
-		makeRichTextField("blog", "Blog:", "Enter blog here...", 50, 1, 255),
-	)
-
-	if r.Method == "POST" && form.validateData(r) {
-		prVal("Valid form!!", form)
-
-
-		return
-	} else if r.Method == "POST" {
-		prVal("Invalid form!!", form)
-	}
-
-	// handle GET, or invalid form data from POST...
-	{
-		type PollArgs struct {
-			PageArgs
-			Form
-		}
-		args := PollArgs{
-			PageArgs:			PageArgs{Title: "Create Blog Post"},
-			Form:				form,
-		}
-		prVal("args", args)
-		executeTemplate(w, "submitBlog", args)
-	}
-}
-
+const (
+	kForm = "form"
+	kArticle = "article"
+	kNews = "news"
+	kNewsSources = "newsSources"
+	kCreate = "create"
+	kCreateBlog = "createBlog"
+	kCreateLink = "createLink"
+	kCreatePoll = "createPoll"
+	kViewPollResults = "viewPollResults"
+	kRegisterDetailsScript = "registerDetailsScript"
+)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -547,7 +67,7 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
-	// TODO: we could add DNS Attack code defense here.
+	// TODO: we could add DNS Attack code defense here.  Check the ip, apply various masks.
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		prf("\nHandling request from: %s\n", formatRequest(r))
@@ -566,23 +86,26 @@ func parseTemplateFiles() {
 		return "templates/" + page + ".html"
 	}
 
-	templates = make(map[string]*template.Template)
+	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
+	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
+	htemplates = make(map[string]*htemplate.Template)
+	ttemplates = make(map[string]*ttemplate.Template)
 
 	// HTML templates
-	templates["form"]			= template.Must(template.ParseFiles(T("base"), T("form"), T("defaultForm")))
-	templates["article"]		= template.Must(template.ParseFiles(T("base"), T("frame"), T("article"), T("comments")))
-	templates["news"]			= template.Must(template.ParseFiles(T("base"), T("frame"), T("news")))
-	templates["newsSources"]	= template.Must(template.ParseFiles(T("base"), T("newsSources")))
-	templates["submit"]			= template.Must(template.ParseFiles(T("base"), T("submit")))
-	templates["submitBlog"]		= template.Must(template.ParseFiles(T("base"), T("form"), T("submitBlog")))
-	templates["submitLink"]		= template.Must(template.ParseFiles(T("base"), T("form"), T("submitLink")))
-	templates["submitPoll"]		= template.Must(template.ParseFiles(T("base"), T("submitPoll")))
+	ttemplates[kForm]		= ttemplate.Must(ttemplate.ParseFiles(T("base"), T("form"), T("defaultForm")))
+	htemplates[kArticle]	= htemplate.Must(htemplate.ParseFiles(T("base"), T("frame"), T("article"), T("comments")))
+	htemplates[kNews]		= htemplate.Must(htemplate.ParseFiles(T("base"), T("frame"), T("news")))
+	htemplates[kNewsSources]= htemplate.Must(htemplate.ParseFiles(T("base"), T("newsSources")))
+	htemplates[kCreate]		= htemplate.Must(htemplate.ParseFiles(T("base"), T("create")))
+	ttemplates[kCreateBlog]	= ttemplate.Must(ttemplate.ParseFiles(T("base"), T("form"), T("createBlog")))
+	ttemplates[kCreateLink]	= ttemplate.Must(ttemplate.ParseFiles(T("base"), T("form"), T("createLink")))
+	ttemplates[kCreatePoll]	= ttemplate.Must(ttemplate.ParseFiles(T("base"), T("createPoll")))
 
 	// Popup forms (they do not inherit from 'base')
-	templates["viewPollResults"]= template.Must(template.ParseFiles(T("viewPollResults"), T("comments")))
+	htemplates[kViewPollResults]= htemplate.Must(htemplate.ParseFiles(T("viewPollResults"), T("comments")))
 
 	// Javascript snippets
-	templates["registerDetailsScript"]	= template.Must(template.ParseFiles(T("registerDetailsScript")))
+	ttemplates[kRegisterDetailsScript]	= ttemplate.Must(ttemplate.ParseFiles(T("registerDetailsScript")))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -605,10 +128,10 @@ func WebServer() {
 	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
 	http.HandleFunc("/article/",       			hwrap(articleHandler))
-	http.HandleFunc("/create/",   				hwrap(submitHandler))
-	http.HandleFunc("/createBlog/",   			hwrap(submitBlogHandler))
-	http.HandleFunc("/createLink/",   			hwrap(submitLinkHandler))
-	http.HandleFunc("/createPoll/",   			hwrap(submitPollHandler))
+	http.HandleFunc("/create/",   				hwrap(createHandler))
+	http.HandleFunc("/createBlog/",   			hwrap(createBlogHandler))
+	http.HandleFunc("/createLink/",   			hwrap(createLinkHandler))
+	http.HandleFunc("/createPoll/",   			hwrap(createPollHandler))
 	http.HandleFunc("/forgotPassword/", 		hwrap(forgotPasswordHandler))
 	http.HandleFunc("/history/",        		hwrap(historyHandler))
 	http.HandleFunc("/ip/",             		hwrap(ipHandler))
@@ -617,7 +140,7 @@ func WebServer() {
 	http.HandleFunc("/news/",           		hwrap(newsHandler))
 	http.HandleFunc("/register/",       		hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
-	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))
+//	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))     // being called directly from registerDetailsHandler
 	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 
 	// Server static file.
