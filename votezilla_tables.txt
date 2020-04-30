@@ -44,7 +44,7 @@ CREATE TABLE vz.Post (
     Created         TIMESTAMPTZ      NOT NULL DEFAULT now(),
     Title           TEXT             NOT NULL,
     VoteTally       INT              NOT NULL DEFAULT 0,  -- Up/down votes
-    NumComments		INT 			 NOT NULL DEFAULT 0;
+    NumComments     INT              NOT NULL DEFAULT 0,
 
     Description     TEXT,            -- NewsPosts currently have this.  Also includes user's description of a link or poll, below the headline title.  Could appear in a zoomed in view.
     Category        TEXT,
@@ -52,13 +52,13 @@ CREATE TABLE vz.Post (
     Country         TEXT,   
     
     UrlToImage         TEXT,            
-    ThumbnailStatus    INT DEFAULT 0
+    ThumbnailStatus    INT DEFAULT 0,
 
     PRIMARY KEY (UserId, Id)
 );
 
 CREATE TABLE vz.LinkPost (
-    LinkURL            TEXT NOT NULL,
+    LinkURL            TEXT NOT NULL
 ) INHERITS (vz.Post);
 
 CREATE TABLE vz.NewsPost (
@@ -105,7 +105,7 @@ CREATE TABLE vz.Comment (
     UserId              BIGINT NOT NULL, -- The user who left this comment.        
     ParentId            BIGINT,          -- The parent comment, hierarchially.         
     
-    Text                TEXT NOT NULL,			
+    Text                TEXT NOT NULL,
     PrevRevisions       VARCHAR(40000)[],
     
     -- Materialized path - this sorts it into a tree hierarchy for us, though 
