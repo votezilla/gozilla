@@ -7,11 +7,11 @@ v Done
      v Est # Days
           v Hopeful # Days
               v Rough Due Date
+                  v Actual # Days
 
 X  - 1 - .5 - 4/22 - Display actual number of comments, by the article.
 
-   - 1 - .5 -      - Create Link Post: do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link!  (and/or: add http:// or https:// to start of link if it wasn't there, in javascript.
-
+X  - 1 - .5 -      - Create Link Post: do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link!  (and/or: add http:// or https:// to start of link if it wasn't there, in javascript.
 
    - 2 -  1 - 4/24 - Https!!
 
@@ -27,11 +27,13 @@ X  - 2 -  1 - 4/28 - Replace all the gforms with our form system.
                      X  Switch to template/html, 
                      [] Make sure test for any glaring html injection stuff.  Maybe a unit test, even?
    
-   - 2 -  1 -        Register, Log in, Create, Alert-for-needing-to-log-in pages should use the focus windows, like viewVoteResults does.
+   - 2 -  .5 -        Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.
  
    - 4 -  2 - 5/01 - Launch Votezilla on the cloud!!  (Try Digital Ocean!)
 
 16 - 8 - 5/01 - Total estimate (Estimate - date I'd like to hit.)
+
+              12ish days? - Prettier forms.
 
 
 
@@ -42,9 +44,6 @@ MED-HIGH PRIORITY (for test w/ 10 friends):
 
   - Allow user to create richtext Blog.
 
-  - Change between alias and real name depending on a post's (or comment's) privacy settings.
-
-  - Dynamic menu drop items for Creating...Link, Poll, etc.
 
 T - Email system.  Needs to:
 
@@ -54,7 +53,7 @@ T   + Implement Forgot password.
   
   - Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
 
-  -                 Prettify & add explanation to Login / Register pages.  Some bootstrap.
+X  -                 Prettify & add explanation to Login / Register pages.  Some bootstrap.
  
   - 2 -  1 - 4/23 - Fix ranking system for posts by up/down vote!! 
 
@@ -75,7 +74,6 @@ MED PRIORITY (for test with 100 friends):
 
 - Let people pick cool dinosaur heads.
 
-- Prettier forms.
 
 - Replaced copyrighted art, or request permission to use.
 
@@ -89,7 +87,7 @@ MED PRIORITY (for test with 100 friends):
 
   + Move thumbnails to a CDN
 
-  + Move all JS code to a commen .js file.
+  + Move all JS code to a commen .js file (?)
 
   + Move all/most style html stuff to the common .cs file.
   
@@ -101,6 +99,8 @@ MED PRIORITY (for test with 100 friends):
 
 
 LOW PRIORITY (for launch with 1000 friends):
+
+- Remove "padding-left" from headline news, to make it line up better.
 
 - Add vote to DB and display results, also allow user to change vote.
 
@@ -165,4 +165,13 @@ SUPER-LOW PRIORITY (100k)
 - Start thinking about ads and making money?
 
 - The up/downvote of an article is also a vote, and you can see a graph of it.
+
+
+POSTPONED FEATURES:
+
+  - Change between alias and real name depending on a post's (or comment's) privacy settings.
+
+CANCELLED FEATURES:
+
+  - Dynamic menu drop items for Creating...Link, Poll, etc.
 

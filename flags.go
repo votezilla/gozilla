@@ -22,6 +22,7 @@ var (
 		imageServer				string		// Whether to be the image server.
 		test					string		// Whether to run a simple test, instead of the actual server.
 		mode					string		// A special mode to run a server in.
+		testUserId				string		// UserId to test being loggin in as.
 	}
 )
 
@@ -48,6 +49,7 @@ func parseCommandLineFlags() {
 	fd := flag.String("imageServer",	"",				"whether to be the image server")
 	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server")
 	ff := flag.String("mode",			"",				"a special mode to run a server in")
+	fg := flag.String("testUserId",		"",				"UserId to test being loggin in as")
 
 	flag.Parse()
 
@@ -72,6 +74,8 @@ func parseCommandLineFlags() {
 	flags.imageServer			= *fd
 	flags.test					= *fe
 	flags.mode					= *ff
+	flags.mode					= *ff
+	flags.testUserId			= *fg
 
 	prf("flags: %#v\n", flags)
 }

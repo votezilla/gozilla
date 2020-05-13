@@ -1,0 +1,21 @@
+{{define "body"}}
+<h1>{{.Title}}</h1>
+<h2>{{.Congrats}}</h2>
+<h4>{{.Introduction}}</h4>
+{{ template "preForm" . }}
+<br><br>
+	<form method="POST">
+		<table border="0">
+		{{$form := .Form}}
+		{{- range $_, $field := $form.Form.FieldList}}
+			{{ ( call $field.HtmlRow) }}
+		{{- end}}
+		{{ template "additionalInput" . }}
+		</table>
+		<br>
+		<input type="submit" class="submit" value="{{$form.CallToAction}}">
+	</form>
+<br><br>
+{{ template "postForm" . }}
+{{.Footer}}
+{{- end}}

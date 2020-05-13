@@ -4,7 +4,7 @@
 <h4>{{.Introduction}}</h4>
 {{ template "preForm" . }}
 <br><br>
-	<form method="post">
+	<form method="POST">
 		<table border="0">
 		{{$form := .Form}}
 		{{- range $_, $field := $form.Form.FieldList}}

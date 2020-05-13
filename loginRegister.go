@@ -2,7 +2,7 @@
 package main
 
 import (
-	"bytes"
+	//"bytes"
 	"database/sql"
 	"net/http"
 	"strconv"
@@ -12,13 +12,12 @@ import (
 
 const (
 	// Common field names
-	kEmailOrUsername = "email or username"
+	kEmailOrUsername = "emailOrUsername"
 	kEmail		 = "email"
 	kUsername	 = "username"
 	kPassword        = "password"
-	kRememberMe		 = "remember me"
+	kConfirmPassword = "confirmPassword"
 )
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -26,16 +25,22 @@ const (
 //
 ///////////////////////////////////////////////////////////////////////////////
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+
+	pr("loginHandler")
+
+	prVal("r.Method", r.Method)
+
 	userId := GetSession(r)
 	assert(userId == -1) // User must not be already logged in!
 
-	bRememberMe := str_to_bool(GetCookie(r, kRememberMe, "false"))
+	//bRememberMe := str_to_bool(GetCookie(r, kRememberMe, "false"))
 
 	form := makeForm(
-		MakeTextField(kEmailOrUsername, 50, 6, 345),
-		MakePasswordField(kPassword, 50, 8, 40),
-		MakeBoolField(kRememberMe, true),
+		nuTextField(kEmailOrUsername, "Email / Username", 50, 6, 345),
+		nuPasswordField(kPassword, "Password", 50, 8, 40),
 	)
+
+	prVal("form", form)
 
 	if r.Method == "POST" && form.validateData(r) { // On POST, validates and captures the request data.
 		prVal("form", form)
@@ -55,7 +60,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 							emailOrUsername)
 		}
 
-		var userId int64
 		var passwordHashInts int256
 
 		defer rows.Close()
@@ -78,9 +82,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			   passwordHash[3] != passwordHashInts[3] {
 				form.setFieldError(kPassword, "Invalid password.  Forgot password?")
 			} else {
-				bRememberMe = form.boolVal(kRememberMe)
+				CreateSession(w, r, userId)//, true)
 
-				CreateSession(w, r, userId, bRememberMe)
+				//bRememberMe = form.boolVal(kRememberMe)
+				//CreateSession(w, r, userId, bRememberMe)
 
 				http.Redirect(w, r, "/news?alert=LoggedIn", http.StatusSeeOther)
 				return
@@ -89,16 +94,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// handle GET, or invalid form data from POST...
-	{
-		args := FormArgs {
-			PageArgs: PageArgs{Title: "Login"},
-			Footer: `<a href="/forgotPassword">Forgot your password?</a>`,
-			Form: TableForm {
-				Form: *form,
-				CallToAction: "Login",
-		}}
-		executeTemplate(w, kForm, args)
-	}
+	executeTemplate(w, kLogin, makeFormFrameArgs(form, "Log In"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,10 +105,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	DestroySession(w, r)
 
-	// TODO: /logout should bring up a pop-up.  This will fix the session cookie bug!!
-	//       (which is, UserId cookie gets cleared, then re-set by http.Redirect below:
-
-	//http.Redirect(w, r, "/news?alert=LoggedOut", http.StatusSeeOther)
+	http.Redirect(w, r, "/news", http.StatusSeeOther)
 	return
 }
 
@@ -131,12 +124,11 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-
 	form := makeForm(
-		MakeTextField(kEmail, 50, 6, 345),
-		MakeTextField(kUsername, 50, 4, 345).noSpellCheck(),
-		MakePasswordField(kPassword, 40, 8, 40),
-		MakeBoolField(kRememberMe, true),
+		nuTextField(kEmail, "Email", 50, 6, 345),
+		nuTextField(kUsername, "Pick a Username", 50, 4, 345).noSpellCheck(),
+		nuTextField(kPassword, "Create Password", 40, 8, 40),
+	//	nuBoolField(kRememberMe, "Remember Me", true).
 	)
 
 	// Validate the password is complex enough.
@@ -193,7 +185,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 					passwordHashInts[3])
 
 				// Create session (encrypted userId).
-				CreateSession(w, r, userId, form.boolVal(kRememberMe))
+				CreateSession(w, r, userId)//, form.boolVal(kRememberMe))
 
 				http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)
 				return
@@ -202,15 +194,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// handle GET, or invalid form data from POST...
-	{
-		args := FormArgs {
-			PageArgs: PageArgs{Title: "Register"},
-			Form: TableForm{
-				Form: *form,
-				CallToAction: "Register",
-		}}
-		executeTemplate(w, kForm, args)
-	}
+	executeTemplate(w, kRegister, makeFormFrameArgs(form, "Sign Up"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -223,26 +207,26 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 
 	const (
 		kName = "name"
-		kZipCode = "zip code"
-		kBirthYear = "birth year"
+		kZipCode = "zipCode"
+		kBirthYear = "birthYear"
 		kCountry = "country"
 		kGender = "gender"
 		kParty = "party"
 		kRace = "race"
-		kMaritalStatus = "marital status"
-		kSchoolCompleted = "school completed"
+		kMaritalStatus = "maritalStatus"
+		kSchoolCompleted = "schoolCompleted"
 	)
 
 	form := makeForm(
-		makeTextField(kName, "full name:", "Your full name...", 50, 1, 100),
-		makeTextField(kZipCode, "zip code:", "Your zip code...", 5, 4, 10),
-		makeTextField(kBirthYear, "birth year:", "Your birth year...", 4, 4, 4),
-		MakeSelectField(kCountry, countries, true, true, false),
-		MakeSelectField(kGender, genders, true, true, true),
-		MakeSelectField(kParty, parties, true, true, true),
-		MakeSelectField(kRace, races, true, true, true),
-		MakeSelectField(kMaritalStatus, maritalStatuses, true, true, true),
-		MakeSelectField(kSchoolCompleted, schoolDegrees, true, true, true),
+		nuTextField(kName, "Full Name", 50, 0, 100),
+		nuTextField(kZipCode, "Zip Code", 5, 0, 10),
+		nuTextField(kBirthYear, "Birth Year", 4, 0, 4),
+		nuSelectField(kCountry, "Country", countries, true, false, true, true),
+		nuSelectField(kGender, "Gender", genders, true, false, true, true),
+		nuSelectField(kParty, "Party", parties, true, false, true, true),
+		nuSelectField(kRace, "Race", races, true, false, true, true),
+		nuSelectField(kMaritalStatus, "Marital Status", maritalStatuses, true, false, true, true),
+		nuSelectField(kSchoolCompleted, "Furthest Schooling", schoolDegrees, true, false, true, true),
 	)
 
 	form.field(kName).addRegexValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe').")
@@ -270,37 +254,54 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		return
 	}
 
-	if r.Method == "POST" && form.validateData(r) { // Handle POST, with valid data...
-		// Passwords match, everything is good - Register the user
+	pr("form(skip_button:")
+	prVal("  ", r.FormValue("skip_button"))
 
-		prVal("userId", userId)
+	pr("form(submit_button:")
+	prVal("  ", r.FormValue("submit_button"))
 
-		// Update the user record with registration details.
-		DbQuery(
-			`UPDATE $$User
-				SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
-				= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
-				WHERE Id = $1::bigint`,
-			userId,
-			form.val(kName),
-			form.val(kCountry),
-			form.val(kZipCode),
-			form.val(kBirthYear),
-			form.val(kGender),
-			form.val(kParty),
-			form.val(kRace),  // TODO: I think this should multi-select input, with a comma-delimited join of races here.
-			form.val(kMaritalStatus),
-			form.val(kSchoolCompleted))
+	bSkip := r.FormValue("skip_button") != ""
 
-		serveHTML(w, `<h2>Congrats, you just registered</h2>
-					  <script>alert('Congrats, you just registered')</script>`)
+	prVal("bSkip", bSkip)
+
+	if r.Method == "POST" && (	 // If this is handling form POST data and...
+		bSkip ||                 //   the user chose SKIP, or
+		form.validateData(r)) {  //   the data is valid...
+
+		if !bSkip {
+			prVal("userId", userId)
+
+			pr("Updating vote info")
+
+			// Update the user record with registration details.
+			DbQuery(
+				`UPDATE $$User
+					SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
+					= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
+					WHERE Id = $1::bigint`,
+				userId,
+				form.val(kName),
+				form.val(kCountry),
+				form.val(kZipCode),
+				form.val(kBirthYear),
+				form.val(kGender),
+				form.val(kParty),
+				form.val(kRace),  // TODO: I think this should multi-select input, with a comma-delimited join of races here.
+				form.val(kMaritalStatus),
+				form.val(kSchoolCompleted))
+		} else {
+			pr("Skipping vote info")
+		}
+
+		//serveHTML(w, `<h2>Congrats, you just registered</h2>
+		//			  <script>alert('Congrats, you just registered')</script>`)
 		// TODO: do registration as a pop-up.  Commenting out this for now, as it breaks the UserId cookie:
-		//http.Redirect(w, r, "/news?alert=AccountCreated", http.StatusSeeOther)
+		http.Redirect(w, r, "/news?alert=Welcome to Votezilla!!!", http.StatusSeeOther)
 		return
 	}
 
 	// handle GET, or invalid form data from POST...
-	{
+/*	{
 		// render registerDetailsScript template
 		var scriptString string
 		{
@@ -321,18 +322,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		if r.Method == "GET" {
 			congrats = "Congrats for registering" // Congrats for registering... now enter more information.
 		}
+	*/
 
-		args := FormArgs {
-			PageArgs: PageArgs{
-				Title: "Voter Information",
-				Script: scriptString},
-			Congrats: congrats,
-			Introduction: "A good voting system ensures everyone is represented.<br>" +
-			              "Your information is confidential.",
-			Form: TableForm{
-				Form: *form,
-				CallToAction: "Submit",
-		}}
-		executeTemplate(w, kForm, args)
-	}
+	executeTemplate(w, kRegisterDetails, makeFormFrameArgs(form, "Voter Info"))
 }

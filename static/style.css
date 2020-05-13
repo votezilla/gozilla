@@ -1,4 +1,162 @@
-body    { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
+body { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
+
+.marginRow{
+	 margin-top:		0px 		!important;
+	 margin-bottom:		0px 		!important;
+}
+
+#override .vz-col-md-12 { 
+	padding-left: 		0px			!important; 
+	padding-right: 		0px			!important; 
+}
+
+/* LARGE DEVICES */
+@media (min-width:576px) {
+	#override .vz-row {
+		margin-left:	0px			!important;
+		margin-right:	0px			!important;
+	}
+	#override .vz-col-md-6-left { 
+		padding-left:	0px			!important; 
+		padding-right:	0px			!important;
+		margin-left:	0px			!important;
+		margin-right:	0px			!important;
+	}
+	#override .vz-col-md-6-right { 
+		padding-left:	15px		!important; 
+		padding-right:	0px			!important;
+		margin-left:	0px			!important;
+		margin-right:	0px			!important;
+	}
+}
+
+/* SMALL DEVICES */ /*
+@media (max-width: 990px) {
+	#override .vz-col-md-6-left { 
+		padding-left:	0px			!important; 
+		padding-right:	0px			!important; 
+		width:	 		100%		!important; 
+		max-width:	 	100%		!important; 
+		flex:	 		0 0 100%	!important; 
+	}
+	#override .vz-col-md-6-right { 
+		padding-left:	0px			!important; 
+		padding-right:	0px			!important; 
+		width:	 		100%		!important; 
+		max-width:	 	100%		!important; 
+		flex:	 		0 0 100%	!important; 
+	}
+}*/
+
+input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
+
+/* TODO: Move these to the CSS file, they're only here for quick iteration.  Maybe the line above it too. Maybe(???) the device size stuff too?? */
+.X {
+	width: 400px;
+	height: 400px;
+	position: absolute;
+	right:0;
+	top:0;
+}
+
+.w3-border {
+	border: 1px solid #ccc !important;
+}
+
+.w3-grey {
+	color: #000 !important;
+	background-color: #9e9eff !important;
+}
+
+.btn-vote {
+	color: #fff;
+	background-color: #0030ff; /* #0495c9; */
+	border-color: #2092ff;
+	cursor: pointer;
+}
+.btn-vote:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open>.dropdown-toggle.btn-primary {
+	color: #fff;
+	background-color: #0072ff; 
+	border-color: #62b7ff; 
+	cursor: pointer;
+}
+
+/* Alignment: next a .center, .alignLeft, or .alignRight beneath a .fullWidth. */
+.fullWidth{
+	width:100%;
+}
+
+.center{
+	display: block !important;
+	margin: 0 auto;
+}
+
+.alignLeft{
+	display: block !important;
+	margin: 0 auto 0 0;
+}
+
+.alignRight{
+	display: block !important;
+	margin: 0 0 0 auto;
+}
+
+/* nuForm CSS adapted from: https://www.coderglass.com/social/facebook-style-homepage.php */
+.nuIntro{
+	top:70px;
+	font-family:verdana;
+	font-size:18px;
+	color:#000;
+	height:50px;
+	font-decoratin: italic;
+}
+.nuField, .nuField:focus {
+	width:100%;
+	max-width:100%;
+	height:40px;
+	border-radius:5px 5px 5px 5px;
+	background:white;
+	padding:10px;
+	font-size:18px;
+	margin-top:8px;
+	border-width: 1px;
+	border-style:solid;
+	border-color: gray;
+}
+.nuField:focus {
+	outline: none;
+	box-shadow: 0px 0px 5px 1px #0066ff;
+}
+.nuBtn{
+	border-radius: 2rem;
+	width:250px;
+	font-family:verdana;
+	font-size:18px;
+}
+.nuFieldSubtext{
+	font-family:verdana;
+	font-size:12px;
+	color:gray;
+}
+.nuFooter{
+    margin: 2rem auto 0 auto;
+    font-size: 18px;
+    display: block;
+}    
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #999f;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #999f;
+}
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #999f;
+}
+#override .nuCheckbox {
+	margin: 6px;
+	margin-left: 12px;
+	vertical-align: middle;
+}
 
 
 /* Nested comments */
@@ -7,9 +165,6 @@ body    { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
 .vztagline          { font-size: x-small; font-weight: bold; }
 
 hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
-
-input,select      { font-family:monospace; font-size:10pt; color:#000000; max-width: 200px; }
-input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 
 .submit { cursor:pointer; }
 .vote { font-size: 16px; line-height: 1.1; cursor: pointer; } /* A voting list item or submit button. */
@@ -88,28 +243,5 @@ and (max-width : 750px) {
     span.pagetop b { display: block; font-size: 15px; }
     table.comment-tree .comment a { display: inline-block; max-width: 200px; overflow: hidden; white-space: nowrap;
         text-overflow: ellipsis; vertical-align:top; }
-    /* Separator line */
-    img[src='/static/s.gif'][width='40'] { width: 12px; }
-    img[src='/static/s.gif'][width='80'] { width: 24px; }
-    img[src='/static/s.gif'][width='120'] { width: 36px; }
-    img[src='/static/s.gif'][width='160'] { width: 48px; }
-    img[src='/static/s.gif'][width='200'] { width: 60px; }
-    img[src='/static/s.gif'][width='240'] { width: 72px; }
-    img[src='/static/s.gif'][width='280'] { width: 84px; }
-    img[src='/static/s.gif'][width='320'] { width: 96px; }
-    img[src='/static/s.gif'][width='360'] { width: 108px; }
-    img[src='/static/s.gif'][width='400'] { width: 120px; }
-    img[src='/static/s.gif'][width='440'] { width: 132px; }
-    img[src='/static/s.gif'][width='480'] { width: 144px; }
-    img[src='/static/s.gif'][width='520'] { width: 156px; }
-    img[src='/static/s.gif'][width='560'] { width: 168px; }
-    img[src='/static/s.gif'][width='600'] { width: 180px; }
-    img[src='/static/s.gif'][width='640'] { width: 192px; }
-    img[src='/static/s.gif'][width='680'] { width: 204px; }
-    img[src='/static/s.gif'][width='720'] { width: 216px; }
-    img[src='/static/s.gif'][width='760'] { width: 228px; }
-    img[src='/static/s.gif'][width='800'] { width: 240px; }
-    img[src='/static/s.gif'][width='840'] { width: 252px; }
     .title { font-size: 11pt; line-height: 14pt;    }
-    input[type='text'], input[type='number'], textarea { font-size: 16px; width: 90%; }
 }

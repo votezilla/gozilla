@@ -1,7 +1,6 @@
 ﻿// location.go
 package main
 
-type OptionData [][2]string
 
 var (
 	genders = OptionData{
@@ -25,8 +24,7 @@ var (
 
 	maritalStatuses = OptionData{
 		{"S", "Single (Never Married)"},
-
-		{"M", "Married or Domestic Partnership"},		
+		{"M", "Married or Domestic Partnership"},
 		{"D", "Divorced or Separated"},
 		{"W", "Widowed"},
 	}

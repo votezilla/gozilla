@@ -1,6 +1,5 @@
 // gozilla.go
 package main
-
 import (
 	"encoding/json"
 	"fmt"
@@ -8,7 +7,7 @@ import (
 )
 
 var (
-	anonymityLevels = [][2]string {
+	anonymityLevels = OptionData {
 		{"R",	"Real name - Aaron Smith"},
 		{"A",	"Alias - magicsquare666"},
 		{"F",	"Random Anonymous Name - Wacky Panda"},
@@ -28,7 +27,7 @@ const (
 //
 ///////////////////////////////////////////////////////////////////////////////
 func createHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, kCreate, PageArgs{Title: "Create"})
+	executeTemplate(w, kCreate, makeFormFrameArgs(makeForm(), "Create"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,15 +36,13 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func createLinkHandler(w http.ResponseWriter, r *http.Request) {
-
 	const kLink = "link"
 
 	form := makeForm(
-		makeTextField(kLink, "link:", "Share an article link...", 50, 12, 255),
-		makeTextField(kTitle, "title:", "Ask something...", 50, 12, 50),
-		MakeSelectField(kCategory, newsCategoryInfo.CategorySelect, true, true, false),
-		makeSelectField(kAnonymity, "post As:", anonymityLevels, false, true, false),
-		makeHiddenField(kThumbnail, ""),
+		nuTextField(kLink, "Share an article link", 50, 12, 255),
+		nuTextField(kTitle, "Add a title", 50, 12, 50),
+		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
+		nuHiddenField(kThumbnail, ""),
 	)
 
 	userId := GetSession(r)
@@ -77,16 +74,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// handle GET, or invalid form data from POST...
-	{
-		args := FormArgs{
-			PageArgs:	PageArgs{Title: "Create Link"},
-			Form: TableForm{
-				Form: *form,
-				CallToAction: "Create",
-		}}
-		executeTemplate(w, kCreateLink, args)
-	}
+	executeTemplate(w, kCreateLink, makeFormFrameArgs(form, "Create Link Post"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,14 +104,13 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("r.Method", r.Method)
 
 	form := makeForm(
-		makeTextField(kTitle, "Title:", "Ask something...", 50, 12, 255),
-		makeTextField(kOption1, "Poll option 1:", "add option...", 50, 1, 255),
-		makeTextField(kOption2, "Poll option 2:", "add option...", 50, 1, 255),
-		makeBoolField(kAnyoneCanAddOptions, "Poll options:", "Allow anyone to add options", true),
-		makeBoolField(kCanSelectMultipleOptions, "", "Allow people to select multiple options", true),
-		makeBoolField(kRankedChoiceVoting, "", "Enable ranked-choice voting", false),
-		makeSelectField(kCategory, "Poll category:", newsCategoryInfo.CategorySelect, true, true, false),
-		makeSelectField(kAnonymity, "Post As:", anonymityLevels, false, true, false),
+		nuTextField(kTitle, "Ask a poll question...", 50, 12, 255),
+		nuTextField(kOption1, "add option...", 50, 1, 255),
+		nuTextField(kOption2, "add option...", 50, 1, 255),
+		nuBoolField(kAnyoneCanAddOptions, "Allow anyone to add options", true),
+		nuBoolField(kCanSelectMultipleOptions, "Allow people to select multiple options", true),
+		nuBoolField(kRankedChoiceVoting, "Enable ranked-choice voting", false),
+		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
 	)
 
 	// Add fields for additional options that were added, there could be an arbitrary number, we'll cap it at 1024 for now.
@@ -194,21 +181,17 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		prVal("Invalid form!!", form)
 	}
 
-	// handle GET, or invalid form data from POST...
-	{
-		type PollArgs struct {
-			PageArgs
-			Form				Form
-			PollOptions			[]*Field
-		}
-		args := PollArgs{
-			PageArgs:			PageArgs{Title: "Create Poll"},
-			Form:				*form,
-			PollOptions:		pollOptions,
-		}
-		prVal("args", args)
-		executeTemplate(w, kCreatePoll, args)
+	args := struct {
+		PageArgs
+		Form			Form
+		PollOptions		[]*Field
+	} {
+		PageArgs: 		PageArgs{Title: "Create Poll"},
+		Form: 			*form,
+		PollOptions:	pollOptions,
 	}
+
+	executeTemplate(w, kCreatePoll, args)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -217,7 +200,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func createBlogHandler(w http.ResponseWriter, r *http.Request) {
-	pr("createBlogHandler")
+/*	pr("createBlogHandler")
 
 	const kBlog = "blog"
 
@@ -243,18 +226,7 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == "POST" {
 		prVal("Invalid form!!", form)
 	}
-
-	// handle GET, or invalid form data from POST...
-	{
-		type PollArgs struct {
-			PageArgs
-			Form				Form
-		}
-		args := PollArgs{
-			PageArgs:			PageArgs{Title: "Create Blog Post"},
-			Form:				*form,
-		}
-		prVal("args", args)
-		executeTemplate(w, kCreateBlog, args)
-	}
+*/
+	nyi()
+	executeTemplate(w, kCreateBlog, makeFormFrameArgs(makeForm(), "Create Blog Post"))
 }

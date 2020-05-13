@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+//	"fmt"
 	"github.com/lib/pq"
 	"net/http"
 	"net/url"
@@ -257,6 +258,38 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 	}
 
 	return pollTallyResults
+}
+
+
+func testPopupHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
+
+	pr("testPopupHandler")
+
+	// Get the username.
+	userId := GetSession(r)
+	username := getUsername(userId)
+
+	// Render the news articles.
+	testPopupArgs := struct {
+		PageArgs
+		Username			string
+		UserId				int64
+		NavMenu				[]string
+		UrlPath				string
+		UpVotes				[]int64
+		DownVotes			[]int64
+	}{
+		PageArgs:			PageArgs{Title: "Test popup"},
+		Username:			username,
+		UserId:				userId,
+		NavMenu:			navMenu,
+		UrlPath:			"testPopup",
+		UpVotes:			[]int64{},
+		DownVotes:			[]int64{},
+	}
+
+	executeTemplate(w, kTestPopup, testPopupArgs)
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1,33 +1,28 @@
-{{define "body"}}
-<h1>Create Poll</h1>
-<br>
-<br>
-<form name="form" method="POST">
-	<table id="pollOptionsTable">
-		{{$f := .Form.FieldMap }}
-		{{- ( call $f.title.HtmlRow ) -}}
-		{{- range $i, $option := .PollOptions -}}
-			{{- ( call $option.HtmlRow ) -}}
-		{{- end -}}
-		<tr>
-			<td></td>
-			<td><a href="javascript:addOption()" style="color:blue">+ Add option...</a></td>
-		</tr>
-	</table>
-	<table>
-		{{- ( call $f.bAnyoneCanAddOptions.HtmlRow ) -}}
-		{{- ( call $f.bCanSelectMultipleOptions.HtmlRow ) -}}
-		{{- ( call $f.bRankedChoiceVoting.HtmlRow ) -}}
-	</table>
-	<table>
-		<tr></tr>
-		{{- ( call $f.category.HtmlRow ) -}}
-		{{- ( call $f.anonymity.HtmlRow ) -}}
-	</table>
+{{define "content"}}
+{{ template "formHeader" "Create poll for" }}
+{{ template "beginForm" .Form }}
+	{{ $f := .Form.FieldMap }}
+
+	{{ template "field" $f.title -}}
+
+	{{- range $i, $option := .PollOptions -}}
+		{{- template "field" $option -}}
+	{{- end -}}
+
+	<p>
+	<a href="javascript:addOption()" style="color:blue">+ Add option...</a></td>
+
+	<p>
+	{{ template "field" $f.bAnyoneCanAddOptions -}}
+	{{ template "field" $f.bCanSelectMultipleOptions -}}
+	{{ template "field" $f.bRankedChoiceVoting -}}
+	{{ template "field" $f.category -}}
+
+	<p>
+	{{ template "button" "Create Poll" }}
 	<br>
-	<br>
-	<input type="submit" value="Create">
-</form>
+
+
 <script>
 	var numOptions = 2;
 
@@ -37,12 +32,10 @@
 		if (numOptions > 1024) // Max number of options allowed
 			return;
 
-		$('#pollOptionsTable tr:nth-last-child(2)').after(`
-			<tr>
-				<td>Poll option `+numOptions+`:</td>
-				<td><input type="text" name="option`+numOptions+`" id="option`+numOptions+`" value="" placeholder="add option..." length=50></input></td>
-			</tr>
-		`);
+		// Add a new option, after all the other options.
+		$(`input[name ="option${numOptions-1}"]`).after(
+			`<input type="text" name="option${numOptions}" value="" placeholder="add option..." length="50" class="nuField">`
+		);
 	}
 </script>
 {{end}}

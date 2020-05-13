@@ -1,0 +1,34 @@
+{{define "content"}}
+<br>
+<div class="row vz-row">
+	<div class="col-md-4 vz-col-md-4"></div>
+	<div class="col-md-4 vz-col-md-4">
+		<div class="nuIntro">By having a Votezilla account, you can vote, discuss, and change the world!</div>
+		<div>
+			<form method="POST">
+				<input placeholder="Email" type="text" class="nuField"><br>
+				<input placeholder="Pick a Username" type="text" class="nuField" autocomplete="false"><br>
+				<p class="nuFieldSubtext">Pick a Username - i.e. RedHerring65.  This is how you other community members will see you.  What shall we call you?</p>
+				<input placeholder="Create Password" type="password" class="nuField" autocomplete="false"><br>
+				<input placeholder="Confirm Password" type="password" class="nuField" autocomplete="false"><br>
+				<p class="nuFieldSubtext">By clicking Create an account, you agree to our Terms and that
+				you have read our Data Policy, including our Cookie Use.</p>
+				<div>
+					<button type="submit" class="nuBtn btn btn-vote center">
+						Sign Up
+					</button>
+				</div>
+			</form>
+			<div class="nuFooter">
+				Already a Votezilla member?
+				<a onclick="onClick_OpenModalLink()" class="storylink" rel="nofollow" style="color:blue; cursor: pointer">LOG IN
+					<a id="theTarget" data-target="#myModal" data-toggle="modal" data-path="login" data-title="Log In"></a>
+				</a>
+			</div>
+			<br>
+			<br>
+		</div>
+	</div>
+	<div class="col-md-4 vz-col-md-4"></div>
+</div>
+{{ end }}

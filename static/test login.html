@@ -1,8 +1,40 @@
-{{define "body"}}
-{{ template "beginFrame" . }}
-	{{/* Header w/ banner + nav menu. */}}
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no">
+		<meta name="referrer" content="unsafe-url">
+
+		<title>Log In - votezilla</title>
+
+		<link rel="stylesheet" type="text/css" href="/static/style.css?1ds32233728978978dddsdsdsdsss">
+
+
+
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+
+
+
+
+	</head>
+	<body id="override">
+
+
+	<div class="smart-padding container vz-container">
+		<div class="row vz-row">
+			<div class="col-md-3 vz-col-md-3"></div>
+			<div class="col-md-6 vz-col-md-6" style="max-width: 500px;">
+
+
 	<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
-		<!-- votezilla logo -->
+
 		<tr><td bgcolor="#ff6600">
 			<div width=100% style="background-color:white"><img src='/static/votezilla logo/votezilla 6.jpg' class="center" style="max-width:100%"></div>
 		</td></tr>
@@ -15,38 +47,17 @@
 					</td>
 					<td style="line-height:12pt; height:10px; padding: 0px 5px; color:white !important;">
 						<span class="pagetop">
-							<!-- votezilla logo -->
+
 							<b class="hnname">
 								<a href="news" style="color:#ff009c">vote<span style="color:black">zilla</span></a>
 							</b>
-						<!-- nav menu -->
-						{{- range $i, $navItem := .NavMenu}}
-							{{- if ne $i 0 }} | {{end -}}
-							{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
-							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">{{$navItem}}</a>
-							{{- if eq $navItem $.UrlPath}}</span>{{end -}}
-						{{end -}}
-						</span>
+						<a href="/news" style="color:black;">news</a> | <a href="/create" style="color:black;">create</a> | <a href="/history" style="color:black;">history</a></span>
 					</td>
 					<td style="text-align:right; padding-right:4px;">
-						<!-- login / register / logout -->
 						<span class="pagetop">
-							{{- if .Username }}
-								<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
-							{{- else -}}
-								<a href="/login" target="_blank">log in</a>
-								<!--
-								<a data-target="#myModal" data-toggle="modal" data-path="login" data-title="Log In" style="cursor:pointer">
-									log in
-								</a>-->
+							<a href="/login">log in</a>
 								/
-								<a href="/register" target="_blank">sign up</a>
-								<!--
-								<a href="/register">
-								<a data-target="#myModal" data-toggle="modal" data-path="register" data-title="Sign Up" style="cursor:pointer">
-									sign up
-								</a>-->
-							{{end -}}
+							<a href="/register">sign up</a>
 						</span>
 					</td>
 				</tr>
@@ -54,10 +65,47 @@
 		</td></tr>
 	</table>
 
-	{{ template "content" . }}
-{{ template "endFrame" . }}
 
-<!-- Modal popup body -->
+    login.htmllll
+	<div><form method="POST" action="/login">
+
+
+	<input type="text" name="emailOrUsername" value="" placeholder="Email / Username" length="50" class="nuField">
+
+	<input type="password" name="password" value="" placeholder="Password" length="50" class="nuField">
+
+		<p class="nuFieldSubtext">
+			<a href="onClick_OpenModalLink('forgotAccountTarget')">
+				Forgot Account?
+				<a id="forgotAccountTarget" data-target="#myModal" data-toggle="modal" data-path="forgotAccount" data-title="Forgot Account"></a>
+			</a>
+		</p>
+		<p>
+
+	<div>
+		<button type="submit" class="nuBtn btn btn-vote center">
+			Log In
+		</button>
+	</div>
+
+		<div class="nuFooter">
+			New to Votezilla?
+			<a onclick="onClick_OpenModalLink('registerTarget')" class="storylink" rel="nofollow" style="color:blue; cursor: pointer">
+				SIGN UP
+				<a id="registerTarget" data-target="#myModal" data-toggle="modal" data-path="register" data-title="Sign Up"></a>
+			</a>
+		</div>
+		<br>
+	</form></div>
+
+
+			</div>
+			<div class="col-md-3 vz-col-md-3"></div>
+		</div>
+	</div>
+
+
+
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -71,20 +119,20 @@
 				</button>
 			</div>
 
-			<div class="modal-body" style="background-color:white"></div><!--#edf0f5-->
+			<div class="modal-body" style="background-color:white"></div>
 		</div>
 	</div>
 </div>
 
 <script>
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// MODAL POPUP VOTING
-//
-///////////////////////////////////////////////////////////////////////////////
 
-// Modal popup handler
+
+
+
+
+
+
 $('#myModal').on('show.bs.modal', function(e) {
 	var rt = $(e.relatedTarget);
 
@@ -101,9 +149,9 @@ $('#myModal').on('show.bs.modal', function(e) {
 	console.log("title = " + title);
 	$('.modal-title').text(title);
 
-	// Allow custom modal popup behavior.
+
 	if (window[path + "_Modal"] != null) {
-		window[path + "_Modal"](rt);  // This calls a custom modal handler, i.e. viewPollResults_Modal(rt).
+		window[path + "_Modal"](rt);
 		return;
 	}
 
@@ -114,26 +162,13 @@ $('#myModal').on('show.bs.modal', function(e) {
 	});
 });
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// ALERT
-//
-///////////////////////////////////////////////////////////////////////////////
-$(function() {
-	let params = new URLSearchParams(location.search);
-	alertMsg = params.get('alert');
-	if (alertMsg) {
-		alert(alertMsg);
-	}
-})
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// POST VOTING
-//
-///////////////////////////////////////////////////////////////////////////////
 
-loggedIn = {{ if .Username }} true {{ else }} false {{ end }} ;
+
+
+
+
+loggedIn =  false  ;
 
 var votedPosts = [[], []];
 
@@ -144,41 +179,41 @@ function removeItem(arr, item) {
 	}
 }
 
-// Whether an upvote or down with this id is enabled.
+
 function hasVote(id, up) {
 	return votedPosts[up ? 1 : 0].includes(id)
 }
 
-// Add or remove the voting state.  Also updates the vote tally text.
+
 function addOrRemoveVoteState(id, add, up) {
 	if (add) {
 		votedPosts[up ? 1 : 0].push(id)
 
-	} else { // remove
+	} else {
 		removeItem(votedPosts[up ? 1 : 0], id)
 	}
 }
 
-// Increment or decrement vote tally text.
+
 function incVoteLabel(id, voteInc) {
 	label = $("#votetally" + id)
 	count = parseInt(label.text())
 	label.text(count + voteInc)
 }
 
-// Add or remove a vote via state, CSS, and updating of database via AJAX.
+
 function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
-	// state
+
 	addOrRemoveVoteState(id, add, up)
 
-	// glowing arrow CSS
+
 	if (add) {
 		if (up) {
 			$("#upvote" + id).addClass("upvoted")
 		} else {
 			$("#downvote" + id).addClass("downvoted")
 		}
-	} else { // remove
+	} else {
 		if (up) {
 			$("#upvote" + id).removeClass("upvoted")
 		} else {
@@ -186,18 +221,18 @@ function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
 		}
 	}
 
-	// vote tally text
+
 	if (updateText) {
 		incVoteLabel(id, (add && up || !add && !up) ? 1 : -1)
 	}
 
-	// AJAX - database state
+
 	if (updateDatabase) {
 		$.ajax({
 			url: '/ajaxVote/',
 			type: "post",
 			contentType: 'application/json; charset=utf-8',
-			data: JSON.stringify({PostId: id, Add: add, Up: up}), // Hmmm <-- should be UserId not Username
+			data: JSON.stringify({PostId: id, Add: add, Up: up}),
 			dataType: 'json',
 			success: function(r) { console.log("AJAX - success"); },
 			error:   function(r) { console.log("AJAX - error"); }
@@ -205,54 +240,50 @@ function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
 	}
 }
 
-// Cancel an up or down vote
+
 function cancelVote(id, up) {
 	if (hasVote(id, up)) {
-		addOrRemoveVote(id, false, up, false, true) // cancel
+		addOrRemoveVote(id, false, up, false, true)
 	}
 }
 
-// Toggle an up or down vote
-// (Only toggleVote should send the AJAX, otherwise there will be a race condition in updating the database.)
+
+
 function toggleVote(id, up) {
 	if (hasVote(id, up)) {
-		addOrRemoveVote(id, false, up, true, true) // cancel.
+		addOrRemoveVote(id, false, up, true, true)
 	} else {
-		addOrRemoveVote(id, true,  up, true, true) // enable
+		addOrRemoveVote(id, true,  up, true, true)
 	}
 }
 
-// TODO: there is a bug somewhere where you upvote, then downvote, and it ends up at a 0.
 
-// Vote up or down on a post.  Or if already voted, cancels the vote.
-// id: postId
-// up: true for up, false for down
+
+
+
+
 function Vote(id, up) {
 	if (loggedIn) {
-		cancelVote(id, !up) // cancel opposite type of vote
-		toggleVote(id, up)  // toggle this type of vote
+		cancelVote(id, !up)
+		toggleVote(id, up)
 	} else {
 		alert("You must be logged in to do that!")
 	}
 }
 
 $(function() {
-    {{ range $_, $id := $.UpVotes}}
-    	addOrRemoveVote({{$id}}, true, true, false, false)  // Add a upvote presentation, but do not update the database.
-    {{ end }}
-    {{ range $_, $id := $.DownVotes}}
-	    addOrRemoveVote({{$id}}, true, false, false, false) // Add a downvote presentation, but do not update the database.
-    {{ end }}
+
+
 });
 
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// POLL VOTING
-//
-///////////////////////////////////////////////////////////////////////////////
 
-// Get the vote data from the form - how the user voted on this poll, i.e. what their vote is.
+
+
+
+
+
+
 function getVoteData(pollId, pollType) {
 	console.log(`getVoteData(${pollId}, ${pollType})`);
 
@@ -292,24 +323,24 @@ function ordinal(num) {
 function validateVoteData(pollType, voteData) {
 	switch(pollType) {
 		case "radio":
-		case "checkbox": // Multiple choices valid
+		case "checkbox":
 			console.log(voteData);
 
-			valid = voteData.reduce((a, b) => a || b)  // OR all the choices together.
+			valid = voteData.reduce((a, b) => a || b)
 			console.log("valid = " + valid);
 
 			if (!valid) {
 				alert(`You must select ${pollType == "checkbox" ? "at least " : ""}one option`);
 			}
 
-			return valid; // Make sure one is picked.
-		case "text": // Ranked voting
-			sorted = voteData.filter(x => x != "").sort(); // creates a copy of voteData, then sorts it
+			return valid;
+		case "text":
+			sorted = voteData.filter(x => x != "").sort();
 
 			console.log(voteData);
 			console.log(sorted);
 
-			// Check for valid ranked voting, i.e. "1", "2", ...
+
 			if (sorted[0] != "1") {
 				alert('You must mark your 1st choice with a "1"');
 				return false;
@@ -330,37 +361,37 @@ function validateVoteData(pollType, voteData) {
 	}
 }
 
-// Modal popup handler
+
 function viewPollResults_Modal(rt) {
-	if ({{.UserId}} == -1) {
+	if ( -1  == -1) {
 		alert("You must be logged in to do that!");
 
-		// Cancel opening the modal
+
 		$('#myModal').modal('dispose');
 
 		return;
 	}
 
-	//get poll-id attribute of the clicked element
+
 	var pollId	 = rt.data('poll-id');
 	var pollType = rt.data('poll-type');
 
 	console.log("pollId = " + pollId);
 	console.log("pollType = " + pollType);
-	console.log("userId = " + {{.UserId}});
+	console.log("userId = " +  -1 );
 
 	voteData = getVoteData(pollId, pollType);
 
 	console.log({PollId: pollId, VoteData: voteData});
 
-	if (validateVoteData(pollType, voteData)) { // Check if voting data is valid.
+	if (validateVoteData(pollType, voteData)) {
 		console.log("valid vote data");
 
 		$(this).find('.modal-body').css({
 			'max-height': '100%'
 		});
 
-		// Place poll vote
+
 		$.ajax({
 			url: '/ajaxPollVote/',
 			type: "post",
@@ -372,7 +403,7 @@ function viewPollResults_Modal(rt) {
 
 				console.log(r);
 
-				// Open the View Poll Results modal dialog
+
 				$('.modal-body').load(`/viewPollResults/?postId=${pollId}&voteData=${voteData}`, function() {
 					console.log('Load was performed');
 				});
@@ -382,25 +413,25 @@ function viewPollResults_Modal(rt) {
 
 				alert("Vote failed for some reason.");
 
-				// Cancel opening the modal
+
 				$('#myModal').modal('dispose');
 			}
 		});
 	} else {
-		// Cancel opening the modal
+
 		console.log("invalid vote data, disposing of modal");
 
 		$('#myModal').modal('dispose');
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// MODALS
-//
-///////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 var triggerModalDataTargetAnchor = "";
-//var triggerModalId = "";
+
 
 function onClick_OpenModalLink(modalDataTargetAnchor) {
 	console.log("onClick_OpenModalLink: modalDataTargetAnchor = " + modalDataTargetAnchor);
@@ -409,58 +440,28 @@ function onClick_OpenModalLink(modalDataTargetAnchor) {
 	$('#myModal').modal('hide');
 }
 
-// After onClick_OpenModalLink, the window close generates the following callback. */
+
 $('#myModal').on('hidden.bs.modal', function (e) {
 	if (triggerModalDataTargetAnchor) {
-		$( "#myModal" ).modal( "show", $( "#"+triggerModalDataTargetAnchor ) );  // The caller must define an anchor with id="theTarget".
+		$( "#myModal" ).modal( "show", $( "#"+triggerModalDataTargetAnchor ) );
 
 		triggerModalDataTargetAnchor = "";
 	}
 })
 
-/*
 
-// Lookup a URL parameter by name.
-// Source: https://www.sitepoint.com/url-parameters-jquery/
-function urlParam(name){
-	var url = window.location.href;
-	var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(url);
-	return results[1] || 0;
-}
 
-$(function() {
-    modalPopup = urlParam("modalPopup");
-
-    if (modalPopup != "") {
-    	triggerModalId = modalPopup
-    	onClick_OpenModalLink();
-    }
-});
-
-*/
 
 </script>
 
-{{end}} {{/*body*/}}
 
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// UTILITY TEMPLATE FUNCTIONS
-//
-///////////////////////////////////////////////////////////////////////////////
-{{ define "OpenModalButton_ViewPollResults" }}
-	{{ $poll := .PollOptionData }}
-	<button type="button" class="btn btn-vote btn-sm"
-			data-path="viewPollResults" data-toggle="modal" data-target="#myModal" data-poll-id="{{.Id}}" data-title="Poll Results"
-		{{ if $poll.RankedChoiceVoting }}
-			data-poll-type="text"
-		{{ else if $poll.CanSelectMultipleOptions }}
-			data-poll-type="checkbox"
-		{{ else }}
-			data-poll-type="radio"
-		{{ end }}
-	>
-		Vote!
-	</button>
-{{ end }}
+		<script>
+
+
+
+
+		 	""
+		</script>
+	</body>
+</html>

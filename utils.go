@@ -2,7 +2,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -89,6 +88,15 @@ func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
 func str_to_bool(s string) bool { return s == "true" }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
 
+// Maps the input from an array of strings to an output array of strings, using the map function.
+func map_str(mapFn func(string)string, input []string) []string {
+	output := make([]string, len(input))
+	for i := range(input) {
+		output[i] = mapFn(input[i])
+	}
+	return output
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -151,8 +159,7 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 		err = ttemplates[templateName].Execute(w, data)
 	}
 	if err != nil {
-		prVal("executeTemplate err", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		check(err)
 		return
 	}
 }
@@ -177,12 +184,12 @@ func renderTemplate(w io.Writer, templateName string, data interface{}) {
 	check(err)
 }
 
-// Render the table form, return the HTML string
-func getFormHtml(tableForm TableForm) string {
+/* // Render the table form, return the HTML string
+func getFormHtml(tableFormArgs TableFormArgs) string {
 	var formHTML bytes.Buffer
-	renderTemplate(&formHTML, "tableForm", tableForm)
+	renderTemplate(&formHTML, "tableForm", tableFormArgs)
 	return formHTML.String()
-}
+}*/
 
 // Serves the specified HTML string as a webpage.
 func serveHTML(w http.ResponseWriter, html string) {

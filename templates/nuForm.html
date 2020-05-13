@@ -1,0 +1,25 @@
+nuForm.html
+{{define "content"}}
+	nuForm: define "content"
+	{{ template "preForm" . }}
+	<div>
+		{{$form := .Form}}
+		<form method="POST" action="{{$form.Action}}">
+			{{- range $_, $field := $form.FieldList -}}
+				{{ template "field" $field -}}
+				{{if $field.Error}}<label class="error">{{$field.Error}}</label>{{end -}}
+				{{if $field.Subtext}}<p class="nuFieldSubtext">{{$field.Subtext}}</p>{{end -}}
+				<br>
+			{{- end}}
+			<div>
+				<button type="submit" class="nuBtn btn btn-vote center">
+					{{$form.CallToAction}}
+				</button>
+			</div>
+		</form>
+		{{template "nuFooter" .}}
+		<br>
+		<br>
+	</div>
+	{{ template "postForm" . }}
+{{- end}}

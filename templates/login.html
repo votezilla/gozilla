@@ -1,0 +1,22 @@
+{{define "content"}}
+	{{ template "formHeader" "Log In to" }}
+	{{ template "beginForm" .Form }}
+		{{ $f := .Form.FieldMap }}
+		{{ template "field" $f.emailOrUsername -}}
+		{{ template "field" $f.password }}
+		<p class="nuFieldSubtext">
+			<a href="onClick_OpenModalLink('forgotAccountTarget')" style="color:#0072ff">
+				Forgot Account?
+				<a id="forgotAccountTarget" data-target="#myModal" data-toggle="modal" data-path="forgotAccount" data-title="Forgot Account"></a>
+			</a>
+		</p>
+		<p>
+		{{ template "button" "Log In" }}
+
+		<div class="nuFooter">
+			New to Votezilla?
+			<a href="/register" style="color:#0072ff">SIGN UP</a>
+		</div>
+		<br>
+	{{ template "endForm" }}
+{{end}}

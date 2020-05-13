@@ -29,16 +29,25 @@ type PageArgs struct {
 }
 
 const (
-	kForm = "form"
 	kArticle = "article"
-	kNews = "news"
-	kNewsSources = "newsSources"
 	kCreate = "create"
 	kCreateBlog = "createBlog"
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
+	//kForm = "form"
+	kLogin = "login"
+	kLoginPopup = "loginPopup"
+	kNews = "news"
+	kNewsSources = "newsSources"
+	kNuForm = "nuForm"
+	kNuFormPopup = "nuFormPopup"
+	kRegisterDetails = "registerDetails"
+	kRegisterDetailsNopopup = "registerDetailsNopopup"
+	//kRegisterDetailsScript = "registerDetailsScript"
+	kRegister = "register"
+	kRegisterPopup = "register"
+	kTestPopup = "testPopup"
 	kViewPollResults = "viewPollResults"
-	kRegisterDetailsScript = "registerDetailsScript"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -78,34 +87,57 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// parse template files - Establishes the template inheritance structure for Votezilla.
+// parse template files - Establishes the template inheritance structure for Votezilla HTML code.
 //
 ///////////////////////////////////////////////////////////////////////////////
 func parseTemplateFiles() {
-	T := func(page string) string {
-		return "templates/" + page + ".html"
-	}
-
 	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
 	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
 	htemplates = make(map[string]*htemplate.Template)
 	ttemplates = make(map[string]*ttemplate.Template)
 
+	getTemplatePath := func(page string) string {
+		return "templates/" + page + ".html"
+	}
+	// We're trying to just use hDefineTemplate, since it prevents against HTML injection.
+	//   Templates make it possible to use hDefineTemplate.
+	//tDefineTemplate := func(handle string, filenames ...string) {
+	//	ttemplates[handle] = ttemplate.Must(ttemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
+	//}
+	hDefineTemplate := func(handle string, filenames ...string) {
+		htemplates[handle] = htemplate.Must(htemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
+	}
+
 	// HTML templates
-	ttemplates[kForm]		= ttemplate.Must(ttemplate.ParseFiles(T("base"), T("form"), T("defaultForm")))
-	htemplates[kArticle]	= htemplate.Must(htemplate.ParseFiles(T("base"), T("frame"), T("article"), T("comments")))
-	htemplates[kNews]		= htemplate.Must(htemplate.ParseFiles(T("base"), T("frame"), T("news")))
-	htemplates[kNewsSources]= htemplate.Must(htemplate.ParseFiles(T("base"), T("newsSources")))
-	htemplates[kCreate]		= htemplate.Must(htemplate.ParseFiles(T("base"), T("create")))
-	ttemplates[kCreateBlog]	= ttemplate.Must(ttemplate.ParseFiles(T("base"), T("form"), T("createBlog")))
-	ttemplates[kCreateLink]	= ttemplate.Must(ttemplate.ParseFiles(T("base"), T("form"), T("createLink")))
-	ttemplates[kCreatePoll]	= ttemplate.Must(ttemplate.ParseFiles(T("base"), T("createPoll")))
+	//tDefineTemplate(kForm, 			"base", "narrow", "frame", "form", "defaultForm")
+	hDefineTemplate(kNuForm, 		"base", "narrow", "frame", "nuField", "nuForm", "defaultForm")
+	hDefineTemplate(kArticle, 		"base", "wide", "frame", "article", "comments")
+	hDefineTemplate(kNews, 			"base", "wide", "frame", "news")
+	hDefineTemplate(kNewsSources,	"base", "wide", "frame", "newsSources")  // nyi
+
+	hDefineTemplate(kCreate, 		"base", "narrow", "minFrame", "nuField", "create")
+	hDefineTemplate(kCreateBlog, 	"base", "narrow", "minFrame", "nuField", "createBlog")
+	hDefineTemplate(kCreateLink, 	"base", "narrow", "minFrame", "nuField", "createLink")
+	hDefineTemplate(kCreatePoll, 	"base", "narrow", "minFrame", "nuField", "createPoll")
+
+	//hDefineTemplate(kRegisterDetailsNopopup, "base", "narrow", "frame", "registerDetailsNopopup")
 
 	// Popup forms (they do not inherit from 'base')
-	htemplates[kViewPollResults]= htemplate.Must(htemplate.ParseFiles(T("viewPollResults"), T("comments")))
+	hDefineTemplate(kNuFormPopup, 	"popupBase", "nuField", "nuForm", "defaultForm")
+	hDefineTemplate(kLoginPopup, 	"popupBase", "nuField", "login")
+	//hDefineTemplate(kLogin,			"base", "narrow", "frame",  "nuField", "login")
+
+	hDefineTemplate(kLogin,			  "base", "narrow", "minFrame", "nuField", "login")
+	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")
+	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
+
+
+	hDefineTemplate(kRegisterPopup, 	"register")
+	hDefineTemplate(kViewPollResults,	"viewPollResults", "comments")
+	hDefineTemplate(kTestPopup, 		"testPopup")
 
 	// Javascript snippets
-	ttemplates[kRegisterDetailsScript]	= ttemplate.Must(ttemplate.ParseFiles(T("registerDetailsScript")))
+	//tDefineTemplate(kRegisterDetailsScript, "registerDetailsScript")  // TODO: find a new home for this.  Just add to registerDetails(?)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,13 +146,14 @@ func parseTemplateFiles() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func init() {
-	print("init")
+	pr("init")
 
 	parseTemplateFiles()
 }
 
 func WebServer() {
 	InitSecurity()
+
 
 	http.HandleFunc("/",                		hwrap(newsHandler))
 	http.HandleFunc("/ajaxCreateComment/",		hwrap(ajaxCreateComment))
@@ -141,6 +174,7 @@ func WebServer() {
 	http.HandleFunc("/register/",       		hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 //	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))     // being called directly from registerDetailsHandler
+	http.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
 	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 
 	// Server static file.
@@ -154,7 +188,7 @@ func WebServer() {
 }
 
 func main() {
-	print("main")
+	pr("main")
 
 	parseCommandLineFlags()
 

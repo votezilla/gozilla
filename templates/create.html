@@ -1,7 +1,31 @@
-{{define "body"}}
-<h1>Create new:</h1>
-<p><a href="/createPoll">Poll</a>
-<p><a href="/createLink">Link post</a>
-<!--<p><a href="/createBlog">Blog post</a>-->
+{{define "content"}}
+	{{template "formHeader" "Create post for"}}
+
+	<div>
+		<span>
+			<a href="/createPoll" style="text-decoration: none;">
+				<button type="submit" class="nuBtn btn btn-vote alignLeft" style="margin-top: 1rem; width: 100%;">
+					Create Poll Post
+				</button>
+			</a>
+		</span>
+		<span>
+			Create a new poll, to let people vote on and discuss a topic of your choice.
+		</span>
+	</div>
+
+	<div>
+		<span>
+			<a href="/createLink" style="text-decoration: none;">
+				<button type="submit" class="nuBtn btn btn-vote alignLeft" style="margin-top: 1rem; width: 100%;">
+					Create Link Post
+				</button>
+			</a>
+		</span>
+		<span>
+			Share a link to a website, and let people discuss the topic.
+		</span>
+	</div>
 {{end}}
+
 

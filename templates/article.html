@@ -79,18 +79,7 @@
 								<input name="vote_{{$article.Id}}_len" type=hidden
 									   value="{{len $poll.Options}}">
 
-								<button type="button" class="btn btn-vote btn-sm"
-										data-toggle="modal" data-target="#myModal" data-poll-id="{{$article.Id}}"
-									{{ if $poll.RankedChoiceVoting }}
-										data-poll-type="text"
-									{{ else if $poll.CanSelectMultipleOptions }}
-										data-poll-type="checkbox"
-									{{ else }}
-										data-poll-type="radio"
-									{{ end }}
-								>
-									Vote!
-								</button>
+								{{ template "OpenModalButton_ViewPollResults" $article }}
 							</td></tr>
 						</table>
 					</form>

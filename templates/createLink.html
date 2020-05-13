@@ -1,7 +1,18 @@
-{{ define "preForm" }}{{ end }}
-{{ define "additionalInput" }}{{ end }}
-{{define "postForm" -}}
-<div id="thumbnail_img_anchor">
+{{define "content"}}
+{{template "formHeader" "Create link post for"}}
+{{ template "beginForm" .Form }}
+	{{ $f := .Form.FieldMap }}
+	{{ template "field" $f.link -}}
+	{{ template "field" $f.title -}}
+	{{ template "field" $f.category -}}
+	{{ template "field" $f.thumbnail -}}
+	<div id="thumbnail_img_anchor"></div>
+	<p>
+	{{ template "button" "Create Link Post" }}
+	<br>
+{{ template "endForm" }}
+
+
 <script>
 var urls;
 
@@ -28,7 +39,7 @@ function findImagesFromLink(linkUrl) {
 
 			console.log("AJAX - success r.Images = " + r.Images);
 
-			$('#thumbnail container').show(); // REVERT!!
+			//$('#thumbnail container').show();
 
 			$('#image_container img').remove();
 
@@ -108,12 +119,14 @@ function findImagesFromLink(linkUrl) {
 }
 
 $(document).ready(function() {
-	$('#thumbnail_img_anchor').parent().append(`
-		<div style="overflow: visible; width: 420px;">
+	//[]TODO: Just move this to the HTML.  We only needed this cause of the previous form library.
+	$('#thumbnail_img_anchor').append(`
+		<p style="margin-top: 1rem;">Choose Thumbnail:</p>
+		<div style="overflow: visible; width: 100%;">
 			<div id="image_container"></div>
 		</div>`);
 
-	//$('#thumbnail row').hide();
+	$('#thumbnail row').hide(); // TODO: can probably comment this out.
 
 	var $link = $('input[name="link"]');
 	$link.change( function() {

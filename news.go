@@ -391,7 +391,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
 
-	renderNews(w, "News", username, userId, articleGroups, "news", "news", []int64{}, []int64{}, reqAlert)
+	renderNews(w, "News", username, userId, articleGroups, "news", kNews, []int64{}, []int64{}, reqAlert)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -458,7 +458,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 
 	// Render the history just like we render the news.
-	renderNews(w, "History", username, userId, articleGroups, "history", "news", upvotes, downvotes, reqAlert)
+	renderNews(w, "History", username, userId, articleGroups, "history", kNews, upvotes, downvotes, reqAlert)
 }
 
 

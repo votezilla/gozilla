@@ -1,0 +1,71 @@
+<!-- PRIVATE METHODS: -->
+{{define "beginForm"}}<div><form method="POST">{{end}}
+
+{{define "endForm"}}</form></div>{{end}}
+
+{{define "inputField"}}
+	<input type="{{.Type}}" name="{{.Name}}" value="{{.Value}}" placeholder="{{.Placeholder}}" length="{{.Length}}"
+		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
+		{{- if .Id }} id="{{.Id}}"{{ end -}}
+	>
+{{end}}
+
+{{define "checkboxField"}}
+	<div><input type=checkbox name="{{.Name}}" value="true"
+		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
+		{{- if .Id }} id="{{.Id}}"{{ end -}}
+		{{- if .Value}}checked{{ end -}}
+	>{{.Placeholder}}</div>
+{{end}}
+
+{{define "selectField"}}
+	{{$value := .Value}}
+	<select name="{{.Name}}"
+		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
+		{{- if .Id }} id="{{.Id}}"{{ end -}}
+	>
+		{{- if .Placeholder}}<option value="-" selected>{{.Placeholder -}}</option>
+		{{- else if .StartAtNil}}<option value="-" selected>-</option>
+		{{- end}}
+		{{- range $i, $kv := .OptionKeyValues }}
+			{{ $key := index $kv 0 -}}
+			{{ $val := index $kv 1 -}}
+			<option value="{{ $key }}" {{/*{{if eq $value $key}}selected{{end}}*/}}>
+				{{- $val -}}
+			</option>
+		{{- end }}
+		{{- if .HasOther }}<option value="OTHER">Other</option>{{ end -}}
+		{{- if .Skippable }}<option value="SKIP">Prefer not to answer</option>{{ end -}}
+	</select>
+{{end}}
+
+
+<!-- PUBLIC METHODS: -->
+{{define "field"}}
+	{{- if eq .Type "checkbox" -}}	  {{ template "checkboxField" . }}
+	{{- else if eq .Type "select" -}} {{ template "selectField" . }}
+	{{- else -}}				 	  {{ template "inputField" . }}
+	{{- end -}}
+	{{if .Error}}<label class="error">{{.Error}}</label>{{end -}}
+	{{if .Subtext}}<p class="nuFieldSubtext">{{.Subtext}}</p>{{end -}}
+{{end}}
+
+{{define "button"}}
+	<div>
+		<button type="submit" class="nuBtn btn btn-vote center">
+			{{ . }}
+		</button>
+	</div>
+{{end}}
+
+{{define "formHeader"}}
+	<p>
+	<div>
+		<h3 class="btn center" style="font-size: 20px; font-family: verdana;">
+			<b class="hnname">
+				{{ . }}
+				<a style="color:#ff009c">vote</a><span style="color:#0072ff">zilla</span>
+			</b>
+		</h3>
+	</div>
+{{end}}

@@ -9,7 +9,13 @@ import (
     "strconv"
 )
 
+type OptionData [][2]string
 type Attributes map[string]string
+
+const (
+	kNuField = "nuField"
+	kNuCheckbox = "nuCheckbox"
+)
 
 var (
 	NoSpellCheck = Attributes{
@@ -109,13 +115,24 @@ type Field struct {
 	Value			string
 	Label			string
 	Placeholder		string
+	Classes			string
+	Id				string
 	Error			string
-	InputLength		int
+	Subtext			string
+	Length			int
+
 	Html			func() string // Closure that outputs the html of this field
 	HtmlRow			func() string // Closure that outputs the html of this field's entire table row
 
 	Validators		[]Validator
 	Attributes		Attributes
+
+	// Radio form data:
+	OptionKeyValues OptionData
+	StartAtNil		bool
+	Required		bool
+	HasOther		bool
+	Skippable		bool
 }
 
 func (f *Field) validate() bool {
@@ -174,6 +191,11 @@ func (f *Field) noSpellCheck() *Field {
 	return f
 }
 
+func (f *Field) subtext(text string) *Field {
+	f.Subtext = text
+	return f
+}
+
 func (f *Field) addFnValidator(validator Validator) {
 	f.Validators = append(f.Validators, validator)
 }
@@ -189,8 +211,8 @@ func (f *Field) addRegexValidator(regexp, errorMsg string) {
 //
 // ================================================================================
 type Form struct {
-	FieldList	[]*Field			// To remember the sequential order of field.
-	FieldMap	map[string]*Field	// To lookup fields by name.
+	FieldList		[]*Field			// To remember the sequential order of field.
+	FieldMap		map[string]*Field	// To lookup fields by name.
 }
 
 func (f *Form) processData(r *http.Request) {
@@ -268,14 +290,14 @@ func (f Field) getHtml() string {
 		f.Name,
 		html.EscapeString(f.Value),  // Prevents HTML-injection attack!!!  (Since the user can affect this value.)
 		f.Placeholder,
-		f.InputLength,
+		f.Length,
 		f.getErrorHtml())
 }
 
 // Field factories
 
 func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
-	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, InputLength: inputLength}
+	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, Length: inputLength}
 
 	if minLength > 0 {
 		f.Validators = append(f.Validators, requiredValidator())
@@ -299,24 +321,41 @@ func makeTextField(name, label, placeholder string, inputLength, minLength, maxL
 
 	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
 
+	prVal("makeTextField Type", f.Type)
+
 	return &f
 }
 func MakeTextField(name string, inputLength, minLength, maxLength int) *Field {
 	return makeTextField(name, name + ":", name + "...", inputLength, minLength, maxLength)
 }
+func nuTextField(name, placeholder string, inputLength, minLength, maxLength int) *Field {
+	f := makeTextField(name, "", placeholder, inputLength, minLength, maxLength)
+	f.Placeholder = placeholder
+	f.Classes = kNuField
+
+	prVal("nuTextField f.Type", f.Type)
+
+	return f
+}
 
 func makePasswordField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
 	f := makeTextField(name, label, placeholder, inputLength, minLength, maxLength)
+	f.Placeholder = placeholder
 	f.Type = "password"
 	return f
 }
 func MakePasswordField(name string, inputLength, minLength, maxLength int) *Field {
 	return makePasswordField(name,  name + ":", name + "...", inputLength, minLength, maxLength)
 }
-
+func nuPasswordField(name, placeholder string, inputLength, minLength, maxLength int) *Field {
+	f := makePasswordField(name, "", placeholder, inputLength, minLength, maxLength)
+	f.Placeholder = placeholder
+	f.Classes = kNuField
+	return f
+}
 
 func makeHiddenField(name, defaultValue string) *Field {
-	f := Field{Name: name, Value: defaultValue}
+	f := Field{Name: name, Value: defaultValue, Type: "hidden"}
 
 	// TODO: HTML-escape this
 	f.Html = func()string {
@@ -329,11 +368,12 @@ func makeHiddenField(name, defaultValue string) *Field {
 
 	return &f
 }
+func nuHiddenField(name, defaultValue string) *Field { return makeHiddenField(name, defaultValue); }
 
 // TODO: implement makeRichTextField().  It's just a copy of makeTextField at the moment.
 func makeRichTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
 	nyi()
-	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, InputLength: inputLength}
+	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, Length: inputLength}
 
 	if minLength > 0 {
 		f.Validators = append(f.Validators, requiredValidator())
@@ -382,6 +422,11 @@ func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 func MakeBoolField(name string, defaultValue bool) *Field {
 	return makeBoolField(name, name + ":", "", defaultValue)
 }
+func nuBoolField(name, optionText string, defaultValue bool) *Field {
+	f := makeBoolField(name, "", optionText, defaultValue)
+	f.Classes = kNuCheckbox
+	return f
+}
 
 func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil, required, hasOther bool) *Field {
 	f := Field{Name: name, Type: "select", Label: label}
@@ -397,6 +442,8 @@ func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil,
 	}
 
 	f.Validators = append(f.Validators, optionValidator(validOptions))
+
+	f.OptionKeyValues = optionKeyValues  // Needed for nuForm.
 
 	// TODO: HTML-escape this
 	f.Html = func()string {
@@ -427,56 +474,53 @@ func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil,
 func MakeSelectField(name string, optionKeyValues OptionData, startAtNil, required, hasOther bool) *Field {
 	return makeSelectField(name, name + ":", optionKeyValues, startAtNil, required, hasOther)
 }
+func nuSelectField(name, placeholder string, optionKeyValues OptionData, startAtNil, required, hasOther, skippable bool) *Field {
+	f := makeSelectField(name, "", optionKeyValues, startAtNil, required, hasOther)
+	f.Placeholder = placeholder
+	f.Classes = kNuField
 
+	f.StartAtNil = startAtNil
+	f.Required	 = required
+	f.HasOther	 = hasOther
+	f.Skippable	 = skippable
 
-
+	return f
+}
 
 /*
-// === FORM POST DATA ===
-type LoginData struct {
-    EmailOrUsername         string `gforms:"email or username"`
-    Password                string `gforms:"password"`
-    RememberMe              bool   `gforms:"remember me"`
-}
-
-type RegisterData struct {
-    Email                	string `gforms:"email"`
-    Username				string `gforms:"username"`
-    Password                string `gforms:"password"`
-    RememberMe              bool   `gforms:"remember me"`
-}
-
-type RegisterDetailsData struct {
-    Name                    string `gforms:"full name"`
-
-    // location
-    Country                 string `gforms:"country"`
-    Location                string `gforms:"location"`
-
-    // demographic
-    BirthYear               string `gforms:"year of birth"`
-    Gender                  string `gforms:"gender"`
-    Party                   string `gforms:"party"`
-    Races					[]string `gforms:"race / ethnicity"`
-    Marital                 string `gforms:"marital status"`
-    Schooling               string `gforms:"furthest schooling completed"`
-}*/
-
-
-
-
-// === FORM TYPES ===
-type TableForm struct {
+// === FORM TEMPLATE ARGS ===
+type TableFormArgs struct {
 	Form		Form
 	CallToAction	string
 	AdditionalError string
 }
 
-// Template arguments for form webpage template.
-type FormArgs struct {
-	PageArgs
-	Form			TableForm
+type NuFormArgs struct {
+	Form			Form
+	Title			string
 	Congrats		string
 	Introduction	string
 	Footer			string
+	Script			string
+}
+
+// Template arguments for form webpage template.
+type FormArgs struct {
+	PageArgs
+	Form			Form
+	Congrats		string
+	Introduction	string
+	Footer			string
+}
+*/
+
+type FormFrameArgs struct {
+	PageArgs
+	Form			Form
+}
+func makeFormFrameArgs(form *Form, title string) FormFrameArgs {
+	return FormFrameArgs {
+		PageArgs: 		PageArgs{Title: title},
+		Form: 			*form,
+	}
 }

@@ -1,0 +1,25 @@
+{{define "content"}}
+	{{ template "formHeader" "Sign Up for" }}
+
+	<div class="nuIntro" style="font-size: 17px">By having a Votezilla account, you can vote, discuss, and change the world!</div>
+
+	{{ template "beginForm" .Form }}
+		{{ $f := .Form.FieldMap }}
+		{{ template "field" $f.email -}}
+		{{ template "field" $f.username -}}
+		<p class="nuFieldSubtext" style="margin: 0px;">Pick a Username - i.e. RedHerring65.  This is how you other community members will see you.  What shall we call you?</p>
+		{{ template "field" $f.password -}}
+
+		<p>
+
+		{{template "button" "Sign Up"}}
+
+		<p class="nuFieldSubtext" style="margin: 8px;">By clicking Sign Up, you agree to our Terms and that
+		you have read our Data Policy, including our Cookie Use.</p>
+
+		<div class="nuFooter" style="font-size: 17px;">
+			Already a Votezilla member?
+			<a href="/login" class="storylink" rel="nofollow" style="color:blue;">LOG IN</a>
+		</div>
+	{{ template "endForm" }}
+{{end}}

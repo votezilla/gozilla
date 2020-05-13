@@ -6,7 +6,7 @@
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		{{ if ne $articleGroup.Category "" }}
 		<a href="/news/?category={{$articleGroup.Category}}" target="_blank">
-			<div class="row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
+			<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
 				<div class="col-md-12 vz-col-md-12 text-uppercase">
 					<center>
 						<h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
@@ -19,7 +19,7 @@
 			</div>
 		</a>
 		{{ end }}
-		<div class="row" style="background-color: white">
+		<div class="row vz-row" style="background-color: white">
 			{{ range $i, $articleCol := $articleGroup.Articles }}
 				<div class="col-md-6 vz-col-md-6
 				{{ if eq $articleGroup.HeadlineSide 0 }}
@@ -80,9 +80,6 @@
 										<form>
 											<table width="100%"><tr>
 												<td align="left">
-
-													<!-- idea: could we make a callback for rendering each poll option? -->
-
 													{{ range $o, $option := $poll.Options }}
 														{{ if $poll.RankedChoiceVoting }}
 															<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
@@ -105,17 +102,7 @@
 														   value="{{len $poll.Options}}">
 
 													<span style="padding-left: 5px;">
-														<button type="button" class="btn btn-vote btn-sm" data-toggle="modal" data-target="#myModal" data-poll-id="{{$article.Id}}"
-															{{ if $poll.RankedChoiceVoting }}
-																data-poll-type="text"
-															{{ else if $poll.CanSelectMultipleOptions }}
-																data-poll-type="checkbox"
-															{{ else }}
-																data-poll-type="radio"
-															{{ end }}
-														>
-															Vote!
-														</button>
+														{{ template "OpenModalButton_ViewPollResults" $article }}
 													</span>
 												</td>
 											</tr></table>
@@ -204,18 +191,7 @@
 															   value="{{len $poll.Options}}">
 
 															<span style="padding-left: 5px;">
-																<button type="button" class="btn btn-vote btn-sm"
-																		data-toggle="modal" data-target="#myModal" data-poll-id="{{$article.Id}}"
-																	{{ if $poll.RankedChoiceVoting }}
-																		data-poll-type="text"
-																	{{ else if $poll.CanSelectMultipleOptions }}
-																		data-poll-type="checkbox"
-																	{{ else }}
-																		data-poll-type="radio"
-																	{{ end }}
-																>
-																	Vote!
-																</button>
+																{{ template "OpenModalButton_ViewPollResults" $article }}
 															</span>
 														</td></tr>
 													</table>

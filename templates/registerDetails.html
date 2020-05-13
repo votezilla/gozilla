@@ -1,0 +1,39 @@
+{{define "content"}}
+		{{ template "formHeader" "Voter Info for" }}
+
+		<div style="font-size: 17px">
+			Voter info is important.  It helps us ensure votes are authentic, and all types of voters are represented.
+		</div>
+		<p>
+		<div style="font-size: 14px">
+			Your data will remain private.  All answers are optional.
+		</div>
+		</p>
+
+	{{ template "beginForm" .Form }}
+		{{ $f := .Form.FieldMap }}
+		{{ template "field" $f.name -}}
+		{{ template "field" $f.zipCode -}}
+		{{ template "field" $f.birthYear -}}
+		{{ template "field" $f.country -}}
+		{{ template "field" $f.gender -}}
+		{{ template "field" $f.party -}}
+		{{ template "field" $f.race -}}
+		{{ template "field" $f.maritalStatus -}}
+		{{ template "field" $f.schoolCompleted -}}
+
+		<br><br>
+
+		<div class="btn-group fullWidth">
+			<div class="center">
+				<input type="submit" name="skip_button"   value="Skip" class="btn btn-primary btn-vote" style="width: 150px; font-family: Verdana; background-color: white; color: #0275d8; border-width: thin;">
+				<input type="submit" name="submit_button" value="Register" class="btn btn-default btn-vote" style="width: 150px; font-family: Verdana; margin-left: 20px;">
+			</div>
+		</div>
+
+		<br>
+		<br>
+
+	{{ template "endForm" }}
+{{end}}
+
