@@ -56,6 +56,8 @@ T   + Implement Forgot password.
 X  -                 Prettify & add explanation to Login / Register pages.  Some bootstrap.
  
   - 2 -  1 - 4/23 - Fix ranking system for posts by up/down vote!! 
+  
+  - Remember previous page or close form upon success.
 
 
 MED PRIORITY (for test with 100 friends):

@@ -6,7 +6,11 @@
 	{{ template "field" $f.title -}}
 	{{ template "field" $f.category -}}
 	{{ template "field" $f.thumbnail -}}
-	<div id="thumbnail_img_anchor"></div>
+	<p>
+	<p id="thumbnailLabel" style="margin-top: 1rem; display: none;">Choose Thumbnail:</p>
+	<div style="overflow: visible; width: 100%;">
+		<div id="image_container"></div>
+	</div>
 	<p>
 	{{ template "button" "Create Link Post" }}
 	<br>
@@ -39,30 +43,19 @@ function findImagesFromLink(linkUrl) {
 
 			console.log("AJAX - success r.Images = " + r.Images);
 
-			//$('#thumbnail container').show();
-
 			$('#image_container img').remove();
 
-			var OGImages = []
+			var Images = []
 
-			for ( i in r.OGImages ) {
-				console.log('First loop i = ' + i + ' r.OGImages[img] = ' + r.OGImages[i])
-					$('#image_container').append( '<img id="img_'+ i +'" src="' + r.OGImages[i] + '" width=1 height=1 />' );
-
-				OGImages[r.OGImages[i]] = true;
-			}
-
-			r.Images.push("/static/mozilla dinosaur thumbnail.png"); // So we always have a backup dinosaur thumbnail to use.
+			// First pass of adding images, so we can determine original image size, and sort by that as a quality heuristic.
 
 			for ( i in r.Images ) {
-				console.log('First loop i = ' + i + ' r.Images[img] = ' + r.Images[i])
-				if (OGImages[r.Images[i]]) {
-					console.log("Skipping cause OGImages already has this one!");
-					continue;
-				}
-				$('#image_container').append( '<img id="img_'+ i +'" src="' + r.Images[i] + '" width=125 height=75 />' );
+				console.log('First loop i = ' + i + ' r.Images[i] = ' + r.Images)
+
+				$('#image_container').append(`<img id="img_${i}" src="${r.Images[i]}" width=1 height=1 />`);
 			}
 
+			// Determine original image size, as a quality heuristic.
 			var imageSortData = []
 			$('#image_container img').each(function(){
 				console.log($(this).prop('src') + ' ' + $(this).prop('naturalWidth') + ' ' + $(this).prop('naturalHeight'));
@@ -79,38 +72,37 @@ function findImagesFromLink(linkUrl) {
 				imageSortData.push({
 					"src":		$(this).prop('src'),
 					"size":		size,
-					"ogimage":	OGImages[$(this).prop('src')]
 				});
 			});
 
-			// Sort images by size, decreasing.
-			imageSortData.sort(function(a, b) { return b.OGImage && !a.OGImage ? 1 :
-													   a.OGImage && !b.OGImage ? -1 :
-													   b.size - a.size; })
+			// Sort images by size (as quality heuristic), decreasing.
+			imageSortData.sort(function(a, b) { return b.size - a.size; })
 
+			// Remove all previous image thumbnails.
 			$('#image_container img').remove();
 
 			i = 0
 			urls = [];
 			for (img in imageSortData) {
-				console.log('Second loop img = ' + img + ' ' + imageSortData[img]["src"] + ' => ' + imageSortData[img]["ogimage"] + ", " + imageSortData[img]["size"]);
-				$('#image_container').append( '<img id="img_'+ img +'" src="' + imageSortData[img]["src"] + '" width=110 height=66 style="padding: 2px; " />' );
+				console.log(`Second loop img = ${img}, imageSortData[img] = ${imageSortData[img]}, imageSortData[img][src] = ${imageSortData[img]['src']}, imageSortData[img][size] = ${imageSortData[img]['size']}`)
+
+				$('#image_container').append(`<img id="img_${i}" src="${imageSortData[img]['src']}" style="width: 24%; height: 75px; margin: 2px;">`);
 
 				urls.push(imageSortData[img]["src"]);
 
 				i++;
-				if (i == 15) // Display 15 thumbnails max.  Otherwise, it gets out of hand on mobile.
+				if (i == 16) // Display 15 thumbnails max.  Otherwise, it gets out of hand on mobile.
 					break;
 			}
 
+			// Clicking on this image should select it.
 			$('#image_container img').click(function(){
 				var id = parseInt($(this).attr('id').substr(4));
 
 				selectThumbnail(id);
-				//selectThumbnail($(this), r.Images[id]);
 			});
 
-			$('#thumbnail container').show();
+			$('#thumbnailLabel').show();
 
 			selectThumbnail(0, r.Images[0]);
 		},
@@ -119,13 +111,6 @@ function findImagesFromLink(linkUrl) {
 }
 
 $(document).ready(function() {
-	//[]TODO: Just move this to the HTML.  We only needed this cause of the previous form library.
-	$('#thumbnail_img_anchor').append(`
-		<p style="margin-top: 1rem;">Choose Thumbnail:</p>
-		<div style="overflow: visible; width: 100%;">
-			<div id="image_container"></div>
-		</div>`);
-
 	$('#thumbnail row').hide(); // TODO: can probably comment this out.
 
 	var $link = $('input[name="link"]');

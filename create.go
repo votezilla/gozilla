@@ -39,7 +39,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 	const kLink = "link"
 
 	form := makeForm(
-		nuTextField(kLink, "Share an article link", 50, 12, 255),
+		nuTextField(kLink, "Share an article link", 50, 12, 1024),
 		nuTextField(kTitle, "Add a title", 50, 12, 50),
 		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
 		nuHiddenField(kThumbnail, ""),

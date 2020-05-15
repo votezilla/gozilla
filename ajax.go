@@ -130,17 +130,25 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 
     // Find and return all image URLs
     parsedImages := struct {
-		OGImages	[] string
+		OGImages	[]string
 		Images		[]string
-	}{
-		[]string{},
-		[]string{},
+	}{}
+
+	// To ensure there are no duplicates in the image list.
+	dupChecker := make(map[string]bool)
+
+	addImageNoDups := func(imgSrc string) {
+		if !dupChecker[imgSrc] {
+			parsedImages.Images = append(parsedImages.Images, imgSrc)
+			dupChecker[imgSrc] = true
+		}
 	}
 
     // Which image is the right one?
     // Excellent article!: https://tech.shareaholic.com/2012/11/02/how-to-find-the-image-that-best-respresents-a-web-page/
     ogImage := ""
 
+	// Look for meta ogImage tags.
 	document.Find("meta").Each(func(i int, s *goquery.Selection) {
 	    property, _ := s.Attr("property");
 
@@ -153,16 +161,13 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 
 	        parsedImages.OGImages = append(parsedImages.Images, ogImage)
 	        prVal("parsedImages.Images scanned", parsedImages.Images)
+
+	        addImageNoDups(ogImage)
 	    }
 	})
 
-	// Allow this code to continue, so user has more thumbnail options
-	//if ogImage == "" {
+	// Scan all images as well, so the user has more thumbnail options.
 	if true {
-		//parsedImages.Images
-
-		dupChecker := make(map[string]bool)
-
 		document.Find("img").Each(func(index int, element *goquery.Selection) {
 			imgSrc, exists := element.Attr("src")
 
@@ -171,14 +176,10 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 			if exists {
 				imgSrc, err := makeUrlAbsolute(imgSrc, linkUrl.Url)
 
-				prVal("  absolutePath", imgSrc)
-
 				if err != nil {
 					prVal("error", err)
-				} else if !dupChecker[imgSrc] {
-					parsedImages.Images = append(parsedImages.Images, imgSrc)
-					dupChecker[imgSrc] = true
-					prVal("parsedImages.Images scanned", parsedImages.Images)
+				} else {
+					addImageNoDups(imgSrc)
 				}
 			}
 		})
@@ -193,9 +194,9 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 
 		//prVal("parsedImages.Images sorted", parsedImages.Images)
 
-		for i := 0; i < len(parsedImages.Images); i++ {
-			prf("parsedImages.Images[%d]: %s", i, parsedImages.Images[i])
-		}
+		//parsedImages.AllImages = append(parsedImages.OGImages, parsedImages.Images)
+
+		prVal("parsedImages", parsedImages)
 /*
 		// Remove duplicates
 		imagesNoDups := []string{parsedImages.Images[0]}
