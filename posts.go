@@ -61,23 +61,6 @@ type Article struct {
 //////////////////////////////////////////////////////////////////////////////
 func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, articlesPerCategory int,
 					maxArticles int, fetchVotesForUserId int64) (articles []Article) {
-	var id				int64
-	var author			string
-	var title			string
-	var description		string
-	var linkUrl			string
-	var urlToImage		string
-	var publishedAt		time.Time
-	var newsSourceId	string
-	var category		string
-	var language		string
-	var country			string
-	var pollOptionJson	string
-	var orderBy			time.Time
-	var upvoted			int
-	var voteTally		int
-	var numComments		int
-
 	pr("_queryArticles")
 	prVal("idCondition", idCondition)
 	prVal("userIdCondition", userIdCondition)
@@ -98,9 +81,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	   		   Language, Country,
 			   '' AS PollOptionData,
 			   COALESCE(PublishedAt, Created) %s AS OrderBy,
-			   NumComments
+			   NumComments,
+			   ThumbnailStatus
 		FROM $$NewsPost
-		WHERE ThumbnailStatus = 1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)`,
+		WHERE ThumbnailStatus <> -1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)`,
 		ternary_str(bRandomizeTime, "- RANDOM() * '3:00:00'::INTERVAL", ""), // Make it randomly up to 3 hours later.
 		idCondition,
 		categoryCondition)
@@ -113,10 +97,11 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   'EN' AS Language, U.Country,
 			   '' AS PollOptionData,
 			   P.Created %s AS OrderBy,
-			   NumComments
+			   NumComments,
+			   ThumbnailStatus
 		FROM $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
-		WHERE ThumbnailStatus = 1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,
+		WHERE ThumbnailStatus <> -1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,
 		"", //ternary_str(bRandomizeTime, "- RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
 		userIdCondition,
@@ -130,7 +115,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   'EN' AS Language, U.Country,
 			   PollOptionData,
 			   P.Created %s AS OrderBy,
-			   NumComments
+			   NumComments,
+			   ThumbnailStatus
 		FROM $$PollPost P
 		JOIN $$User U ON P.UserId = U.Id
 		WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
@@ -152,8 +138,21 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category
 		query = fmt.Sprintf(`
-			SELECT Id, Author, Title, Description, LinkUrl, UrlToImage,
-				   PublishedAt, NewsSourceId, Category, Language, Country, PollOptionData, OrderBy, NumComments
+			SELECT Id,
+				Author,
+				Title,
+				Description,
+				LinkUrl,
+				UrlToImage,
+				PublishedAt,
+				NewsSourceId,
+				Category,
+				Language,
+				Country,
+				PollOptionData,
+				OrderBy,
+				NumComments,
+				ThumbnailStatus
 			FROM (
 				SELECT
 					*,
@@ -209,31 +208,49 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	query += `;`
 
 	rows := DbQuery(query)
-
 	for rows.Next() {
+		var id				int64
+		var author			string
+		var title			string
+		var description		string
+		var linkUrl			string
+		var urlToImage		string
+		var publishedAt		time.Time
+		var newsSourceId	string
+		var category		string
+		var language		string
+		var country			string
+		var pollOptionJson	string
+		var orderBy			time.Time
+		var upvoted			int
+		var voteTally		int
+		var numComments		int
+		var thumbnailStatus	int
+
 		if fetchVotesForUserId >= 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &upvoted, &voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &thumbnailStatus, &upvoted, &voteTally))
 		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &thumbnailStatus, &voteTally))
 		}
-		//prVal("id", id)
-		//prVal("author", author)
-		//prVal("title", title)
-		//prVal("description", description)
-		//prVal("linkUrl", linkUrl)
-		//prVal("urlToImage", urlToImage)
-		//prVal("publishedAt", publishedAt)
-		//prVal("newsSourceId", newsSourceId)
-		//prVal("category", category)
-		//prVal("language", language)
-		//prVal("country", country)
-		//prVal("pollOptionJson", pollOptionJson)
-		//prVal("orderBy", orderBy)
-		//prVal("upvoted", upvoted)
-		//prVal("voteTally", voteTally)
-		//prVal("numComments", numComments)
+		prVal("id", id)
+		prVal("author", author)
+		prVal("title", title)
+		prVal("description", description)
+		prVal("linkUrl", linkUrl)
+		prVal("urlToImage", urlToImage)
+		prVal("publishedAt", publishedAt)
+		prVal("newsSourceId", newsSourceId)
+		prVal("category", category)
+		prVal("language", language)
+		prVal("country", country)
+		prVal("pollOptionJson", pollOptionJson)
+		prVal("orderBy", orderBy)
+		prVal("upvoted", upvoted)
+		prVal("voteTally", voteTally)
+		prVal("numComments", numComments)
+		prVal("thumbnailStatus", thumbnailStatus)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
@@ -267,12 +284,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			}
 		}
 
-		// Author icon URL: either the news source's, or the user's.  (TODO: let users pick their dino head / upload a photo.)
-		authorIconUrl := ""
-		if newsSourceId != "" {
-			authorIconUrl = "/static/newsSourceIcons/" + newsSourceId + ".png"
-		} else {
-			authorIconUrl = "/static/mozilla dinosaur head.png" // TODO: we need real dinosaur icons for users.
+		if urlToImage == "" {
+			urlToImage = "/static/mozilla dinosaur head.png"
 		}
 
 		// Set the article information
@@ -282,10 +295,13 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			Title:			title,
 			Description:	description,
 			Url:			linkUrl,
-			UrlToImage:		coalesce_str(urlToImage, "/static/mozilla dinosaur head.png"),
-			UrlToThumbnail:	ternary_str(urlToImage != "",
-								"/static/thumbnails/" + strconv.FormatInt(id, 10) + ".jpeg",
-								"/static/mozilla dinosaur thumbnail.png"),
+			UrlToImage:		urlToImage,
+			UrlToThumbnail:
+				ternary_str(thumbnailStatus == image_Unprocessed,					  // When thumnail is unprecessed, use...
+					urlToImage,                                                       // Full-size image.
+					ternary_str(urlToImage != "",
+						"/static/thumbnails/" + strconv.FormatInt(id, 10) + ".jpeg",  // Thumbnail image processed.
+						"/static/mozilla dinosaur thumbnail.png")),					  // Dropback if no image.  (TODO: replace licensed art.)
 			PublishedAtUnix:publishedAt,
 			PublishedAt:	publishedAt.Format(time.UnixDate),
 			NewsSourceId:	newsSourceId,
@@ -294,16 +310,19 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			Language:		language,
 			Country:		country,
 			TimeSince:		timeSinceStr,
-			AuthorIconUrl:	authorIconUrl,
+			AuthorIconUrl:
+				ternary_str(newsSourceId != "",
+					"/static/newsSourceIcons/" + newsSourceId + ".png",  // News source icon.
+					"/static/mozilla dinosaur head.png"),                // TODO: we need real dinosaur icon art for users.
 			Upvoted:		upvoted,
 			VoteTally:		voteTally,
 			NumComments:	numComments,
 		}
 
 		if len(pollOptionJson) > 0 {
-			newArticle.IsPoll = true
-			newArticle.Title = "POLL: " + newArticle.Title
-			newArticle.UrlToImage = "/static/ballotbox.png"
+			newArticle.IsPoll 		  = true
+			newArticle.Title 		  = "POLL: " + newArticle.Title
+			newArticle.UrlToImage 	  = "/static/ballotbox.png"
 			newArticle.UrlToThumbnail = "/static/ballotbox small.png"
 
 			err = json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData)

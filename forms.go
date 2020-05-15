@@ -7,6 +7,7 @@ import (
     "net/http"
 	"regexp"
     "strconv"
+//    "net/url"
 )
 
 type OptionData [][2]string
@@ -100,8 +101,30 @@ func fullNameValidator() Validator {
 }
 
 // An URLValidator that ensures a value looks like an url.
-func urlValidator() Validator {
+// TODO: Security check for malicious website links.  See: https://geekflare.com/security-threats-detection-api/
+func urlValidator(schemeRequired bool) Validator {
 	return regexValidator(`^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$`, "Enter a valid url.")
+
+	//if schemeRequired {
+	//	return regexValidator(`^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$`, "Enter a valid url.")
+	//} else {
+	//	return regexValidator(`^([-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$`, "Enter a valid url.")
+	//}
+
+	//return func(value string)(bool, string) {
+	//	prVal("\n\n\n!!!!!urlValidator called, value", value)
+	//
+	//	URL, err := url.Parse(value)
+	//
+	//	prVal("URL", URL)
+	//	prVal("err", err)
+	//
+	//	if err != nil {
+	//		return false, "Invalid URL"
+	//	} else {
+	//		return true, ""
+	//	}
+	//}
 }
 
 // ================================================================================
@@ -196,12 +219,14 @@ func (f *Field) subtext(text string) *Field {
 	return f
 }
 
-func (f *Field) addFnValidator(validator Validator) {
+func (f *Field) addFnValidator(validator Validator) (*Field) {
 	f.Validators = append(f.Validators, validator)
+	return f
 }
 
-func (f *Field) addRegexValidator(regexp, errorMsg string) {
+func (f *Field) addRegexValidator(regexp, errorMsg string) (*Field) {
 	f.Validators = append(f.Validators, regexValidator(regexp, errorMsg))
+	return f
 }
 
 

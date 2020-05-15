@@ -39,7 +39,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 	const kLink = "link"
 
 	form := makeForm(
-		nuTextField(kLink, "Share an article link", 50, 12, 1024),
+		nuTextField(kLink, "Share an article link", 50, 12, 1024).addFnValidator(urlValidator(false)),
 		nuTextField(kTitle, "Add a title", 50, 12, 50),
 		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
 		nuHiddenField(kThumbnail, ""),
@@ -60,6 +60,8 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 		prVal("form", form)
 
+		// TODO: some sort of security check for malicious linkUrl.
+
 		// Update the user record with registration details.
 		newPostId := DbInsert(
 			`INSERT INTO $$LinkPost(UserId, LinkURL, Title, Category, UrlToImage)
@@ -70,7 +72,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 			form.val(kCategory),
 			form.val(kThumbnail))
 
-		http.Redirect(w, r, fmt.Sprintf("/news?alert=SubmittedLink&newPostId=%d", newPostId), http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", newPostId), http.StatusSeeOther)
 		return
 	}
 
@@ -174,8 +176,8 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 			pollOptionsJson,
 		)
 		prVal("Just added a poll #", pollPostId)
-
-		http.Redirect(w, r, fmt.Sprintf("/news?alert=CreatedPoll&pollPostId=%d", pollPostId), http.StatusSeeOther)
+		
+		http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", pollPostId), http.StatusSeeOther)
 		return
 	} else if r.Method == "POST" {
 		prVal("Invalid form!!", form)
