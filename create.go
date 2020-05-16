@@ -45,6 +45,30 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 		nuHiddenField(kThumbnail, ""),
 	)
 
+	/*	TODO: check for valid host name when creating posts.
+
+		host := ""
+		if source == "L" {  // Only show the host url when it's a user-submitted post, for security.
+			u, err := url.Parse(linkUrl)
+			if err != nil {
+				host = "Error parsing hostname"
+			} else {
+				host = u.Host
+			}
+
+			if len(host) > 4 {
+				if host[0:4] == "www." {
+					host = host[4:]
+				}
+			}
+
+			if host == "" {
+				continue;  // Bad link - exclude it.
+			}
+		}
+		prVal("host", host)
+	*/
+
 	userId := GetSession(r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.

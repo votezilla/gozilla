@@ -224,22 +224,29 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		//prVal("voteTally", voteTally)
 		//prVal("numComments", numComments)
 		//prVal("thumbnailStatus", thumbnailStatus)
-		//prVal("source", source)
+		prVal("source", source)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
-		u, err := url.Parse(linkUrl)
-		if err != nil {
-			host = "Error parsing hostname"
-		} else {
-			host = u.Host
-		}
+		if source == "L" {  // Only show the host url when it's a user-submitted post, for security.
+			u, err := url.Parse(linkUrl)
+			if err != nil {
+				host = "Error parsing hostname"
+			} else {
+				host = u.Host
+			}
 
-		if len(host) > 4 {
-			if host[0:4] == "www." {
-				host = host[4:]
+			if len(host) > 4 {
+				if host[0:4] == "www." {
+					host = host[4:]
+				}
+			}
+
+			if host == "" {
+				continue;  // Bad link - exclude it.  TODO: add this check when creating posts.
 			}
 		}
+		prVal("host", host)
 
 		// Format time since article was posted to a short format, e.g. "2h" for 2 hours.
 		var timeSinceStr string
@@ -407,14 +414,21 @@ func fetchArticlesUpDownVotedOnByUser(userId int64, maxArticles int) ([]Article)
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article) {
-	return _queryArticles(
-		"IS NOT NULL",                         // idCondition
-		"IS NOT NULL",	                       // userIdCondition
-		"= '" + category + "'",                // categoryCondition
-		"IS NOT NULL",						   // newsSourceIdCondition	string
-		-1,									   // articlesPerCategory 	int
-		maxArticles,						   // maxArticles 			int
-		-1)									   // fetchVotesForUserId 	int64
+	_, foundCategory := newsCategoryInfo.HeaderColors[category]
+
+	if foundCategory {
+		return _queryArticles(
+			"IS NOT NULL",                         // idCondition
+			"IS NOT NULL",	                       // userIdCondition
+			"= '" + category + "'",                // categoryCondition
+			"IS NOT NULL",						   // newsSourceIdCondition	string
+			-1,									   // articlesPerCategory 	int
+			maxArticles,						   // maxArticles 			int
+			-1)									   // fetchVotesForUserId 	int64
+	} else {
+		prVal("Unknown category", category)
+		return []Article{}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -440,6 +454,8 @@ func fetchArticlesPostedByUser(userId int64, maxArticles int) ([]Article) {
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesFromThisNewsSource(newsSourceId string) (articles []Article) {
+	// TODO_SECURITY: add additional check for newsSourceId within known news sources.
+
 	return _queryArticles(
 		"IS NOT NULL", 				                 // idCondition 			string
 		"IS NOT NULL",   			                 // userIdCondition 		string
