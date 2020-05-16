@@ -97,6 +97,18 @@ func map_str(mapFn func(string)string, input []string) []string {
 	return output
 }
 
+// SECURITY_TODO: Note that in Go, map is unordered, so the replaces may happen in any order,
+// But the double backslash has to be applied before any other rule. You might want to use [][2]string for the rules instead.
+func sqlEscapeString(value string) string {
+    replace := map[string]string{"\\":"\\\\", "'":`\'`, "\\0":"\\\\0", "\n":"\\n", "\r":"\\r", `"`:`\"`, "\x1a":"\\Z"}
+
+    for b, a := range replace {
+        value = strings.Replace(value, b, a, -1)
+    }
+
+    return value;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //

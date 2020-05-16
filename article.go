@@ -3,7 +3,48 @@ package main
 import (
 	"net/http"
 	"strconv"
+	"time"
 )
+
+
+// JSON-parsed poll options - all the data that defines a poll.
+type PollOptionData struct {
+	Options						[]string	//`db:"options"`
+	AnyoneCanAddOptions			bool		//`db:"bAnyoneCanAddOptions"`
+	CanSelectMultipleOptions	bool		//`db:"bCanSelectMultipleOptions"`
+	RankedChoiceVoting			bool		//`db:"bRankedChoiceVoting"`
+}
+
+
+// JSON-parsed format of an article.
+type Article struct {
+	Author			string
+	Title			string
+	Description		string
+	Url				string
+	UrlToImage		string
+	PublishedAt		string
+	// Custom parameters:
+	Id				int64
+	UrlToThumbnail	string
+	NewsSourceId	string
+	Host			string
+	Category		string
+	Language		string
+	Country			string
+	PublishedAtUnix	time.Time
+	TimeSince		string
+	Size			int		// 0=normal, 1=large (headline)
+	AuthorIconUrl	string
+	Bucket			string  // "" by default, but can override Category as a way to categorize articles
+	Upvoted			int
+	VoteTally		int
+	NumComments		int
+
+	IsPoll			bool
+	PollOptionData	PollOptionData
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -40,6 +81,13 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 
 	upvotes, downvotes := deduceVotingArrows([]Article{article})
 
+	articleGroups := make([]ArticleGroup, len(newsCategoryInfo.CategoryOrder))
+
+	for c, category := range newsCategoryInfo.CategoryOrder {
+		articleGroups[c].Category = category
+		articleGroups[c].HeaderColor = newsCategoryInfo.HeaderColors[category]
+	}
+
 	// Render the news articles.
 	articleArgs := struct {
 		PageArgs
@@ -51,6 +99,8 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		UpVotes			[]int64
 		DownVotes		[]int64
 		Comments		[]CommentTag
+		ArticleGroups	[]ArticleGroup
+		MoreArticlesFromThisNewsSource	[]Article
 	}{
 		PageArgs:		PageArgs{Title: "votezilla - Article"},
 		Username:		username,
@@ -61,6 +111,8 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		UpVotes:		upvotes,
 		DownVotes:		downvotes,
 		Comments:		ReadCommentTagsFromDB(article.Id),
+		ArticleGroups:	articleGroups,
+		MoreArticlesFromThisNewsSource:	fetchArticlesFromThisNewsSource(article.NewsSourceId),
 	}
 
 	executeTemplate(w, kArticle, articleArgs)

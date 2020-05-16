@@ -1,5 +1,7 @@
+//[] Use Colly for web scraping: https://github.com/gocolly/colly
+//[] ++ Fox News
 //[] Scroll keeps bringing up new topics.  When you reach bottom, infinite scroll has MORE NEWS, MORE WORLD NEWS, etc.
-//   Then EVEN MORE NEWS, etc.  Kind of humorous.
+//   Then EVEN MORE NEWS, YET EVEN MORE NEWS, YET EVEN MORE MORE NEWS, OODLES OF NEWS, etc.  Kind of humorous.
 
 package main
 

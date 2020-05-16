@@ -28,6 +28,14 @@ body { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
 		margin-left:	0px			!important;
 		margin-right:	0px			!important;
 	}
+	#override .vz-col-md9-left {
+		margin-left:	0px			!important;
+		padding-left:	0px			!important; 
+	}	
+	#override .vz-col-md-3-right {
+		margin-right:	0px			!important;
+		padding-right:	0px			!important;
+	}
 }
 
 /* SMALL DEVICES */ /*

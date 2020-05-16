@@ -149,6 +149,8 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 	prevPathDepth := int64(0)
 	var pathLengthDiff int64
 
+	pr("ReadCommentTagsFromDB:")
+
 	commentTags := []CommentTag{}
 
 	// The simpler way for now:
@@ -170,11 +172,15 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 		// Compare current path to previous path.
 		// Then we assign prevPathDepth to be the parent of the new node.
 		pathLengthDiff = pathLen - prevPathDepth
+		//prVal("pathLen", pathLen)
+		//prVal("pathLengthDiff", pathLengthDiff)
 		if pathLengthDiff <= 0 {    // we're a sibling of the previous comment's parent, grandparent, great greatparent, etc.
 			for i := int64(0); i < -pathLengthDiff; i++ {
+				//pr("  tag: IsChildrenEnd")
 				commentTags = append(commentTags, CommentTag{ IsChildrenEnd: true })
 			}
 		} else if pathLengthDiff == 1 { // we're a child of the previous comment
+			//pr("  tag: IsChildrenStart")
 			commentTags = append(commentTags, CommentTag{ IsChildrenStart: true })
 		} else {
 			assertMsg(pathLengthDiff == 0, "We would have something weird here, a comment with grandchildren but no children.")
@@ -186,6 +192,7 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 		newCommentTag.Text = strings.Replace(newCommentTag.Text, "\n", "<br>", -1)
 
 		// Add this comment tag to the list.
+		//prVal("  tag: Text", newCommentTag.Text)
 		commentTags = append(commentTags, newCommentTag)
 
 		prevPathDepth = pathLen
@@ -193,7 +200,9 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 	check(rows.Err())
 
 	// Close out our existing child comment depth.
-	for i := int64(0); i < -pathLengthDiff; i++ {
+	//prVal("closing prevPathDepth", prevPathDepth)
+	for i := int64(0); i < prevPathDepth; i++ {
+		//pr("  tag: IsChildrenEnd")
 		commentTags = append(commentTags, CommentTag{ IsChildrenEnd: true })
 	}
 
