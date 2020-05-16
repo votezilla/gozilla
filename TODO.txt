@@ -102,7 +102,7 @@ MED PRIORITY (for test with 100 friends):
 
 LOW PRIORITY (for launch with 1000 friends):
 
-- Remove "padding-left" from headline news, to make it line up better.
+X Remove "padding-left" from headline news, to make it line up better.
 
 - Add vote to DB and display results, also allow user to change vote.
 

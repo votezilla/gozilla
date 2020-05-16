@@ -40,7 +40,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 	form := makeForm(
 		nuTextField(kLink, "Share an article link", 50, 12, 1024).addFnValidator(urlValidator(false)),
-		nuTextField(kTitle, "Add a title", 50, 12, 50),
+		nuTextField(kTitle, "Add a title", 50, 12, kMaxTitleLength),
 		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
 		nuHiddenField(kThumbnail, ""),
 	)
@@ -176,7 +176,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 			pollOptionsJson,
 		)
 		prVal("Just added a poll #", pollPostId)
-		
+
 		http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", pollPostId), http.StatusSeeOther)
 		return
 	} else if r.Method == "POST" {

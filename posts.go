@@ -82,7 +82,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   '' AS PollOptionData,
 			   COALESCE(PublishedAt, Created) %s AS OrderBy,
 			   NumComments,
-			   ThumbnailStatus
+			   ThumbnailStatus,
+			   'N' AS Source
 		FROM $$NewsPost
 		WHERE ThumbnailStatus <> -1 AND (Id %s) AND ($$GetCategory(Category, Country) %s)`,
 		ternary_str(bRandomizeTime, "- RANDOM() * '3:00:00'::INTERVAL", ""), // Make it randomly up to 3 hours later.
@@ -98,7 +99,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   '' AS PollOptionData,
 			   P.Created %s AS OrderBy,
 			   NumComments,
-			   ThumbnailStatus
+			   ThumbnailStatus,
+			   'L' AS Source
 		FROM $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
 		WHERE ThumbnailStatus <> -1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,
@@ -116,7 +118,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   PollOptionData,
 			   P.Created %s AS OrderBy,
 			   NumComments,
-			   ThumbnailStatus
+			   ThumbnailStatus,
+			   'P' AS Source
 		FROM $$PollPost P
 		JOIN $$User U ON P.UserId = U.Id
 		WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
@@ -152,7 +155,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 				PollOptionData,
 				OrderBy,
 				NumComments,
-				ThumbnailStatus
+				ThumbnailStatus,
+				Source
 			FROM (
 				SELECT
 					*,
@@ -226,31 +230,35 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		var voteTally		int
 		var numComments		int
 		var thumbnailStatus	int
+		var source			string
 
 		if fetchVotesForUserId >= 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &thumbnailStatus, &upvoted, &voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &thumbnailStatus, &source,
+							&upvoted, &voteTally))
 		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &thumbnailStatus, &voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &thumbnailStatus, &source,
+							&voteTally))
 		}
-		prVal("id", id)
-		prVal("author", author)
-		prVal("title", title)
-		prVal("description", description)
-		prVal("linkUrl", linkUrl)
-		prVal("urlToImage", urlToImage)
-		prVal("publishedAt", publishedAt)
-		prVal("newsSourceId", newsSourceId)
-		prVal("category", category)
-		prVal("language", language)
-		prVal("country", country)
-		prVal("pollOptionJson", pollOptionJson)
-		prVal("orderBy", orderBy)
-		prVal("upvoted", upvoted)
-		prVal("voteTally", voteTally)
-		prVal("numComments", numComments)
-		prVal("thumbnailStatus", thumbnailStatus)
+		//prVal("id", id)
+		//prVal("author", author)
+		//prVal("title", title)
+		//prVal("description", description)
+		//prVal("linkUrl", linkUrl)
+		//prVal("urlToImage", urlToImage)
+		//prVal("publishedAt", publishedAt)
+		//prVal("newsSourceId", newsSourceId)
+		//prVal("category", category)
+		//prVal("language", language)
+		//prVal("country", country)
+		//prVal("pollOptionJson", pollOptionJson)
+		//prVal("orderBy", orderBy)
+		//prVal("upvoted", upvoted)
+		//prVal("voteTally", voteTally)
+		//prVal("numComments", numComments)
+		//prVal("thumbnailStatus", thumbnailStatus)
+		//prVal("source", source)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
@@ -259,6 +267,12 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			host = "Error parsing hostname"
 		} else {
 			host = u.Host
+		}
+
+		if len(host) > 4 {
+			if host[0:4] == "www." {
+				host = host[4:]
+			}
 		}
 
 		// Format time since article was posted to a short format, e.g. "2h" for 2 hours.
@@ -288,7 +302,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			urlToImage = "/static/mozilla dinosaur head.png"
 		}
 
-		// Set the article information
+		// Set the article information.
 		newArticle := Article{
 			Id:				id,
 			Author:			author, // haha hijacking Author to be the poster
@@ -319,6 +333,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			NumComments:	numComments,
 		}
 
+		// Handle polls.
 		if len(pollOptionJson) > 0 {
 			newArticle.IsPoll 		  = true
 			newArticle.Title 		  = "POLL: " + newArticle.Title
