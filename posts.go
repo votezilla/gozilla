@@ -224,7 +224,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		//prVal("voteTally", voteTally)
 		//prVal("numComments", numComments)
 		//prVal("thumbnailStatus", thumbnailStatus)
-		prVal("source", source)
+		//prVal("source", source)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
@@ -246,7 +246,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 				continue;  // Bad link - exclude it.  TODO: add this check when creating posts.
 			}
 		}
-		prVal("host", host)
+		//prVal("host", host)
 
 		// Format time since article was posted to a short format, e.g. "2h" for 2 hours.
 		var timeSinceStr string

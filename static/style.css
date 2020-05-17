@@ -10,51 +10,51 @@ body { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
 	padding-right: 		0px			!important; 
 }
 
-/* LARGE DEVICES */
-@media (min-width:576px) {
-	#override .vz-row {
-		margin-left:	0px			!important;
-		margin-right:	0px			!important;
-	}
-	#override .vz-col-md-6-left { 
-		padding-left:	0px			!important; 
-		padding-right:	0px			!important;
-		margin-left:	0px			!important;
-		margin-right:	0px			!important;
-	}
+#override .vz-container {
+	/*margin-left:		0px			!important;
+	margin-right:		0px			!important;*/
+	padding-left:		0px			!important;
+	padding-right:		0px			!important;
+}
+
+#override .vz-row {
+	margin-left:	0px			!important;
+	margin-right:	0px			!important;
+}
+#override .vz-col-md-6-left { 
+	padding-left:	0px			!important; 
+	padding-right:	0px			!important;
+	margin-left:	0px			!important;
+	margin-right:	0px			!important;
+}
+
+#override .vz-col-md9-left {
+	margin-left:	0px			!important;
+	padding-left:	0px			!important; 
+}	
+#override .vz-col-md-3-right {
+	margin-right:	0px			!important;
+	padding-right:	0px			!important;
+}
+
+@media screen and (min-width:750px) { /* 576 */
 	#override .vz-col-md-6-right { 
 		padding-left:	15px		!important; 
 		padding-right:	0px			!important;
 		margin-left:	0px			!important;
 		margin-right:	0px			!important;
-	}
-	#override .vz-col-md9-left {
-		margin-left:	0px			!important;
-		padding-left:	0px			!important; 
-	}	
-	#override .vz-col-md-3-right {
-		margin-right:	0px			!important;
-		padding-right:	0px			!important;
+		/* background-color: red !important; */
 	}
 }
-
-/* SMALL DEVICES */ /*
-@media (max-width: 990px) {
-	#override .vz-col-md-6-left { 
-		padding-left:	0px			!important; 
-		padding-right:	0px			!important; 
-		width:	 		100%		!important; 
-		max-width:	 	100%		!important; 
-		flex:	 		0 0 100%	!important; 
-	}
+@media screen and (max-width:750px) { 
 	#override .vz-col-md-6-right { 
-		padding-left:	0px			!important; 
-		padding-right:	0px			!important; 
-		width:	 		100%		!important; 
-		max-width:	 	100%		!important; 
-		flex:	 		0 0 100%	!important; 
+		padding-left:	0px		!important; 
+		padding-right:	0px			!important;
+		margin-left:	0px			!important;
+		margin-right:	0px			!important;
+		/* background-color: green !important; */
 	}
-}*/
+}
 
 input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 
@@ -240,16 +240,3 @@ a:visited   { color:#000000; text-decoration:none; }
 .pagebreak {page-break-before:always}
 
 pre:hover { overflow:auto }
-
-/* mobile device */
-@media only screen
-and (min-width : 300px)
-and (max-width : 750px) {
-    #hnmain { width: 100%; }
-    .title, .comment { font-size: inherit;  }
-    span.pagetop { display: block; margin: 3px 5px; font-size: 12px; }
-    span.pagetop b { display: block; font-size: 15px; }
-    table.comment-tree .comment a { display: inline-block; max-width: 200px; overflow: hidden; white-space: nowrap;
-        text-overflow: ellipsis; vertical-align:top; }
-    .title { font-size: 11pt; line-height: 14pt;    }
-}
