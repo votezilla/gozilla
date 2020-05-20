@@ -72,49 +72,7 @@
 									</td>
 								</tr>
 
-								{{- if $article.IsPoll -}}
-									{{- $poll := $article.PollOptionData }}
-									{{ if $poll.RankedChoiceVoting }}
-										<tr valign="top">
-											<td style="width: 100%; padding-left: 5px;">
-											<i>Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</i>
-											</td>
-										</tr>
-									{{ end }}
-									<tr valign="top">
-										<td style="width: 100%; padding-left: 5px;">
-										<form>
-											<table width="100%"><tr>
-												<td align="left">
-													{{ range $o, $option := $poll.Options }}
-														{{ if $poll.RankedChoiceVoting }}
-															<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
-															<label class="rankedVoteLabel">{{$option}}</label>
-														{{ else if $poll.CanSelectMultipleOptions }}
-															<label class="vote">
-																<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
-																	{{$option}}
-															</label>
-														{{ else }}
-															<label class="radio-inline" style="margin-bottom:0; font-size: 12pt; cursor: pointer">
-																<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
-																	   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
-																{{$option}}
-															</label>
-														{{ end }}
-													{{ end }}
-
-													<input name="vote_{{$article.Id}}_len" type=hidden
-														   value="{{len $poll.Options}}">
-
-													<span style="padding-left: 5px;">
-														{{ template "OpenModalButton_ViewPollResults" $article }}
-													</span>
-												</td>
-											</tr></table>
-										</form>
-									</tr>
-								{{ end }}
+								{{ template "PollInlineForm" $article }}
 
 								<tr>
 									<td class="subtext" style="width: 100%; padding-left: 5px;">
@@ -174,45 +132,9 @@
 													</a>
 												</span>
 											{{end}}
-											{{- if $article.IsPoll -}}
-												{{- $poll := $article.PollOptionData }}
-												<form>
-													<table width="100%">
-														{{ if $poll.RankedChoiceVoting }}
-															<tr><td align="left">
-																<span class="rankedVoteIntro">Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</span>
-															</td></tr>
-														{{ end }}
-														<tr><td align="left">
-															{{ range $o, $option := $poll.Options }}
-																{{ if $poll.RankedChoiceVoting }}
-																	<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
-																		  <label class="rankedVoteLabel">{{$option}}</label>
-																{{ else if $poll.CanSelectMultipleOptions }}
-																	<label class="vote">
-																		<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
-																			   value="{{$o}}">
-																		{{$option}}
-																	</label>
-																{{ else }}
-																	<label class="radio-inline" style="margin-bottom:0; cursor: pointer">
-																		<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
-																			   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
-																		{{$option}}
-																	</label>
-																{{ end }}
-															{{ end }}
-
-															<input name="vote_{{$article.Id}}_len" type=hidden
-															   value="{{len $poll.Options}}">
-
-															<span style="padding-left: 5px;">
-																{{ template "OpenModalButton_ViewPollResults" $article }}
-															</span>
-														</td></tr>
-													</table>
-												</form>
-											{{ end }}
+											<table width="100%">
+												{{ template "PollInlineForm" $article }}											
+											</table>								
 										</div>
 									</td>
 								</tr>

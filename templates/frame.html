@@ -253,10 +253,8 @@ $(function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 // Get the vote data from the form - how the user voted on this poll, i.e. what their vote is.
-function getVoteData(pollId, pollType) {
+function getVoteData(pollId, numOptions, pollType) {
 	console.log(`getVoteData(${pollId}, ${pollType})`);
-
-	var numOptions = $('input[name="vote_' + pollId + '_len"]').val();
 
 	console.log(`numOptions = ${numOptions}`);
 
@@ -330,35 +328,24 @@ function validateVoteData(pollType, voteData) {
 	}
 }
 
-// Modal popup handler
-function viewPollResults_Modal(rt) {
+function VoteOnPoll(pollId, numOptions, pollType) {
 	if ({{.UserId}} == -1) {
-		alert("You must be logged in to do that!");
-
-		// Cancel opening the modal
-		$('#myModal').modal('dispose');
+		alert("You must be logged in to do that!");  // TODO: make this a modal that prompts for login / register
 
 		return;
 	}
 
-	//get poll-id attribute of the clicked element
-	var pollId	 = rt.data('poll-id');
-	var pollType = rt.data('poll-type');
-
 	console.log("pollId = " + pollId);
+	console.log("numOptions = " + numOptions);
 	console.log("pollType = " + pollType);
 	console.log("userId = " + {{.UserId}});
 
-	voteData = getVoteData(pollId, pollType);
+	voteData = getVoteData(pollId, numOptions, pollType);
 
 	console.log({PollId: pollId, VoteData: voteData});
 
 	if (validateVoteData(pollType, voteData)) { // Check if voting data is valid.
 		console.log("valid vote data");
-
-		$(this).find('.modal-body').css({
-			'max-height': '100%'
-		});
 
 		// Place poll vote
 		$.ajax({
@@ -372,25 +359,18 @@ function viewPollResults_Modal(rt) {
 
 				console.log(r);
 
-				// Open the View Poll Results modal dialog
-				$('.modal-body').load(`/viewPollResults/?postId=${pollId}&voteData=${voteData}`, function() {
-					console.log('Load was performed');
-				});
+				// Go to the View Poll Results page.
+				window.location.href = `/viewPollResults2/?postId=${pollId}&voteData=${voteData}`;
 			},
 			error: function(r) {
 				console.log("AJAX Poll Vote - error");
 
 				alert("Vote failed for some reason.");
-
-				// Cancel opening the modal
-				$('#myModal').modal('dispose');
 			}
 		});
 	} else {
 		// Cancel opening the modal
-		console.log("invalid vote data, disposing of modal");
-
-		$('#myModal').modal('dispose');
+		console.log("invalid vote data");
 	}
 }
 
@@ -418,27 +398,6 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 	}
 })
 
-/*
-
-// Lookup a URL parameter by name.
-// Source: https://www.sitepoint.com/url-parameters-jquery/
-function urlParam(name){
-	var url = window.location.href;
-	var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(url);
-	return results[1] || 0;
-}
-
-$(function() {
-    modalPopup = urlParam("modalPopup");
-
-    if (modalPopup != "") {
-    	triggerModalId = modalPopup
-    	onClick_OpenModalLink();
-    }
-});
-
-*/
-
 </script>
 
 {{end}} {{/*body*/}}
@@ -449,18 +408,116 @@ $(function() {
 // UTILITY TEMPLATE FUNCTIONS
 //
 ///////////////////////////////////////////////////////////////////////////////
-{{ define "OpenModalButton_ViewPollResults" }}
-	{{ $poll := .PollOptionData }}
-	<button type="button" class="btn btn-vote btn-sm"
-			data-path="viewPollResults" data-toggle="modal" data-target="#myModal" data-poll-id="{{.Id}}" data-title="Poll Results"
+
+{{define "VoteOnPollHandler"}}
+	{{- $article := . -}}
+	{{- $poll := $article.PollOptionData -}}
+	onClick="VoteOnPoll(
+		{{- $article.Id }},
+		{{- len $poll.Options }},
+		{{- if $poll.RankedChoiceVoting }}
+			{{- "text" }}
+		{{- else if $poll.CanSelectMultipleOptions }}
+			{{- "checkbox" }}
+		{{- else }}
+			{{- "radio" }}
+		{{- end -}}
+	)"
+{{end}}
+
+{{ define "PollInlineForm" }}
+	{{- $article := . -}}
+	{{- if $article.IsPoll -}}
+		{{- $poll := $article.PollOptionData }}
 		{{ if $poll.RankedChoiceVoting }}
-			data-poll-type="text"
-		{{ else if $poll.CanSelectMultipleOptions }}
-			data-poll-type="checkbox"
-		{{ else }}
-			data-poll-type="radio"
+			<tr valign="top">
+				<td style="width: 100%; padding-left: 5px;">
+				<i>Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</i>
+				</td>
+			</tr>
 		{{ end }}
-	>
-		Vote!
-	</button>
+		<tr valign="top">
+			<td style="width: 100%; padding-left: 5px;">
+				<table width="100%">
+					<tr>
+						<td align="left">
+							{{ range $o, $option := $poll.Options }}
+								{{ if $poll.RankedChoiceVoting }}
+									<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
+									<label class="rankedVoteLabel">{{$option}}</label>
+								{{ else if $poll.CanSelectMultipleOptions }}
+									<label class="vote">
+										<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
+											{{$option}}
+									</label>
+								{{ else }}
+									<label class="radio-inline" style="margin-bottom:0; font-size: 12pt; cursor: pointer">
+										<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+											   name="vote_{{$article.Id}}_{{$o}}" {{ if eq $o -1 }} checked {{ end }}>
+										{{$option}}
+									</label>
+								{{ end }}
+							{{ end }}
+
+							<span style="padding-left: 5px;">
+								<button type="submit" class="btn btn-vote btn-sm" {{template "VoteOnPollHandler" $article}}>Vote!</button>
+							</span>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	{{ end }}
 {{ end }}
+
+
+{{ define "PollForm" }}
+	{{- $article := . -}}
+	{{- if $article.IsPoll -}}
+		{{- $poll := $article.PollOptionData }}
+		<tr valign="top">
+			<td class="title" style="padding-left: 5px;">
+				<table width="100%">
+					{{ if $poll.RankedChoiceVoting }}
+						<tr><td align="left">
+							<span class="rankedVoteIntro">
+								Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.
+							</span>
+							<br>
+						</td></tr>
+					{{ end }}
+					<tr><td align="left">
+						{{ range $o, $option := $poll.Options }}
+							{{ if $poll.RankedChoiceVoting }}
+								<div>
+									<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
+									   	   maxlength="1" style="width: 25px; padding: 5px; margin: 4px 4px 4px 0;">{{$option}}
+								</div>
+							{{ else if $poll.CanSelectMultipleOptions }}
+								<div>
+									<label class="vote">
+										<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
+										   	   value="{{$o}}" style="margin: 4px 4px 4px 0;">
+									{{$option}}
+								</div>
+							{{ else }}
+								<div>
+									<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+										   name="vote_{{$article.Id}}_{{$o}}" {{ if eq $o -1 }} checked {{ end }}
+										   style="margin: 4px 4px 4px 0;">
+									{{$option}}
+								</div>
+							{{ end }}
+						{{ end }}
+
+						<input name="vote_{{$article.Id}}_len" type=hidden value="{{len $poll.Options}}">
+
+						<button type="submit" class="btn btn-vote" style="margin: .5rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
+					</td></tr>
+				</table>
+			</td>
+		</tr>
+		<tr class="spacer" style="height:10px"></tr>
+	{{ end }}
+{{ end }}
+

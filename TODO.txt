@@ -24,10 +24,10 @@ X  - 1 - .5 -      - Create Link Post: do url testing that adds https:// or http
 X  - 2 -  1 - 4/28 - Replace all the gforms with our form system.
    
    - 2 -  1 - 4/29 - HTML injection security:
-                     X  Switch to template/html, 
-                     [] Make sure test for any glaring html injection stuff.  Maybe a unit test, even?
+X                      Switch to template/html, 
+X                      Make sure test for any glaring html injection stuff.  Maybe a unit test, even?
    
-   - 2 -  .5 -        Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.
+   - 2 -  .5 -        Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.  Can prompt for logging in as well.
  
    - 4 -  2 - 5/01 - Launch Votezilla on the cloud!!  (Try Digital Ocean!)
 

@@ -5,10 +5,14 @@
 
 
 <div class="vzcomment">
-	<p><span class="comment" id="comment_-1"><a href="javascript:ReplyToComment({{$postId}}, -1)">
-		<img src="/static/comment.png" width="16" height="16">
-		<span style="font-size: 16px !important">Write a Comment</span>
-	</span></p>
+	<p>
+		<span class="comment" id="comment_-1">
+			<a href="javascript:ReplyToComment({{$postId}}, -1)">
+				<img src="/static/comment.png" width="16" height="16">
+				<span style="font-size: 16px !important">Write a Comment</span>
+			</a>
+		</span>
+	</p>
 	{{ range $t, $tag := .Comments -}}{{/* CommentTags */}}
 	{{- if $tag.IsChildrenStart -}}
 			<div class="vzcomment_children">
@@ -19,11 +23,13 @@
 		{{- else -}} {{/* comment text */}}
 			<p class="vztagline"><a href="#" onclick="return togglecomment(this)">[&ndash;]</a><a href="#">{{$tag.Username}}</a></p>
 			<p>{{$tag.Text}}</p>
-			<p><span id="comment_{{$tag.Id}}" style="size: 16px">
-				<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
-					<img src="/static/comment.png" width="16" height="16"> Reply
-				</a>
-			</span></p>
+			<p>
+				<span id="comment_{{$tag.Id}}" style="size: 16px">
+					<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
+						<img src="/static/comment.png" width="16" height="16"> Reply
+					</a>
+				</span>
+			</p>
 		{{- end -}}
 	{{- end }}
 </div>

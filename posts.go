@@ -23,7 +23,7 @@ import (
 //
 //////////////////////////////////////////////////////////////////////////////
 func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, newsSourceIdCondition string,
-					articlesPerCategory int, maxArticles int, fetchVotesForUserId int64) (articles []Article) {
+					articlesPerCategory int, maxArticles int, fetchVotesForUserId int64, onlyPolls bool) (articles []Article) {
 	pr("_queryArticles")
 	prVal("idCondition", idCondition)
 	prVal("userIdCondition", userIdCondition)
@@ -100,6 +100,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		query = strings.Join([]string{linkPostQuery, pollPostQuery}, "\nUNION ALL\n") + orderByClause
 	} else if newsSourceIdCondition != "IS NOT NULL" {  // We're just querying news posts.
 		query = newsPostQuery
+	} else if onlyPolls {
+		query = pollPostQuery
 	} else {
 		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n") + orderByClause
 	}
@@ -344,7 +346,8 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 		"IS NOT NULL",		  			  // newsSourceIdCondition	string
 		-1,							  	  // articlesPerCategory 	int
 		2,								  // 2, so we could potentially catch duplicate articles.
-		userId)					 		  // fetchVotesForUserId 	int64
+		userId,					 		  // fetchVotesForUserId 	int64
+		false)							  // onlyPolls				bool
 
 	len := len(articles)
 
@@ -371,7 +374,8 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId i
 		"IS NOT NULL",		  // newsSourceIdCondition	string
 		articlesPerCategory,  // articlesPerCategory 	int
 		maxArticles,		  // maxArticles 			int
-		-1)					  // fetchVotesForUserId 	int64
+		-1,					  // fetchVotesForUserId 	int64
+		false)				  // onlyPolls				bool
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -387,7 +391,8 @@ func fetchArticlesCommentedOnByUser(userId int64, maxArticles int) ([]Article) {
 		"IS NOT NULL",						                                                      // newsSourceIdCondition	string
 		-1,																						  // articlesPerCategory 	int
 		maxArticles,																			  // maxArticles 			int
-		-1)																						  // fetchVotesForUserId 	int64
+		-1,																						  // fetchVotesForUserId 	int64
+		false)							 														  // onlyPolls				bool
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -404,7 +409,8 @@ func fetchArticlesUpDownVotedOnByUser(userId int64, maxArticles int) ([]Article)
 		"IS NOT NULL",						                                                        // newsSourceIdCondition	string
 		-1,																							// articlesPerCategory 	int
 		maxArticles,																				// maxArticles 			int
-		userId)																						// fetchVotesForUserId 	int64
+		userId,																						// fetchVotesForUserId 	int64
+		false)							 															// onlyPolls				bool
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -424,7 +430,8 @@ func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticl
 			"IS NOT NULL",						   // newsSourceIdCondition	string
 			-1,									   // articlesPerCategory 	int
 			maxArticles,						   // maxArticles 			int
-			-1)									   // fetchVotesForUserId 	int64
+			-1,									   // fetchVotesForUserId 	int64
+			false)							 	   // onlyPolls				bool
 	} else {
 		prVal("Unknown category", category)
 		return []Article{}
@@ -445,7 +452,8 @@ func fetchArticlesPostedByUser(userId int64, maxArticles int) ([]Article) {
 		"IS NOT NULL",						   // newsSourceIdCondition	string
 		-1,									   // articlesPerCategory 	int
 		maxArticles,						   // maxArticles 			int
-		-1)									   // fetchVotesForUserId 	int64
+		-1,									   // fetchVotesForUserId 	int64
+		false)							 	   // onlyPolls				bool
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -463,5 +471,23 @@ func fetchArticlesFromThisNewsSource(newsSourceId string) (articles []Article) {
 		"= '" + sqlEscapeString(newsSourceId) + "'", // newsSourceIdCondition	string
 		-1,              			                 // articlesPerCategory 	int
 		20,     					                 // maxArticles 			int
-		-1)             			                 // fetchVotesForUserId 	int64
+		-1,             			                 // fetchVotesForUserId 	int64
+		false)										 // onlyPolls				bool
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch polls.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchPolls() (articles []Article) {
+	return _queryArticles(
+		"IS NOT NULL", 	// idCondition 				string
+		"IS NOT NULL",  // userIdCondition 			string
+		"IS NOT NULL",  // categoryCondition 	    string
+		"IS NOT NULL",	// newsSourceIdCondition	string
+		-1,             // articlesPerCategory 		int
+		20,     		// maxArticles 				int
+		-1,             // fetchVotesForUserId 		int64
+		true)			// onlyPolls				bool
 }

@@ -88,6 +88,14 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		articleGroups[c].HeaderColor = newsCategoryInfo.HeaderColors[category]
 	}
 
+	moreArticles := []Article{}
+	if article.IsPoll {
+		moreArticles = fetchPolls()
+	} else {
+		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId)
+	}
+	prVal("moreArticles", moreArticles)
+
 	// Render the news articles.
 	articleArgs := struct {
 		PageArgs
@@ -100,7 +108,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		DownVotes		[]int64
 		Comments		[]CommentTag
 		ArticleGroups	[]ArticleGroup
-		MoreArticlesFromThisNewsSource	[]Article
+		MoreArticlesFromThisSource	[]Article
 	}{
 		PageArgs:		PageArgs{Title: "votezilla - Article"},
 		Username:		username,
@@ -112,7 +120,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		DownVotes:		downvotes,
 		Comments:		ReadCommentTagsFromDB(article.Id),
 		ArticleGroups:	articleGroups,
-		MoreArticlesFromThisNewsSource:	fetchArticlesFromThisNewsSource(article.NewsSourceId),
+		MoreArticlesFromThisSource:	moreArticles,
 	}
 
 	executeTemplate(w, kArticle, articleArgs)

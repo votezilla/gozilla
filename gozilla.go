@@ -48,6 +48,7 @@ const (
 	kRegisterPopup = "register"
 	kTestPopup = "testPopup"
 	kViewPollResults = "viewPollResults"
+	kViewPollResults2 = "viewPollResults2"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,6 +102,8 @@ func parseTemplateFiles() {
 	}
 	// We're trying to just use hDefineTemplate, since it prevents against HTML injection.
 	//   Templates make it possible to use hDefineTemplate.
+	//   Do it this way if at all possible!!!
+	//
 	//tDefineTemplate := func(handle string, filenames ...string) {
 	//	ttemplates[handle] = ttemplate.Must(ttemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
 	//}
@@ -111,7 +114,7 @@ func parseTemplateFiles() {
 	// HTML templates
 	//tDefineTemplate(kForm, 			"base", "narrow", "frame", "form", "defaultForm")
 	hDefineTemplate(kNuForm, 		"base", "narrow", "frame", "nuField", "nuForm", "defaultForm")
-	hDefineTemplate(kArticle, 		"base", "wide", "frame", "article", "comments")
+	hDefineTemplate(kArticle, 		"base", "wide", "frame", "sidebar", "article", "comments")
 	hDefineTemplate(kNews, 			"base", "wide", "frame", "news")
 	hDefineTemplate(kNewsSources,	"base", "wide", "frame", "newsSources")  // nyi
 
@@ -134,6 +137,7 @@ func parseTemplateFiles() {
 
 	hDefineTemplate(kRegisterPopup, 	"register")
 	hDefineTemplate(kViewPollResults,	"viewPollResults", "comments")
+	hDefineTemplate(kViewPollResults2,	"base", "wide", "frame", "sidebar", "viewPollResults2", "comments")
 	hDefineTemplate(kTestPopup, 		"testPopup")
 
 	// Javascript snippets
@@ -177,6 +181,7 @@ func WebServer() {
 //	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))     // being called directly from registerDetailsHandler
 	http.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
 	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
+	http.HandleFunc("/viewPollResults2/",   		hwrap(viewPollResultsHandler2))
 
 	// Server static file.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
