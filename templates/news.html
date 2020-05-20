@@ -87,7 +87,7 @@
 											</td>
 											<td align="right" style="width: 40%;">
 												<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-													<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Comment!" style="color: #0079d3;">
+													<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: #0079d3;">
 														<img src="/static/comment icon.jpg" width=16 height=16>
 														{{$article.NumComments}} Comment{{if ne $article.NumComments 1}}s{{end}}
 													</a>
@@ -133,8 +133,8 @@
 												</span>
 											{{end}}
 											<table width="100%">
-												{{ template "PollInlineForm" $article }}											
-											</table>								
+												{{ template "PollInlineForm" $article }}
+											</table>
 										</div>
 									</td>
 								</tr>
@@ -152,7 +152,7 @@
 											</td>
 											<td align="right" style="width: 40%;">
 												<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-													<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Comment!" style="color: #0079d3;"><img src="/static/comment icon.jpg" width=16 height=16> {{$article.NumComments}}</a>
+													<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: #0079d3;"><img src="/static/comment icon.jpg" width=16 height=16> {{$article.NumComments}}</a>
 												</span>
 											</td>
 										</tr></table>

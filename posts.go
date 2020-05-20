@@ -470,7 +470,7 @@ func fetchArticlesFromThisNewsSource(newsSourceId string) (articles []Article) {
 		"IS NOT NULL",   			                 // categoryCondition 	    string
 		"= '" + sqlEscapeString(newsSourceId) + "'", // newsSourceIdCondition	string
 		-1,              			                 // articlesPerCategory 	int
-		20,     					                 // maxArticles 			int
+		10,     					                 // maxArticles 			int
 		-1,             			                 // fetchVotesForUserId 	int64
 		false)										 // onlyPolls				bool
 }
@@ -487,7 +487,7 @@ func fetchPolls() (articles []Article) {
 		"IS NOT NULL",  // categoryCondition 	    string
 		"IS NOT NULL",	// newsSourceIdCondition	string
 		-1,             // articlesPerCategory 		int
-		20,     		// maxArticles 				int
+		5,     			// maxArticles 				int
 		-1,             // fetchVotesForUserId 		int64
 		true)			// onlyPolls				bool
 }
