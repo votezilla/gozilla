@@ -183,6 +183,9 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 					passwordHashInts[1],
 					passwordHashInts[2],
 					passwordHashInts[3])
+					
+				// Send confirmation email
+				sendEmail(BUSINESS_EMAIL, form.val(kEmail), "Account Creation Confirmation", generateConfEmail(kUsername))
 
 				// Create session (encrypted userId).
 				CreateSession(w, r, userId)//, form.boolVal(kRememberMe))
