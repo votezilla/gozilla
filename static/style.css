@@ -1,4 +1,4 @@
-body { font-family:Verdana, Geneva, sans-serif; font-size:10pt; }
+body { font-family:Verdana, Geneva, sans-serif; }
 
 .marginRow{
 	 margin-top:		0px 		!important;
@@ -143,7 +143,6 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 }
 .nuFieldSubtext{
 	font-family:verdana;
-	font-size:12px;
 	color:gray;
 }
 .nuFooter{
@@ -170,27 +169,27 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 /* Nested comments */
 .vzcomment          { margin-left: 10px; }
 .vzcomment_children { margin-top: 10px; margin-left: 10px; border-left: 1px dotted #CCF; }
-.vztagline          { font-size: x-small; font-weight: bold; }
+.vztagline          { font-weight: bold; }
 
 hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
 
 .submit { cursor:pointer; }
-.vote { font-size: 16px; line-height: 1.1; cursor: pointer; } /* A voting list item or submit button. */
-.rankedVote { font-size: 16px; line-height: 1.1; width: 25px; padding: 0px 5px; }
-.rankedVoteLabel { font-size: 16px; line-height: 1.1; }
-.rankedVoteIntro { font-size: 12px; font-style: italic; }
+.vote { line-height: 1.1; cursor: pointer; } /* A voting list item or submit button. */
+.rankedVote { line-height: 1.1; width: 25px; padding: 0px 5px; }
+.rankedVoteLabel { line-height: 1.1; }
+.rankedVoteIntro { font-style: italic; }
 
-textarea { font-family:monospace; font-size:10pt; color:#000000; }
+textarea { font-family:monospace; color:#000000; }
 
-label.error { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#ee0000; }
+label.error { font-family:Verdana, Geneva, sans-serif; color:#ee0000; }
 
 a:link      { color:#000000; text-decoration:none; }
 a:visited   { color:#000000; text-decoration:none; }
 
-.default { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; }
-.admin   { font-family:Verdana, Geneva, sans-serif; font-size:8.5pt; }
-.title   { font-family:Verdana, Geneva, sans-serif; font-size: 12pt; }   
-.subtext { font-family:Verdana, Geneva, sans-serif; font-size:  9pt; }
+.default { font-family:Verdana, Geneva, sans-serif; }
+.admin   { font-family:Verdana, Geneva, sans-serif; }
+.title   { font-family:Verdana, Geneva, sans-serif; }   
+.subtext { font-family:Verdana, Geneva, sans-serif; }
 
 @-webkit-keyframes bluePulse {
   from { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
@@ -224,11 +223,11 @@ a:visited   { color:#000000; text-decoration:none; }
 .upvote   a:hover, .upvoted a:link,   .upvoted   a:visited { color:#00f; text-decoration: none; }
 .downvote a:hover, .downvoted a:link, .downvoted a:visited { color:#f00; text-decoration: none; }
 
-.yclinks { font-family:Verdana, Geneva, sans-serif; font-size:  8pt; color:#828282; }
-.pagetop { font-family:Verdana, Geneva, sans-serif; font-size: 12pt; color:#222222; }
+.yclinks { font-family:Verdana, Geneva, sans-serif; color:#828282; }
+.pagetop { font-family:Verdana, Geneva, sans-serif; color:#222222; }
 .pagetop a:hover { color: #0072ff !important; text-decoration: none !important; } <!-- This line doesn't work -->
-.comhead { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#828282; }
-.comment { font-family:Verdana, Geneva, sans-serif; font-size:  9pt; }
+.comhead { font-family:Verdana, Geneva, sans-serif; color:#828282; }
+.comment { font-family:Verdana, Geneva, sans-serif; }
 
 .comment a:link, .comment a:visited { text-decoration: underline; }
 .noshow { display: none; }

@@ -9,7 +9,7 @@
 			<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
 				<div class="col-md-12 vz-col-md-12 text-uppercase">
 					<center>
-						<h5 style="font-size: 15px; color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
+						<h5 style="color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
 							<strong>
 									{{$articleGroup.Category}}
 							</strong>
@@ -58,13 +58,13 @@
 								<tr valign="top">
 									<td class="title" style="padding-left: 5px;">
 										<span>
-											<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="font-size:14pt;">
+											<a href="{{$article.Url}}" target="_blank" rel="nofollow">
 												{{$article.Title}}
 											</a>
 										</span>
 										{{if $article.Host}}
 											<span>
-												<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="font-size: 10pt; color: #0079d3;">
+												<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="color: #0079d3;">
 													{{$article.Host}} <img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
 												</a>
 											</span>
@@ -127,7 +127,7 @@
 											</span>
 											{{if $article.Host}}
 												<span>
-													<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="font-size: 10pt; color: #0079d3;">
+													<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="color: #0079d3;">
 														{{$article.Host}} <img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
 													</a>
 												</span>

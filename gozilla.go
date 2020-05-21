@@ -45,7 +45,6 @@ const (
 	kRegisterDetailsNopopup = "registerDetailsNopopup"
 	//kRegisterDetailsScript = "registerDetailsScript"
 	kRegister = "register"
-	kRegisterPopup = "register"
 	kTestPopup = "testPopup"
 	kViewPollResults = "viewPollResults"
 	kViewPollResults2 = "viewPollResults2"
@@ -134,8 +133,6 @@ func parseTemplateFiles() {
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
 
-
-	hDefineTemplate(kRegisterPopup, 	"register")
 	hDefineTemplate(kViewPollResults,	"viewPollResults", "comments")
 	hDefineTemplate(kViewPollResults2,	"base", "wide", "frame", "sidebar", "viewPollResults2", "comments")
 	hDefineTemplate(kTestPopup, 		"testPopup")

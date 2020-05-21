@@ -1,18 +1,18 @@
 {{define "body"}}
-{{ template "beginFrame" . }}
-	<br>
-	<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
-		<tr><td>
-			<div width=100% style="background-color:white">
-				<span>
-					<a target="_blank" href="/news">
-						<!-- votezilla mini-logo -->
-						<img src='/static/votezilla logo/votezilla form header 2.jpg' class="center" style="max-width:25%">
-					</a>
-				</span>
-			</div>
-		</td></tr>
-	</table>
-	{{ template "content" . }}
-{{ template "endFrame" . }}
+	{{ template "beginFrame" . }}
+		<br>
+		<table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
+			<tr><td>
+				<div width=100% style="background-color:white">
+					<span>
+						<a target="_blank" href="/news">
+							<!-- votezilla mini-logo -->
+							<img src='/static/votezilla logo/votezilla form header 2.jpg' class="center" style="max-width:25%">
+						</a>
+					</span>
+				</div>
+			</td></tr>
+		</table>
+		{{ template "content" . }}
+	{{ template "endFrame" . }}
 {{end}}

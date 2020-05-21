@@ -11,7 +11,7 @@
 			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
 				<tr>
 					<td style="width:18px; padding:1px">
-						<div style="border: 1px solid black; color: black; font-size: 14px; text-align:center;"><span style="color:#ff009c">v</span><span style="color:#0072ff">z</span></div>
+						<div style="border: 1px solid black; color: black; text-align:center;"><span style="color:#ff009c">v</span><span style="color:#0072ff">z</span></div>
 					</td>
 					<td style="line-height:12pt; height:10px; padding: 0px 5px; color:white !important;">
 						<span class="pagetop">
@@ -451,7 +451,7 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 											{{$option}}
 									</label>
 								{{ else }}
-									<label class="radio-inline" style="margin-bottom:0; font-size: 12pt; cursor: pointer">
+									<label class="radio-inline" style="margin-bottom:0; cursor: pointer">
 										<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
 											   name="vote_{{$article.Id}}_{{$o}}" {{ if eq $o -1 }} checked {{ end }}>
 										{{$option}}
