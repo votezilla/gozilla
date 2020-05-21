@@ -107,6 +107,9 @@ func parseTemplateFiles() {
 	//	ttemplates[handle] = ttemplate.Must(ttemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
 	//}
 	hDefineTemplate := func(handle string, filenames ...string) {
+		_, found := htemplates[handle]
+		assertMsg(!found, "Conflicting hDefineTemplate definition!!!")
+
 		htemplates[handle] = htemplate.Must(htemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
 	}
 
