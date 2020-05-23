@@ -6,30 +6,35 @@
 
 		</div> {{/*col-md-9*/}}
 		<div class="col-md-3 vz-col-md-3-right">
-			<br>Remember to be respectful to the community!
+			<span style="font-size: 17px;">
+				<br>Remember to be respectful to the community!
 
-			<br><br>Democracy only works if we can have a positive, logical discussion.
+				<br><br>Democracy only works if we can have a positive, logical discussion.
 
-			<br><br>Try to look at things from both sides.
+				<br><br>Try to look at things from both sides.
 
-			<br><br>No personal attacks, trolling, or name-calling will be tolerated.  All viewpoints are welcome.
-
-			{{ if .Article.IsPoll }}
-				<br><br>More <b><span style="color: #88f;">polls:</span></b>
-			{{ else }}
-				<br><br>More from <b><span style="color: #88f">{{ .Article.NewsSourceId }}:</span></b>
-			{{ end }}
+				<br><br>No personal attacks, trolling, or name-calling will be tolerated.  All viewpoints are welcome.
+			
+				{{ if .Article.IsPoll }}
+					<br><br>More <b><span style="color: #88f;">polls:</span></b>
+				{{ else }}
+					<br><br>More from <b><span style="color: #88f;">{{ .Article.NewsSourceId }}:</span></b>
+				{{ end }}
+			</span>
+			
+			<br>
 
 			{{ range $_, $article := .MoreArticlesFromThisSource }}
 				<br>
-				<div class="subtext">
+
+				<!--<div class="subtext">
 					<a href="#" target="_blank">
 						<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
 						<span style="color: #88f">{{$article.Author}}</span>
 					</a>
 					&middot;
 					<span class="age" align="right">{{$article.TimeSince}}</span>
-				</div>
+				</div>-->
 
 				<div>
 					<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="">

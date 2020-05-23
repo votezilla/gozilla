@@ -14,6 +14,11 @@ import (
 	"encoding/json"
 )
 
+const (
+	kDefaultImage     = "/static/mozilla dinosaur head.png"
+	kDefaultThumbnail = "/static/mozilla dinosaur thumbnail.png"
+)
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -273,10 +278,6 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			}
 		}
 
-		if urlToImage == "" {
-			urlToImage = "/static/mozilla dinosaur head.png"
-		}
-
 		// Set the article information.
 		newArticle := Article{
 			Id:				id,
@@ -284,13 +285,13 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			Title:			title,
 			Description:	description,
 			Url:			linkUrl,
-			UrlToImage:		urlToImage,
+			UrlToImage:		coalesce_str(urlToImage, kDefaultImage),				 // Full-size image.  Uses a default image (mozilla head) as backup.
 			UrlToThumbnail:
-				ternary_str(thumbnailStatus == image_Unprocessed,					  // When thumnail is unprecessed, use...
-					urlToImage,                                                       // Full-size image.
+				ternary_str(thumbnailStatus == image_Unprocessed,					 // When thumnail is unprecessed, use...
+					coalesce_str(urlToImage, kDefaultThumbnail),                     // Uses full-size image as backup if thumbnail isn't processed yet, or default thumbnail (tiny mozilla head) as backup if image is missing.
 					ternary_str(urlToImage != "",
-						"/static/thumbnails/" + strconv.FormatInt(id, 10) + ".jpeg",  // Thumbnail image processed.
-						"/static/mozilla dinosaur thumbnail.png")),					  // Dropback if no image.  (TODO: replace licensed art.)
+						"/static/thumbnails/" + strconv.FormatInt(id, 10) + ".jpeg", // Thumbnail image processed.
+						kDefaultThumbnail)),										 // Dropback if no image.  (TODO: replace licensed art.)
 			PublishedAtUnix:publishedAt,
 			PublishedAt:	publishedAt.Format(time.UnixDate),
 			NewsSourceId:	newsSourceId,
