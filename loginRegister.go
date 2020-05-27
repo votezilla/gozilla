@@ -139,7 +139,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 			if password.CommonPassword {
 				return false, "Your password is a common password.  Try making it harder to guess."
 			}
-			if password.Score < 3 {
+			if password.Score < 2 {
 				return false, "Your password is too simple.  Try adding lower and uppercase characters, numbers, and/or special characters."
 			}
 			return true, ""
@@ -183,7 +183,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 					passwordHashInts[1],
 					passwordHashInts[2],
 					passwordHashInts[3])
-					
+
 				// Send confirmation email
 				sendEmail(BUSINESS_EMAIL, form.val(kEmail), "Account Creation Confirmation", generateConfEmail(form.val(kUsername)))
 

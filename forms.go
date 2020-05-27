@@ -244,9 +244,11 @@ func (f *Form) processData(r *http.Request) {
 	pr("Form.processData")
 
 	for name, _ := range f.FieldMap {
-		f.FieldMap[name].Value = r.FormValue(name)
+		value := r.FormValue(name)
 
-		prVal("Form.processData field", name)
+		f.FieldMap[name].Value = value
+
+		prf("Form.processData field: '%s' value: '%s'", name, value)
 	}
 
 	prVal("AFTER Form.processData f", *f) // << ERROR first seen here!
@@ -397,7 +399,6 @@ func nuHiddenField(name, defaultValue string) *Field { return makeHiddenField(na
 
 // TODO: implement makeRichTextField().  It's just a copy of makeTextField at the moment.
 func makeRichTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
-	nyi()
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, Length: inputLength}
 
 	if minLength > 0 {

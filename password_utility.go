@@ -176,7 +176,7 @@ func (p *Password) ProcessPassword() {
 		return
 	}
 
-	if p.Length >= 20 {
+	if p.Length >= 10 {
 		p.Score++
 	}
 

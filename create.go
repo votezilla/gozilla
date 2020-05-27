@@ -226,9 +226,9 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func createBlogHandler(w http.ResponseWriter, r *http.Request) {
-/*	pr("createBlogHandler")
+	pr("createBlogHandler")
 
-	const kBlog = "blog"
+	const kBlogVal = "blogVal"
 
 	userId := GetSession(r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
@@ -241,18 +241,25 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("r.Method", r.Method)
 
 	form := makeForm(
-		MakeTextField(kTitle, 50, 12, 255),
-		makeRichTextField(kBlog, "blog:", "Enter your blog here...", 50, 1, 255),
+		nuTextField(kTitle, "Your blog post title...", 50, 12, 255),
+		nuHiddenField(kBlogVal, ""),  // Hidden field that gets the value from the blog.  Because there is JS required to get blog value.
 	)
+
+	form.field(kBlogVal).addFnValidator(requiredValidator())
+	form.field(kBlogVal).addFnValidator(minMaxLengthValidator(12, 40000))
 
 	if r.Method == "POST" && form.validateData(r) {
 		prVal("Valid form!!", form)
-		nyi()
+
+		prVal(kTitle, form.val(kTitle))
+		prVal(kBlogVal, form.val(kBlogVal))
+
+		// WOOHOO!!!  Blog info makes it here!!!  TODO: insert into db, render blog posts later!!! ;)
+
 		return
 	} else if r.Method == "POST" {
 		prVal("Invalid form!!", form)
 	}
-*/
-	nyi()
-	executeTemplate(w, kCreateBlog, makeFormFrameArgs(makeForm(), "Create Blog Post"))
+
+	executeTemplate(w, kCreateBlog, makeFormFrameArgs(form, "Create Blog Post"))
 }

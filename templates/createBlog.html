@@ -1,50 +1,69 @@
-{{define "body"}}
-<h1>Create Blog</h1>
-<br>
-<br>
-<!--<form name="form" method="POST">-->
-	{{$f := .Form.FieldMap }}
-	<table id="pollOptionsTable">
-		{{- ( call $f.title.HtmlRow ) -}}
-		{{- ( call $f.blog.HtmlRow ) -}}
-		<div id="editor-container" style="height:200px;"></div>
-		<div id="new-comment-html">new-comment-html</div>
-	</table>
+{{define "content"}}
+
+{{template "formHeader" "Create blog post for"}}
+
+<div><form method=POST onsubmit="return getBlogData(event)">
+
+	{{ $f := .Form.FieldMap }}
+	{{ template "field" $f.title -}}
+	<p>
+	<div id="editor-container" style="height:200px;"></div>
+	{{ template "field" $f.blogVal -}}
+	<div id="new-comment-html">new-comment-html</div>
+	<p>
+	<p id="thumbnailLabel" style="margin-top: 1rem; display: none;">Choose Thumbnail:</p>
+	<div style="overflow: visible; width: 100%;">
+		<div id="image_container"></div>
+	</div>
+	<p>
+	<div>
+		<input type="submit" class="nuBtn btn btn-vote center">
+			Create Blog Post
+		</input>
+	</div>
 	<br>
-	<br>
-	<input type="submit" class="submit" name="Add comment" value="Create">
-<!--</form>-->
+</form></div>
+
+<!--<br>
+<input type=button name="Add comment" value="Add comment"></input>
+-->
 
 <script>
+var quill;
+
 // Here's a bunch of code to support rich text via the Quill editor library.
 $(document).ready(function() {
-	var quill = new Quill('#editor-container', {
+	quill = new Quill('#editor-container', {
 		modules: {
 			toolbar: [
 				[{ header: [1, 2, false] }],
 				['bold', 'italic', 'underline'],
-				['image', 'code-block']
+				//['image', 'code-block']
+				['code-block']
 			]
 		},
-		placeholder: 'Compose an epic...',
+		placeholder: 'Create a blog post...',
 		theme: 'snow'  // or 'bubble'
 	});
 
 	var $editor = $('#editor-container');
-
-	var $addCommentButton = $('input[name="Add comment"]');
-
-	$addCommentButton.click( function() {
-		console.log(quill.getContents());
-
-		console.log(quill.root.innerHTML);
-
-		// WORKS
-		//var justHtmlContent = document.getElementById('new-comment-html');
-		var justHtmlContent = $('#new-comment-html')[0];
-		justHtmlContent.innerHTML = quill.root.innerHTML;
-	});
 });
+
+function getBlogData(e) {
+	//e.preventDefault();
+
+	console.log(quill.getContents());
+
+	console.log(quill.root.innerHTML);
+
+	$('input[name="blogVal"]').val(quill.root.innerHTML);
+
+	alert(quill.root.innerHTML);
+
+	return true;
+}
+
 </script>
+
 {{end}}
 
