@@ -80,42 +80,8 @@
 	</style>
 
 	<div class="vzcomment">
-	<!--
-		<p>
-			<span class="comment" id="comment_-1">
-				<a href="javascript:ReplyToComment({{$postId}}, -1)">
-				<img src="/static/dino comment.jpg" width=32>
-					Write a Comment
-				</a>
-			</span>
-		</p>
-	-->
 
 		{{ template "AddCommentWidget" -1 }}
-	<!--
-		<p>
-			<div class="comment" id="comment_-222">
-				<table>
-					<tr>
-						<td valign=top>
-							<img src="/static/dino comment.jpg" width=32 style="vertical-align: baseline;">
-						</td>
-						<td>
-							<textarea name="comment_-222" value="" placeholder="Add a comment" length="50" class="nuField3" rows="4" cols="80" style="height:default; width: 100%; max-width: 100%; margin-top: 0;"></textarea>
-						</td>
-					</tr>
-					<tr>
-						<td></td>
-						<td align=right>
-							<button type="submit" class="btn btn-vote" style="margin: .5rem 0;">
-								Comment
-							</button>
-						</td>
-					</tr>
-				</table>
-			</div>
-		</p>
-	-->
 
 		<p>
 
@@ -133,13 +99,14 @@
 						<span style="color: #88f;">{{$tag.Username}}</span>
 					</a>
 
-					<p>{{$tag.Text}}
+					<p><a id="comment_{{$tag.Id}}">{{ $tag.Text }}</a>
 					<p>
-					<span id="comment_{{$tag.Id}}" style="size: 16px">
+					<span style="size: 16px">
 						<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
 							<img src="/static/comment.png" width="16" height="16"> Reply
 						</a>
 					</span>
+
 				</p>
 			{{- end -}}
 		{{- end }}
@@ -164,22 +131,6 @@
 		console.log(parent);
 
 		// Insert create comment button.
-	/*	var html = `<p>
-					<table>
-						<tr>
-							<td valign="bottom">
-								<textarea id="text_${parentId}" rows="4" cols="60"></textarea>
-							</td>
-							<td valign="bottom">
-								<button type="submit" id="reply_button_${parentId}" onclick="onReplyToCommentClicked(${postId}, ${parentId})" class="save" style="margin: 5.5px;">
-									Create
-								</button>
-							</td>
-						</tr>
-					</table>
-				</p>`;
-	*/
-
 		var html = `<p>
 				<div class="comment" id="comment_${parentId}">
 					<table>
@@ -240,35 +191,26 @@
 				console.log("r.Id: "   + r.Id);
 				console.log("r.Text: " + r.Text);
 
-				// Inject new comment html for the new comment.
-				var parent = document.getElementById(`comment_${r.ParentId}`);
-				parent.insertAdjacentHTML('beforeend',  // Note: this HTML code is duplicated in comments.html
-					`<p class="vztagline">
-						<a href="#" onclick="return togglecomment(this)">[&ndash;]</a>
-						<a href="#">{{.Username}}</a>
-					 </p>
-					 <p>${r.Text}</p>
-					 <p>
-						<span id="comment_${r.Id}" style="size: 16px">
-							<a href="javascript:ReplyToComment(${r.PostId}, ${r.Id})">
-								<img src="/static/comment.png" width="16" height="16"> Reply
-							</a>
-						</span>
-					 </p>`);
+				window.location.hash = '#comment_' + r.Id;
+				window.location.reload(true);
 
-				// Focus on the new comment
-				document.getElementById(`comment_${r.Id}`).focus();
-
-				console.log(`$("#text_${r.ParentId}").remove();`);
-
-				// Remove the old new comment form inputs.
-				// Note: Due to some jquery weirdness, I can't find a subtree remove, just yet.
-				document.getElementById(`text_${r.ParentId}`).remove();
-				document.getElementById(`reply_button_${r.ParentId}`).remove();
 			},
 			error:   function(r) { console.log("AJAX - error"); }
 		});
 	}
+
+	// Workaround for a Chrome bug that does not goto the anchor upon a url redict.
+	// Source: https://stackoverflow.com/questions/38588346/anchor-a-tags-not-working-in-chrome-when-using
+	$(document).ready(function () {
+        var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        if (window.location.hash && isChrome) {
+            setTimeout(function () {
+                var hash = window.location.hash;
+                window.location.hash = "";
+                window.location.hash = hash;
+            }, 300);
+        }
+    });
 
 	</script>
 
