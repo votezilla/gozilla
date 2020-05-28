@@ -154,7 +154,7 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 	commentTags := []CommentTag{}
 
 	// The simpler way for now:
-	rows := DbQuery(`SELECT c.Id, Text, COALESCE(u.Name, ''), COALESCE(array_length(Path, 1), 0)
+	rows := DbQuery(`SELECT c.Id, Text, COALESCE(u.Username, ''), COALESCE(array_length(Path, 1), 0)
 					 FROM $$Comment c
 					 LEFT JOIN $$User u
 					 ON c.UserId = u.Id

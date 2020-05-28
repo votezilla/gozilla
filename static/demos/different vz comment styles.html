@@ -1,0 +1,371 @@
+{{define "AddCommentWidget"}}
+	<p>
+		<div class="comment" id="comment_{{ . }}">
+			<table>
+				<tr>
+					<td valign=top>
+						<img src="/static/dino comment.jpg" width=32 style="vertical-align: baseline;">
+					</td>
+					<td>
+						<textarea id="text_{{ . }}" value="" placeholder="Add a comment" length="50" class="nuField3" rows="4" cols="80" style="height:default; width: 100%; max-width: 100%; margin-top: 0;"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td align=right>
+						<button type="submit" onclick="onReplyToCommentClicked({{ . }})" class="btn btn-vote" style="margin: .5rem 0;">
+							Comment
+						</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</p>
+{{end}}
+
+
+
+
+{{/* TODO: try recursiveness - template "comments" .Comments */}}
+
+{{define "comments"}}
+
+	{{$postId := .Article.Id}}
+
+	<style>
+	.nuField2, .nuField2:focus {
+		width:90%;
+		max-width:90%;
+		height:40px;
+		border-radius:5px 5px 5px 5px;
+		background:white;
+		padding:10px;
+		font-size:18px;
+		margin-top:8px;
+		border-width: 1px;
+		border-style:solid;
+		border-color: gray;
+		resize: both;
+	}
+	.nuField2:focus {
+		outline: none;
+		box-shadow: 0px 0px 5px 1px #0066ff;
+	}
+	.nuField2:not(focus) {
+		background-color: #eee;
+		color: #666;
+	}
+
+	.nuField3, .nuField3:focus {
+		width:90%;
+		max-width:90%;
+		border-radius:5px 5px 5px 5px;
+		background:white;
+		padding:10px;
+		font-size:18px;
+		margin-top:8px;
+		border-width: 1px;
+		border-style:solid;
+		border-color: gray;
+		resize: both;
+	}
+	.nuField3:focus {
+		outline: none;
+		box-shadow: 0px 0px 5px 1px #0066ff;
+	}
+	.nuField3:not(focus) {
+		background-color: #eee;
+		color: #666;
+	}
+	</style>
+
+	<div> <!--  class="vzcomment" -->
+
+		{{ template "AddCommentWidget" -1 }}
+
+		<p>
+
+		{{ range $t, $tag := .Comments -}}{{/* CommentTags */}}
+			{{- if $tag.IsChildrenStart -}}
+				<div class="vzcomment_children">
+					<div class="vzcomment">
+			{{- else if $tag.IsChildrenEnd -}}
+					</div>
+				</div>
+			{{- else -}} {{/* comment text */}}
+				<p>
+					<div class="subtext">
+						<a href="#" target="_blank">
+							<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
+							<span style="color: #88f;">{{$tag.Username}}</span>
+						</a>
+						&middot;
+						<span class="age" align="right">5h</span>
+
+						<p><a id="comment_{{$tag.Id}}">{{ $tag.Text }}</a>
+						<p>
+						<table width=100%><tr>
+							<td align="left">
+								<span style="size: 16px">
+									<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
+										<img src="/static/comment.png" width="16" height="16"> Reply
+										<!--<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply-->
+									</a>
+								</span>
+							</td>
+							<td align="center">
+								<a href="#">...</a>
+							</td>
+							<td align="right">
+								<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
+								<a href="#" id="votetally{{$postId}}">0</a>
+								<span class="downvote" id="downvote{{$postId}}"><a href="javascript:Vote({{$postId}}, false)">&#x25BC;</a></span>
+							</td>
+						</tr></table>
+						<p>
+							<table width=100%><tr>
+								<td align="left">
+									<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
+									<a href="#" id="votetally{{$postId}}">0</a>
+									<span class="downvote" id="downvote{{$postId}}"><a href="javascript:Vote({{$postId}}, false)">&#x25BC;</a></span>
+								</td>
+								<td align="center">
+									<a href="#">...</a>
+								</td>
+								<td align="right">
+									<span style="size: 16px">
+										<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
+											<img src="/static/comment.png" width="16" height="16"> Reply
+											<!--<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply-->
+										</a>
+									</span>
+								</td>
+						</tr></table>
+						<p>
+							<table width=100%><tr>
+								<td align="left">
+									<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
+									<a href="#" id="votetally{{$postId}}">0</a>
+									<span class="downvote" id="downvote{{$postId}}"><a href="javascript:Vote({{$postId}}, false)">&#x25BC;</a></span>
+								</td>
+								<td align="center">
+									<a href="#">...</a>
+								</td>
+								<td align="right">
+									<span style="size: 16px">
+										<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
+											<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply</a>
+										</a>
+									</span>
+								</td>
+						</tr></table>
+						<p>
+							<span style="margin-right: 10px">
+								<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
+								<a href="#" id="votetally{{$postId}}">0</a>
+								<span class="downvote" id="downvote{{$postId}}"><a href="javascript:Vote({{$postId}}, false)">&#x25BC;</a></span>
+							</span>
+							<span style="margin-right: 10px">
+								<a href="#">...</a>
+							</span>
+							<span style="margin-right: 10px">
+								<span style="size: 16px">
+									<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
+										<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply</a>
+									</a>
+								</span>
+							</span>
+						</tr></table>
+					</div>
+				</p>
+
+				<p>
+					<div class="subtext">
+						<a href="#" target="_blank">
+							<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
+							<span style="color: #88f;">{{$tag.Username}}</span>
+						</a>
+						&middot;
+						<span class="age" align="right">5h</span>
+
+						<p><a id="comment_{{$tag.Id}}">{{ $tag.Text }}</a>
+						<p>
+						<table width=100%><tr>
+							<td align="left" style="width: 40%;">
+								<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
+								<a href="#" id="votetally{{$postId}}">0</a>
+								<span class="downvote" id="downvote{{$postId}}"><a href="javascript:Vote({{$postId}}, false)">&#x25BC;</a></span>
+							</td>
+							<td align="center" style="width: auto;">
+								<a href="#">...</a>
+							</td>
+							<td align="right" style="width: 40%;">
+								<span style="size: 16px">
+									<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
+										<img src="/static/comment.png" width="16" height="16"> Reply
+										<!--<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply-->
+									</a>
+								</span>
+							</td>
+						</tr></table>
+					</div>
+				</p>
+
+			{{- end -}}
+		{{- end }}
+		<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+		{{ range $t, $tag := .Comments -}}{{/* CommentTags */}}
+			{{- if $tag.IsChildrenStart -}}
+				<div class="vzcomment_children">
+					<div class="vzcomment">
+			{{- else if $tag.IsChildrenEnd -}}
+					</div>
+				</div>
+			{{- else -}} {{/* comment text */}}
+				<p>
+					<table><tr>
+						<td valign=top>
+							<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
+							<br>
+							<a href="#" id="votetally{{$postId}}">0</a>
+							<br>
+							<span class="downvote" id="downvote{{$postId}}"><a href="javascript:Vote({{$postId}}, false)">&#x25BC;</a></span>
+							<span style="padding-right: 10px;"></span>
+						</td>
+						<td>
+
+					<div class="subtext">
+						<a href="#" target="_blank">
+							<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
+							<span style="color: #88f;">{{$tag.Username}}</span>
+						</a>
+						&middot;
+						<span class="age" align="right">5h</span>
+
+						<p><a id="comment_{{$tag.Id}}">{{ $tag.Text }}</a>
+						<p>
+						<table width=100%><tr>
+							<td align="left" style="width: 40%;">
+								<span style="size: 16px">
+									<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
+										<img src="/static/comment.png" width="16" height="16"> Reply
+										<!--<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply-->
+									</a>
+								</span>
+							</td>
+							<td align="center" style="width: auto;">
+								<a href="#">...</a>
+							</td>
+						</tr></table>
+					</div>
+
+						</td>
+					</tr></table>
+				</p>
+			{{- end -}}
+		{{- end }}
+	</div>
+
+
+
+	<script>
+
+	///////////////////////////////////////////////////////////////////////////////
+	//
+	// COMMENTING FUNCTIONS
+	//
+	///////////////////////////////////////////////////////////////////////////////
+
+
+	// Reply to the comment with this id.
+	function ReplyToComment(postId, parentId) {
+		parent = document.getElementById(`comment_${parentId}`);
+
+		console.log(parentId);
+		console.log(parent);
+
+		// Insert create comment button.
+		var html = `<p>
+				<div class="comment" id="comment_${parentId}">
+					<table>
+						<tr>
+							<td valign=top>
+								<img src="/static/dino comment.jpg" width=32 style="vertical-align: baseline;">
+							</td>
+							<td>
+								<textarea id="text_${parentId}" name="text_${parentId}" value="" placeholder="Add a comment" length="50" class="nuField3" rows="4" cols="80" style="height:default; width: 100%; max-width: 100%; margin-top: 0;"></textarea>
+							</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td align=right>
+								<button type="submit" onclick="onReplyToCommentClicked(${parentId})" class="btn btn-vote" style="margin: .5rem 0;">
+									Comment
+								</button>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</p>`;
+
+		console.log(html);
+
+		parent.insertAdjacentHTML('beforeend', html);
+
+		$(`#reply_button_${parentId}`).focus();  // Focus on the new comment.
+	}
+
+	function onReplyToCommentClicked(parentId) {
+		console.log(`#text_${parentId}`);
+
+		if (!loggedIn) {
+			alert("You must be logged in to do that!") // TODO: this should be a modal dialog that gives them the option to log in.
+			return;
+		}
+
+		var text = $(`#text_${parentId}`).val();
+
+		console.log(text);
+
+		data = JSON.stringify({
+				PostId:	  {{ $postId }},
+				ParentId: parentId,
+				Text: 	  text});
+
+		console.log(data);
+
+		$.ajax({
+			url: '/ajaxCreateComment/',
+			type: "post",
+			contentType: 'application/json; charset=utf-8',
+			data: data, // Hmmm <-- should be UserId not Username
+			dataType: 'json',
+			success: function(r) {
+				console.log("AJAX - success");
+				console.log("r.Id: "   + r.Id);
+				console.log("r.Text: " + r.Text);
+
+				window.location.hash = '#comment_' + r.Id;
+				window.location.reload(true);
+
+			},
+			error:   function(r) { console.log("AJAX - error"); }
+		});
+	}
+
+	// Workaround for a Chrome bug that does not goto the anchor upon a url redict.
+	// Source: https://stackoverflow.com/questions/38588346/anchor-a-tags-not-working-in-chrome-when-using
+	$(document).ready(function () {
+        var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        if (window.location.hash && isChrome) {
+            setTimeout(function () {
+                var hash = window.location.hash;
+                window.location.hash = "";
+                window.location.hash = hash;
+            }, 300);
+        }
+    });
+
+	</script>
+
+{{end}} {{/*comments*/}}

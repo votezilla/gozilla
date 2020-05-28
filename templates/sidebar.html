@@ -14,14 +14,14 @@
 				<br><br>Try to look at things from both sides.
 
 				<br><br>No personal attacks, trolling, or name-calling will be tolerated.  All viewpoints are welcome.
-			
+
 				{{ if .Article.IsPoll }}
 					<br><br>More <b><span style="color: #88f;">polls:</span></b>
 				{{ else }}
 					<br><br>More from <b><span style="color: #88f;">{{ .Article.NewsSourceId }}:</span></b>
 				{{ end }}
 			</span>
-			
+
 			<br>
 
 			{{ range $_, $article := .MoreArticlesFromThisSource }}

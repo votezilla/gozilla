@@ -7,7 +7,7 @@
 						<img src="/static/dino comment.jpg" width=32 style="vertical-align: baseline;">
 					</td>
 					<td>
-						<textarea id="text_{{ . }}" value="" placeholder="Add a comment" length="50" class="nuField3" rows="4" cols="80" style="height:default; width: 100%; max-width: 100%; margin-top: 0;"></textarea>
+						<textarea id="text_{{ . }}" value="" placeholder="Add a comment" length="50" class="nuTextarea" rows="4" cols="80"></textarea>
 					</td>
 				</tr>
 				<tr>
@@ -33,83 +33,90 @@
 	{{$postId := .Article.Id}}
 
 	<style>
-	.nuField2, .nuField2:focus {
-		width:90%;
-		max-width:90%;
-		height:40px;
-		border-radius:5px 5px 5px 5px;
-		background:white;
-		padding:10px;
-		font-size:18px;
-		margin-top:8px;
-		border-width: 1px;
-		border-style:solid;
+	.nuTextarea, .nuTextarea:focus {
+		background: white;
 		border-color: gray;
+		border-radius:5px 5px 5px 5px;
+		border-style: solid;
+		border-width: 1px;
+		font-size: 18px;
+		height: default;
+		margin-top: 0;
+		max-width: 100%;
+		padding: 10px;
 		resize: both;
+		width: 100%;
 	}
-	.nuField2:focus {
+	.nuTextarea:focus {
 		outline: none;
 		box-shadow: 0px 0px 5px 1px #0066ff;
 	}
-	.nuField2:not(focus) {
+	.nuTextarea:not(focus) {
 		background-color: #eee;
 		color: #666;
 	}
 
-	.nuField3, .nuField3:focus {
-		width:90%;
-		max-width:90%;
-		border-radius:5px 5px 5px 5px;
-		background:white;
-		padding:10px;
-		font-size:18px;
-		margin-top:8px;
-		border-width: 1px;
-		border-style:solid;
-		border-color: gray;
-		resize: both;
+	@media screen and (min-width:750px) {
+		.commentWidgets {
+			width: 92%;
+		}
 	}
-	.nuField3:focus {
-		outline: none;
-		box-shadow: 0px 0px 5px 1px #0066ff;
-	}
-	.nuField3:not(focus) {
-		background-color: #eee;
-		color: #666;
+	@media screen and (max-width:750px) {
+		.commentWidgets {
+			width: 100%;
+		}
 	}
 	</style>
 
-	<div class="vzcomment">
+	<div> <!--  class="vzcomment" -->
 
 		{{ template "AddCommentWidget" -1 }}
 
-		<p>
+		<div style="margin-left: -20px;">
 
 		{{ range $t, $tag := .Comments -}}{{/* CommentTags */}}
-		{{- if $tag.IsChildrenStart -}}
+			{{- if $tag.IsChildrenStart -}}
 				<div class="vzcomment_children">
 					<div class="vzcomment">
 			{{- else if $tag.IsChildrenEnd -}}
 					</div>
 				</div>
 			{{- else -}} {{/* comment text */}}
-				<p class="vztagline">
-					<a href="#" target="_blank">
-						<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
-						<span style="color: #88f;">{{$tag.Username}}</span>
-					</a>
-
-					<p><a id="comment_{{$tag.Id}}">{{ $tag.Text }}</a>
-					<p>
-					<span style="size: 16px">
-						<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
-							<img src="/static/comment.png" width="16" height="16"> Reply
+				<p>
+					<div class="subtext">  <!--  style="margin-right: 60px;" -->
+						<a href="#" target="_blank">
+							<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
+							<span style="color: #88f;">{{$tag.Username}}</span>
 						</a>
-					</span>
+						&middot;
+						<span class="age" align="right">5h</span>
 
+						<p><a id="comment_{{$tag.Id}}">{{ $tag.Text }}</a>
+						<p>
+						<table class="commentWidgets"><tr>
+							<td align="left" style="width: 40%;">
+								<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
+								<a href="#" id="votetally{{$postId}}">0</a>
+								<span class="downvote" id="downvote{{$postId}}"><a href="javascript:Vote({{$postId}}, false)">&#x25BC;</a></span>
+							</td>
+							<td align="center" style="width: auto;">
+								<a href="#">...</a>
+							</td>
+							<td align="right" style="width: 40%;">
+								<span style="size: 16px">
+									<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
+										<img src="/static/comment.png" width="16" height="16"> Reply
+										<!--<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply-->
+									</a>
+								</span>
+							</td>
+						</tr></table>
+					</div>
 				</p>
 			{{- end -}}
 		{{- end }}
+
+		</div>
 	</div>
 
 
@@ -139,7 +146,7 @@
 								<img src="/static/dino comment.jpg" width=32 style="vertical-align: baseline;">
 							</td>
 							<td>
-								<textarea id="text_${parentId}" name="text_${parentId}" value="" placeholder="Add a comment" length="50" class="nuField3" rows="4" cols="80" style="height:default; width: 100%; max-width: 100%; margin-top: 0;"></textarea>
+								<textarea id="text_${parentId}" name="text_${parentId}" value="" placeholder="Add a comment" length="50" class="nuTextarea" rows="4" cols="80"></textarea>
 							</td>
 						</tr>
 						<tr>
