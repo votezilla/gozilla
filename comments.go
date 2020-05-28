@@ -208,6 +208,8 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 
 	//prVal("ReadCommentTagsFromDB returning", commentTags)
 
+	//commentTags = commentTags[1:len(commentTags)-1]
+
 	return commentTags
 }
 

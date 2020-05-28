@@ -165,12 +165,6 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 	vertical-align: middle;
 }
 
-
-/* Nested comments */
-.vzcomment          { margin-left: 20px; }
-.vzcomment_children { margin-top: 10px; margin-left: 20px; border-left: 1px dotted #CCF; }
-.vztagline          { font-weight: bold; }
-
 hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
 
 .submit { cursor:pointer; }

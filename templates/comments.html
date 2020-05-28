@@ -7,7 +7,7 @@
 						<img src="/static/dino comment.jpg" width=32 style="vertical-align: baseline;">
 					</td>
 					<td>
-						<textarea id="text_{{ . }}" value="" placeholder="Add a comment" length="50" class="nuTextarea" rows="4" cols="80"></textarea>
+						<textarea id="text_{{ . }}" value="" placeholder="Add a comment" maxlength="40000" class="nuTextarea" rows="4" cols="80"></textarea>
 					</td>
 				</tr>
 				<tr>
@@ -33,57 +33,66 @@
 	{{$postId := .Article.Id}}
 
 	<style>
-	.nuTextarea, .nuTextarea:focus {
-		background: white;
-		border-color: gray;
-		border-radius:5px 5px 5px 5px;
-		border-style: solid;
-		border-width: 1px;
-		font-size: 18px;
-		height: default;
-		margin-top: 0;
-		max-width: 100%;
-		padding: 10px;
-		resize: both;
-		width: 100%;
-	}
-	.nuTextarea:focus {
-		outline: none;
-		box-shadow: 0px 0px 5px 1px #0066ff;
-	}
-	.nuTextarea:not(focus) {
-		background-color: #eee;
-		color: #666;
-	}
-
-	@media screen and (min-width:750px) {
-		.commentWidgets {
-			width: 92%;
-		}
-	}
-	@media screen and (max-width:750px) {
-		.commentWidgets {
+		.nuTextarea, .nuTextarea:focus {
+			background: white;
+			border-color: gray;
+			border-radius:5px 5px 5px 5px;
+			border-style: solid;
+			border-width: 1px;
+			font-size: 18px;
+			height: default;
+			margin-top: 0;
+			max-width: 100%;
+			padding: 10px;
+			resize: both;
 			width: 100%;
 		}
-	}
+		.nuTextarea:focus {
+			outline: none;
+			box-shadow: 0px 0px 5px 1px #0066ff;
+		}
+		.nuTextarea:not(focus) {
+			background-color: #eee;
+			color: #666;
+		}
+
+		@media screen and (min-width:750px) { /* LARGE DEVICES */
+			.commentWidgets {
+				width: 92%;
+			}
+
+			.vzcomment_children { margin-left: 26px; border-left: 1.5px solid #ddf; }
+		}
+		@media screen and (max-width:750px) { /* SMALL DEVICES */
+			.commentWidgets {
+				width: 100%;
+			}
+
+			.vzcomment_children { margin-left: 24px; border-left: 1.5px solid #ddf; }
+		}
+		.vzcomment          		{ margin-left: 20px; }
+		.vzcomment_children_first	{ margin-left: 9px; }
 	</style>
 
 	<div> <!--  class="vzcomment" -->
 
 		{{ template "AddCommentWidget" -1 }}
 
-		<div style="margin-left: -20px;">
-
 		{{ range $t, $tag := .Comments -}}{{/* CommentTags */}}
 			{{- if $tag.IsChildrenStart -}}
-				<div class="vzcomment_children">
-					<div class="vzcomment">
+				{{- if eq $t 0 }}
+					<div class="vzcomment_children_first">
+						<div class="vzcomment_children_first">
+				{{- else }}
+					<div class="vzcomment_children">
+						<div class="vzcomment">
+				{{- end }}
 			{{- else if $tag.IsChildrenEnd -}}
 					</div>
 				</div>
 			{{- else -}} {{/* comment text */}}
 				<p>
-					<div class="subtext">  <!--  style="margin-right: 60px;" -->
+					<div class="subtext" class="commentWidgets">
 						<a href="#" target="_blank">
 							<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
 							<span style="color: #88f;">{{$tag.Username}}</span>
@@ -91,7 +100,7 @@
 						&middot;
 						<span class="age" align="right">5h</span>
 
-						<p><a id="comment_{{$tag.Id}}">{{ $tag.Text }}</a>
+						<p><a id="comment_{{$tag.Id}}" style="word-wrap: break-word;">{{ $tag.Text }}</a>
 						<p>
 						<table class="commentWidgets"><tr>
 							<td align="left" style="width: 40%;">
@@ -115,8 +124,6 @@
 				</p>
 			{{- end -}}
 		{{- end }}
-
-		</div>
 	</div>
 
 
