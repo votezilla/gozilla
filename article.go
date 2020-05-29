@@ -58,6 +58,9 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 
 	prVal("r.URL.Query()", r.URL.Query())
 
+	prVal("r.URL", r.URL)
+	prVal("r.URL.Path", r.URL.Path)
+
 	reqPostId := parseUrlParam(r, "postId")
 	postId, err := strconv.ParseInt(reqPostId, 10, 64)
 	if err != nil {
@@ -94,7 +97,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId)
 	}
-	prVal("moreArticles", moreArticles)
+	//prVal("moreArticles", moreArticles)
 
 	// Render the news articles.
 	articleArgs := struct {

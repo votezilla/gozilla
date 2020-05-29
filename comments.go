@@ -32,6 +32,8 @@ type CommentTag struct {
 	IsHead			bool
 	IsChildrenStart	bool
 	IsChildrenEnd	bool
+
+	IsExpandible	bool
 }
 
 
@@ -142,6 +144,70 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// ajax expand comment
+//
+//////////////////////////////////////////////////////////////////////////////
+func ajaxExpandComment(w http.ResponseWriter, r *http.Request) {
+	pr("ajaxCreateComment")
+	prVal("r.Method", r.Method)
+
+	if r.Method != "POST" {
+		http.NotFound(w, r)
+		return
+	}
+
+	userId := GetSession(r)
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		pr("Must be logged in to create a comment.")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	prVal("userId", userId)
+
+    //parse request to struct
+    var expandComment struct {
+		CommentId	int64
+	}
+
+    err := json.NewDecoder(r.Body).Decode(&expandComment)
+    if err != nil {
+		prVal("Failed to decode json body", r.Body)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    prVal("=======>>>>> expandComment", expandComment)
+
+	var expandedComment struct {
+		Text string
+	}
+	{
+		rows := DbQuery("SELECT Text FROM $$Comment WHERE Id = $1::bigint", expandComment.CommentId)
+		defer rows.Close()
+		if rows.Next() {
+			err := rows.Scan(&expandedComment.Text)
+			check(err)
+		} else {
+			assert(false);
+		}
+		check(rows.Err())
+	}
+
+	prVal("=======>>>>> expandedComment", expandedComment)
+
+    // create json response from struct.  It needs to know newCommentId so it knows where to put the focus after the window reload.
+    a, err := json.Marshal(expandedComment)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    w.Write(a)
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // read comment tags from db
 //
 // This is the one we're using.
@@ -211,8 +277,8 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 			length := len(textLine)
 			numLinesApprox += (length + 59) / 60; // Ceiling divide by 60 for mobile. (TODO: add 80 for desktop?)
 
-			prVal("length", length)
-			prVal("numLinesApprox", numLinesApprox)
+			//prVal("length", length)
+			//prVal("numLinesApprox", numLinesApprox)
 
 			if numLinesApprox > kMaxCommentLines {
 
@@ -231,18 +297,17 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 				// End the line with ellipsis.
 				newCommentTag.Text[i] += "..."
 
+				newCommentTag.IsExpandible = true
+
 				break
 			}
 		}
 
-		prVal("newCommentTag.Text", newCommentTag.Text)
+		//prVal("newCommentTag.Text", newCommentTag.Text)
 
-		// TODO^^: subslice this so only so much text is visible, the rest with ... .
-		//         unless newCommentTag.Id == #this_comment, i.e. we're focussed on this comment.
-		//
+
 		//         then, ... is a linkn to #this_comment
 		//
-		//		   also note, <br> doesn't render correctly.  Can fix this with template rtf idea shikanery.
 
 		// Add this comment tag to the list.
 		//prVal("  tag: Text", newCommentTag.Text)

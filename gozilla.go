@@ -161,6 +161,7 @@ func WebServer() {
 
 	http.HandleFunc("/",                		hwrap(newsHandler))
 	http.HandleFunc("/ajaxCreateComment/",		hwrap(ajaxCreateComment))
+	http.HandleFunc("/ajaxExpandComment/",		hwrap(ajaxExpandComment))
 	http.HandleFunc("/ajaxPollVote/",			hwrap(ajaxPollVoteHandler))
 	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))

@@ -183,7 +183,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		pollOptionsJson, err := json.Marshal(pollOptionData)
 		check(err)
 
-		prVal("pollOptionsJson", pollOptionsJson)
+		//prVal("pollOptionsJson", pollOptionsJson)
 
 		// Create the new poll.
 		pollPostId := DbInsert(

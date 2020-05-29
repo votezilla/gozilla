@@ -1,3 +1,4 @@
+{{/* PARALLEL_CODE(ADD_COMMENT_WIDGET) */}}
 {{define "AddCommentWidget"}}
 	<p>
 		<div class="comment" id="comment_{{ . }}">
@@ -108,6 +109,11 @@
 								{{- end }}
 							</a>
 						<p>
+
+						{{- if $tag.IsExpandible -}}
+							<a id="expand_{{$tag.Id}}" onClick="ExpandComment({{$tag.Id}})";>Expand...</a>
+						{{- end -}}
+
 						<table class="commentWidgets"><tr>
 							<td align="left" style="width: 40%;">
 								<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
@@ -132,8 +138,6 @@
 		{{- end }}
 	</div>
 
-
-
 	<script>
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -141,7 +145,29 @@
 	// COMMENTING FUNCTIONS
 	//
 	///////////////////////////////////////////////////////////////////////////////
+	var collapsedComments = [];
 
+	function ExpandComment(commentId) {
+		data = JSON.stringify({
+			CommentId: commentId
+		});
+
+		$.ajax({
+			url: '/ajaxExpandComment/',
+			type: "post",
+			contentType: 'application/json; charset=utf-8',
+			data: data, // Hmmm <-- should be UserId not Username
+			dataType: 'json',
+			success: function(r) {
+				console.log("AJAX - success");
+				console.log("Id: " + `#comment_${commentId}`);
+				console.log("r.Text: " + r.Text);
+
+				$(`#comment_${commentId}`).text(r.Text);
+			},
+			error:   function(r) { console.log("AJAX - error"); }
+		});
+	}
 
 	// Reply to the comment with this id.
 	function ReplyToComment(postId, parentId) {
@@ -150,6 +176,7 @@
 		console.log(parentId);
 		console.log(parent);
 
+		// PARALLEL_CODE(ADD_COMMENT_WIDGET)
 		// Insert create comment button.
 		var html = `<p>
 				<div class="comment" id="comment_${parentId}">
