@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+const (
+	kMaxCommentLines = 6
+	kCharsPerLine    = 60  // 60 for mobile.  80 would be desktop, but there is no way to detect the difference yet.
+)
+
 // This is also a comment tree.
 type Comment struct {
 	Id				int64		// id == -1 if pointing to the Post. (So not a comment, but the children are all L0 comments.)
@@ -189,10 +194,46 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 			// Note: We made it here, so we're a sibling of the previous comment.
 		}
 
-		// Convert newlines to be HTML-friendly.
-		prVal("commentText", commentText)
-
+		// Convert newlines to be HTML-friendly -
+		//    split into lines so the template file can handle it,
+		//    add elipsis if too long.
 		newCommentTag.Text = strings.Split(commentText, "\n")
+
+		numLinesApprox := 0
+		for i, textLine := range newCommentTag.Text {
+			if i > 0 {
+				numLinesApprox++
+			}
+
+			linesLeft := kMaxCommentLines - numLinesApprox
+
+
+			length := len(textLine)
+			numLinesApprox += (length + 59) / 60; // Ceiling divide by 60 for mobile. (TODO: add 80 for desktop?)
+
+			prVal("length", length)
+			prVal("numLinesApprox", numLinesApprox)
+
+			if numLinesApprox > kMaxCommentLines {
+
+				// Truncate additional lines.
+				newCommentTag.Text = newCommentTag.Text[:i+1]
+
+				if linesLeft < 0 {
+					linesLeft = 0
+				}
+
+				// Truncate last line if too long.
+				if length > linesLeft * kCharsPerLine {
+					newCommentTag.Text[i] = newCommentTag.Text[i][:linesLeft * kCharsPerLine]
+				}
+
+				// End the line with ellipsis.
+				newCommentTag.Text[i] += "..."
+
+				break
+			}
+		}
 
 		prVal("newCommentTag.Text", newCommentTag.Text)
 
