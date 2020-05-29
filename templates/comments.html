@@ -100,7 +100,13 @@
 						&middot;
 						<span class="age" align="right">5h</span>
 
-						<p><a id="comment_{{$tag.Id}}" style="word-wrap: break-word;">{{ $tag.Text }}</a>
+						<p>
+							<a id="comment_{{$tag.Id}}" style="word-wrap: break-word;">
+								{{- range $_, $textLine := $tag.Text }}
+									{{ $textLine }}
+									<br>
+								{{- end }}
+							</a>
 						<p>
 						<table class="commentWidgets"><tr>
 							<td align="left" style="width: 40%;">

@@ -22,7 +22,7 @@ type CommentTag struct {
 	Id				int64
 
 	Username		string
-	Text			string
+	Text			[]string
 
 	IsHead			bool
 	IsChildrenStart	bool
@@ -164,9 +164,10 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 	defer rows.Close()
 	for rows.Next() {
 		var pathLen	 	 	int64
+		var commentText		string
 		var newCommentTag	CommentTag
 
-		err := rows.Scan(&newCommentTag.Id, &newCommentTag.Text, &newCommentTag.Username, &pathLen)
+		err := rows.Scan(&newCommentTag.Id, &commentText, &newCommentTag.Username, &pathLen)
 		check(err)
 
 		// Compare current path to previous path.
@@ -189,7 +190,18 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 		}
 
 		// Convert newlines to be HTML-friendly.
-		newCommentTag.Text = strings.Replace(newCommentTag.Text, "\n", "<br>", -1)
+		prVal("commentText", commentText)
+
+		newCommentTag.Text = strings.Split(commentText, "\n")
+
+		prVal("newCommentTag.Text", newCommentTag.Text)
+
+		// TODO^^: subslice this so only so much text is visible, the rest with ... .
+		//         unless newCommentTag.Id == #this_comment, i.e. we're focussed on this comment.
+		//
+		//         then, ... is a linkn to #this_comment
+		//
+		//		   also note, <br> doesn't render correctly.  Can fix this with template rtf idea shikanery.
 
 		// Add this comment tag to the list.
 		//prVal("  tag: Text", newCommentTag.Text)
