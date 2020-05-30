@@ -359,8 +359,8 @@ function VoteOnPoll(pollId, numOptions, pollType) {
 
 				console.log(r);
 
-				// Go to the View Poll Results page.
-				window.location.href = `/viewPollResults2/?postId=${pollId}&voteData=${voteData}`;
+				// Open the View Poll Results in a new tab.
+				window.open(`/viewPollResults2/?postId=${pollId}&voteData=${voteData}`, '_blank');
 			},
 			error: function(r) {
 				console.log("AJAX Poll Vote - error");
@@ -453,7 +453,7 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 								{{ else }}
 									<label class="radio-inline" style="margin-bottom:0; cursor: pointer">
 										<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
-											   name="vote_{{$article.Id}}_{{$o}}" {{ if eq $o -1 }} checked {{ end }}>
+											   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
 										{{$option}}
 									</label>
 								{{ end }}
@@ -490,22 +490,28 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 						{{ range $o, $option := $poll.Options }}
 							{{ if $poll.RankedChoiceVoting }}
 								<div>
-									<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
-									   	   maxlength="1" style="width: 25px; padding: 5px; margin: 4px 4px 4px 0;">{{$option}}
+									<label>
+										<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
+											   maxlength="1" style="width: 25px; padding: 5px; margin: 4px 4px 4px 0;">
+											   {{$option}}
+									</label>
 								</div>
 							{{ else if $poll.CanSelectMultipleOptions }}
 								<div>
 									<label class="vote">
 										<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
 										   	   value="{{$o}}" style="margin: 4px 4px 4px 0;">
-									{{$option}}
+										{{$option}}
+									</label>
 								</div>
 							{{ else }}
 								<div>
-									<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
-										   name="vote_{{$article.Id}}_{{$o}}" {{ if eq $o -1 }} checked {{ end }}
-										   style="margin: 4px 4px 4px 0;">
-									{{$option}}
+									<label style="margin-bottom: 0">
+										<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+											   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}
+											   style="margin: 4px 4px 4px 0;">
+										{{$option}}
+									</label>
 								</div>
 							{{ end }}
 						{{ end }}

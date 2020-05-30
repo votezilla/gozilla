@@ -62,6 +62,7 @@
 												{{$article.Title}}
 											</a>
 										</span>
+
 										{{if $article.Host}}
 											<span>
 												<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="color: #0079d3;">
@@ -71,6 +72,10 @@
 										{{end}}
 									</td>
 								</tr>
+
+								{{- if $article.IsPoll }}
+									<tr><td class="spacer" style="height:5px"></td></tr>
+								{{- end }}
 
 								{{ template "PollInlineForm" $article }}
 
@@ -122,7 +127,7 @@
 										<div>
 											<span>
 												<a href="{{$article.Url}}" target="_blank" rel="nofollow">
-													<div style="font-size:18px; min-height: 54px; max-height: 78px; overflow: hidden; padding-right: 4px;">
+													<div style="font-size:18px; {{if $article.IsPoll}}min-height: 32px;{{else}}min-height: 54px;{{end}} max-height: 78px; overflow: hidden; padding-right: 4px;">
 														{{$article.Title}}
 													</div>
 												</a>
