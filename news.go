@@ -298,8 +298,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 //
 //////////////////////////////////////////////////////////////////////////////
 func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64) {
-	for a, article := range articles {
-		articles[a].Bucket = kVotedPosts
+	for _, article := range articles {
 
 		if article.Upvoted == 1 {
 			upvotes = append(upvotes, article.Id)
@@ -322,6 +321,8 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 func renderNews(w http.ResponseWriter, title string, username string, userId int64,
 				articleGroups []ArticleGroup, urlPath string, template string,
 				upvotes []int64, downvotes []int64, alertMessage string) {
+
+	//pr("renderNews")
 
 	script := ""
 	switch(alertMessage) {
@@ -353,18 +354,21 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 		DownVotes:		downvotes,
 	}
 
+	//prVal("UpVotes", upvotes)
+	//prVal("DownVotes", downvotes)
+
 	executeTemplate(w, template, newsArgs)
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // News handler
-// TODO: santize (html- and url-escape the arguments).
-//       (Make sure URL's don't point back to votezilla.)
 //
 //////////////////////////////////////////////////////////////////////////////
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
+
+	//pr("newsHandler")
 
 	//prVal("r.URL.Query()", r.URL.Query())
 
@@ -391,9 +395,14 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
 
+	upvotes, downvotes := deduceVotingArrows(articles)
+
+	//prVal("deduced upvotes", upvotes)
+	//prVal("deduced downvotes", downvotes)
+
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
 
-	renderNews(w, "News", username, userId, articleGroups, "news", kNews, []int64{}, []int64{}, reqAlert)
+	renderNews(w, "News", username, userId, articleGroups, "news", kNews, upvotes, downvotes, reqAlert)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -422,7 +431,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	{
 		articles := fetchArticlesPostedByUser(userId, kNumCols * kRowsPerCategory)
 
-		for a, _ := range articles {
+		for a := range articles {
 			articles[a].Bucket = kSubmittedPosts
 		}
 
@@ -435,7 +444,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	{
 		articles := fetchArticlesCommentedOnByUser(userId, kNumCols * kRowsPerCategory)
 
-		for a, _ := range articles {
+		for a := range articles {
 			articles[a].Bucket = kCommentedPosts
 		}
 
@@ -450,6 +459,10 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 		articles := fetchArticlesUpDownVotedOnByUser(userId, kNumCols * kRowsPerCategory)
 
 		upvotes, downvotes = deduceVotingArrows(articles)
+
+		for a := range articles {
+			articles[a].Bucket = kVotedPosts
+		}
 
 		prVal("upvotes", upvotes)
 		prVal("downvotes", downvotes)

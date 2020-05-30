@@ -188,37 +188,64 @@ a:target	{ background-color: yellow; }
 .title   { font-family:Verdana, Geneva, sans-serif; }   
 .subtext { font-family:Verdana, Geneva, sans-serif; }
 
+
+
 @-webkit-keyframes bluePulse {
-  from { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
-  50%  { text-shadow: 0px 0px 5px rgba(0,0,255,1); }
-  to   { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
+	from { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
+	50%  { text-shadow: 0px 0px 5px rgba(0,0,255,1); }
+	to   { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
 }
 
-.upvoted a:link, .upvoted a:visited {
-  -webkit-animation-name: bluePulse;
-  -webkit-animation-duration: 2s;
-  -webkit-animation-iteration-count: infinite;
+#override .upvoted a:link, 
+#override .upvoted a:visited,
+#override .upvoted a:hover,
+#override .upvoted a:focus {
+	-webkit-animation-name: bluePulse;
+	-webkit-animation-duration: 2s;
+	-webkit-animation-iteration-count: infinite;
 }
 
 @-webkit-keyframes redPulse {
-  from { text-shadow: 0px 0px 5px rgba(255,0,0,0); }
-  50%  { text-shadow: 0px 0px 5px rgba(255,0,0,1); }
-  to   { text-shadow: 0px 0px 5px rgba(255,0,0,0); }
+	from { text-shadow: 0px 0px 5px rgba(255,0,0,0); }
+	50%  { text-shadow: 0px 0px 5px rgba(255,0,0,1); }
+	to   { text-shadow: 0px 0px 5px rgba(255,0,0,0); }
 }
 
-.downvoted a:link, .downvoted a:visited {
-  -webkit-animation-name: redPulse;
-  -webkit-animation-duration: 2s;
-  -webkit-animation-iteration-count: infinite;
+#override .downvoted a:link, 
+#override .downvoted a:visited,
+#override .downvoted a:hover,
+#override .downvoted a:focus {
+	-webkit-animation-name: redPulse;
+	-webkit-animation-duration: 2s;
+	-webkit-animation-iteration-count: infinite;
 }
+
+#override .upvote   a:link, 
+#override .upvote   a:visited { 
+	color:#68a; 
+	text-decoration: none; 
+}
+#override .downvote a:link, 
+#override .downvote a:visited { 
+	color:#a86; 
+	text-decoration: none; 
+}
+
+#override .upvote   a:hover, 
+#override .upvoted  a:link,   
+#override .upvoted  a:visited { 
+	color:#00f; 
+	text-decoration: none; 
+}
+#override .downvote a:hover, 
+#override .downvoted a:link, 
+#override .downvoted a:visited { 
+	color:#f00; 
+	text-decoration: none; 
+}
+
 
 .active{border:2px solid #f00;}
-
-.upvote   a:link, .upvote   a:visited { color:#68a; text-decoration: none; }
-.downvote a:link, .downvote a:visited { color:#a86; text-decoration: none; }
-
-.upvote   a:hover, .upvoted a:link,   .upvoted   a:visited { color:#00f; text-decoration: none; }
-.downvote a:hover, .downvoted a:link, .downvoted a:visited { color:#f00; text-decoration: none; }
 
 .yclinks { font-family:Verdana, Geneva, sans-serif; color:#828282; }
 .pagetop { font-family:Verdana, Geneva, sans-serif; color:#222222; }

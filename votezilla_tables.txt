@@ -1,13 +1,11 @@
-Great article on writing demographic questions!: https://www.surveygizmo.com/survey-blog/how-to-write-better-demographic-questions/
-Pew Research:                                    http://www.pewresearch.org/files/2015/03/Demographic-Questions-Web-and-Mail-English-3-20-2015.pdf
-
 \connect vz
 SET client_encoding = 'UTF8';
 
+
+
+
 CREATE DATABASE vz ENCODING 'UTF8';
 CREATE SCHEMA vz;
-
-
 
 CREATE TABLE vz.User (
     Id              BIGSERIAL   PRIMARY KEY,   
@@ -95,6 +93,14 @@ CREATE TABLE vz.PostVote (
     Up                BOOL          NOT NULL,
     Created           TIMESTAMPTZ  NOT NULL DEFAULT now(),
     UNIQUE(PostId, UserId)
+);
+
+CREATE TABLE vz.CommentVote (
+    CommentId         BIGINT        NOT NULL,
+    UserId            BIGINT        NOT NULL,
+    Up                BOOL          NOT NULL,
+    Created           TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    UNIQUE(CommentId, UserId)
 );
 
 DROP TABLE vz.Comment;

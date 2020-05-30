@@ -158,8 +158,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 						ELSE -1
 				   END AS Upvoted
 			FROM (%s) x
-			LEFT JOIN $$PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
-			ORDER BY v.Created DESC`,
+			LEFT JOIN $$PostVote v ON x.Id = v.PostId AND (v.UserId = %d)`,
 			query,
 			fetchVotesForUserId)
 	}
@@ -364,10 +363,10 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 //////////////////////////////////////////////////////////////////////////////
 //
 // fetch news articles partitioned by category, up to articlesPerCategory
-// articles per category, up to maxArticles total, which excludeUserId did not vote on.
+// articles per category, up to maxArticles total.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId int64, maxArticles int) ([]Article) {
+func fetchArticlesPartitionedByCategory(articlesPerCategory int, userId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
 		"IS NOT NULL",        // idCondition
 		"IS NOT NULL",        // userIdCondition
@@ -375,7 +374,7 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, excludeUserId i
 		"IS NOT NULL",		  // newsSourceIdCondition	string
 		articlesPerCategory,  // articlesPerCategory 	int
 		maxArticles,		  // maxArticles 			int
-		-1,					  // fetchVotesForUserId 	int64
+		userId,				  // fetchVotesForUserId 	int64
 		false)				  // onlyPolls				bool
 }
 
@@ -392,7 +391,7 @@ func fetchArticlesCommentedOnByUser(userId int64, maxArticles int) ([]Article) {
 		"IS NOT NULL",						                                                      // newsSourceIdCondition	string
 		-1,																						  // articlesPerCategory 	int
 		maxArticles,																			  // maxArticles 			int
-		-1,																						  // fetchVotesForUserId 	int64
+		userId,																					  // fetchVotesForUserId 	int64
 		false)							 														  // onlyPolls				bool
 }
 
@@ -417,10 +416,9 @@ func fetchArticlesUpDownVotedOnByUser(userId int64, maxArticles int) ([]Article)
 //////////////////////////////////////////////////////////////////////////////
 //
 // fetch articles within a particular category, up to maxArticles total,
-// which excludeUserId did not vote on.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticles int) ([]Article) {
+func fetchArticlesWithinCategory(category string, userId int64, maxArticles int) ([]Article) {
 	_, foundCategory := newsCategoryInfo.HeaderColors[category]
 
 	if foundCategory {
@@ -431,7 +429,7 @@ func fetchArticlesWithinCategory(category string, excludeUserId int64, maxArticl
 			"IS NOT NULL",						   // newsSourceIdCondition	string
 			-1,									   // articlesPerCategory 	int
 			maxArticles,						   // maxArticles 			int
-			-1,									   // fetchVotesForUserId 	int64
+			userId,								   // fetchVotesForUserId 	int64
 			false)							 	   // onlyPolls				bool
 	} else {
 		prVal("Unknown category", category)
@@ -453,7 +451,7 @@ func fetchArticlesPostedByUser(userId int64, maxArticles int) ([]Article) {
 		"IS NOT NULL",						   // newsSourceIdCondition	string
 		-1,									   // articlesPerCategory 	int
 		maxArticles,						   // maxArticles 			int
-		-1,									   // fetchVotesForUserId 	int64
+		userId,								   // fetchVotesForUserId 	int64
 		false)							 	   // onlyPolls				bool
 }
 

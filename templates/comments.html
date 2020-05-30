@@ -102,7 +102,7 @@
 						<span class="age" align="right">5h</span>
 
 						<p>
-							<a id="comment_{{$tag.Id}}" style="word-wrap: break-word;">
+							<a id="comment_{{$tag.Id}}" style="word-wrap: break-word; cursor: normal; color: black;">
 								{{- range $_, $textLine := $tag.Text }}
 									{{ $textLine }}
 									<br>
@@ -111,7 +111,9 @@
 						<p>
 
 						{{- if $tag.IsExpandible -}}
-							<a id="expand_{{$tag.Id}}" onClick="ExpandComment({{$tag.Id}})";>Expand...</a>
+							<a id="expand_{{$tag.Id}}" onClick="ExpandComment({{$tag.Id}})" style="cursor: pointer; color: black;">
+								Expand...
+							</a>
 						{{- end -}}
 
 						<table class="commentWidgets"><tr>
