@@ -460,17 +460,19 @@ func fetchArticlesPostedByUser(userId int64, maxArticles int) ([]Article) {
 // fetch articles from a news source.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesFromThisNewsSource(newsSourceId string) (articles []Article) {
+func fetchArticlesFromThisNewsSource(newsSourceId string, userId, skipArticleId int64) (articles []Article) {
 	// TODO_SECURITY: add additional check for newsSourceId within known news sources.
 
 	return _queryArticles(
-		"IS NOT NULL", 				                 // idCondition 			string
+		ternary_str(skipArticleId > 0,
+			"!= " + strconv.FormatInt(skipArticleId, 10),  // idCondition 		string
+			"IS NOT NULL"), 				               // idCondition 		string
 		"IS NOT NULL",   			                 // userIdCondition 		string
 		"IS NOT NULL",   			                 // categoryCondition 	    string
 		"= '" + sqlEscapeString(newsSourceId) + "'", // newsSourceIdCondition	string
 		-1,              			                 // articlesPerCategory 	int
 		10,     					                 // maxArticles 			int
-		-1,             			                 // fetchVotesForUserId 	int64
+		userId,            			                 // fetchVotesForUserId 	int64
 		false)										 // onlyPolls				bool
 }
 
@@ -479,14 +481,16 @@ func fetchArticlesFromThisNewsSource(newsSourceId string) (articles []Article) {
 // fetch polls.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchPolls() (articles []Article) {
+func fetchPolls(userId, skipArticleId int64) (articles []Article) {
 	return _queryArticles(
-		"IS NOT NULL", 	// idCondition 				string
+		ternary_str(skipArticleId > 0,
+			"!= " + strconv.FormatInt(skipArticleId, 10),  // idCondition 		string
+			"IS NOT NULL"), 				               // idCondition 		string
 		"IS NOT NULL",  // userIdCondition 			string
 		"IS NOT NULL",  // categoryCondition 	    string
 		"IS NOT NULL",	// newsSourceIdCondition	string
 		-1,             // articlesPerCategory 		int
 		5,     			// maxArticles 				int
-		-1,             // fetchVotesForUserId 		int64
+		userId,         // fetchVotesForUserId 		int64
 		true)			// onlyPolls				bool
 }

@@ -298,6 +298,8 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 //
 //////////////////////////////////////////////////////////////////////////////
 func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64) {
+	prVal("deduceVotingArrows len(articles)", len(articles))
+
 	for _, article := range articles {
 
 		if article.Upvoted == 1 {
@@ -426,10 +428,14 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	articleGroups := []ArticleGroup{}
 
+	allArticles := []Article{}
+
 	// Get articles posted by user
 	pr("Get articles posted by user")
 	{
 		articles := fetchArticlesPostedByUser(userId, kNumCols * kRowsPerCategory)
+
+		allArticles = articles
 
 		for a := range articles {
 			articles[a].Bucket = kSubmittedPosts
@@ -444,6 +450,8 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	{
 		articles := fetchArticlesCommentedOnByUser(userId, kNumCols * kRowsPerCategory)
 
+		allArticles = append(allArticles, articles...)
+
 		for a := range articles {
 			articles[a].Bucket = kCommentedPosts
 		}
@@ -453,23 +461,24 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get articles up/down voted on by user, and set their bucket accordingly.
-	var upvotes, downvotes []int64
 	pr("Get articles voted on by user, and set their bucket accordingly.")
 	{
 		articles := fetchArticlesUpDownVotedOnByUser(userId, kNumCols * kRowsPerCategory)
 
-		upvotes, downvotes = deduceVotingArrows(articles)
+		allArticles = append(allArticles, articles...)
 
 		for a := range articles {
 			articles[a].Bucket = kVotedPosts
 		}
 
-		prVal("upvotes", upvotes)
-		prVal("downvotes", downvotes)
-
 		articleGroups = append(articleGroups,
 			formatArticleGroups(articles, historyCategoryInfo, kVotedPosts, kNoHeadlines)...)
 	}
+
+	upvotes, downvotes := deduceVotingArrows(allArticles)
+
+	prVal("upvotes", upvotes)
+	prVal("downvotes", downvotes)
 
 
 	// Render the history just like we render the news.

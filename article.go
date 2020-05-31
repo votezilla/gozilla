@@ -82,7 +82,6 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	upvotes, downvotes := deduceVotingArrows([]Article{article})
 
 	articleGroups := make([]ArticleGroup, len(newsCategoryInfo.CategoryOrder))
 
@@ -93,11 +92,19 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 
 	moreArticles := []Article{}
 	if article.IsPoll {
-		moreArticles = fetchPolls()
+		moreArticles = fetchPolls(userId, postId)
 	} else {
-		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId)
+		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId, userId, postId)
 	}
-	//prVal("moreArticles", moreArticles)
+
+	prVal("len(moreArticles)", len(moreArticles))
+
+	prVal("len(concated articles)", len(append(moreArticles, article)))
+
+	upvotes, downvotes := deduceVotingArrows(append(moreArticles, article))
+
+	prVal("upvotes", upvotes)
+	prVal("downvotes", downvotes)
 
 	// Render the news articles.
 	articleArgs := struct {

@@ -32,11 +32,7 @@
 				<tr>
 					<td class="subtext" style="width: 100%; padding-left: 5px;">
 						<table width="100%"><tr>
-							<td align="left" style="width: 40%;">
-								<span class="upvote" id="upvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, true)" class="upvote">&#x25B2;</a></span>
-								<a href="#" id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
-								<span class="downvote" id="downvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, false)">&#x25BC;</a></span>
-							</td>
+							{{ template "PostVoteWidget" $article }}
 							<td align="right" style="width: 40%; padding-right: 5px;">
 								<a href="#">...</a>
 							</td>

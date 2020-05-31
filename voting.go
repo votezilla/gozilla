@@ -294,92 +294,6 @@ func testPopupHandler(w http.ResponseWriter, r *http.Request) {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// view poll results
-//
-//////////////////////////////////////////////////////////////////////////////
-// TODO: This is just duplicate code, make it view the results.  (Same or different handler for adding the vote?)
-func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
-
-	pr("viewPollResultsHandler")
-
-	prVal("r.URL.Query()", r.URL.Query())
-
-	reqVoteData := parseUrlParam(r, "voteData")
-	prVal("reqVoteData", reqVoteData)
-
-	decodedVoteData, err := url.QueryUnescape(reqVoteData)
-	check(err)
-	prVal("decodedVoteData", decodedVoteData)
-
-	voteData := strings.Split(decodedVoteData, ",")
-
-	reqPostId := parseUrlParam(r, "postId")
-
-	postId, err := strconv.ParseInt(reqPostId, 10, 64) // Convert from string to int64.
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
-		return
-	}
-
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
-
-	// TODO_REFACTOR: unify articles and posts in database.
-	article, err := fetchArticle(postId, userId)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
-		return
-	}
-
-	upvotes, downvotes := deduceVotingArrows([]Article{article})
-
-	// Tally the votes
-	pollTallyResults := calcPollTally(postId, article.PollOptionData)
-
-	userVoteString := "" // userVoteString is a textual representation the user's vote(s)."
-	for i, option := range(article.PollOptionData.Options) {
-		userVoteString += ternary_str(voteData[i] != "",  // if the vote was checked:
-			ternary_str(userVoteString != "", ", ", "") + //   concat with ", "
-				option,                                   //   all votes that were checked
-				"")
-	}
-
-	// Render the news articles.
-	viewPollArgs := struct {
-		PageArgs
-		Username			string
-		UserId				int64
-		NavMenu				[]string
-		UrlPath				string
-		Article				Article
-		UpVotes				[]int64
-		DownVotes			[]int64
-		VoteData			[]string
-		UserVoteString		string
-		PollTallyResults	PollTallyResults
-		Comments			[]CommentTag
-	}{
-		PageArgs:			PageArgs{Title: "View Poll Results"},
-		Username:			username,
-		UserId:				userId,
-		NavMenu:			navMenu,
-		UrlPath:			"news",
-		Article:			article,
-		UpVotes:			upvotes,
-		DownVotes:			downvotes,
-		VoteData:			voteData,	// The way this user just voted.
-		UserVoteString:		userVoteString,
-		PollTallyResults:	pollTallyResults,
-		Comments:			ReadCommentTagsFromDB(article.Id),
-	}
-
-	executeTemplate(w, kViewPollResults, viewPollArgs)
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // view poll results II - non-popup
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -419,8 +333,6 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	upvotes, downvotes := deduceVotingArrows([]Article{article})
-
 	// Tally the votes
 	pollTallyResults := calcPollTally(postId, article.PollOptionData)
 
@@ -432,7 +344,9 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 				"")
 	}
 
-	polls := fetchPolls()
+	polls := fetchPolls(userId, postId)
+
+	upvotes, downvotes := deduceVotingArrows(append(polls, article))
 
 	prVal("polls", polls)
 

@@ -181,7 +181,7 @@ func WebServer() {
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 //	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))     // being called directly from registerDetailsHandler
 	http.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
-	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
+//	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 	http.HandleFunc("/viewPollResults2/",   		hwrap(viewPollResultsHandler2))
 
 	// Server static file.

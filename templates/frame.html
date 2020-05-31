@@ -409,7 +409,16 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-{{define "VoteOnPollHandler"}}
+{{ define "PostVoteWidget" }}
+	{{ $article := . }}
+	<td align="left" style="width: 40%;">
+		<span class="upvote" id="upvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, true)" class="upvote">&#x25B2;</a></span>
+		<a href="#" id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
+		<span class="downvote" id="downvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, false)">&#x25BC;</a></span>
+	</td>
+{{ end }}
+
+{{ define "VoteOnPollHandler" }}
 	{{- $article := . -}}
 	{{- $poll := $article.PollOptionData -}}
 	onClick="VoteOnPoll(
@@ -423,7 +432,7 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 			{{- "radio" }}
 		{{- end -}}
 	)"
-{{end}}
+{{ end }}
 
 {{ define "PollInlineForm" }}
 	{{- $article := . -}}

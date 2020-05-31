@@ -31,7 +31,8 @@
 
 {{define "comments"}}
 
-	{{$postId := .Article.Id}}
+	{{ $article := .Article }}
+	{{ $postId := $article.Id }}
 
 	<style>
 		.nuTextarea, .nuTextarea:focus {
@@ -117,11 +118,7 @@
 						{{- end -}}
 
 						<table class="commentWidgets"><tr>
-							<td align="left" style="width: 40%;">
-								<span class="upvote" id="upvote{{$postId}}"><a href="javascript:Vote({{$postId}}, true)" class="upvote">&#x25B2;</a></span>
-								<a href="#" id="votetally{{$postId}}">0</a>
-								<span class="downvote" id="downvote{{$postId}}"><a href="javascript:Vote({{$postId}}, false)">&#x25BC;</a></span>
-							</td>
+							{{ template "PostVoteWidget" $article }}
 							<td align="center" style="width: auto;">
 								<a href="#">...</a>
 							</td>
