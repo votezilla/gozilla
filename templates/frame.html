@@ -135,7 +135,7 @@ $(function() {
 
 loggedIn = {{ if .Username }} true {{ else }} false {{ end }} ;
 
-var votedPosts = [[], []];
+var votedPosts = [[[], []], [[], []]];
 
 function removeItem(arr, item) {
 	var index = arr.indexOf(item);
@@ -145,50 +145,70 @@ function removeItem(arr, item) {
 }
 
 // Whether an upvote or down with this id is enabled.
-function hasVote(id, up) {
-	return votedPosts[up ? 1 : 0].includes(id)
+function hasVote(id, up, bcomment) {
+	return votedPosts[up ? 1 : 0][bcomment ? 1 : 0].includes(id)
 }
 
 // Add or remove the voting state.  Also updates the vote tally text.
-function addOrRemoveVoteState(id, add, up) {
+function addOrRemoveVoteState(id, add, up, bcomment) {
 	if (add) {
-		votedPosts[up ? 1 : 0].push(id)
+		votedPosts[up ? 1 : 0][bcomment ? 1 : 0].push(id)
 
 	} else { // remove
-		removeItem(votedPosts[up ? 1 : 0], id)
+		removeItem(votedPosts[up ? 1 : 0][bcomment ? 1 : 0], id)
 	}
 }
 
 // Increment or decrement vote tally text.
-function incVoteLabel(id, voteInc) {
-	label = $("#votetally" + id)
+function incVoteLabel(id, bcomment, voteInc) {
+	if (bcomment) {
+		label = $("#votetallyComment" + id)
+	} else {
+		label = $("#votetally" + id)
+	}
 	count = parseInt(label.text())
 	label.text(count + voteInc)
 }
 
 // Add or remove a vote via state, CSS, and updating of database via AJAX.
-function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
+function addOrRemoveVote(id, add, up, bcomment, updateDatabase, updateText) {
 	// state
-	addOrRemoveVoteState(id, add, up)
+	addOrRemoveVoteState(id, add, up, bcomment)
 
 	// glowing arrow CSS
-	if (add) {
-		if (up) {
-			$("#upvote" + id).addClass("upvoted")
-		} else {
-			$("#downvote" + id).addClass("downvoted")
+	if (bcomment) {
+		if (add) {
+			if (up) {
+				$("#upvoteComment" + id).addClass("upvoted")
+			} else {
+				$("#downvoteComment" + id).addClass("downvoted")
+			}
+		} else { // remove
+			if (up) {
+				$("#upvoteComment" + id).removeClass("upvoted")
+			} else {
+				$("#downvoteComment" + id).removeClass("downvoted")
+			}
 		}
-	} else { // remove
-		if (up) {
-			$("#upvote" + id).removeClass("upvoted")
-		} else {
-			$("#downvote" + id).removeClass("downvoted")
+	} else {
+		if (add) {
+			if (up) {
+				$("#upvote" + id).addClass("upvoted")
+			} else {
+				$("#downvote" + id).addClass("downvoted")
+			}
+		} else { // remove
+			if (up) {
+				$("#upvote" + id).removeClass("upvoted")
+			} else {
+				$("#downvote" + id).removeClass("downvoted")
+			}
 		}
 	}
 
 	// vote tally text
 	if (updateText) {
-		incVoteLabel(id, (add && up || !add && !up) ? 1 : -1)
+		incVoteLabel(id, bcomment, (add && up || !add && !up) ? 1 : -1)
 	}
 
 	// AJAX - database state
@@ -197,7 +217,7 @@ function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
 			url: '/ajaxVote/',
 			type: "post",
 			contentType: 'application/json; charset=utf-8',
-			data: JSON.stringify({PostId: id, Add: add, Up: up}), // Hmmm <-- should be UserId not Username
+			data: JSON.stringify({PostId: id, Add: add, Up: up, IsComment: bcomment}), // Hmmm <-- should be UserId not Username
 			dataType: 'json',
 			success: function(r) { console.log("AJAX - success"); },
 			error:   function(r) { console.log("AJAX - error"); }
@@ -206,36 +226,35 @@ function addOrRemoveVote(id, add, up, updateDatabase, updateText) {
 }
 
 // Cancel an up or down vote
-function cancelVote(id, up) {
-	if (hasVote(id, up)) {
-		addOrRemoveVote(id, false, up, false, true) // cancel
+function cancelVote(id, up, bcomment) {
+	if (hasVote(id, up, bcomment)) {
+		addOrRemoveVote(id, false, up, bcomment, false, true) // cancel
 	}
 }
 
 // Toggle an up or down vote
 // (Only toggleVote should send the AJAX, otherwise there will be a race condition in updating the database.)
-function toggleVote(id, up) {
-	if (hasVote(id, up)) {
-		addOrRemoveVote(id, false, up, true, true) // cancel.
+function toggleVote(id, up, bcomment) {
+	if (hasVote(id, up, bcomment)) {
+		addOrRemoveVote(id, false, up, bcomment, true, true) // cancel.
 	} else {
-		addOrRemoveVote(id, true,  up, true, true) // enable
+		addOrRemoveVote(id, true,  up, bcomment, true, true) // enable
 	}
 }
-
-// TODO: there is a bug somewhere where you upvote, then downvote, and it ends up at a 0.
 
 // Vote up or down on a post.  Or if already voted, cancels the vote.
 // id: postId
 // up: true for up, false for down
-function Vote(id, up) {
+function Vote(id, up, bcomment) {
 	if (loggedIn) {
-		cancelVote(id, !up) // cancel opposite type of vote
-		toggleVote(id, up)  // toggle this type of vote
+		cancelVote(id, !up, bcomment) // cancel opposite type of vote
+		toggleVote(id, up, bcomment)  // toggle this type of vote
 	} else {
 		alert("You must be logged in to do that!")
 	}
 }
 
+// On load, set the style for the up/down votes that the user has already voted on.
 $(function() {
     {{ range $_, $id := $.UpVotes}}
     	addOrRemoveVote({{$id}}, true, true, false, false)  // Add a upvote presentation, but do not update the database.
@@ -243,6 +262,8 @@ $(function() {
     {{ range $_, $id := $.DownVotes}}
 	    addOrRemoveVote({{$id}}, true, false, false, false) // Add a downvote presentation, but do not update the database.
     {{ end }}
+	
+	// CHECKIN_TODO: add .CommentUpVotes and .CommentDownVotes here!!!
 });
 
 
@@ -412,9 +433,26 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 {{ define "PostVoteWidget" }}
 	{{ $article := . }}
 	<td align="left" style="width: 40%;">
-		<span class="upvote" id="upvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, true)" class="upvote">&#x25B2;</a></span>
-		<a href="#" id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
-		<span class="downvote" id="downvote{{$article.Id}}"><a href="javascript:Vote({{$article.Id}}, false)">&#x25BC;</a></span>
+		<span class="upvote" id="upvote{{$article.Id}}">
+			<a href="javascript:Vote({{$article.Id}}, true, false)" class="upvote">&#x25B2;</a>
+		</span>
+		<a id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
+		<span class="downvote" id="downvote{{$article.Id}}">
+			<a href="javascript:Vote({{$article.Id}}, false, false)" class="downvote">&#x25BC;</a>
+		</span>
+	</td>
+{{ end }}
+
+{{ define "CommentVoteWidget" }}
+	{{ $tag := . }}
+	<td align="left" style="width: 40%;">
+		<span class="upvote" id="upvoteComment{{$tag.Id}}">
+			<a href="javascript:Vote({{$tag.Id}}, true, true)" class="upvote">&#x25B2;</a>
+		</span>
+		<a id="votetallyComment{{$tag.Id}}">{{$tag.VoteTally}}</a>
+		<span class="downvote" id="downvoteComment{{$tag.Id}}">
+			<a href="javascript:Vote({{$tag.Id}}, false, true)" class="downvote">&#x25BC;</a>
+		</span>
 	</td>
 {{ end }}
 

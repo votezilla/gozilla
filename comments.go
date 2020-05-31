@@ -34,6 +34,8 @@ type CommentTag struct {
 	IsChildrenEnd	bool
 
 	IsExpandible	bool
+
+	VoteTally		int64
 }
 
 

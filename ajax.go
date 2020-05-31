@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/puerkitobio/goquery"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -36,9 +37,10 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
 
     //parse request to struct
     var vote struct {
-		PostId	int
-		Add		bool
-		Up		bool
+		PostId		int
+		Add			bool
+		Up			bool
+		IsComment	bool
 	}
 
     err := json.NewDecoder(r.Body).Decode(&vote)
@@ -50,19 +52,29 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
 
     prVal("vote", vote)
 
+    voteTable    := ternary_str(vote.IsComment, "$$CommentVote", "$$PostVote")
+    voteIdColumn := ternary_str(vote.IsComment, "CommentId", "PostId")
+
 	if vote.Add {
     	DbExec(
-			`INSERT INTO $$PostVote(PostId, UserId, Up)
-			 VALUES ($1::bigint, $2::bigint, $3::bool)
-			 ON CONFLICT (PostId, UserId) DO UPDATE
-			 SET Up = $3::bool;`,
+			fmt.Sprintf(
+				`INSERT INTO %s(%s, UserId, Up)
+				 VALUES ($1::bigint, $2::bigint, $3::bool)
+				 ON CONFLICT (%s, UserId) DO UPDATE
+				 SET Up = $3::bool;`,
+				 voteTable,
+				 voteIdColumn,
+				 voteIdColumn),
 			vote.PostId,
 			userId,
 			vote.Up)
 	} else { // remove
 		DbExec(
-			`DELETE FROM $$PostVote
-			 WHERE PostId = $1::bigint AND UserId = $2::bigint;`,
+			fmt.Sprintf(
+				`DELETE FROM %s
+				 WHERE %s = $1::bigint AND UserId = $2::bigint;`,
+				 voteTable,
+				 voteIdColumn),
 			vote.PostId,
 			userId)
 	}
