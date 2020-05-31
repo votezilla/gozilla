@@ -78,7 +78,17 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
 			vote.PostId,
 			userId)
 	}
-
+/*
+	DbExec(
+		fmt.Sprintf(
+		   `UPDATE %s
+			SET voteTally = voteTally + $1
+			WHERE %s = $2::bigint`,
+			voteTable,
+			voteIdColumn),
+		vote.Add
+		vote.PostId)
+*/
     // create json response from struct
     a, err := json.Marshal(vote)
     if err != nil {

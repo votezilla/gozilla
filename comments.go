@@ -35,7 +35,7 @@ type CommentTag struct {
 
 	IsExpandible	bool
 
-	VoteTally		int64
+	VoteTally		int
 }
 
 
@@ -227,20 +227,43 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 	commentTags := []CommentTag{}
 
 	// The simpler way for now:
-	rows := DbQuery(`SELECT c.Id, Text, COALESCE(u.Username, ''), COALESCE(array_length(Path, 1), 0)
-					 FROM $$Comment c
-					 LEFT JOIN $$User u
-					 ON c.UserId = u.Id
-					 WHERE PostId = $1::bigint
-					 ORDER BY Path`,
-				 postId)
+	rows := DbQuery(
+	   `WITH comments AS (
+			 SELECT c.Id AS Id,
+					Text,
+					COALESCE(u.Username, '') AS Username,
+					COALESCE(array_length(Path, 1), 0) AS PathLength,
+					Path
+			 FROM $$Comment c
+			 LEFT JOIN $$User u
+			 ON c.UserId = u.Id
+			 WHERE PostId = $1::bigint
+			 ORDER BY Path
+			),
+			votes AS (
+				SELECT CommentId,
+					   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+				FROM $$CommentVote
+				WHERE CommentId IN (SELECT Id FROM comments)
+				GROUP BY CommentId
+			)
+		SELECT comments.Id, 
+			comments.Text, 
+			comments.Username, 
+			comments.PathLength, 
+			COALESCE(votes.VoteTally, 0) AS VoteTally
+		FROM comments
+		LEFT JOIN votes ON comments.Id = votes.CommentId
+		ORDER BY comments.Path`,
+		postId)
+
 	defer rows.Close()
 	for rows.Next() {
 		var pathLen	 	 	int64
 		var commentText		string
 		var newCommentTag	CommentTag
 
-		err := rows.Scan(&newCommentTag.Id, &commentText, &newCommentTag.Username, &pathLen)
+		err := rows.Scan(&newCommentTag.Id, &commentText, &newCommentTag.Username, &pathLen, &newCommentTag.VoteTally)
 		check(err)
 
 		// Compare current path to previous path.
