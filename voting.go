@@ -348,7 +348,7 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 
 	upvotes, downvotes := deduceVotingArrows(append(polls, article))
 
-	comments, upcommentvotes, downcommentvotes := ReadCommentTagsFromDB(article.Id, userId)
+	headComment, upcommentvotes, downcommentvotes := ReadCommentsFromDB(article.Id, userId)
 
 	prVal("upvotes", upvotes)
 	prVal("downvotes", downvotes)
@@ -370,7 +370,7 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 		VoteData					[]string
 		UserVoteString				string
 		PollTallyResults			PollTallyResults
-		Comments					[]CommentTag
+		HeadComment					Comment
 		MoreArticlesFromThisSource	[] Article
 	}{
 		PageArgs:					PageArgs{Title: "View Poll Results"},
@@ -386,7 +386,7 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 		VoteData:					voteData,	// The way this user just voted.
 		UserVoteString:				userVoteString,
 		PollTallyResults:			pollTallyResults,
-		Comments:					comments,
+		HeadComment:				headComment,
 		MoreArticlesFromThisSource: polls,
 	}
 

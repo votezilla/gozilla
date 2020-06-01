@@ -103,7 +103,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 
 	upvotes, downvotes := deduceVotingArrows(append(moreArticles, article))
 
-	comments, upcommentvotes, downcommentvotes := ReadCommentTagsFromDB(article.Id, userId)
+	headComment, upcommentvotes, downcommentvotes := ReadCommentsFromDB(article.Id, userId)
 
 	prVal("upvotes", upvotes)
 	prVal("downvotes", downvotes)
@@ -122,7 +122,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		DownVotes		[]int64
 		UpCommentVotes	[]int64
 		DownCommentVotes []int64
-		Comments		[]CommentTag
+		HeadComment		Comment
 		ArticleGroups	[]ArticleGroup
 		MoreArticlesFromThisSource	[]Article
 	}{
@@ -136,7 +136,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		DownVotes:		downvotes,
 		UpCommentVotes:	upcommentvotes,
 		DownCommentVotes: downcommentvotes,
-		Comments:		comments,
+		HeadComment:	headComment,
 		ArticleGroups:	articleGroups,
 		MoreArticlesFromThisSource:	moreArticles,
 	}

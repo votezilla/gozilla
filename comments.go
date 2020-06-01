@@ -16,7 +16,11 @@ const (
 type Comment struct {
 	Id				int64		// id == -1 if pointing to the Post. (So not a comment, but the children are all L0 comments.)
 	Username		string
-	Text			string
+	Text			[]string	// an array of strings, separated by <br>.  Do it this way so the template can handle it.
+	VoteTally		int
+	IsExpandible	bool
+	PostId			int64
+	IsHead			bool
 
 	Children		[]*Comment
 	Parent			*Comment
@@ -25,17 +29,15 @@ type Comment struct {
 // For representing a hierarchical tree of comments in a flattened list.
 type CommentTag struct {
 	Id				int64
-
 	Username		string
-	Text			[]string
+	Text			[]string	// an array of strings, separated by <br>.  Do it this way so the template can handle it.
+	VoteTally		int
 
 	IsHead			bool
 	IsChildrenStart	bool
 	IsChildrenEnd	bool
 
 	IsExpandible	bool
-
-	VoteTally		int
 }
 
 
@@ -208,6 +210,15 @@ func ajaxExpandComment(w http.ResponseWriter, r *http.Request) {
 }
 
 
+
+func prComment(comment *Comment, depth int) {
+
+}
+
+func sortComment(comment *Comment) {
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // read comment tags from db
@@ -218,11 +229,15 @@ func ajaxExpandComment(w http.ResponseWriter, r *http.Request) {
 // TODO: We'll eventually need to call ReadCommentsFromDB, so the children of each comment can be sorted by upvote.
 //
 //////////////////////////////////////////////////////////////////////////////
-func ReadCommentTagsFromDB(postId, userId int64) (commentTags []CommentTag, upCommentVotes, downCommentVotes []int64) {
+func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVotes, downCommentVotes []int64) {
+	headComment.Id = -1
+	headComment.IsHead = true
+
+	pPrevComment  := &headComment
 	prevPathDepth := int64(0)
 	var pathLengthDiff int64
 
-	pr("ReadCommentTagsFromDB:")
+	pr("ReadCommentsFromDB:")
 
 	// The simpler way for now:
 	rows := DbQuery(
@@ -264,45 +279,27 @@ func ReadCommentTagsFromDB(postId, userId int64) (commentTags []CommentTag, upCo
 
 	defer rows.Close()
 	for rows.Next() {
+		var newComment		Comment
+
 		var pathLen	 	 	int64
 		var commentText		string
-		var newCommentTag	CommentTag
 		var upvoted			int
 
-		err := rows.Scan(&newCommentTag.Id, &commentText, &newCommentTag.Username, &pathLen, &newCommentTag.VoteTally, &upvoted)
+		err := rows.Scan(&newComment.Id, &commentText, &newComment.Username, &pathLen, &newComment.VoteTally, &upvoted)
 		check(err)
 
 		switch(upvoted) {
-			case  1:	  upCommentVotes = append(  upCommentVotes, newCommentTag.Id); break;
-			case -1:	downCommentVotes = append(downCommentVotes, newCommentTag.Id); break;
-		}
-
-		// Compare current path to previous path.
-		// Then we assign prevPathDepth to be the parent of the new node.
-		pathLengthDiff = pathLen - prevPathDepth
-		//prVal("pathLen", pathLen)
-		//prVal("pathLengthDiff", pathLengthDiff)
-		if pathLengthDiff <= 0 {    // we're a sibling of the previous comment's parent, grandparent, great greatparent, etc.
-			for i := int64(0); i < -pathLengthDiff; i++ {
-				//pr("  tag: IsChildrenEnd")
-				commentTags = append(commentTags, CommentTag{ IsChildrenEnd: true })
-			}
-		} else if pathLengthDiff == 1 { // we're a child of the previous comment
-			//pr("  tag: IsChildrenStart")
-			commentTags = append(commentTags, CommentTag{ IsChildrenStart: true })
-		} else {
-			assertMsg(pathLengthDiff == 0, "We would have something weird here, a comment with grandchildren but no children.")
-
-			// Note: We made it here, so we're a sibling of the previous comment.
+			case  1:	  upCommentVotes = append(  upCommentVotes, newComment.Id); break;
+			case -1:	downCommentVotes = append(downCommentVotes, newComment.Id); break;
 		}
 
 		// Convert newlines to be HTML-friendly -
 		//    split into lines so the template file can handle it,
 		//    add elipsis if too long.
-		newCommentTag.Text = strings.Split(commentText, "\n")
+		newComment.Text = strings.Split(commentText, "\n")
 
 		numLinesApprox := 0
-		for i, textLine := range newCommentTag.Text {
+		for i, textLine := range newComment.Text {
 			if i > 0 {
 				numLinesApprox++
 			}
@@ -319,7 +316,7 @@ func ReadCommentTagsFromDB(postId, userId int64) (commentTags []CommentTag, upCo
 			if numLinesApprox > kMaxCommentLines {
 
 				// Truncate additional lines.
-				newCommentTag.Text = newCommentTag.Text[:i+1]
+				newComment.Text = newComment.Text[:i+1]
 
 				if linesLeft < 0 {
 					linesLeft = 0
@@ -327,102 +324,56 @@ func ReadCommentTagsFromDB(postId, userId int64) (commentTags []CommentTag, upCo
 
 				// Truncate last line if too long.
 				if length > linesLeft * kCharsPerLine {
-					newCommentTag.Text[i] = newCommentTag.Text[i][:linesLeft * kCharsPerLine]
+					newComment.Text[i] = newComment.Text[i][:linesLeft * kCharsPerLine]
 				}
 
 				// End the line with ellipsis.
-				newCommentTag.Text[i] += "..."
+				newComment.Text[i] += "..."
 
-				newCommentTag.IsExpandible = true
+				newComment.IsExpandible = true
 
 				break
 			}
 		}
 
-		//prVal("newCommentTag.Text", newCommentTag.Text)
+		// Set the postId
+		newComment.PostId = postId
 
-
-		//         then, ... is a linkn to #this_comment
-		//
-
-		// Add this comment tag to the list.
-		//prVal("  tag: Text", newCommentTag.Text)
-		commentTags = append(commentTags, newCommentTag)
-
-		prevPathDepth = pathLen
-	}
-	check(rows.Err())
-
-	// Close out our existing child comment depth.
-	//prVal("closing prevPathDepth", prevPathDepth)
-	for i := int64(0); i < prevPathDepth; i++ {
-		//pr("  tag: IsChildrenEnd")
-		commentTags = append(commentTags, CommentTag{ IsChildrenEnd: true })
-	}
-
-	//prVal("ReadCommentTagsFromDB returning", commentTags)
-
-	//commentTags = commentTags[1:len(commentTags)-1]
-
-	return commentTags, upCommentVotes, downCommentVotes
-}
-
-/* KEEP THIS CODE!!! vv
-// TODO: IT NEEDS TO DO IT THIS WAY, SINCE WE MUST SORT THE CHILDREN BY RANK VOTE.  ANYWAYS... LET'S KEEP IT HOW WE HAVE IT
-//       FOR NOW, AND IMPLEMENT THIS A BIT LATER.   vvv
-
-
-
-// NOTE: We're not using this code at the moment, so it's untested!
-// Read the comment tree for a post fromm the database.
-func ReadCommentsFromDB(postId int) *Comment {
-	var headComment	Comment
-	headComment.Id = -1
-	pPrevComment  := &headComment
-	//curDepth 	  := 0
-	prevPathDepth := int64(0)
-
-	var pathLengthDiff int64
-
-	// The simpler way for now: vvv
-	rows := DbQuery(`SELECT PostId, Text, array_length(Path, 1), u.Name
-					 FROM $$Comment c
-					 LEFT JOIN $$User u
-					 ON c.UserId = u.Id
-					 WHERE PostId = $1::bigint
-					 ORDER BY Path`,
-					 postId)
-	defer rows.Close()
-	for rows.Next() {
-		var pathLen	 int64
-		var newComment Comment
-
-		err := rows.Scan(&newComment.Id, &newComment.Text, &newComment.Username, &pathLen)
-		check(err)
 
 		// Compare current path to previous path.
-		// Then we assign prevPathDepth to be the parent of the new node.
 		pathLengthDiff = pathLen - prevPathDepth
-		if pathLengthDiff <= 0 {  // Current comment is a child of the previous comment's parent, grandparent, etc.
-			for i := int64(0); i < int64(1) - pathLengthDiff; i++ { // 0->parent, 1->grantparent, 2->great grandparent, etc.
+		prVal("pathLen", pathLen)
+		prVal("pathLengthDiff", pathLengthDiff)
+
+		// Assign pPrevComment to the be the parent of the new node.
+		if pathLengthDiff <= 0 {    // we're a sibling of the previous comment, or its parent, grandparent, etc.
+			for i := int64(0); i < 1 - pathLengthDiff; i++ {
+				pr("  pPrevComment = pPrevComment.Parent")
 				pPrevComment = pPrevComment.Parent
 			}
 		} else {
 			assertMsg(pathLengthDiff == 1, "We would have something weird here, a comment with grandchildren but no children.")
-
-			// Note: if pathLengthDiff == 1, we have what we want because pPrevComment is already the parent of newComment.
 		}
 
-		// Add the new comment as a child of pPrevComment.
-		newComment.Parent = pPrevComment
+		// Add newComment as a child of pPrevComment.
 		pPrevComment.Children = append(pPrevComment.Children, &newComment)
+		newComment.Parent = pPrevComment
 
-		pPrevComment = &newComment
+		// Remember previous values.
 		prevPathDepth = pathLen
+		pPrevComment = &newComment
 	}
 	check(rows.Err())
 
-	return &headComment
+
+	prComment(&headComment, 0)
+
+	sortComment(&headComment)
+
+	// TODO: sort the comments here, by quality.
+
+	//prVal("headComment", headComment)
+
+	return headComment, upCommentVotes, downCommentVotes
 }
 
-*/

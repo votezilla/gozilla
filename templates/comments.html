@@ -1,3 +1,63 @@
+{{ define "CommentTree" }}
+	{{- if .IsHead -}}
+	<div class="vzcomment_children_first">
+		<div class="vzcomment_children_first">
+	{{- else -}}
+	<div class="vzcomment_children">
+		<div class="vzcomment">
+	{{- end -}}
+
+	{{ range $_, $comment := .Children -}}
+		{{/* comment text */}}
+		<p>
+			<div class="subtext" class="commentWidgets">
+				<a href="#" target="_blank">
+					<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
+					<span style="color: #88f;">{{$comment.Username}}</span>
+				</a>
+				&middot;
+				<span class="age" align="right">5h</span>
+
+				<p>
+					<a id="comment_{{$comment.Id}}" style="word-wrap: break-word; cursor: normal; color: black;">
+						{{- range $_, $textLine := $comment.Text }}
+							{{ $textLine }}
+							<br>
+						{{- end }}
+					</a>
+				<p>
+
+				{{- if $comment.IsExpandible -}}
+					<a id="expand_{{$comment.Id}}" onClick="ExpandComment({{$comment.Id}})" style="cursor: pointer; color: black;">
+						Expand...
+					</a>
+				{{- end -}}
+
+				<table class="commentWidgets"><tr>
+					{{ template "CommentVoteWidget" $comment }}
+
+					<td align="center" style="width: auto;">
+						<a href="#">...</a>
+					</td>
+					<td align="right" style="width: 40%;">
+						<span style="size: 16px">
+							<a href="javascript:ReplyToComment({{$comment.PostId}}, {{$comment.Id}})">
+								<img src="/static/comment.png" width="16" height="16"> Reply
+								<!--<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply-->
+							</a>
+						</span>
+					</td>
+				</tr></table>
+			</div>
+		</p>
+
+		{{ template "CommentTree" $comment }}
+
+	{{- end }}
+		</div>
+	</div>
+{{end}}
+
 {{/* PARALLEL_CODE(ADD_COMMENT_WIDGET) */}}
 {{define "AddCommentWidget"}}
 	<p>
@@ -23,9 +83,6 @@
 		</div>
 	</p>
 {{end}}
-
-
-
 
 {{/* TODO: try recursiveness - template "comments" .Comments */}}
 
@@ -80,61 +137,7 @@
 
 		{{ template "AddCommentWidget" -1 }}
 
-		{{ range $t, $tag := .Comments -}}{{/* CommentTags */}}
-			{{- if $tag.IsChildrenStart -}}
-				{{- if eq $t 0 }}
-					<div class="vzcomment_children_first">
-						<div class="vzcomment_children_first">
-				{{- else }}
-					<div class="vzcomment_children">
-						<div class="vzcomment">
-				{{- end }}
-			{{- else if $tag.IsChildrenEnd -}}
-					</div>
-				</div>
-			{{- else -}} {{/* comment text */}}
-				<p>
-					<div class="subtext" class="commentWidgets">
-						<a href="#" target="_blank">
-							<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
-							<span style="color: #88f;">{{$tag.Username}}</span>
-						</a>
-						&middot;
-						<span class="age" align="right">5h</span>
-
-						<p>
-							<a id="comment_{{$tag.Id}}" style="word-wrap: break-word; cursor: normal; color: black;">
-								{{- range $_, $textLine := $tag.Text }}
-									{{ $textLine }}
-									<br>
-								{{- end }}
-							</a>
-						<p>
-
-						{{- if $tag.IsExpandible -}}
-							<a id="expand_{{$tag.Id}}" onClick="ExpandComment({{$tag.Id}})" style="cursor: pointer; color: black;">
-								Expand...
-							</a>
-						{{- end -}}
-
-						<table class="commentWidgets"><tr>
-							{{ template "CommentVoteWidget" $tag }}
-							<td align="center" style="width: auto;">
-								<a href="#">...</a>
-							</td>
-							<td align="right" style="width: 40%;">
-								<span style="size: 16px">
-									<a href="javascript:ReplyToComment({{$postId}}, {{$tag.Id}})">
-										<img src="/static/comment.png" width="16" height="16"> Reply
-										<!--<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply-->
-									</a>
-								</span>
-							</td>
-						</tr></table>
-					</div>
-				</p>
-			{{- end -}}
-		{{- end }}
+		{{ template "CommentTree" .HeadComment }}
 	</div>
 
 	<script>
