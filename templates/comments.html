@@ -258,6 +258,16 @@
         }
     });
 
+	// On load, set the style for the up/down comment votes that the user has already voted on.
+	$(function() {
+		{{ range $_, $id := $.UpCommentVotes}}
+			addOrRemoveVote({{$id}}, true, true, true, false, false)  // Add a upvote presentation, but do not update the database.
+		{{ end }}
+		{{ range $_, $id := $.DownCommentVotes}}
+			addOrRemoveVote({{$id}}, true, false, true, false, false) // Add a downvote presentation, but do not update the database.
+		{{ end }}
+	});
+
 	</script>
 
 {{end}} {{/*comments*/}}

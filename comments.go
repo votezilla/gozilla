@@ -218,13 +218,11 @@ func ajaxExpandComment(w http.ResponseWriter, r *http.Request) {
 // TODO: We'll eventually need to call ReadCommentsFromDB, so the children of each comment can be sorted by upvote.
 //
 //////////////////////////////////////////////////////////////////////////////
-func ReadCommentTagsFromDB(postId int64) []CommentTag {
+func ReadCommentTagsFromDB(postId, userId int64) (commentTags []CommentTag, upCommentVotes, downCommentVotes []int64) {
 	prevPathDepth := int64(0)
 	var pathLengthDiff int64
 
 	pr("ReadCommentTagsFromDB:")
-
-	commentTags := []CommentTag{}
 
 	// The simpler way for now:
 	rows := DbQuery(
@@ -247,24 +245,37 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 				WHERE CommentId IN (SELECT Id FROM comments)
 				GROUP BY CommentId
 			)
-		SELECT comments.Id, 
-			comments.Text, 
-			comments.Username, 
-			comments.PathLength, 
-			COALESCE(votes.VoteTally, 0) AS VoteTally
+		SELECT
+			Id,
+			Text,
+			Username,
+			PathLength,
+			COALESCE(votes.VoteTally, 0) AS VoteTally,
+			CASE WHEN v.Up IS NULL THEN 0
+				 WHEN v.Up THEN 1
+				 ELSE -1
+				 END AS Upvoted
 		FROM comments
 		LEFT JOIN votes ON comments.Id = votes.CommentId
+		LEFT JOIN $$CommentVote v ON comments.Id = v.CommentId AND (v.UserId = $2::bigint)
 		ORDER BY comments.Path`,
-		postId)
+		postId,
+		userId)
 
 	defer rows.Close()
 	for rows.Next() {
 		var pathLen	 	 	int64
 		var commentText		string
 		var newCommentTag	CommentTag
+		var upvoted			int
 
-		err := rows.Scan(&newCommentTag.Id, &commentText, &newCommentTag.Username, &pathLen, &newCommentTag.VoteTally)
+		err := rows.Scan(&newCommentTag.Id, &commentText, &newCommentTag.Username, &pathLen, &newCommentTag.VoteTally, &upvoted)
 		check(err)
+
+		switch(upvoted) {
+			case  1:	  upCommentVotes = append(  upCommentVotes, newCommentTag.Id); break;
+			case -1:	downCommentVotes = append(downCommentVotes, newCommentTag.Id); break;
+		}
 
 		// Compare current path to previous path.
 		// Then we assign prevPathDepth to be the parent of the new node.
@@ -353,7 +364,7 @@ func ReadCommentTagsFromDB(postId int64) []CommentTag {
 
 	//commentTags = commentTags[1:len(commentTags)-1]
 
-	return commentTags
+	return commentTags, upCommentVotes, downCommentVotes
 }
 
 /* KEEP THIS CODE!!! vv
