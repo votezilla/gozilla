@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 	"github.com/lib/pq"
 	"net/http"
+	"sort"
 	"strings"
 )
 
 const (
 	kMaxCommentLines = 6
 	kCharsPerLine    = 60  // 60 for mobile.  80 would be desktop, but there is no way to detect the difference yet.
+
+	tabs = "                                                                                                    "
 )
 
 // This is also a comment tree.
@@ -18,6 +21,7 @@ type Comment struct {
 	Username		string
 	Text			[]string	// an array of strings, separated by <br>.  Do it this way so the template can handle it.
 	VoteTally		int
+	Quality			int
 	IsExpandible	bool
 	PostId			int64
 	IsHead			bool
@@ -209,13 +213,50 @@ func ajaxExpandComment(w http.ResponseWriter, r *http.Request) {
     w.Write(a)
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Print comment tree, for debugging.
+//
+//////////////////////////////////////////////////////////////////////////////
+func prComments(commentTree *Comment, depth int) {
+	prf("%sComment #%d (%d): %s", tabs[0:depth*2], commentTree.Id, commentTree.Quality, commentTree.Text)
 
-
-func prComment(comment *Comment, depth int) {
-
+	for _, child := range commentTree.Children {
+		prComments(child, depth + 1)
+	}
 }
 
-func sortComment(comment *Comment) {
+//////////////////////////////////////////////////////////////////////////////
+//
+// Calculate comment quality, based on upvotes and number of comments.
+//
+//////////////////////////////////////////////////////////////////////////////
+func calcCommentQuality(commentTree *Comment) {
+	commentsBy := map[string]bool{}
+
+	for _, child := range commentTree.Children {
+		calcCommentQuality(child)
+
+		commentsBy[child.Username] = true
+	}
+
+	// 100 * #upvotes + 10 * num unique users leaving comments + 1 * num child comments.
+	commentTree.Quality = 100 * commentTree.VoteTally + 10 * len(commentsBy) + len(commentTree.Children)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Sort the comments by quality, ascending order.
+//
+//////////////////////////////////////////////////////////////////////////////
+func sortComments(commentTree *Comment) {
+	for _, child := range commentTree.Children {
+		sortComments(child)
+	}
+
+	sort.Slice(commentTree.Children[:], func(i, j int) bool {
+	  return commentTree.Children[i].Quality > commentTree.Children[j].Quality
+	})
 }
 
 
@@ -339,7 +380,6 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 		// Set the postId
 		newComment.PostId = postId
 
-
 		// Compare current path to previous path.
 		pathLengthDiff = pathLen - prevPathDepth
 		prVal("pathLen", pathLen)
@@ -365,10 +405,15 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 	}
 	check(rows.Err())
 
+	calcCommentQuality(&headComment)
 
-	prComment(&headComment, 0)
+	pr("Unsorted comments")
+	prComments(&headComment, 0)
 
-	sortComment(&headComment)
+	sortComments(&headComment)
+
+	pr("Sorted comments")
+	prComments(&headComment, 0)
 
 	// TODO: sort the comments here, by quality.
 
