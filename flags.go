@@ -23,6 +23,7 @@ var (
 		test					string		// Whether to run a simple test, instead of the actual server.
 		mode					string		// A special mode to run a server in.
 		testUserId				string		// UserId to test being loggin in as.
+		isNewsAccelerated		string		// Whether News API queries should be accelerated
 	}
 )
 
@@ -40,7 +41,6 @@ func parseCommandLineFlags() {
 	f5 := flag.String("debug",		  	"",				"debug=true for development")
 	f6 := flag.String("cookieHashKey",	"very-secret",	"secure cookie hash key")
 	f7 := flag.String("cookieBlockKey",	"a-lot-secret", "secure cookie block key")
-	// TODO: register for a new News Api key, since mine expired.  Be sure to not run it very often.
 	f8 := flag.String("newsAPIKey",		"",				"news API key from https://newsapi.org")
 	//f9 := flag.String("printMask",		"65535",		"log output mask")
 	fa := flag.String("port",			"8080",			"which port to serve webpages from")
@@ -50,6 +50,7 @@ func parseCommandLineFlags() {
 	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server")
 	ff := flag.String("mode",			"",				"a special mode to run a server in")
 	fg := flag.String("testUserId",		"",				"UserId to test being loggin in as")
+	fh := flag.String("isNewsAccelerated", "",			"Whether News API queries should be accelerated")
 
 	flag.Parse()
 
@@ -76,6 +77,7 @@ func parseCommandLineFlags() {
 	flags.mode					= *ff
 	flags.mode					= *ff
 	flags.testUserId			= *fg
+	flags.isNewsAccelerated		= *fh
 
 	prf("flags: %#v\n", flags)
 }

@@ -69,7 +69,7 @@ var (
 	}
 
 	pNewsErrorReportedTime	*time.Time
-	newsAPITimeManager		= MakeNewsAPITimeManager(500) // The News API allows up to 500 requests per day.
+	newsAPITimeManager		*NewsAPITimeManager
 )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -77,8 +77,8 @@ var (
 // class newsAPITimeManager
 //
 //////////////////////////////////////////////////////////////////////////////
-func MakeNewsAPITimeManager(maxRequestsPerDay int) (NewsAPITimeManager) {
-	maxReqsPerDay := int(float32(maxRequestsPerDay) * .9)
+func MakeNewsAPITimeManager(maxRequestsPerDay int) *NewsAPITimeManager {
+	maxReqsPerDay := int(float32(maxRequestsPerDay) * .9)  // Give ourselves a 10% padding
 
 	//prVal("maxReqsPerDay", maxReqsPerDay)
 	//prVal("(24 * time.Hour).Nanoseconds()", (24 * time.Hour).Nanoseconds())
@@ -87,11 +87,26 @@ func MakeNewsAPITimeManager(maxRequestsPerDay int) (NewsAPITimeManager) {
 	//prVal("(24 * time.Hour).Minutes()", (24 * time.Hour).Minutes())
 	//prVal("(24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay).Minutes()", time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)).Minutes())
 
-	return NewsAPITimeManager{
-		maxRequestsPerDay:		maxReqsPerDay, // Give ourselves a 10% padding
-		delayBetweenRequests:	time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)),
-		lastRequestTime:		time.Now(),
-		lastRequestDay:			time.Now().Day(),
+	prVal("flags.isNewsAccelerated", flags.isNewsAccelerated)
+	//prVal("time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay))", time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)))
+	//prVal("time.Duration(5 * time.Second.Nanoseconds())", time.Duration(5 * time.Second.Nanoseconds()))
+
+	if flags.isNewsAccelerated != "" {
+		pr("ACCELERATED!")
+		return &NewsAPITimeManager{
+			maxRequestsPerDay:		maxReqsPerDay,
+			delayBetweenRequests:	time.Duration(5 * time.Second.Nanoseconds()),
+			lastRequestTime:		time.Now(),
+			lastRequestDay:			time.Now().Day(),
+		}
+	} else {
+		pr("NOT ACCELERATED!")
+		return &NewsAPITimeManager{
+			maxRequestsPerDay:		maxReqsPerDay, // Give ourselves a 10% padding
+			delayBetweenRequests:	time.Duration((24 * time.Hour).Nanoseconds() / int64(maxReqsPerDay)),
+			lastRequestTime:		time.Now(),
+			lastRequestDay:			time.Now().Day(),
+		}
 	}
 }
 
@@ -101,10 +116,10 @@ func (n *NewsAPITimeManager) WaitForMyTurn() {
 	// Standard waiting n.delayBetweenRequests time.
 //	if n.numRequestsToday > 0 { // Don't delay the very first call per day. // REVERT
 		//delay	:= time.Since(n.lastRequestTime)
-		sleepDuration := n.delayBetweenRequests // - delay
+		sleepDuration := n.delayBetweenRequests  // - delay
 		if pNewsErrorReportedTime != nil {
-			//delay = time.Since(*pNewsErrorReportedTime) + (12 * time.Hour) // News.API potentially gave us an error - wait 12 hours before continuing.
-			sleepDuration = 6 * time.Hour
+			//delay = time.Since(*pNewsErrorReportedTime) + (12 * time.Hour)
+			sleepDuration = 6 * time.Hour // News.API potentially gave us an error - wait 6 hours before continuing.
 
 			pNewsErrorReportedTime = nil
 		}
@@ -298,6 +313,8 @@ func fetchNews(newsSource string) []Article {
 func NewsServer() {
 	var newArticles []Article
 
+	newsAPITimeManager = MakeNewsAPITimeManager(500) // The News API allows up to 500 requests per day.
+
 	pr("========================================")
 	pr("======== STARTING NEWS SERVER ==========")
 	pr("========================================\n")
@@ -382,7 +399,14 @@ func NewsServer() {
 			}
 		}
 
-		pr("Completed one news source cycle.  Sleeping 5 minutes")
-		time.Sleep(5 * time.Minute)
+		// Sleep between news cycles.
+		// Accelerated news requires a longer sleep cycle, so we don't burn through the API requests too quickly.
+		if flags.isNewsAccelerated != "" {
+			pr("Completed one news source cycle.  Sleeping 30 minutes")
+			time.Sleep(30 * time.Minute)
+		} else {
+			pr("Completed one news source cycle.  Sleeping 5 minutes")
+			time.Sleep(5 * time.Minute)
+		}
 	}
 }
