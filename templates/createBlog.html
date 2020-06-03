@@ -2,7 +2,7 @@
 
 {{template "formHeader" "Create blog post for"}}
 
-<div><form method=POST onsubmit="return getBlogData(event)">
+<div><form method=POST onsubmit="return fetchBlogData(event)">
 
 	{{ $f := .Form.FieldMap }}
 	{{ template "field" $f.title -}}
@@ -16,6 +16,7 @@
 		<div id="image_container"></div>
 	</div>
 	<p>
+	{{ template "field" $f.category -}}
 	<div>
 		<input type="submit" class="nuBtn btn btn-vote center">
 			Create Blog Post
@@ -38,8 +39,8 @@ $(document).ready(function() {
 			toolbar: [
 				[{ header: [1, 2, false] }],
 				['bold', 'italic', 'underline'],
-				//['image', 'code-block']
-				['code-block']
+				['image', 'code-block']  // TODO: add images to blog posts
+				//['code-block']
 			]
 		},
 		placeholder: 'Create a blog post...',
@@ -49,18 +50,24 @@ $(document).ready(function() {
 	var $editor = $('#editor-container');
 });
 
-function getBlogData(e) {
+function fetchBlogData(e) {
 	//e.preventDefault();
 
 	console.log(quill.getContents());
 
 	console.log(quill.root.innerHTML);
 
-	$('input[name="blogVal"]').val(quill.root.innerHTML);
+	// Store the value in a hidden field before submit.
+	$('input[name="blogVal"]').val(quill.getContents());
 
-	alert(quill.root.innerHTML);
+	//$('input[name="blogVal"]').val(quill.getContents());
+	//$('input[name="blogVal"]').val(quill.root.innerHTML);
 
-	return true;
+	alert(JSON.stringify(quill.getContents(), undefined, 2));
+
+	// TODO: ^^ quill.setContents from the hidden form data that comes in.  - https://quilljs.com/docs/api/#getcontents
+
+	// TODO: ^^ Then use go-render-quill to render the deltas as HTML.  - https://godoc.org/github.com/dchenk/go-render-quill#example-package
 }
 
 </script>

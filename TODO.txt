@@ -15,15 +15,15 @@ X  - 1 - .5 -      - Create Link Post: do url testing that adds https:// or http
 
    - 2 -  1 - 4/24 - Https!!
 
-.33- 2 -  1 - 4/27 - Prettify the comments - make user info layout similar to how articles are displayed.
+X  - 2 -  1 - 4/27 - Prettify the comments - make user info layout similar to how articles are displayed.
                       X  Got the comments posting immediately, via JS.  However...
-                      [] Make it look similar to an article                      
-                      [] The new comments post slightly in the wrong position hierarcially.  Fix this.
+                      X Make it look similar to an article                      
+                      X The new comments post slightly in the wrong position hierarcially.  Fix this.
 
 
 X  - 2 -  1 - 4/28 - Replace all the gforms with our form system.
    
-   - 2 -  1 - 4/29 - HTML injection security:
+X  - 2 -  1 - 4/29 - HTML injection security:
 X                      Switch to template/html, 
 X                      Make sure test for any glaring html injection stuff.  Maybe a unit test, even?
    
@@ -79,7 +79,7 @@ MED PRIORITY (for test with 100 friends):
 
 - Replaced copyrighted art, or request permission to use.
 
-- Sort comment siblings by up/down vote.
+X - Sort comment siblings by up/down vote.
 
 - Start promoting.
 
@@ -122,7 +122,7 @@ X Remove "padding-left" from headline news, to make it line up better.
 
 - Display the steps going on, for a ranked 
 
-- Fix up/down voting for articles
+X - Fix up/down voting for articles
 
 - Let people update their information.
 
@@ -173,7 +173,5 @@ POSTPONED FEATURES:
 
   - Change between alias and real name depending on a post's (or comment's) privacy settings.
 
-CANCELLED FEATURES:
 
-  - Dynamic menu drop items for Creating...Link, Poll, etc.
 

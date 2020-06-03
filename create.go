@@ -248,6 +248,7 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 
 	form := makeForm(
 		nuTextField(kTitle, "Your blog post title...", 50, 12, 255),
+		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
 		nuHiddenField(kBlogVal, ""),  // Hidden field that gets the value from the blog.  Because there is JS required to get blog value.
 	)
 
@@ -260,10 +261,18 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 		prVal(kTitle, form.val(kTitle))
 		prVal(kBlogVal, form.val(kBlogVal))
 
-		// WOOHOO!!!  Blog info makes it here!!!  TODO: insert into db, render blog posts later!!! ;)
+		// Update the user record with registration details.
+		blogPostId := DbInsert(
+			`INSERT INTO $$LinkPost(UserId, Title, Category, UrlToImage, Blog)
+			 VALUES($1::bigint, $2, $3, $4) returning id;`,
+			userId,
+			form.val(kTitle),
+			form.val(kCategory),
+			"http://localhost:8080/static/ballotbox.png", // TODO: generate poll url from image search
+			form.val(kBlogVal))
 
 		// Have user like their own blogs by default.
-		// voteUpdown(pollPostId, userId, true, true, false)
+		voteUpDown(blogPostId, userId, true, true, false)
 
 		return
 	} else if r.Method == "POST" {
