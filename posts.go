@@ -38,78 +38,112 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	prVal("maxArticles", maxArticles)
 	prVal("fetchVotesForUserId", fetchVotesForUserId)
 
-	bRandomizeTime := false  // REVERT!!!
+	bRandomizeTime := true
 	//bRandomizeTime := (fetchVotesForUserId == -1)
 
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
 	newsPostQuery := fmt.Sprintf(
-	   `SELECT Id, NewsSourceId AS Author, Title, Description, LinkUrl,
-	   		   COALESCE(UrlToImage, '') AS UrlToImage, COALESCE(PublishedAt, Created) AS PublishedAt,
+	   `SELECT Id,
+	   		   NewsSourceId AS Author,
+	   		   Title,
+	   		   Description,
+	   		   LinkUrl,
+	   		   COALESCE(UrlToImage, '') AS UrlToImage,
+	   		   COALESCE(PublishedAt, Created) AS PublishedAt,
 	   		   NewsSourceId,
 	   		   $$GetCategory(Category, Country) AS Category,
-	   		   Language, Country,
+	   		   Language,
+			   Country,
 			   '' AS PollOptionData,
-			   COALESCE(PublishedAt, Created) %s AS OrderBy,
 			   NumComments,
 			   ThumbnailStatus,
 			   'N' AS Source
 		FROM $$NewsPost
 		WHERE ThumbnailStatus <> -1 AND (Id %s) AND (NewsSourceId %s) AND ($$GetCategory(Category, Country) %s)`,
-		ternary_str(bRandomizeTime, "- RANDOM() * '3:00:00'::INTERVAL", ""), // Make it randomly up to 3 hours later.
 		idCondition,
 		newsSourceIdCondition,
 		categoryCondition)
 
 	linkPostQuery := fmt.Sprintf(
-	   `SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, P.LinkUrl,
-			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+	   `SELECT P.Id,
+		       U.Username AS Author,
+		       P.Title,
+		       '' AS Description,
+		       P.LinkUrl,
+			   COALESCE(P.UrlToImage, '') AS UrlToImage,
+			   P.Created AS PublishedAt,
 			   '' AS NewsSourceId,
 			   $$GetCategory(Category, U.Country) AS Category,
-			   'EN' AS Language, U.Country,
+			   'EN' AS Language,
+			   U.Country,
 			   '' AS PollOptionData,
-			   P.Created %s AS OrderBy,
 			   NumComments,
 			   ThumbnailStatus,
 			   'L' AS Source
 		FROM $$LinkPost P
 		JOIN $$User U ON P.UserId = U.Id
 		WHERE ThumbnailStatus <> -1 AND (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,
-		"", //ternary_str(bRandomizeTime, "- RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
 		userIdCondition,
 		categoryCondition)
 
 	pollPostQuery := fmt.Sprintf(
-	   `SELECT P.Id, U.Username AS Author, P.Title, '' AS Description, FORMAT('/poll/?postId=%%s', P.Id),
-			   COALESCE(P.UrlToImage, '') AS UrlToImage, P.Created AS PublishedAt,
+	   `SELECT P.Id,
+		       U.Username AS Author,
+		       P.Title,
+		       '' AS Description,
+		       FORMAT('/poll/?postId=%%s', P.Id) AS LinkUrl,
+			   COALESCE(P.UrlToImage, '') AS UrlToImage,
+			   P.Created AS PublishedAt,
 			   '' AS NewsSourceId,
 			   $$GetCategory(Category, U.Country) AS Category,
-			   'EN' AS Language, U.Country,
+			   'EN' AS Language,
+			   U.Country,
 			   PollOptionData,
-			   P.Created %s AS OrderBy,
 			   NumComments,
 			   ThumbnailStatus,
 			   'P' AS Source
 		FROM $$PollPost P
 		JOIN $$User U ON P.UserId = U.Id
 		WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
-		"", //ternary_str(bRandomizeTime, "+ RANDOM() * '1:00:00'::INTERVAL", ""),
 		idCondition,
 		userIdCondition,
 		categoryCondition)
 
-	orderByClause := "\nORDER BY OrderBy DESC\n" // TODO: Use a Reddit-style ranking algorithm
-
 	query := ""
 	if userIdCondition != "IS NOT NULL" {  // Looking up posts that target a user - so there can be no news posts.
-		query = strings.Join([]string{linkPostQuery, pollPostQuery}, "\nUNION ALL\n") + orderByClause
+		query = strings.Join([]string{linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	} else if newsSourceIdCondition != "IS NOT NULL" {  // We're just querying news posts.
 		query = newsPostQuery
 	} else if onlyPolls {
 		query = pollPostQuery
 	} else {
-		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n") + orderByClause
+		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	}
+
+	// Add vote tally per article.
+	query = fmt.Sprintf(`
+		WITH posts AS (%s),
+	  		 votes AS (
+				SELECT PostId,
+					   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+				FROM $$PostVote
+				WHERE PostId IN (SELECT Id FROM posts)
+				GROUP BY PostId
+			 )
+		SELECT posts.*,
+			COALESCE(votes.VoteTally, 0) AS VoteTally,
+			posts.PublishedAt + interval '12 hours' * LOG(GREATEST(
+				5 * COALESCE(votes.VoteTally, 0) +
+				posts.NumComments +
+				5 +
+				5 * (%s),
+			1)) AS OrderBy
+		FROM posts
+		LEFT JOIN votes ON posts.Id = votes.PostId
+		ORDER BY OrderBy DESC`,
+		query,
+		ternary_str(bRandomizeTime, "RANDOM()", "0"))
 
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category
@@ -126,10 +160,11 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 				Language,
 				Country,
 				PollOptionData,
-				OrderBy,
 				NumComments,
 				ThumbnailStatus,
-				Source
+				Source,
+				VoteTally,
+				OrderBy
 			FROM (
 				SELECT
 					*,
@@ -153,10 +188,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		// Join query to post votes table.
 		query = fmt.Sprintf(`
 			SELECT x.*,
-				   CASE WHEN v.Up IS NULL THEN 0
-						WHEN v.Up THEN 1
-						ELSE -1
-				   END AS Upvoted
+			   CASE WHEN v.Up IS NULL THEN 0
+					WHEN v.Up THEN 1
+					ELSE -1
+			   END AS Upvoted
 			FROM (%s) x
 			LEFT JOIN $$PostVote v ON x.Id = v.PostId AND (v.UserId = %d)`,
 			query,
@@ -166,21 +201,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	if maxArticles > 0 {
 		query += "\nLIMIT " + strconv.Itoa(maxArticles)
 	}
-	// Add vote tally per article.
-	query = fmt.Sprintf(`
-		WITH posts AS (%s),
-	  		 votes AS (
-				SELECT PostId,
-					   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
-				FROM $$PostVote
-				WHERE PostId IN (SELECT Id FROM posts)
-				GROUP BY PostId
-			 )
-		SELECT posts.*, COALESCE(votes.VoteTally, 0) AS VoteTally
-		FROM posts
-		LEFT JOIN votes ON posts.Id = votes.PostId
-		ORDER BY posts.OrderBy DESC`,
-		query)
+
 	query += `;`
 
 	rows := DbQuery(query)
@@ -206,12 +227,12 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 		if fetchVotesForUserId >= 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &thumbnailStatus, &source,
-							&upvoted, &voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &numComments, &thumbnailStatus, &source,
+							&voteTally, &orderBy, &upvoted))
 		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &orderBy, &numComments, &thumbnailStatus, &source,
-							&voteTally))
+							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &numComments, &thumbnailStatus, &source,
+							&voteTally, &orderBy))
 		}
 		//prVal("id", id)
 		//prVal("author", author)

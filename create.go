@@ -96,6 +96,9 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 			form.val(kCategory),
 			form.val(kThumbnail))
 
+		// Have user like their own posts by default.
+		voteUpDown(newPostId, userId, true, true, false)
+
 		http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", newPostId), http.StatusSeeOther)
 		return
 	}
@@ -201,6 +204,9 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		)
 		prVal("Just added a poll #", pollPostId)
 
+		// Have user like their own polls by default.
+		voteUpDown(pollPostId, userId, true, true, false)
+
 		http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", pollPostId), http.StatusSeeOther)
 		return
 	} else if r.Method == "POST" {
@@ -255,6 +261,9 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 		prVal(kBlogVal, form.val(kBlogVal))
 
 		// WOOHOO!!!  Blog info makes it here!!!  TODO: insert into db, render blog posts later!!! ;)
+
+		// Have user like their own blogs by default.
+		// voteUpdown(pollPostId, userId, true, true, false)
 
 		return
 	} else if r.Method == "POST" {

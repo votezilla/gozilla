@@ -136,6 +136,9 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 	// Increment the Post's NumComments field here.
 	DbExec(`UPDATE $$Post SET NumComments = NumComments + 1 WHERE Id = $1::bigint`, newComment.PostId)
 
+	// Have user like their own comments by default.
+	voteUpDown(newComment.Id, userId, true, true, true)
+
 	// Convert newlines to be HTML-friendly.  (Do it here so the JSON response gets it and also it will get reapplied
 	// in ReadCommentTagsFromDB.)
 	newComment.Text = strings.Replace(newComment.Text, "\n", "<br>", -1)

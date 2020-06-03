@@ -12,6 +12,48 @@ import (
 	"sort"
 )
 
+func voteUpDown(postId, userId int64, add, up, comment bool) {
+	prf("voteUpdown %d %d %s %s %s", postId, userId, bool_to_str(add), bool_to_str(up), bool_to_str(comment))
+
+    voteTable    := ternary_str(comment, "$$CommentVote", "$$PostVote")
+    voteIdColumn := ternary_str(comment, "CommentId", "PostId")
+
+	if add {
+    	DbExec(
+			fmt.Sprintf(
+				`INSERT INTO %s(%s, UserId, Up)
+				 VALUES ($1::bigint, $2::bigint, $3::bool)
+				 ON CONFLICT (%s, UserId) DO UPDATE
+				 SET Up = $3::bool;`,
+				 voteTable,
+				 voteIdColumn,
+				 voteIdColumn),
+			postId,
+			userId,
+			up)
+	} else { // remove
+		DbExec(
+			fmt.Sprintf(
+				`DELETE FROM %s
+				 WHERE %s = $1::bigint AND UserId = $2::bigint;`,
+				 voteTable,
+				 voteIdColumn),
+			postId,
+			userId)
+	}
+
+/*
+	DbExec(
+		fmt.Sprintf(
+		   `UPDATE %s
+			SET voteTally = voteTally + $1
+			WHERE %s = $2::bigint`,
+			voteTable,
+			voteIdColumn),
+		vote.Add
+		vote.PostId)
+*/
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -52,43 +94,8 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
 
     prVal("vote", vote)
 
-    voteTable    := ternary_str(vote.IsComment, "$$CommentVote", "$$PostVote")
-    voteIdColumn := ternary_str(vote.IsComment, "CommentId", "PostId")
+    voteUpDown(int64(vote.PostId), userId, vote.Add, vote.Up, vote.IsComment)
 
-	if vote.Add {
-    	DbExec(
-			fmt.Sprintf(
-				`INSERT INTO %s(%s, UserId, Up)
-				 VALUES ($1::bigint, $2::bigint, $3::bool)
-				 ON CONFLICT (%s, UserId) DO UPDATE
-				 SET Up = $3::bool;`,
-				 voteTable,
-				 voteIdColumn,
-				 voteIdColumn),
-			vote.PostId,
-			userId,
-			vote.Up)
-	} else { // remove
-		DbExec(
-			fmt.Sprintf(
-				`DELETE FROM %s
-				 WHERE %s = $1::bigint AND UserId = $2::bigint;`,
-				 voteTable,
-				 voteIdColumn),
-			vote.PostId,
-			userId)
-	}
-/*
-	DbExec(
-		fmt.Sprintf(
-		   `UPDATE %s
-			SET voteTally = voteTally + $1
-			WHERE %s = $2::bigint`,
-			voteTable,
-			voteIdColumn),
-		vote.Add
-		vote.PostId)
-*/
     // create json response from struct
     a, err := json.Marshal(vote)
     if err != nil {
