@@ -1,6 +1,6 @@
 {{define "mainContent"}}
 	{{ $article := .Article }}
-	<a href="{{$article.Url}}" target="_blank" class="storylink" rel="nofollow">
+	<a href="{{$article.Url}}" target="_blank" class="storylink">
 		<img src="{{$article.UrlToImage}}" width="100%">
 	</a>
 
@@ -19,16 +19,24 @@
 		<tr valign="top">
 			<td class="title" style="padding-left: 5px; font-size: 22px;">
 				<span>
-					<a href="{{$article.Url}}" target="_blank" class="storylink" rel="nofollow">{{$article.Title}}</a>
+					<a href="{{$article.Url}}" target="_blank" class="storylink" style="color:blue">{{$article.Title}}</a>
 				</span>
-				<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="color: #0079d3;">
+				<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">
 					{{$article.Host}} <img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
 				</a>
 			</td>
 		</tr>
 
+		<tr valign="top">
+			<td style="padding-left: 15px; padding-top: 10px;">
+				{{$article.Description}}
+				<br>
+				<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">Continue reading...</a>
+			</td>
+		</tr>
+
 		<tr>
-			<td class="subtext" style="width: 100%; padding-left: 5px;">
+			<td class="subtext" style="width: 100%; padding-left: 5px; padding-top: 10px">
 				<table width="100%"><tr>
 					{{ template "PostVoteWidget" $article }}
 					<td align="right" style="width: auto;">

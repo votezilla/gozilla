@@ -183,6 +183,9 @@ a:link      { color:#000000; }
 a:visited   { color:#000000; text-decoration:none; }
 a:target	{ background-color: yellow; }
 
+#override a       img.hideUntilHover { visibility: hidden; }
+#override a:hover img.hideUntilHover { visibility: visible; }
+
 .default { font-family:Verdana, Geneva, sans-serif; }
 .admin   { font-family:Verdana, Geneva, sans-serif; }
 .title   { font-family:Verdana, Geneva, sans-serif; }   

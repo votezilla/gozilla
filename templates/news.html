@@ -40,8 +40,8 @@
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
 						{{ if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
 
-							<a href="{{$article.Url}}" target="_blank" rel="nofollow">
-								<img src="{{$article.UrlToImage}}" width="100%" style="max-height: 600px;">
+							<a href="/article/?postId={{$article.Id}}" target="_blank" style="cursor:pointer">
+								<img src="{{$article.UrlToImage}}" width="100%" style="max-height: 600px;" data-toggle="tooltip" data-placement="top" title="View the discussion">
 							</a>
 							<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
 								<tr>
@@ -58,18 +58,13 @@
 								<tr valign="top">
 									<td class="title" style="padding-left: 5px;">
 										<span>
-											<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="font-size: 22px;">
+											<a href="{{$article.Url}}" target="_blank" style="font-size: 22px;" data-toggle="tooltip" data-placement="top" title="Read the article">
 												{{$article.Title}}
+												{{ if not $article.Host }}
+													<img src="/static/link icon.jpg" class="hideUntilHover" style="height: 16px; width: 16px;">
+												{{ end }}
 											</a>
 										</span>
-
-										{{if $article.Host}}
-											<span>
-												<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="color: #0079d3;">
-													{{$article.Host}} <img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
-												</a>
-											</span>
-										{{end}}
 									</td>
 								</tr>
 
@@ -102,66 +97,69 @@
 							</table>
 
 						{{ else }}                  {{/*NORMAL ARTICLE SIZE*/}}
-							<table border="0" cellpadding="0" cellspacing="0">
-								<tr valign="top">
-									<td rowspan="2" style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;">
-										<a href="{{$article.Url}}" target="_blank" rel="nofollow">
-											<img src="{{$article.UrlToThumbnail}}" width="160" height="100%" style="visibility: hidden; max-height: 100px;">
-										</a>
-									</td>
-									<td style="min-width: 5px;"></td>
-									<td class="title">
-										<div class="subtext">
-											<a href="#" target="_blank">
-												<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
-												<span style="color: #88f;">{{$article.Author}}</span>
+							<a href="/article/?postId={{$article.Id}}" target="_blank">
+								<table border="0" cellpadding="0" cellspacing="0">
+									<tr valign="top">
+										<td rowspan="2" style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;" data-toggle="tooltip" data-placement="top" title="Join the discussion!">
+											<a href="/article/?postId={{$article.Id}}" target="_blank" style="cursor:pointer; height: 100%;">
+												<img src="{{$article.UrlToThumbnail}}" width="160" height="100%" style="visibility: hidden; max-height: 100px;">
 											</a>
-											&middot;
-											<span class="age" align="right">{{$article.TimeSince}}</span>
-										</div>
-
-										<div>
-											<span>
-												<a href="{{$article.Url}}" target="_blank" rel="nofollow">
-													<div style="font-size:18px; {{if $article.IsPoll}}min-height: 32px;{{else}}min-height: 54px;{{end}} max-height: 78px; overflow: hidden; padding-right: 4px;">
-														{{$article.Title}}
-													</div>
+										</td>
+										<td style="min-width: 5px;"></td>
+										<td class="title">
+											<div class="subtext">
+												<a href="#" target="_blank">
+													<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+													<span style="color: #88f;">{{$article.Author}}</span>
 												</a>
-											</span>
+												&middot;
+												<span class="age" align="right">{{$article.TimeSince}}</span>
+											</div>
 
-											<!--<span>UrlToThumbnail = '{{$article.UrlToThumbnail}}'</span>-->
-
-											{{if $article.Host}}
+											<div>
 												<span>
-													<a href="{{$article.Url}}" target="_blank" rel="nofollow" style="color: #0079d3;">
-														{{$article.Host}} <img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
+													<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article">
+														<div style="font-size:18px; {{if $article.IsPoll}}min-height: 32px;{{else}}min-height: 54px;{{end}} max-height: 78px; overflow: hidden; padding-right: 4px;">
+															{{$article.Title}}
+															{{ if not $article.Host }}
+																<img src="/static/link icon.jpg" class="hideUntilHover" style="height: 14px; width: 14px;">
+															{{ end }}
+														</div>
 													</a>
 												</span>
-											{{end}}
-											<table width="100%">
-												{{ template "PollInlineForm" $article }}
-											</table>
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td></td>
-									<td class="subtext" style="width: 100%;">
-										<table width="100%"><tr>
-											{{ template "PostVoteWidget" $article }}
-											<td align="center" style="width: auto;">
-												<a href="#">...</a>
-											</td>
-											<td align="right" style="width: 40%;">
-												<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-													<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: #0079d3;"><img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> {{$article.NumComments}}</a>
-												</span>
-											</td>
-										</tr></table>
-									</td>
-								</tr>
-								<!--<tr class="spacer" style="height:5px"></tr>-->
-							</table>
+
+												{{if $article.Host}}
+													<span>
+														<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">
+															{{$article.Host}} <img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
+														</a>
+													</span>
+												{{end}}
+												<table width="100%">
+													{{ template "PollInlineForm" $article }}
+												</table>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td></td>
+										<td class="subtext" style="width: 100%;">
+											<table width="100%"><tr>
+												{{ template "PostVoteWidget" $article }}
+												<td align="center" style="width: auto;">
+													<a href="#">...</a>
+												</td>
+												<td align="right" style="width: 40%;">
+													<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+														<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: #0079d3;"><img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> {{$article.NumComments}}</a>
+													</span>
+												</td>
+											</tr></table>
+										</td>
+									</tr>
+									<!--<tr class="spacer" style="height:5px"></tr>-->
+								</table>
+							</a>
 						{{ end }} {{/*article size*/}}
 					{{ end }} {{/*{{ if ne $article.Size -1 }}*/}}
 				{{ end }} {{/*range $j, $article := $articleRow*/}}

@@ -1,2 +1,31 @@
 Great article on writing demographic questions!: https://www.surveygizmo.com/survey-blog/how-to-write-better-demographic-questions/
 Pew Research:                                  http://www.pewresearch.org/files/2015/03/Demographic-Questions-Web-and-Mail-English-3-20-2015.pdf
+
+
+// How to show a hidden image when an anchor is hovered over.
+
+display none after hoverJavascript By Depressed Duck on Feb 24 2020
+$('.info').hover(function() {
+    $(this).fadeTo(1,1);
+},function() {
+    $(this).fadeTo(1,0);
+});
+Source:stackoverflow.com
+0
+hover over something to make html visibleHtml By Combative Camel on Mar 24 2020
+div {
+    display: none;
+}
+    
+a:hover + div {
+    display: block;
+}
+
+
+
+// Install WLT
+// Install Docker on Ubuntu 16
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-16-04
+
+// Fix for "gpg: can't connect to the agent: IPC connect call failed"
+sudo apt remove gpg && sudo apt-get update -y && sudo apt-get install -y gnupg1 

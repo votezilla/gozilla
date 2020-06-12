@@ -417,6 +417,15 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 	}
 })
 
+
+
+
+// TOOLTIP
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+
 </script>
 
 {{end}} {{/*body*/}}
@@ -432,11 +441,11 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 	{{ $article := . }}
 	<td align="left" style="width: 40%;">
 		<span class="upvote" id="upvote{{$article.Id}}">
-			<a href="javascript:Vote({{$article.Id}}, true, false)" class="upvote">&#x25B2;</a>
+			<a href="javascript:Vote({{$article.Id}}, true, false)" class="upvote" data-toggle="tooltip" data-placement="top" title="Up vote">&#x25B2;</a>
 		</span>
 		<a id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
 		<span class="downvote" id="downvote{{$article.Id}}">
-			<a href="javascript:Vote({{$article.Id}}, false, false)" class="downvote">&#x25BC;</a>
+			<a href="javascript:Vote({{$article.Id}}, false, false)" class="downvote" data-toggle="tooltip" data-placement="top" title="Down vote">&#x25BC;</a>
 		</span>
 	</td>
 {{ end }}
@@ -445,11 +454,11 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 	{{ $tag := . }}
 	<td align="left" style="width: 40%;">
 		<span class="upvote" id="upvoteComment{{$tag.Id}}">
-			<a href="javascript:Vote({{$tag.Id}}, true, true)" class="upvote">&#x25B2;</a>
+			<a href="javascript:Vote({{$tag.Id}}, true, true)" class="upvote" data-toggle="tooltip" data-placement="top" title="Up vote">&#x25B2;</a>
 		</span>
 		<a id="votetallyComment{{$tag.Id}}">{{$tag.VoteTally}}</a>
 		<span class="downvote" id="downvoteComment{{$tag.Id}}">
-			<a href="javascript:Vote({{$tag.Id}}, false, true)" class="downvote">&#x25BC;</a>
+			<a href="javascript:Vote({{$tag.Id}}, false, true)" class="downvote" data-toggle="tooltip" data-placement="top" title="Down vote">&#x25BC;</a>
 		</span>
 	</td>
 {{ end }}
