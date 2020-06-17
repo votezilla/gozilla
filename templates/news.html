@@ -5,7 +5,7 @@
 
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		{{ if ne $articleGroup.Category "" }}
-		<a href="/news/?category={{$articleGroup.Category}}" target="_blank">
+		<a href="/news/?category={{$articleGroup.Category}}" target="_blank" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
 			<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
 				<div class="col-md-12 vz-col-md-12 text-uppercase">
 					<center>
@@ -170,7 +170,7 @@
 				<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
 					<tr>
 						<td align="right">
-							<a href="/news/?category={{$articleGroup.More}}&more=1" target="_blank" style="color: #0072ff;">more...</a>
+							<a href="/news/?category={{$articleGroup.More}}&more=1" target="_blank" style="color: #0072ff;" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">more...</a>
 						</td>
 					</tr>
 				</table>

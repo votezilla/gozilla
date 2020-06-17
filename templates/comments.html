@@ -43,7 +43,6 @@
 						<span style="size: 16px">
 							<a href="javascript:ReplyToComment({{$comment.PostId}}, {{$comment.Id}})">
 								<img src="/static/comment.png" width="16" height="16"> Reply
-								<!--<img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> Reply-->
 							</a>
 						</span>
 					</td>
@@ -205,7 +204,7 @@
 
 		console.log(html);
 
-		parent.insertAdjacentHTML('beforeend', html);
+		parent.insertAdjacentHTML('afterend', html);
 
 		$(`#reply_button_${parentId}`).focus();  // Focus on the new comment.
 	}

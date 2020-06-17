@@ -1,11 +1,12 @@
+CREATE DATABASE vz ENCODING 'UTF8';
+
+
 \connect vz
 SET client_encoding = 'UTF8';
 
 
-
-
-CREATE DATABASE vz ENCODING 'UTF8';
 CREATE SCHEMA vz;
+
 
 CREATE TABLE vz.User (
     Id              BIGSERIAL   PRIMARY KEY,   
@@ -103,7 +104,6 @@ CREATE TABLE vz.CommentVote (
     UNIQUE(CommentId, UserId)
 );
 
-DROP TABLE vz.Comment;
 CREATE TABLE vz.Comment (
     Id                  BIGSERIAL   PRIMARY KEY,   
     
@@ -137,7 +137,6 @@ CREATE TABLE vz.Comment (
     Created             TIMESTAMPTZ  NOT NULL DEFAULT now(),
     Deleted             BOOL DEFAULT false
 );
--- CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, MaterializedPath);  -- UNIQUE index is a btree, so sorting by MaterializedPath should be fast.
 CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, Path);  -- The simpler way
 
 -- FUNCTIONS
@@ -152,8 +151,3 @@ CREATE FUNCTION vz.GetCategory(category TEXT, country TEXT) RETURNS TEXT
     LANGUAGE SQL
     IMMUTABLE
     RETURNS NULL ON NULL INPUT;
-    
-    
----
-
-DROP TABLE vz.xxx;
