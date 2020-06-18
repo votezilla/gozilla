@@ -3,15 +3,14 @@ package main
 //TODO TMight be importing extraneous files here, I'm not sure.
 import (
     "fmt"
-	  "log"
     "net"
     "net/mail"
-	  "net/smtp"
+	"net/smtp"
     "crypto/tls"
 )
 
 // Uses SSL/TLS Email Example
-// See https://gist.github.com/chrisgillis/10888032 for original source and discussion. 
+// See https://gist.github.com/chrisgillis/10888032 for original source and discussion.
 
 const BUSINESS_EMAIL = "vtzilla@gmail.com"
 const BUSINESS_PASS = "vote22zilla"  //TODO TSecurity issue of including password in this code.
@@ -23,7 +22,7 @@ func main() {
     to   := mail.Address{"", "wisety@gmail.com"}
     subj := "Email via Go Code"
     body := "Hi, Aaron,\n\nThe email example you sent me appears to work! (Gmail allows it if you turn on the \"Access for less secure apps\" setting.)\n\n--Tyler C, sent from Go."
-	
+
 	sendEmail(from, to, subj, body)
 }
 */
@@ -69,44 +68,27 @@ func sendEmail(from string, to string, subj string, body string) {
     // for smtp servers running on 465 that require an ssl connection
     // from the very beginning (no starttls)
     conn, err := tls.Dial("tcp", servername, tlsconfig)
-    if err != nil {
-        log.Panic(err)
-    }
+    check(err)
 
     c, err := smtp.NewClient(conn, host)
-    if err != nil {
-        log.Panic(err)
-    }
+    check(err)
 
     // Auth
-    if err = c.Auth(auth); err != nil {
-        log.Panic(err)
-    }
+    check(c.Auth(auth))
 
     // To && From
-    if err = c.Mail(fromAdr.Address); err != nil {
-        log.Panic(err)
-    }
+    check(c.Mail(fromAdr.Address))
 
-    if err = c.Rcpt(toAdr.Address); err != nil {
-        log.Panic(err)
-    }
+    check(c.Rcpt(toAdr.Address))
 
     // Data
     w, err := c.Data()
-    if err != nil {
-        log.Panic(err)
-    }
+    check(err)
 
     _, err = w.Write([]byte(message))
-    if err != nil {
-        log.Panic(err)
-    }
+    check(err)
 
-    err = w.Close()
-    if err != nil {
-        log.Panic(err)
-    }
+    check(w.Close())
 
     c.Quit()
 

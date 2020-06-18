@@ -166,7 +166,7 @@ func (f *Field) validate() bool {
 
 		isValid, errorMsg := validator(f.Value)
 
-		prf("  Field.validate() - isValid, errorMsg = %s, %s for validator %s", bool_to_str(isValid), errorMsg, validator)
+		prf("  Field.validate() - isValid, errorMsg = %s, %s for validator %#v", bool_to_str(isValid), errorMsg, validator)
 
 		if !isValid {
 			// Note: Just return the first error, don't accumulate them.
@@ -272,7 +272,7 @@ func (f *Form) validate() bool {
 	for _, field := range f.FieldList {
 		v := field.validate()
 
-		prf("Form.validation is %s for field %s", bool_to_str(v), field)
+		prf("Form.validation is %s for field %#v", bool_to_str(v), field)
 
 		valid = valid && v
 	}

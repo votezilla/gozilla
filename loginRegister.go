@@ -124,6 +124,8 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func registerHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: check that the user is not already logged in, do something appropriate.
+
 	form := makeForm(
 		nuTextField(kEmail, "Email", 50, 6, 345),
 		nuTextField(kUsername, "Pick a Username", 50, 4, 345).noSpellCheck(),
@@ -328,4 +330,38 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 	*/
 
 	executeTemplate(w, kRegisterDetails, makeFormFrameArgs(form, "Voter Info"))
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// update password
+//
+///////////////////////////////////////////////////////////////////////////////
+func updatePasswordHandler(w http.ResponseWriter, r *http.Request){
+	userId, err := strconv.ParseInt(r.FormValue("userId"), 10, 64)
+	check(err)
+
+	// TODO: implement updatePassword form, and get actual password from there.
+	passwordHashInts := GetPasswordHash256("#NewPassword1234")
+
+	// Update user's password in the database.
+	prf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
+	DbQuery(`
+		UPDATE $$User
+		SET PasswordHash = ARRAY[$2::bigint, $3::bigint, $4::bigint, $5::bigint]
+		WHERE Id = $1::bigint`,
+		userId,
+		passwordHashInts[0],
+		passwordHashInts[1],
+		passwordHashInts[2],
+		passwordHashInts[3])
+
+	// TODO: Send password update confirmation email
+
+	// Create session (encrypted userId).
+	CreateSession(w, r, userId)
+
+	prf("Updated password for user %d", userId)
+
+	serveHTML(w, "<h2>You successfully updated your password!</h2>")
 }

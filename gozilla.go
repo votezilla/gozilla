@@ -171,7 +171,6 @@ func WebServer() {
 	http.HandleFunc("/createBlog/",   			hwrap(createBlogHandler))
 	http.HandleFunc("/createLink/",   			hwrap(createLinkHandler))
 	http.HandleFunc("/createPoll/",   			hwrap(createPollHandler))
-	http.HandleFunc("/forgotPassword/", 		hwrap(forgotPasswordHandler))
 	http.HandleFunc("/history/",        		hwrap(historyHandler))
 	http.HandleFunc("/ip/",             		hwrap(ipHandler))
 	http.HandleFunc("/login/",          		hwrap(loginHandler))
@@ -181,6 +180,7 @@ func WebServer() {
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 //	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))     // being called directly from registerDetailsHandler
 	http.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
+	http.HandleFunc("/updatePassword/", 		hwrap(updatePasswordHandler))
 //	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 	http.HandleFunc("/viewPollResults2/",   		hwrap(viewPollResultsHandler2))
 

@@ -151,7 +151,7 @@ func (n *NewsAPITimeManager) WaitForMyTurn() {
 	// When we enter a new day, reset the num requests.
 	day	:= time.Now().Day()
 	if day != n.lastRequestDay {
-		prf("Finished day: %s  Num requests: %d", n.lastRequestDay, n.numRequestsToday)
+		prf("Finished day: %d  Num requests: %d", n.lastRequestDay, n.numRequestsToday)
 
 		n.numRequestsToday = 0
 		n.lastRequestDay = day
