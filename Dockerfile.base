@@ -1,0 +1,13 @@
+FROM golang:1.14.4-alpine
+
+COPY *.go /go/
+
+# Install git.
+# Git is required for fetching the dependencies.
+RUN apk update && apk add --no-cache git
+
+# Fetch all go library dependencies.
+RUN go get -d -v
+
+# We run go build to compile the binary executable of our Go program
+RUN go build -o gozilla .

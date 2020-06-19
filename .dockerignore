@@ -1,0 +1,10 @@
+.cache
+.exe
+.exe~
+.git
+.tws
+.vscode/*
+demos/*
+static/downloads/*
+static/thumbnails/*
+static/votezilla logo/PSD/*
