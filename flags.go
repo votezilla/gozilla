@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	//"strconv"
+	"os"
 )
 
 var (
@@ -51,6 +52,8 @@ func parseCommandLineFlags() {
 	ff := flag.String("mode",			"",				"a special mode to run a server in")
 	fg := flag.String("testUserId",		"",				"UserId to test being loggin in as")
 	fh := flag.String("isNewsAccelerated", "",			"Whether News API queries should be accelerated")
+
+	prVal("Command Line Args", os.Args)
 
 	flag.Parse()
 
