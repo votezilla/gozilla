@@ -177,3 +177,6 @@ POSTPONED FEATURES:
 
 
 
+SECURITY:
+- https
+- Enable DDOS prevention somehow
