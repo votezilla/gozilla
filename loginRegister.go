@@ -226,12 +226,12 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		nuTextField(kName, "Full Name", 50, 0, 100),
 		nuTextField(kZipCode, "Zip Code", 5, 0, 10),
 		nuTextField(kBirthYear, "Birth Year", 4, 0, 4),
-		nuSelectField(kCountry, "Country", countries, true, false, true, true),
-		nuSelectField(kGender, "Gender", genders, true, false, true, true),
-		nuSelectField(kParty, "Party", parties, true, false, true, true),
-		nuSelectField(kRace, "Race", races, true, false, true, true),
-		nuSelectField(kMaritalStatus, "Marital Status", maritalStatuses, true, false, true, true),
-		nuSelectField(kSchoolCompleted, "Furthest Schooling", schoolDegrees, true, false, true, true),
+		nuSelectField(kCountry, "Country", countries, true, true, true, true),
+		nuSelectField(kGender, "Gender", genders, true, true, true, true),
+		nuSelectField(kParty, "Party", parties, true, true, true, true),
+		nuSelectField(kRace, "Race", races, true, true, true, true),
+		nuSelectField(kMaritalStatus, "Marital Status", maritalStatuses, true, true, true, true),
+		nuSelectField(kSchoolCompleted, "Furthest Schooling", schoolDegrees, true, true, true, true),
 	)
 
 	form.field(kName).addRegexValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe').")
