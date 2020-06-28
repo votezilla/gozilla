@@ -33,6 +33,9 @@ func generateConfEmail(user string) string {
 }
 
 func sendEmail(from string, to string, subj string, body string) {
+    pr("sendEmail: DISABLING EMAIL UNTIL FIXED")
+    return;
+    
 	//TODO TValidate address strings here
 	//(Not sure why the example was wrapping the strings, here, but I left it be, mechanically.)
     fromAdr := mail.Address{"", from}
