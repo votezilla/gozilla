@@ -90,9 +90,10 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		articleGroups[c].HeaderColor = newsCategoryInfo.HeaderColors[category]
 	}
 
+	// Suggested articles for further reading - on the sidebar.
 	moreArticles := []Article{}
 	if article.IsPoll {
-		moreArticles = fetchPolls(userId, postId)
+		moreArticles = fetchSuggestedPolls(userId, postId)
 	} else {
 		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId, userId, postId)
 	}

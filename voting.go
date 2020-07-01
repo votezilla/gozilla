@@ -344,7 +344,8 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 				"")
 	}
 
-	polls := fetchPolls(userId, postId)
+	// Suggested polls for further voting - on the sidebar.
+	polls := fetchSuggestedPolls(userId, postId)
 
 	upvotes, downvotes := deduceVotingArrows(append(polls, article))
 

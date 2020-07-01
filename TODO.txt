@@ -1,6 +1,3 @@
-HIGH PRIORITY (for test w/ Tom, Tyler): 
-	-- DEPLOY May 1, LAUNCH May 4 --
- 
 [Est - Rushed Est - Date I'd like to hit]
 
 v Done
@@ -9,58 +6,102 @@ v Done
               v Rough Due Date
                   v Actual # Days
                   
-                   - Docker!!!
-
-X  - 1 - .5 - 4/22 - Display actual number of comments, by the article.
-
-X  - 1 - .5 -      - Create Link Post: do url testing that adds https:// or http:// by default and tests if it's a valid website, in Submit Link!  (and/or: add http:// or https:// to start of link if it wasn't there, in javascript.
-
-   - 2 -  1 - 4/24 - Https!!
-
-X  - 2 -  1 - 4/27 - Prettify the comments - make user info layout similar to how articles are displayed.
-                      X  Got the comments posting immediately, via JS.  However...
-                      X Make it look similar to an article                      
-                      X The new comments post slightly in the wrong position hierarcially.  Fix this.
 
 
-X  - 2 -  1 - 4/28 - Replace all the gforms with our form system.
-   
-X  - 2 -  1 - 4/29 - HTML injection security:
-X                      Switch to template/html, 
-X                      Make sure test for any glaring html injection stuff.  Maybe a unit test, even?
-   
-   - 2 -  .5 -        Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.  Can prompt for logging in as well.
+HIGH PRIORITY (for test w/ Tom, Tyler): 
+
+X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category just of polls.  I got fdbk f Ryan H to make POLLS more obvious.)
+  [] SERVER-TODO: create polls!!!
+  
+- Forms - dropdown forgets value!!!
+
+- Forms - animate placeholder text to label
+
+- Forms - "Party" -> "Choose a Party"
+
+        + "Other" -> add text input
+        
+        + "Other" -> didn't let him register
+        
+        + "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
+
+- Forms - add labels.  (Animating if possible.)
+
+- Capitalizes eml autocap, does case sensitive eml comparison on mobile
+
+- Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
+
+- https
+
+- why so many missing images?
+
+- privacy alias'
  
-   - 4 -  2 - 5/01 - Launch Votezilla on the cloud!!  (Try Digital Ocean!)
+- Unknown poll creation bug (possibly when adding / removing additional options ?)
+ 
+- Unknown weird bug if you choose an obvious username on Chrome (?)
 
-16 - 8 - 5/01 - Total estimate (Estimate - date I'd like to hit.)
+- headline - doesn't show link
 
-              12ish days? - Prettier forms.
+- comment out ... f article til feature is active
+ 
+- comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
+
+- article - add back nav arrow
+ 
+- Tom feedback: 
+
+  X Tweak article cat colors
+          
+  + Add poll creation explanations
+              
+- ability to update & delete posts, comments
+
+- prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
+
+- from /news, hovering over any poll choice highlights all of them
+
+- poll article has link icon and "continue reading...", when it shouldn't
+
+
 
 
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
 
-  - Add POLLS to main news page, right after NEWS.  (A category just of polls.)
+  - share w a few > fr' + fam
 
-  - Allow user to create richtext Blog.
+  - c Univ' - prog intern' + phys' prof'
 
+  - why you voted comment
+  
+- click on news source / user icon to see their news articles / posts
+
+  + same for news cat'
+  
+  + ability to message them or write on a news source' wall
+
+  - Enable DDOS prevention somehow
+
+  - Add more news API's
+  
+  - Allow user to create simple, plaintext Blog (with image insertion for body or just thumbnail).
+
+  = Fix email - Emailed DO tech support.
 
 T - Email system.  Needs to:
 
-T   + Implement Email verification.
+  - Implement Email verification.
 
-T   + Implement Forgot password.
+  - Implement Forgot password.
   
   - Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
-
-X  -                 Prettify & add explanation to Login / Register pages.  Some bootstrap.
  
-  - 2 -  1 - 4/23 - Fix ranking system for posts by up/down vote!! 
-  
-  - Remember previous page or close form upon success.
+  - Remember previous page or close form upon success, and/or back tri buttons.
 
+ -        Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.  Can prompt for logging in as well.
+ 
 
 MED PRIORITY (for test with 100 friends):
 
@@ -83,7 +124,7 @@ MED PRIORITY (for test with 100 friends):
 
 X - Sort comment siblings by up/down vote.
 
-- Start promoting.
+= Start promoting.
 
 - Optimization:
 
@@ -104,8 +145,6 @@ X - Sort comment siblings by up/down vote.
 
 LOW PRIORITY (for launch with 1000 friends):
 
-X Remove "padding-left" from headline news, to make it line up better.
-
 - Add vote to DB and display results, also allow user to change vote.
 
 - Facebook:
@@ -123,8 +162,6 @@ X Remove "padding-left" from headline news, to make it line up better.
 - Defend DNS attack.
 
 - Display the steps going on, for a ranked 
-
-X - Fix up/down voting for articles
 
 - Let people update their information.
 
@@ -173,10 +210,14 @@ SUPER-LOW PRIORITY (100k)
 
 POSTPONED FEATURES:
 
-  - Change between alias and real name depending on a post's (or comment's) privacy settings.
+- Change between alias and real name depending on a post's (or comment's) privacy settings.
+
+- Docker (50% implemented, but turned out to be pain in the ass).
+
+- Separate count for up / down votes?
 
 
+REQUESTS:
 
-SECURITY:
-- https
-- Enable DDOS prevention somehow
+Ryan - add margins between Articles
+

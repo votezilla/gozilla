@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+//	"math/rand"
 	"net/url"
 	"strconv"
 	"strings"
@@ -87,36 +88,46 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		userIdCondition,
 		categoryCondition)
 
-	pollPostQuery := fmt.Sprintf(
-	   `SELECT P.Id,
-		       U.Username AS Author,
-		       P.Title,
-		       '' AS Description,
-		       FORMAT('/poll/?postId=%%s', P.Id) AS LinkUrl,
-			   COALESCE(P.UrlToImage, '') AS UrlToImage,
-			   P.Created AS PublishedAt,
-			   '' AS NewsSourceId,
-			   $$GetCategory(Category, U.Country) AS Category,
-			   'EN' AS Language,
-			   U.Country,
-			   PollOptionData,
-			   NumComments,
-			   ThumbnailStatus,
-			   'P' AS Source
-		FROM $$PollPost P
-		JOIN $$User U ON P.UserId = U.Id
-		WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
-		idCondition,
-		userIdCondition,
-		categoryCondition)
+	pollPostQueryBuilder := func(pollsCategory bool) string {
+		return fmt.Sprintf(
+		   `SELECT P.Id,
+				   U.Username AS Author,
+				   P.Title,
+				   '' AS Description,
+				   FORMAT('/poll/?postId=%%s', P.Id) AS LinkUrl,
+				   COALESCE(P.UrlToImage, '') AS UrlToImage,
+				   P.Created AS PublishedAt,
+				   '' AS NewsSourceId,
+				   %s AS Category,
+				   'EN' AS Language,
+				   U.Country,
+				   PollOptionData,
+				   NumComments,
+				   ThumbnailStatus,
+				   'P' AS Source
+			FROM $$PollPost P
+			JOIN $$User U ON P.UserId = U.Id
+			WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
+			ternary_str(pollsCategory, "'polls'", "$$GetCategory(Category, U.Country)"),
+			idCondition,
+			userIdCondition,
+			categoryCondition)
+	}
 
+	pollPostQuery := pollPostQueryBuilder(false)
+
+	pollCatQuery := pollPostQueryBuilder(true)
+
+	// TODO: Optimize queries so we only create strings that we will actually use.
 	query := ""
 	if userIdCondition != "IS NOT NULL" {  // Looking up posts that target a user - so there can be no news posts.
 		query = strings.Join([]string{linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	} else if newsSourceIdCondition != "IS NOT NULL" {  // We're just querying news posts.
 		query = newsPostQuery
 	} else if onlyPolls {
-		query = pollPostQuery
+		query = pollCatQuery
+	} else if articlesPerCategory > 0 {
+		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery, pollCatQuery}, "\nUNION ALL\n")
 	} else {
 		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	}
@@ -333,6 +344,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		if len(pollOptionJson) > 0 {
 			newArticle.IsPoll 		  = true
 			newArticle.Title 		  = "POLL: " + newArticle.Title
+
+
+			//newArticle.UrlToImage 	  = fmt.Sprintf("/static/ballotboxes/%d.jpg", rand.Intn(17)) // Pick a random ballotbox image.
+			//newArticle.UrlToThumbnail = newArticle.UrlToImage
 			newArticle.UrlToImage 	  = "/static/ballotbox.png"
 			newArticle.UrlToThumbnail = "/static/ballotbox small.png"
 
@@ -440,7 +455,7 @@ func fetchArticlesUpDownVotedOnByUser(userId int64, maxArticles int) ([]Article)
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesWithinCategory(category string, userId int64, maxArticles int) ([]Article) {
-	_, foundCategory := newsCategoryInfo.HeaderColors[category]
+	_, foundCategory := newsCategoryInfo.HeaderColors[category]  // Ensure we have a valid category (to prevent SQL injection).
 
 	if foundCategory {
 		return _queryArticles(
@@ -478,7 +493,7 @@ func fetchArticlesPostedByUser(userId int64, maxArticles int) ([]Article) {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch articles from a news source.
+// fetch articles from a news source
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesFromThisNewsSource(newsSourceId string, userId, skipArticleId int64) (articles []Article) {
@@ -499,14 +514,31 @@ func fetchArticlesFromThisNewsSource(newsSourceId string, userId, skipArticleId 
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch polls.
+// fetch polls
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchPolls(userId, skipArticleId int64) (articles []Article) {
+func fetchPolls(userId int64, maxArticles int) (articles []Article) {
 	return _queryArticles(
-		ternary_str(skipArticleId > 0,
-			"!= " + strconv.FormatInt(skipArticleId, 10),  // idCondition 		string
-			"IS NOT NULL"), 				               // idCondition 		string
+		"IS NOT NULL",	// idCondition				string
+		"IS NOT NULL",  // userIdCondition 			string
+		"IS NOT NULL",  // categoryCondition 	    string
+		"IS NOT NULL",	// newsSourceIdCondition	string
+		-1,             // articlesPerCategory 		int
+		maxArticles,    // maxArticles 				int
+		userId,         // fetchVotesForUserId 		int64
+		true)			// onlyPolls				bool
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch suggested polls
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchSuggestedPolls(userId, skipArticleId int64) (articles []Article) {
+	return _queryArticles(
+		ternary_str(skipArticleId > 0,                     // idCondition 		string
+			"!= " + strconv.FormatInt(skipArticleId, 10),
+			"IS NOT NULL"),
 		"IS NOT NULL",  // userIdCondition 			string
 		"IS NOT NULL",  // categoryCondition 	    string
 		"IS NOT NULL",	// newsSourceIdCondition	string

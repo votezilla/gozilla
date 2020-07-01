@@ -47,6 +47,7 @@ var (
 	newsCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
 			"news",
+			"polls",
 			"world news",
 			"business",
 			"sports",
@@ -55,16 +56,18 @@ var (
 			"science",
 		},
 		HeaderColors : map[string]string{
-			"news" 			 	: "#ccc",
+			"news" 			 	: "#68fc48", //#68fc68", //#7ff4f4",    //"#8ff",
+			"polls"				: "#4482ff", //"#fe8",
 			"world news"		: "#ea3ce7",
 			"business" 			: "#8e8",
 			"sports" 			: "#88f",
 			"entertainment" 	: "#e85be4",
-			"technology" 		: "#8ff",
+			"technology" 		: "#aaa",    //"#ccc",
 			"science"			: "#8cf",
 		},
 		CategorySelect : [][2]string{
 			{"news", 			"news"},
+			{"polls", 			"polls"},
 			{"world news",		"world news"},
 			{"business",		"business"},
 			{"sports",			"sports"},
@@ -382,20 +385,26 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	username := getUsername(userId)
 
+
+	// TODO: <-- insert new code for "POLLS" somewhere around here!  :)
+
+
 	// TODO: cache this, fetch every minute?
 	var articles []Article
 	if reqCategory == "" {
 		// Fetch 5 articles from each category
 		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
+	} else if reqCategory == "polls" {
+		// Fetch only polls.
+		articles = fetchPolls(userId, kMaxArticles)
 	} else {
-		// Ensure we have a valid category (prevent SQL injection)
-		if _, ok := newsCategoryInfo.HeaderColors[reqCategory]; !ok {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
 		// Fetch articles in requested category
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
+
+	// This is a HACK for now.
+	//pollArticles := fetchPolls(userId, -1)
+	//articles = append(pollArticles, articles...)
 
 	upvotes, downvotes := deduceVotingArrows(articles)
 

@@ -159,20 +159,20 @@ type Field struct {
 }
 
 func (f *Field) validate() bool {
-	prVal("Field.validate() for field", f)
+//	prVal("Field.validate() for field", f)
 
 	for k, _ := range f.Validators {
 		validator := f.Validators[k]
 
 		isValid, errorMsg := validator(f.Value)
 
-		prf("  Field.validate() - isValid, errorMsg = %s, %s for validator %#v", bool_to_str(isValid), errorMsg, validator)
+//		prf("  Field.validate() - isValid, errorMsg = %s, %s for validator %#v", bool_to_str(isValid), errorMsg, validator)
 
 		if !isValid {
 			// Note: Just return the first error, don't accumulate them.
 			f.Error = errorMsg
 
-			prVal("    !isValid --> f.Error", f.Error)
+//			prVal("    !isValid --> f.Error", f.Error)
 
 			return false
 		}
@@ -241,17 +241,17 @@ type Form struct {
 }
 
 func (f *Form) processData(r *http.Request) {
-	pr("Form.processData")
+//	pr("Form.processData")
 
 	for name, _ := range f.FieldMap {
 		value := r.FormValue(name)
 
 		f.FieldMap[name].Value = value
 
-		prf("Form.processData field: '%s' value: '%s'", name, value)
+//		prf("Form.processData field: '%s' value: '%s'", name, value)
 	}
 
-	prVal("AFTER Form.processData f", *f) // << ERROR first seen here!
+//	prVal("AFTER Form.processData f", *f) // << ERROR first seen here!
 }
 
 // Accessors
@@ -266,28 +266,28 @@ func (f *Form) setFieldError(fieldName string, errorMsg string) {
 }
 
 func (f *Form) validate() bool {
-	prVal("Form.validate for form", *f)
+//	prVal("Form.validate for form", *f)
 
 	valid := true
 	for _, field := range f.FieldList {
 		v := field.validate()
 
-		prf("Form.validation is %s for field %#v", bool_to_str(v), field)
+//		prf("Form.validation is %s for field %#v", bool_to_str(v), field)
 
 		valid = valid && v
 	}
 
-	prVal("Form.validate return", valid)
+//	prVal("Form.validate return", valid)
 
 	return valid
 }
 
 func (f *Form) validateData(r *http.Request) bool {
-	pr("Form.validateData")
+//	pr("Form.validateData")
 
 	f.processData(r)
 
-	prVal("Form.validateData processed data form", f)
+//	prVal("Form.validateData processed data form", f)
 
 	return f.validate()
 }
@@ -348,7 +348,7 @@ func makeTextField(name, label, placeholder string, inputLength, minLength, maxL
 
 	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
 
-	prVal("makeTextField Type", f.Type)
+//	prVal("makeTextField Type", f.Type)
 
 	return &f
 }
@@ -360,7 +360,7 @@ func nuTextField(name, placeholder string, inputLength, minLength, maxLength int
 	f.Placeholder = placeholder
 	f.Classes = kNuField
 
-	prVal("nuTextField f.Type", f.Type)
+//	prVal("nuTextField f.Type", f.Type)
 
 	return f
 }
