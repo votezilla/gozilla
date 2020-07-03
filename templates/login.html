@@ -1,9 +1,13 @@
 {{define "content"}}
+	{{ template "toggleablePasswordCSS" }}
+
 	{{ template "formHeader" "Log In to" }}
 	{{ template "beginForm" .Form }}
 		{{ $f := .Form.FieldMap }}
 		{{ template "field" $f.emailOrUsername -}}
-		{{ template "field" $f.password }}
+
+		{{ template "toggleablePassword" $f.password }}
+
 		<p class="nuFieldSubtext">
 			<a href="onClick_OpenModalLink('forgotAccountTarget')" style="color:#0072ff">
 				Forgot Account?
@@ -19,4 +23,6 @@
 		</div>
 		<br>
 	{{ template "endForm" }}
+
+	{{ template "toggleablePasswordScript" }}
 {{end}}

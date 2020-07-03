@@ -13,21 +13,29 @@ HIGH PRIORITY (for test w/ Tom, Tyler):
 X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category just of polls.  I got fdbk f Ryan H to make POLLS more obvious.)
   [] SERVER-TODO: create polls!!!
   
-- Forms - dropdown forgets value!!!
+* Forms - REQUIRED:
 
-- Forms - animate placeholder text to label
+	X dropdown forgets value!!!
+   
+        X password needs 2l input w/ matching verification and mask w eyeball
+
+	X remove autocap f username
+	
+	X dropdown text cutoff
+	
+	X "Select" text for dropdowns
+
+- Forms - (optional) animate placeholder text to label
 
 - Forms - "Party" -> "Choose a Party"
 
         + "Other" -> add text input
         
-        + "Other" -> didn't let him register
+        X "Other" -> didn't let him register
         
-        + "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
+        X "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
 
-- Forms - add labels.  (Animating if possible.)
-
-- Capitalizes eml autocap, does case sensitive eml comparison on mobile
+- Forms - (CANCELED) add labels.  (Animating if possible.)
 
 - Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
 
@@ -63,7 +71,7 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
 
 - poll article has link icon and "continue reading...", when it shouldn't
 
-
+- fix login crash asserts
 
 
 
@@ -79,7 +87,10 @@ MED-HIGH PRIORITY (for test w/ 10 friends):
 - click on news source / user icon to see their news articles / posts
 
   + same for news cat'
-  
+
+  - Send verification email... user doesn't get created until email gets verified.
+    Verify email and set emailVerified=True when email is verified
+
   + ability to message them or write on a news source' wall
 
   - Enable DDOS prevention somehow

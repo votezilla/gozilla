@@ -33,6 +33,12 @@ func generateConfEmail(user string) string {
 }
 
 func sendEmail(from string, to string, subj string, body string) {
+	prf("skipping sendEmail for now")
+
+	// TODO: replace checks with an exception, make it not accept the email address if that is what was failing when registering.
+
+	return;
+
 	prf("sendEmail %s %s %s %s", from, to, subj, body)
 
 	//TODO TValidate address strings here

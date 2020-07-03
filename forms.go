@@ -3,11 +3,10 @@ package main
 
 import (
 	"fmt"
-	"html"
     "net/http"
 	"regexp"
     "strconv"
-//    "net/url"
+    "strings"
 )
 
 type OptionData [][2]string
@@ -19,10 +18,23 @@ const (
 )
 
 var (
-	NoSpellCheck = Attributes{
+	NoAutocomplete = Attributes {
+		"autocomplete": "off",
+	}
+	NoSpellCheck = Attributes {
+		"autocorrect": "off",
+		"spellcheck": "false",
+	}
+	NoSpellCheckOrCaps = Attributes {
 		"autocorrect": "off",
 		"spellcheck": "false",
 		"autocapitalize": "off",
+	}
+	NoSpellCheckOrCapsOrAutocomplete = Attributes {
+		"autocorrect": "off",
+		"spellcheck": "false",
+		"autocapitalize": "off",
+		"autocomplete": "off",
 	}
 )
 
@@ -34,33 +46,33 @@ var (
 // ================================================================================
 type Validator func(value string)(bool, string)
 
-func requiredValidator() func(string)(bool, string) {
+func requiredValidator(fieldNameForErrors string) func(string)(bool, string) {
 
 	return func(value string)(bool, string) {
 		if value != "" {
 			return true, ""
 		} else {
-			return false, "This field is required."
+			return false, fmt.Sprintf("%s is required", strings.Title(fieldNameForErrors)) // strings.Title capitalizes first letter.
 		}
 	}
 }
 
-func minMaxLengthValidator(minLength, maxLength int) Validator {
+func minMaxLengthValidator(minLength, maxLength int, fieldNameForErrors string) Validator {
 
 	return func(value string)(bool, string) {
 		length := len(value)
 
 		if length < minLength {
-			return false, fmt.Sprintf("Ensure this value has at least %v characters", minLength)
+			return false, fmt.Sprintf("Ensure %s has at least %v characters", fieldNameForErrors, minLength)
 		} else if length > maxLength {
-			return false, fmt.Sprintf("Ensure this value has at most %v characters", maxLength)
+			return false, fmt.Sprintf("Ensure %s has at most %v characters", fieldNameForErrors, maxLength)
 		} else {
 			return true, ""
 		}
 	}
 }
 
-func optionValidator(validOptions []string) Validator {
+func optionValidator(validOptions []string, invalidOptionMsg string) Validator {
 
 	return func(value string)(bool, string) {
 		for _, validOption := range validOptions {
@@ -68,7 +80,7 @@ func optionValidator(validOptions []string) Validator {
 	            return true, ""
 	        }
 	    }
-	    return false, fmt.Sprintf("Invalid option selected")
+	    return false, fmt.Sprintf(coalesce_str(invalidOptionMsg, "Invalid option selected"))
 	}
 }
 
@@ -103,28 +115,7 @@ func fullNameValidator() Validator {
 // An URLValidator that ensures a value looks like an url.
 // TODO: Security check for malicious website links.  See: https://geekflare.com/security-threats-detection-api/
 func urlValidator(schemeRequired bool) Validator {
-	return regexValidator(`^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$`, "Enter a valid url.")
-
-	//if schemeRequired {
-	//	return regexValidator(`^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$`, "Enter a valid url.")
-	//} else {
-	//	return regexValidator(`^([-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$`, "Enter a valid url.")
-	//}
-
-	//return func(value string)(bool, string) {
-	//	prVal("\n\n\n!!!!!urlValidator called, value", value)
-	//
-	//	URL, err := url.Parse(value)
-	//
-	//	prVal("URL", URL)
-	//	prVal("err", err)
-	//
-	//	if err != nil {
-	//		return false, "Invalid URL"
-	//	} else {
-	//		return true, ""
-	//	}
-	//}
+	return regexValidator(`^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$`, "Enter a valid link.")
 }
 
 // ================================================================================
@@ -209,8 +200,31 @@ func (f *Field) setError(errorMsg string) {
 	f.Error = errorMsg
 }
 
+func (f *Field) noAutocomplete() *Field {
+	assert(len(f.Attributes) == 0)
+	f.Attributes = NoAutocomplete
+	return f
+}
 func (f *Field) noSpellCheck() *Field {
+	assert(len(f.Attributes) == 0)
 	f.Attributes = NoSpellCheck
+	return f
+}
+
+func (f *Field) noSpellCheckOrCaps() *Field {
+	assert(len(f.Attributes) == 0)
+	f.Attributes = NoSpellCheckOrCaps
+	return f
+}
+
+func (f *Field) noSpellCheckOrCapsOrAutocomplete() *Field {
+	assert(len(f.Attributes) == 0)
+	f.Attributes = NoSpellCheckOrCapsOrAutocomplete
+	return f
+}
+
+func (f *Field) noDefaultValidators() (*Field) {
+	f.Validators = nil
 	return f
 }
 
@@ -310,155 +324,80 @@ func (f *Form) addField(field *Field) {
 	f.FieldMap[field.Name] = field
 }
 
-func (f Field) getHtml() string {
-	return fmt.Sprintf(
-		"<input type=%s name=\"%s\" value=\"%s\" placeholder=\"%s\" length=\"%d\">%s",
-		f.Type,
-		f.Name,
-		html.EscapeString(f.Value),  // Prevents HTML-injection attack!!!  (Since the user can affect this value.)
-		f.Placeholder,
-		f.Length,
-		f.getErrorHtml())
-}
 
 // Field factories
 
-func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
+func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int, fieldNameForErrors string) *Field {
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, Length: inputLength}
 
 	if minLength > 0 {
-		f.Validators = append(f.Validators, requiredValidator())
+		f.Validators = append(f.Validators, requiredValidator(fieldNameForErrors))
 	}
 
 	if minLength > 0 || maxLength != -1 {
-		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength))
+		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength, fieldNameForErrors))
 	}
-
-	// TODO: HTML-escape this
-	f.Html = func()string {
-		prVal("f.Html f", f)
-
-		return f.getHtml()
-	}
-	f.HtmlRow = func()string {
-		prVal("f.HtmlRow f", f)
-
-		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.getHtml())
-	}
-
-	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
 
 //	prVal("makeTextField Type", f.Type)
 
 	return &f
 }
-func MakeTextField(name string, inputLength, minLength, maxLength int) *Field {
-	return makeTextField(name, name + ":", name + "...", inputLength, minLength, maxLength)
-}
-func nuTextField(name, placeholder string, inputLength, minLength, maxLength int) *Field {
-	f := makeTextField(name, "", placeholder, inputLength, minLength, maxLength)
-	f.Placeholder = placeholder
-	f.Classes = kNuField
 
-//	prVal("nuTextField f.Type", f.Type)
-
-	return f
-}
 
 func makePasswordField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
-	f := makeTextField(name, label, placeholder, inputLength, minLength, maxLength)
+	f := makeTextField(name, label, placeholder, inputLength, minLength, maxLength, "password")
 	f.Placeholder = placeholder
 	f.Type = "password"
 	return f
 }
-func MakePasswordField(name string, inputLength, minLength, maxLength int) *Field {
-	return makePasswordField(name,  name + ":", name + "...", inputLength, minLength, maxLength)
-}
-func nuPasswordField(name, placeholder string, inputLength, minLength, maxLength int) *Field {
-	f := makePasswordField(name, "", placeholder, inputLength, minLength, maxLength)
-	f.Placeholder = placeholder
-	f.Classes = kNuField
-	return f
-}
+
 
 func makeHiddenField(name, defaultValue string) *Field {
 	f := Field{Name: name, Value: defaultValue, Type: "hidden"}
 
-	// TODO: HTML-escape this
-	f.Html = func()string {
-		return fmt.Sprintf(
-			"<input type=hidden name=\"%s\" value=\"%s\">",
-			f.Name,
-			html.EscapeString(f.Value),  // Prevents against HTML-injection attacks!
-	)}
-	f.HtmlRow = func()string { return f.Html() }
 
 	return &f
 }
-func nuHiddenField(name, defaultValue string) *Field { return makeHiddenField(name, defaultValue); }
 
 // TODO: implement makeRichTextField().  It's just a copy of makeTextField at the moment.
-func makeRichTextField(name, label, placeholder string, inputLength, minLength, maxLength int) *Field {
+func makeRichTextField(name, label, placeholder string, inputLength, minLength, maxLength int, fieldNameForErrors string) *Field {
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, Length: inputLength}
 
 	if minLength > 0 {
-		f.Validators = append(f.Validators, requiredValidator())
+		f.Validators = append(f.Validators, requiredValidator(fieldNameForErrors))
 	}
 
 	if minLength > 0 || maxLength != -1 {
-		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength))
+		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength, fieldNameForErrors))
 	}
-
-	// TODO: HTML-escape this
-	f.Html = func()string {
-		prVal("f.Html f", f)
-
-		return f.getHtml()
-	}
-	f.HtmlRow = func()string {
-		prVal("f.HtmlRow f", f)
-
-		return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.getHtml())
-	}
-
-	//TODO: [] add RowHtml function (which includes Label == Placeholder parameter)
 
 	return &f
-}
-func MakeRichTextField(name string, inputLength, minLength, maxLength int) *Field {
-	return makeRichTextField(name,  name + ":", name + "...", inputLength, minLength, maxLength)
 }
 
 func makeBoolField(name, label, optionText string, defaultValue bool) *Field {
 	// Hack: using Placeholder to hold optionText value
 	f := Field{Name: name, Type: "checkbox", Label: label, Placeholder: optionText, Value: ternary_str(defaultValue, "true", "")}
 
-	// TODO: HTML-escape this
-	f.Html = func()string {
-		return fmt.Sprintf(
-			"<input type=checkbox name=\"%s\" value=\"true\" %s>%s",
-			f.Name,
-			ternary_str(f.boolVal(), "checked", ""),
-			f.getErrorHtml())
-	}
-	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s %s</td></tr>\n", f.Label, f.Html(), f.Placeholder) }
-
 	return &f
 }
-func MakeBoolField(name string, defaultValue bool) *Field {
-	return makeBoolField(name, name + ":", "", defaultValue)
-}
-func nuBoolField(name, optionText string, defaultValue bool) *Field {
-	f := makeBoolField(name, "", optionText, defaultValue)
-	f.Classes = kNuCheckbox
-	return f
-}
 
-func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil, required, hasOther bool) *Field {
+func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil, required, hasOther, skippable bool, invalidOptionMsg string) *Field {
 	f := Field{Name: name, Type: "select", Label: label}
 
+	if hasOther {
+		optionKeyValues = append(optionKeyValues, [2]string{"OTHER", "Other"})
+	}
+	if skippable {
+		optionKeyValues = append(optionKeyValues, [2]string{"SKIP", "Prefer not to answer"})
+	}
+
+	f.OptionKeyValues = optionKeyValues  // Needed for nuForm.
+
+
 	if required {
-		f.Validators = append(f.Validators, requiredValidator())
+		f.Validators = append(
+			f.Validators,
+			requiredValidator(invalidOptionMsg[12:])) // HACK: invalidOptionMsg[12:] skips "Please select your "
 	}
 
 	validOptions := make([]string, len(optionKeyValues) + 1)
@@ -467,41 +406,40 @@ func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil,
 		validOptions = append(validOptions, optionKeyValue[0]) // add the key
 	}
 
-	f.Validators = append(f.Validators, optionValidator(validOptions))
+	f.Validators = append(f.Validators, optionValidator(validOptions, invalidOptionMsg))
 
-	f.OptionKeyValues = optionKeyValues  // Needed for nuForm.
-
-	// TODO: HTML-escape this
-	f.Html = func()string {
-		str := fmt.Sprintf("\n<select name=\"%s\">\n", f.Name)
-
-		if startAtNil {
-			str += "<option value=\"\">-</option>\n"
-		}
-
-		if hasOther {
-			str += "<option value=\"0\">Other</option>\n"
-		}
-
-		for _, optionKeyValue := range optionKeyValues {
-			str += fmt.Sprintf("<option value=\"%s\"%s>%s</option>\n",
-				optionKeyValue[0], // key
-				ternary_str(f.Value == optionKeyValue[0], " selected", ""),
-				optionKeyValue[1]) // value
-		}
-		str += "</select>\n"
-		str += f.getErrorHtml()
-		return str
-	}
-	f.HtmlRow = func()string { return fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", f.Label, f.Html()) }
 
 	return &f
 }
-func MakeSelectField(name string, optionKeyValues OptionData, startAtNil, required, hasOther bool) *Field {
-	return makeSelectField(name, name + ":", optionKeyValues, startAtNil, required, hasOther)
+
+// nuField factories - fields with the "nuField" style.  Minimal, FB-style fields without a label.
+
+func nuTextField(name, placeholder string, inputLength, minLength, maxLength int, fieldNameForErrors string) *Field {
+	f := makeTextField(name, "", placeholder, inputLength, minLength, maxLength, fieldNameForErrors)
+	f.Placeholder = placeholder
+	f.Classes = kNuField
+
+//	prVal("nuTextField f.Type", f.Type)
+
+	return f
 }
-func nuSelectField(name, placeholder string, optionKeyValues OptionData, startAtNil, required, hasOther, skippable bool) *Field {
-	f := makeSelectField(name, "", optionKeyValues, startAtNil, required, hasOther)
+func nuPasswordField(name, placeholder string, inputLength, minLength, maxLength int) *Field {
+	f := makePasswordField(name, "", placeholder, inputLength, minLength, maxLength)
+	f.Placeholder = placeholder
+	f.Classes = kNuField
+	return f
+}
+
+func nuHiddenField(name, defaultValue string) *Field { return makeHiddenField(name, defaultValue); }
+
+func nuBoolField(name, optionText string, defaultValue bool) *Field {
+	f := makeBoolField(name, "", optionText, defaultValue)
+	f.Classes = kNuCheckbox
+	return f
+}
+
+func nuSelectField(name, placeholder string, optionKeyValues OptionData, startAtNil, required, hasOther, skippable bool, invalidOptionMsg string) *Field {
+	f := makeSelectField(name, "", optionKeyValues, startAtNil, required, hasOther, skippable, invalidOptionMsg)
 	f.Placeholder = placeholder
 	f.Classes = kNuField
 
@@ -513,32 +451,8 @@ func nuSelectField(name, placeholder string, optionKeyValues OptionData, startAt
 	return f
 }
 
-/*
+
 // === FORM TEMPLATE ARGS ===
-type TableFormArgs struct {
-	Form		Form
-	CallToAction	string
-	AdditionalError string
-}
-
-type NuFormArgs struct {
-	Form			Form
-	Title			string
-	Congrats		string
-	Introduction	string
-	Footer			string
-	Script			string
-}
-
-// Template arguments for form webpage template.
-type FormArgs struct {
-	PageArgs
-	Form			Form
-	Congrats		string
-	Introduction	string
-	Footer			string
-}
-*/
 
 type FormFrameArgs struct {
 	PageArgs

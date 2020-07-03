@@ -31,12 +31,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("r.Method", r.Method)
 
 	userId := GetSession(r)
-	assert(userId == -1) // User must not be already logged in!
+	assert(userId == -1) // User must not be already logged in!  TODO: handle this case gracefully instead of crashing here!
 
 	//bRememberMe := str_to_bool(GetCookie(r, kRememberMe, "false"))
 
 	form := makeForm(
-		nuTextField(kEmailOrUsername, "Email / Username", 50, 6, 345),
+		nuTextField(kEmailOrUsername, "Email / Username", 50, 6, 345, "email / username").noSpellCheckOrCaps(),
 		nuPasswordField(kPassword, "Password", 50, 8, 40),
 	)
 
@@ -127,11 +127,21 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: check that the user is not already logged in, do something appropriate.
 
 	form := makeForm(
-		nuTextField(kEmail, "Email", 50, 6, 345),
-		nuTextField(kUsername, "Pick a Username", 50, 4, 345).noSpellCheck(),
-		nuTextField(kPassword, "Create Password", 40, 8, 40),
+		nuTextField(kEmail, "Email", 50, 6, 345, "email").noSpellCheckOrCaps().addFnValidator(emailValidator()),
+		nuTextField(kUsername, "Pick a Username", 50, 4, 345, "username").noSpellCheckOrCapsOrAutocomplete(),
+		nuPasswordField(kPassword, "Create Password", 40, 8, 40),
+		nuPasswordField(kConfirmPassword, "Confirm Password", 40, 8, 40).noDefaultValidators(),
 	//	nuBoolField(kRememberMe, "Remember Me", true).
 	)
+
+	// Username cannot contain ' '.
+	form.field(kUsername).addFnValidator(
+		func(username string) (bool, string) {
+			if strings.Contains(username, " ") {
+				return false, "Username cannot contain any spaces."
+			}
+			return true, ""
+		})
 
 	// Validate the password is complex enough.
 	form.field(kPassword).addFnValidator(
@@ -156,45 +166,39 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		})
 
 	if r.Method == "POST" && form.validateData(r) { // Handle POST, with valid data...
-
-		// Use a hashed password for security.
-		passwordHashInts := GetPasswordHash256(form.val(kPassword))
-
-		// TODO: Gotta send verification email... user doesn't get created until email gets verified.
-		// TODO: Verify email and set emailverified=True when email is verified
-
-		// Check for duplicate email
-		if DbExists("SELECT * FROM $$User WHERE Email = $1;", form.val(kEmail)) {
+		if form.val(kPassword) != form.val(kConfirmPassword) { // Check for mismatched passwords
+			pr("Passwords don't match")
+			form.setFieldError(kConfirmPassword, "Passwords don't match")
+		} else if DbExists("SELECT * FROM $$User WHERE Email = $1;", form.val(kEmail)) {       // Check for duplicate email
 			pr("That email is taken... have you registered already?")
-
 			form.setFieldError(kEmail, "That email is taken... have you registered already?")
-        } else {
-        	// Check for duplicate username
-			if DbExists("SELECT * FROM $$User WHERE Username = $1;", form.val(kUsername)) {
-				pr("That username is taken... try another one.  Or, have you registered already?")
-				form.setFieldError(kUsername, "That username is taken... try another one.  Or, have you registered already?")
-			} else {
-				// Add new user to the database
-				prf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
-				userId := DbInsert(
-					"INSERT INTO $$User(Email, Username, PasswordHash) " +
-					"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;",
-					form.val(kEmail),
-					form.val(kUsername),
-					passwordHashInts[0],
-					passwordHashInts[1],
-					passwordHashInts[2],
-					passwordHashInts[3])
+        } else if DbExists("SELECT * FROM $$User WHERE Username = $1;", form.val(kUsername)) { // Check for duplicate username
+			pr("That username is taken... try another one.  Or, have you registered already?")
+			form.setFieldError(kUsername, "That username is taken... try another one.  Or, have you registered already?")
+		} else {
+			// Use a hashed password for security.
+			passwordHashInts := GetPasswordHash256(form.val(kPassword))
 
-				// Send confirmation email
-				sendEmail(BUSINESS_EMAIL, form.val(kEmail), "Account Creation Confirmation", generateConfEmail(form.val(kUsername)))
+			// Add new user to the database
+			prf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
+			userId := DbInsert(
+				"INSERT INTO $$User(Email, Username, PasswordHash) " +
+				"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;",
+				form.val(kEmail),
+				form.val(kUsername),
+				passwordHashInts[0],
+				passwordHashInts[1],
+				passwordHashInts[2],
+				passwordHashInts[3])
 
-				// Create session (encrypted userId).
-				CreateSession(w, r, userId)//, form.boolVal(kRememberMe))
+			// Send confirmation email
+			sendEmail(BUSINESS_EMAIL, form.val(kEmail), "Account Creation Confirmation", generateConfEmail(form.val(kUsername)))
 
-				http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)
-				return
-			}
+			// Create session (encrypted userId).
+			CreateSession(w, r, userId)//, form.boolVal(kRememberMe))
+
+			http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)
+			return
 		}
 	}
 
@@ -223,15 +227,15 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 	)
 
 	form := makeForm(
-		nuTextField(kName, "Full Name", 50, 0, 100),
-		nuTextField(kZipCode, "Zip Code", 5, 0, 10),
-		nuTextField(kBirthYear, "Birth Year", 4, 0, 4),
-		nuSelectField(kCountry, "Country", countries, true, true, true, true),
-		nuSelectField(kGender, "Gender", genders, true, true, true, true),
-		nuSelectField(kParty, "Party", parties, true, true, true, true),
-		nuSelectField(kRace, "Race", races, true, true, true, true),
-		nuSelectField(kMaritalStatus, "Marital Status", maritalStatuses, true, true, true, true),
-		nuSelectField(kSchoolCompleted, "Furthest Schooling", schoolDegrees, true, true, true, true),
+		nuTextField(kName, "Enter Full Name", 50, 0, 100, "full name").noSpellCheck(),
+		nuTextField(kZipCode, "Enter Zip Code", 5, 0, 10, "zip code"),
+		nuTextField(kBirthYear, "Enter Birth Year", 4, 0, 4, "birth year"),
+		nuSelectField(kCountry, "Select Country", countries, true, true, true, true, "Please select your country"),
+		nuSelectField(kGender, "Select Gender", genders, true, true, true, true, "Please select your gender"),
+		nuSelectField(kParty, "Select Party", parties, true, true, true, true, "Please select your party"),
+		nuSelectField(kRace, "Select Race", races, true, true, true, true, "Please select your race"),
+		nuSelectField(kMaritalStatus, "Select Marital Status", maritalStatuses, true, true, true, true, "Please select your marital status"),
+		nuSelectField(kSchoolCompleted, "Select Furthest Schooling", schoolDegrees, true, true, true, true, "Please select your furthest schooling"),
 	)
 
 	form.field(kName).addRegexValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe').")
@@ -240,7 +244,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		func(input string) (bool, string) {
 			year, err := strconv.Atoi(input)
 			if err != nil {
-				return false, "Please enter a valid year."
+				return false, "Please enter the year you were born."
 			}
 			currentYear := time.Now().Year()
 			age := currentYear - year // true age would be either this expression, or this minus 1
@@ -259,15 +263,10 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		return
 	}
 
-	pr("form(skip_button:")
-	prVal("  ", r.FormValue("skip_button"))
-
-	pr("form(submit_button:")
-	prVal("  ", r.FormValue("submit_button"))
-
 	bSkip := r.FormValue("skip_button") != ""
-
 	prVal("bSkip", bSkip)
+
+	prVal("form", form)
 
 	if r.Method == "POST" && (	 // If this is handling form POST data and...
 		bSkip ||                 //   the user chose SKIP, or
@@ -304,30 +303,6 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		http.Redirect(w, r, "/news?alert=Welcome to Votezilla!!!", http.StatusSeeOther)
 		return
 	}
-
-	// handle GET, or invalid form data from POST...
-/*	{
-		// render registerDetailsScript template
-		var scriptString string
-		{
-			scriptData := struct {
-				CountriesWithStates			map[string]bool
-				CountriesWithPostalCodes	map[string]bool
-			}{
-			    CountriesWithStates,
-			    CountriesWithPostalCodes,
-			}
-
-			var scriptHTML bytes.Buffer
-			renderTemplate(&scriptHTML, "registerDetailsScript", scriptData)
-			scriptString = scriptHTML.String()
-		}
-
-		congrats := ""
-		if r.Method == "GET" {
-			congrats = "Congrats for registering" // Congrats for registering... now enter more information.
-		}
-	*/
 
 	executeTemplate(w, kRegisterDetails, makeFormFrameArgs(form, "Voter Info"))
 }

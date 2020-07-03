@@ -1,4 +1,6 @@
 {{define "content"}}
+	{{ template "toggleablePasswordCSS" }}
+	
 	{{ template "formHeader" "Sign Up for" }}
 
 	<div class="nuIntro" style="font-size: 17px">By having a Votezilla account, you can vote, discuss, and change the world!</div>
@@ -8,7 +10,10 @@
 		{{ template "field" $f.email -}}
 		{{ template "field" $f.username -}}
 		<p class="nuFieldSubtext" style="margin: 0px;">Pick a Username - i.e. RedHerring65.  This is how you other community members will see you.  What shall we call you?</p>
-		{{ template "field" $f.password -}}
+
+		{{ template "toggleablePassword" $f.password -}}
+
+		{{ template "field" $f.confirmPassword -}}
 
 		<p>
 
@@ -22,4 +27,6 @@
 			<a href="/login" class="storylink" rel="nofollow" style="color:blue;">LOG IN</a>
 		</div>
 	{{ template "endForm" }}
+
+	{{ template "toggleablePasswordScript" }}
 {{end}}

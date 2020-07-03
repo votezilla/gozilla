@@ -39,9 +39,9 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 	const kLink = "link"
 
 	form := makeForm(
-		nuTextField(kLink, "Share an article link", 50, 12, 1024).addFnValidator(urlValidator(false)),
-		nuTextField(kTitle, "Add a title", 50, 12, kMaxTitleLength),
-		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
+		nuTextField(kLink, "Share an article link", 50, 1, 1024, "article link").addFnValidator(urlValidator(false)).noSpellCheckOrCaps(),
+		nuTextField(kTitle, "Add a title", 50, 12, kMaxTitleLength, "article title"),
+		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false, "Please select a news category"),
 		nuHiddenField(kThumbnail, ""),
 	)
 
@@ -133,13 +133,13 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("r.Method", r.Method)
 
 	form := makeForm(
-		nuTextField(kTitle, "Ask a poll question...", 50, 12, 255),
-		nuTextField(kOption1, "add option...", 50, 1, 255),
-		nuTextField(kOption2, "add option...", 50, 1, 255),
+		nuTextField(kTitle, "Ask a poll question...", 50, 12, 255, "poll question"),
+		nuTextField(kOption1, "add option...", 50, 1, 255, "poll option"),
+		nuTextField(kOption2, "add option...", 50, 1, 255, "poll option"),
 		nuBoolField(kAnyoneCanAddOptions, "Allow anyone to add options", true),
 		nuBoolField(kCanSelectMultipleOptions, "Allow people to select multiple options", true),
 		nuBoolField(kRankedChoiceVoting, "Enable ranked-choice voting", false),
-		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
+		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false, "Please select a poll category"),
 	)
 
 	// Add fields for additional options that were added, there could be an arbitrary number, we'll cap it at 1024 for now.
@@ -156,7 +156,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		//       Leave the ""'s in the list so the position within the array can map directly to votes and indexes.
 		if r.FormValue(optionName) != "" {
 			prVal("Adding new poll option", optionName)
-			newOption := makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 255)
+			newOption := makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 255, "poll option")
 			form.addField(newOption)
 			pollOptions = append(pollOptions, newOption)
 		}
@@ -247,13 +247,13 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("r.Method", r.Method)
 
 	form := makeForm(
-		nuTextField(kTitle, "Your blog post title...", 50, 12, 255),
-		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false),
+		nuTextField(kTitle, "Your blog post title...", 50, 12, 255, "blog title"),
+		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false, "Please select a blog category"),
 		nuHiddenField(kBlogVal, ""),  // Hidden field that gets the value from the blog.  Because there is JS required to get blog value.
 	)
 
-	form.field(kBlogVal).addFnValidator(requiredValidator())
-	form.field(kBlogVal).addFnValidator(minMaxLengthValidator(12, 40000))
+	form.field(kBlogVal).addFnValidator(requiredValidator("blog article"))
+	form.field(kBlogVal).addFnValidator(minMaxLengthValidator(12, 40000, "blog article"))
 
 	if r.Method == "POST" && form.validateData(r) {
 		prVal("Valid form!!", form)

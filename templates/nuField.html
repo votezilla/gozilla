@@ -3,10 +3,17 @@
 
 {{define "endForm"}}</form></div>{{end}}
 
+{{define "attributes" }}
+	{{- range $k, $v := . }}
+		{{$k}} = "{{$v}}"
+	{{- end -}}
+{{end}}
+
 {{define "inputField"}}
 	<input type="{{.Type}}" name="{{.Name}}" value="{{.Value}}" placeholder="{{.Placeholder}}" length="{{.Length}}"
 		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
-		{{- if .Id }} id="{{.Id}}"{{ end -}}
+		{{- if .Id }} id="{{.Id}}"{{ end }}
+		{{- template "attributes" .Attributes }}
 	>
 {{end}}
 
@@ -14,7 +21,8 @@
 	<div><input type=checkbox name="{{.Name}}" value="true"
 		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
 		{{- if .Id }} id="{{.Id}}"{{ end -}}
-		{{- if .Value}}checked{{ end -}}
+		{{- if .Value}}checked{{ end }}
+		{{- template "attributes" .Attributes }}
 	>{{.Placeholder}}</div>
 {{end}}
 
@@ -30,12 +38,11 @@
 		{{- range $i, $kv := .OptionKeyValues }}
 			{{ $key := index $kv 0 -}}
 			{{ $val := index $kv 1 -}}
-			<option value="{{ $key }}" {{/*{{if eq $value $key}}selected{{end}}*/}}>
+			<option value="{{ $key }}" {{if eq $value $key}}selected{{end}} >
 				{{- $val -}}
 			</option>
 		{{- end }}
-		{{- if .HasOther }}<option value="OTHER">Other</option>{{ end -}}
-		{{- if .Skippable }}<option value="SKIP">Prefer not to answer</option>{{ end -}}
+		{{- template "attributes" .Attributes }}
 	</select>
 {{end}}
 
@@ -68,4 +75,32 @@
 			</b>
 		</h3>
 	</div>
+{{end}}
+
+{{ define "toggleablePasswordCSS" }}
+	<!-- needed for toggling password visibility -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+{{end}}
+
+{{define "toggleablePassword" }}
+	<div class="passwordContainer">
+		{{ template "field" . -}}
+		<i class="far fa-eye" id="togglePassword"></i>
+	</div>
+{{end}}
+
+{{ define "toggleablePasswordScript" }}
+	<script>
+		const togglePassword = document.querySelector('#togglePassword');
+		const password = document.querySelector('input[name$="password"]');
+
+		togglePassword.addEventListener('click', function (e) {
+			// toggle the type attribute
+			const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+			password.setAttribute('type', type);
+
+			// toggle the eye slash icon
+			this.classList.toggle('fa-eye-slash');
+		});
+	</script>
 {{end}}
