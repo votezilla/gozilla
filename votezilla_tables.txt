@@ -145,12 +145,11 @@ CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, Path);  -- The simpler
 -- FUNCTIONS
 -- Gets the category based on the category and user's country of origin.
 -- Note: Using lower because users use uppercase countries while posts use lowercase.  Fix someday?
-CREATE FUNCTION vz.GetCategory(category TEXT, country TEXT) RETURNS TEXT
+CREATE OR REPLACE FUNCTION vz.GetCategory(category TEXT, country TEXT) RETURNS TEXT
     AS $$SELECT CASE 
         WHEN $1 <> 'news' THEN $1
-        WHEN lower($2) <> 'us' THEN 'world news'
+        WHEN lower(COALESCE($2, 'us')) <> 'us' THEN 'world news'
         ELSE 'news'
     END;$$
     LANGUAGE SQL
-    IMMUTABLE
-    RETURNS NULL ON NULL INPUT;
+    IMMUTABLE;
