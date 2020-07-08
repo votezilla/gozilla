@@ -327,7 +327,9 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 				articleGroups []ArticleGroup, urlPath string, template string,
 				upvotes []int64, downvotes []int64, alertMessage string) {
 
-	//pr("renderNews")
+	pr("renderNews")
+	prVal("  username", username)
+	prVal("  userId", userId)
 
 	script := ""
 	switch(alertMessage) {
@@ -373,23 +375,13 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	//pr("newsHandler")
-
-	//prVal("r.URL.Query()", r.URL.Query())
+	pr("newsHandler")
 
 	reqCategory		:= parseUrlParam(r, "category")
-
 	reqAlert		:= parseUrlParam(r, "alert")
 
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
+	userId, username := GetSessionInfo(w, r)
 
-
-	// TODO: <-- insert new code for "POLLS" somewhere around here!  :)
-
-
-	// TODO: cache this, fetch every minute?
 	var articles []Article
 	if reqCategory == "" {
 		// Fetch 5 articles from each category
@@ -402,14 +394,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
 
-	// This is a HACK for now.
-	//pollArticles := fetchPolls(userId, -1)
-	//articles = append(pollArticles, articles...)
-
 	upvotes, downvotes := deduceVotingArrows(articles)
-
-	//prVal("deduced upvotes", upvotes)
-	//prVal("deduced downvotes", downvotes)
 
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
 
@@ -431,9 +416,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqAlert		:= parseUrlParam(r, "alert")
 
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
+	userId, username := GetSessionInfo(w, r)
 
 	articleGroups := []ArticleGroup{}
 

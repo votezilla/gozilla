@@ -25,17 +25,16 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
 	
 	X "Select" text for dropdowns
 
-- Forms - (optional) animate placeholder text to label
+        X (optional) animate placeholder text to label / try always having label (Tried, it didn't look good.  Code is commented out in template file.)
 
-- Forms - "Party" -> "Choose a Party"
+        X "Party" -> "Choose a Party"
 
-        + "Other" -> add text input
+        X "Other" -> add text input
         
         X "Other" -> didn't let him register
         
         X "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
 
-- Forms - (CANCELED) add labels.  (Animating if possible.)
 
 - Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
 

@@ -33,8 +33,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	assert(userId == -1) // User must not be already logged in!  TODO: handle this case gracefully instead of crashing here!
 
-	//bRememberMe := str_to_bool(GetCookie(r, kRememberMe, "false"))
-
 	form := makeForm(
 		nuTextField(kEmailOrUsername, "Email / Username", 50, 6, 345, "email / username").noSpellCheckOrCaps(),
 		nuPasswordField(kPassword, "Password", 50, 8, 40),
@@ -131,7 +129,6 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		nuTextField(kUsername, "Pick a Username", 50, 4, 345, "username").noSpellCheckOrCapsOrAutocomplete(),
 		nuPasswordField(kPassword, "Create Password", 40, 8, 40),
 		nuPasswordField(kConfirmPassword, "Confirm Password", 40, 8, 40).noDefaultValidators(),
-	//	nuBoolField(kRememberMe, "Remember Me", true).
 	)
 
 	// Username cannot contain ' '.
@@ -231,11 +228,17 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		nuTextField(kZipCode, "Enter Zip Code", 5, 0, 10, "zip code"),
 		nuTextField(kBirthYear, "Enter Birth Year", 4, 0, 4, "birth year"),
 		nuSelectField(kCountry, "Select Country", countries, true, true, true, true, "Please select your country"),
+			nuOtherField(kCountry, "Enter Country", 50, 0, 100, "country"),
 		nuSelectField(kGender, "Select Gender", genders, true, true, true, true, "Please select your gender"),
+			nuOtherField(kGender, "Enter Gender", 50, 0, 100, "gender"),
 		nuSelectField(kParty, "Select Party", parties, true, true, true, true, "Please select your party"),
+			nuOtherField(kParty, "Enter Party", 50, 0, 100, "party"),
 		nuSelectField(kRace, "Select Race", races, true, true, true, true, "Please select your race"),
+			nuOtherField(kRace, "Enter Race", 50, 0, 100, "race"),
 		nuSelectField(kMaritalStatus, "Select Marital Status", maritalStatuses, true, true, true, true, "Please select your marital status"),
+			nuOtherField(kMaritalStatus, "Enter Marital Status", 50, 0, 100, "marital status"),
 		nuSelectField(kSchoolCompleted, "Select Furthest Schooling", schoolDegrees, true, true, true, true, "Please select your furthest schooling"),
+			nuOtherField(kSchoolCompleted, "Enter Furthest Schooling", 50, 0, 100, "furthest schooling"),
 	)
 
 	form.field(kName).addRegexValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe').")
@@ -280,8 +283,9 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 			// Update the user record with registration details.
 			DbQuery(
 				`UPDATE $$User
-					SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling)
-					= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
+					SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling,
+					     OtherGender, OtherParty, OtherRace, OtherCountry, OtherMaritalStatus, OtherSchoolCompleted)
+					= ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 					WHERE Id = $1::bigint`,
 				userId,
 				form.val(kName),
@@ -292,7 +296,13 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 				form.val(kParty),
 				form.val(kRace),  // TODO: I think this should multi-select input, with a comma-delimited join of races here.
 				form.val(kMaritalStatus),
-				form.val(kSchoolCompleted))
+				form.val(kSchoolCompleted),
+				form.otherVal(kGender),
+				form.otherVal(kParty),
+				form.otherVal(kRace),
+				form.otherVal(kCountry),
+				form.otherVal(kMaritalStatus),
+				form.otherVal(kSchoolCompleted))
 		} else {
 			pr("Skipping vote info")
 		}

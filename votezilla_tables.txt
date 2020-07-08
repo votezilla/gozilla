@@ -28,10 +28,13 @@ CREATE TABLE vz.User (
     Marital         TEXT,
     Schooling       TEXT,
     
-    -- Details - other field
-    OtherGender     TEXT,
-    OtherParty      TEXT,
-    OtherRace       TEXT,
+    -- Details - other fields
+    OtherGender     	 TEXT,
+    OtherParty      	 TEXT,
+    OtherRace       	 TEXT,
+    OtherCountry	 TEXT,
+    OtherMaritalStatus	 TEXT,
+    OtherSchoolCompleted TEXT,
     
     -- Verification status
     VerifiedEmail   BOOL DEFAULT False

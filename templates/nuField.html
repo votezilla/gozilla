@@ -31,6 +31,7 @@
 	<select name="{{.Name}}"
 		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
 		{{- if .Id }} id="{{.Id}}"{{ end -}}
+		{{- if .HasOther }} onchange="onSelect(this)"{{ end -}}
 	>
 		{{- if .Placeholder}}<option value="-" selected>{{.Placeholder -}}</option>
 		{{- else if .StartAtNil}}<option value="-" selected>-</option>
@@ -46,15 +47,28 @@
 	</select>
 {{end}}
 
+{{define "otherField"}}
+	<input type="text" name="{{.Name}}" value="{{.Value}}" placeholder="{{.Placeholder}}" length="{{.Length}}" style="{{.Style}}"
+		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
+		{{- if .Id }} id="{{.Id}}"{{ end }}
+		{{- template "attributes" .Attributes }}
+	>
+	<script>console.log('otherField: "{{.Name}}"')</script>
+{{end}}
+
 
 <!-- PUBLIC METHODS: -->
 {{define "field"}}
+	<!--<label class="nuLabel">{{.}} {{.Name}} {{.Type}}</label>-->
+
 	{{- if eq .Type "checkbox" -}}	  {{ template "checkboxField" . }}
 	{{- else if eq .Type "select" -}} {{ template "selectField" . }}
+	{{- else if eq .Type "other" -}}  {{ template "otherField" . }}
 	{{- else -}}				 	  {{ template "inputField" . }}
 	{{- end -}}
 	{{if .Error}}<label class="error">{{.Error}}</label>{{end -}}
 	{{if .Subtext}}<p class="nuFieldSubtext">{{.Subtext}}</p>{{end -}}
+
 {{end}}
 
 {{define "button"}}
@@ -77,7 +91,7 @@
 	</div>
 {{end}}
 
-{{ define "toggleablePasswordCSS" }}
+{{define "toggleablePasswordCSS"}}
 	<!-- needed for toggling password visibility -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 {{end}}
@@ -89,13 +103,13 @@
 	</div>
 {{end}}
 
-{{ define "toggleablePasswordScript" }}
+{{define "toggleablePasswordScript"}}
 	<script>
 		const togglePassword = document.querySelector('#togglePassword');
 		const password = document.querySelector('input[name$="password"]');
 
 		togglePassword.addEventListener('click', function (e) {
-			// toggle the type attribute
+			// toggle the type between 'password' and 'text'.
 			const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
 			password.setAttribute('type', type);
 

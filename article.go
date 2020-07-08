@@ -68,12 +68,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
-
-	prVal("userId", userId)
-	prVal("username", username)
+	userId, username := GetSessionInfo(w, r)
 
 	// TODO_REFACTOR: unify articles and posts in database.
 	article, err := fetchArticle(postId, userId)

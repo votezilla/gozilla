@@ -18,27 +18,34 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 
-		<!-- uncompressed stuff, for debugging. -->
 		<!--
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.css" crossorigin="anonymous">
-		<script src="https://code.jquery.com/jquery-3.1.1.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.js" crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.js" crossorigin="anonymous"></script>
-		-->
-
-		<!-- Include the Quill library (for rich text editing) -->
-		<!-- TODO: only include Quill when editing rich text? -->
 		<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 		<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+		-->
 
 	</head>
 	<body id="override">
 		{{ template "body" . }}
 
 		<script>
-		//  $(document).ready(function(){
-		//      $('[data-toggle="tooltip"]').tooltip();
-		//  })
+			function onSelect(field) {
+				console.log("field.value ", field.value);
+				console.log("field.name ", field.name);
+		
+				console.log("OTHER!!!!")
+
+				console.log("`input[name='other_${field.name}']`", `input[name='other_${field.name}']`);
+
+				var otherField = $(`input[name='other_${field.name}']`); //$(`other_${field.name}`)
+
+				console.log("otherField = ", otherField)
+
+				const display = otherField.css('display');
+				console.log("display = ", display);
+
+				const isOther = field.value == 'OTHER';
+				otherField.css('display', isOther ? 'block' : 'none');
+			}
 
 		 	{{.PageArgs.Script}}
 		</script>

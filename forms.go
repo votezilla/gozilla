@@ -15,6 +15,7 @@ type Attributes map[string]string
 const (
 	kNuField = "nuField"
 	kNuCheckbox = "nuCheckbox"
+	kOther = "other_"  // Prefix to field name for "other" fields.
 )
 
 var (
@@ -133,6 +134,7 @@ type Field struct {
 	Id				string
 	Error			string
 	Subtext			string
+	Style			string
 	Length			int
 
 	Html			func() string // Closure that outputs the html of this field
@@ -265,12 +267,38 @@ func (f *Form) processData(r *http.Request) {
 //		prf("Form.processData field: '%s' value: '%s'", name, value)
 	}
 
+	// PostInit Other fields - make visible when related field select value is "OTHER".
+	for i := range f.FieldList {
+		field := f.FieldList[i]
+		typ := field.Type
+
+		if typ == "other" {
+			//pr("other")
+
+			relatedName := field.Name[6:]  // Remove "other_" prefix.
+			//prVal("  relatedName", relatedName)
+
+			relatedSelectInput := f.FieldMap[relatedName]
+
+			//prVal("  relatedSelectInput.val()", relatedSelectInput.val())
+
+			if relatedSelectInput.val() == "OTHER" {
+				//prVal("    field.Style was", field.Style)
+
+				field.Style = "" // remove "display:none" from Style now that we want it to be visible.
+
+				//prVal("    field.Style is", field.Style)
+			}
+		}
+	}
+
 //	prVal("AFTER Form.processData f", *f) // << ERROR first seen here!
 }
 
 // Accessors
 func (f Form) field(fieldName string) *Field	{ return f.FieldMap[fieldName] 		   }
 func (f Form) val(fieldName string) 	 string { return f.field(fieldName).val()	   }
+func (f Form) otherVal(fieldName string) string	{ return f.val(kOther + fieldName)	   }
 func (f Form) intVal(fieldName string) 	 int 	{ return f.field(fieldName).intVal()   }
 func (f Form) int64Val(fieldName string) int64	{ return f.field(fieldName).int64Val() }
 func (f Form) boolVal(fieldName string)  bool 	{ return f.field(fieldName).boolVal()  }
@@ -325,8 +353,11 @@ func (f *Form) addField(field *Field) {
 }
 
 
+// ================================================================================
+//
 // Field factories
-
+//
+// ================================================================================
 func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int, fieldNameForErrors string) *Field {
 	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, Length: inputLength}
 
@@ -408,14 +439,13 @@ func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil,
 
 	f.Validators = append(f.Validators, optionValidator(validOptions, invalidOptionMsg))
 
-
 	return &f
 }
 
 // nuField factories - fields with the "nuField" style.  Minimal, FB-style fields without a label.
 
 func nuTextField(name, placeholder string, inputLength, minLength, maxLength int, fieldNameForErrors string) *Field {
-	f := makeTextField(name, "", placeholder, inputLength, minLength, maxLength, fieldNameForErrors)
+	f := makeTextField(name, placeholder, placeholder, inputLength, minLength, maxLength, fieldNameForErrors)
 	f.Placeholder = placeholder
 	f.Classes = kNuField
 
@@ -424,7 +454,7 @@ func nuTextField(name, placeholder string, inputLength, minLength, maxLength int
 	return f
 }
 func nuPasswordField(name, placeholder string, inputLength, minLength, maxLength int) *Field {
-	f := makePasswordField(name, "", placeholder, inputLength, minLength, maxLength)
+	f := makePasswordField(name, placeholder, placeholder, inputLength, minLength, maxLength)
 	f.Placeholder = placeholder
 	f.Classes = kNuField
 	return f
@@ -433,13 +463,13 @@ func nuPasswordField(name, placeholder string, inputLength, minLength, maxLength
 func nuHiddenField(name, defaultValue string) *Field { return makeHiddenField(name, defaultValue); }
 
 func nuBoolField(name, optionText string, defaultValue bool) *Field {
-	f := makeBoolField(name, "", optionText, defaultValue)
+	f := makeBoolField(name, optionText, optionText, defaultValue)
 	f.Classes = kNuCheckbox
 	return f
 }
 
 func nuSelectField(name, placeholder string, optionKeyValues OptionData, startAtNil, required, hasOther, skippable bool, invalidOptionMsg string) *Field {
-	f := makeSelectField(name, "", optionKeyValues, startAtNil, required, hasOther, skippable, invalidOptionMsg)
+	f := makeSelectField(name, placeholder, optionKeyValues, startAtNil, required, hasOther, skippable, invalidOptionMsg)
 	f.Placeholder = placeholder
 	f.Classes = kNuField
 
@@ -451,6 +481,13 @@ func nuSelectField(name, placeholder string, optionKeyValues OptionData, startAt
 	return f
 }
 
+func nuOtherField(name, placeholder string, inputLength, minLength, maxLength int, fieldNameForErrors string) *Field {
+	f := nuTextField(kOther + name, placeholder, inputLength, minLength, maxLength, fieldNameForErrors)
+	f.Type = "other"
+	f.Style = "display:none"
+
+	return f
+}
 
 // === FORM TEMPLATE ARGS ===
 
