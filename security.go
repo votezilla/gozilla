@@ -177,20 +177,30 @@ func GetSession(r *http.Request) (userId int64) {
 	return userId
 }
 
-// Get username from userId.
-func getUsername(userId int64) string {
-	username := ""
-	if userId != -1 {
-		rows := DbQuery("SELECT Username FROM $$User WHERE Id = $1::bigint;", userId)
-		if rows.Next() {
-			err := rows.Scan(&username)
-			check(err)
-		}
-		check(rows.Err())
-		rows.Close()
+// Get userId, username from the secure cookie.
+func GetSessionInfo(w http.ResponseWriter, r *http.Request) (int64, string) {
+	userId := GetSession(r)
+
+	if userId == -1 {
+		pr(`GetSessionInfo: -1, ""`)
+		return -1, ""
 	}
 
-	return username
+	username := ""
+	rows := DbQuery("SELECT Username FROM $$User WHERE Id = $1::bigint;", userId)
+	if rows.Next() {
+		err := rows.Scan(&username)
+		check(err)
+	} else {  // User was deleted from db; destroy session to maintain consistency.
+		DestroySession(w, r)
+		return -1, ""
+	}
+	check(rows.Err())
+	rows.Close()
+
+	prf("GetSessionInfo %d, %s", userId, username)
+
+	return userId, username
 }
 
 func RefreshSession(w http.ResponseWriter, r *http.Request) {

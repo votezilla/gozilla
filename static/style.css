@@ -5,9 +5,9 @@ body { font-family:Verdana, Geneva, sans-serif; }
 	 margin-bottom:		0px 		!important;
 }
 
-#override .vz-col-md-12 { 
-	padding-left: 		0px			!important; 
-	padding-right: 		0px			!important; 
+#override .vz-col-md-12 {
+	padding-left: 		0px			!important;
+	padding-right: 		0px			!important;
 }
 
 #override .vz-container {
@@ -21,8 +21,8 @@ body { font-family:Verdana, Geneva, sans-serif; }
 	margin-left:	0px			!important;
 	margin-right:	0px			!important;
 }
-#override .vz-col-md-6-left { 
-	padding-left:	0px			!important; 
+#override .vz-col-md-6-left {
+	padding-left:	0px			!important;
 	padding-right:	0px			!important;
 	margin-left:	0px			!important;
 	margin-right:	0px			!important;
@@ -30,25 +30,25 @@ body { font-family:Verdana, Geneva, sans-serif; }
 
 #override .vz-col-md9-left {
 	margin-left:	0px			!important;
-	padding-left:	0px			!important; 
-}	
+	padding-left:	0px			!important;
+}
 #override .vz-col-md-3-right {
 	margin-right:	0px			!important;
 	padding-right:	0px			!important;
 }
 
 @media screen and (min-width:750px) { /* 576 */
-	#override .vz-col-md-6-right { 
-		padding-left:	15px		!important; 
+	#override .vz-col-md-6-right {
+		padding-left:	15px		!important;
 		padding-right:	0px			!important;
 		margin-left:	0px			!important;
 		margin-right:	0px			!important;
 		/* background-color: red !important; */
 	}
 }
-@media screen and (max-width:750px) { 
-	#override .vz-col-md-6-right { 
-		padding-left:	0px		!important; 
+@media screen and (max-width:750px) {
+	#override .vz-col-md-6-right {
+		padding-left:	0px		!important;
 		padding-right:	0px			!important;
 		margin-left:	0px			!important;
 		margin-right:	0px			!important;
@@ -84,8 +84,8 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 }
 .btn-vote:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open>.dropdown-toggle.btn-primary {
 	color: #fff;
-	background-color: #0072ff; 
-	border-color: #62b7ff; 
+	background-color: #0072ff;
+	border-color: #62b7ff;
 	cursor: pointer;
 }
 
@@ -121,7 +121,7 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 .nuField, .nuField:focus {
 	width:100%;
 	max-width:100%;
-	height:40px;
+	height:43px;
 	border-radius:5px 5px 5px 5px;
 	background:white;
 	padding:10px;
@@ -149,7 +149,10 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
     margin: 2rem auto 0 auto;
     font-size: 18px;
     display: block;
-}    
+}
+#override .nuLabel{
+	margin: .5rem 0 0 0;
+}
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
   color: #999f;
 }
@@ -163,6 +166,16 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 	margin: 6px;
 	margin-left: 12px;
 	vertical-align: middle;
+}
+
+.passwordContainer {
+	position: relative;
+}
+.passwordContainer i {
+	position:absolute;
+	cursor: pointer;
+	top: 20px;
+	right: 10px;
 }
 
 hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
@@ -188,7 +201,7 @@ a:target	{ background-color: yellow; }
 
 .default { font-family:Verdana, Geneva, sans-serif; }
 .admin   { font-family:Verdana, Geneva, sans-serif; }
-.title   { font-family:Verdana, Geneva, sans-serif; }   
+.title   { font-family:Verdana, Geneva, sans-serif; }
 .subtext { font-family:Verdana, Geneva, sans-serif; }
 
 
@@ -199,7 +212,7 @@ a:target	{ background-color: yellow; }
 	to   { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
 }
 
-#override .upvoted a:link, 
+#override .upvoted a:link,
 #override .upvoted a:visited,
 #override .upvoted a:hover,
 #override .upvoted a:focus {
@@ -214,7 +227,7 @@ a:target	{ background-color: yellow; }
 	to   { text-shadow: 0px 0px 5px rgba(255,0,0,0); }
 }
 
-#override .downvoted a:link, 
+#override .downvoted a:link,
 #override .downvoted a:visited,
 #override .downvoted a:hover,
 #override .downvoted a:focus {
@@ -223,28 +236,28 @@ a:target	{ background-color: yellow; }
 	-webkit-animation-iteration-count: infinite;
 }
 
-#override .upvote   a:link, 
-#override .upvote   a:visited { 
-	color:#68a; 
-	text-decoration: none; 
+#override .upvote   a:link,
+#override .upvote   a:visited {
+	color:#68a;
+	text-decoration: none;
 }
-#override .downvote a:link, 
-#override .downvote a:visited { 
-	color:#a86; 
-	text-decoration: none; 
+#override .downvote a:link,
+#override .downvote a:visited {
+	color:#a86;
+	text-decoration: none;
 }
 
-#override .upvote   a:hover, 
-#override .upvoted  a:link,   
-#override .upvoted  a:visited { 
-	color:#00f; 
-	text-decoration: none; 
+#override .upvote   a:hover,
+#override .upvoted  a:link,
+#override .upvoted  a:visited {
+	color:#00f;
+	text-decoration: none;
 }
-#override .downvote a:hover, 
-#override .downvoted a:link, 
-#override .downvoted a:visited { 
-	color:#f00; 
-	text-decoration: none; 
+#override .downvote a:hover,
+#override .downvoted a:link,
+#override .downvoted a:visited {
+	color:#f00;
+	text-decoration: none;
 }
 
 

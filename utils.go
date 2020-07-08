@@ -196,13 +196,6 @@ func renderTemplate(w io.Writer, templateName string, data interface{}) {
 	check(err)
 }
 
-/* // Render the table form, return the HTML string
-func getFormHtml(tableFormArgs TableFormArgs) string {
-	var formHTML bytes.Buffer
-	renderTemplate(&formHTML, "tableForm", tableFormArgs)
-	return formHTML.String()
-}*/
-
 // Serves the specified HTML string as a webpage.
 func serveHTML(w http.ResponseWriter, html string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

@@ -1,4 +1,4 @@
-﻿// location.go
+// location.go
 package main
 
 
@@ -12,6 +12,9 @@ var (
 		{"R", "Republican"},
 		{"D", "Democrat"},
 		{"I", "Independent"},
+		{"P", "Progressive"},
+		{"L", "Libertarian"},
+		{"G", "Green"},
 	}
 
 	schoolDegrees = OptionData{
@@ -36,7 +39,6 @@ var (
 		{"H", "Hispanic, Latino, or Spanish"},
 		{"P", "Native Hawaiian or Pacific Islander"},
 		{"W", "White"},
-		{"O", "Other"},
 	}
 
 	// ISO-3166-1 Alpha-2 country list.  See: https://www.freeformatter.com/iso-country-list-html-select.html
@@ -293,6 +295,9 @@ var (
 		{"ZM", "Zambia"},
 		{"ZW", "Zimbabwe"},
 	}
+
+	// TODO: show / hide postal codes based on the country.  In registerDetailsHandler().
+	//       look for the "registerDetailsScript" in templates.
 
 	// Countries with states.  See: https://en.m.wikipedia.org/wiki/Federated_state
 	CountriesWithStates = map[string]bool{"AE":true,"AR":true,"AT":true,"AU":true,"BA":true,"BE":true,"BR":true,"CA":true,"CH":true,"DE":true,"ET":true,"FM":true,"IN":true,"IQ":true,"KM":true,"KN":true,"MX":true,"MY":true,"NG":true,"NP":true,"PK":true,"RU":true,"SD":true,"SO":true,"SS":true,"US":true,"VE":true}

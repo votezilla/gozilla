@@ -47,6 +47,7 @@ var (
 	newsCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
 			"news",
+			"polls",
 			"world news",
 			"business",
 			"sports",
@@ -55,16 +56,18 @@ var (
 			"science",
 		},
 		HeaderColors : map[string]string{
-			"news" 			 	: "#ccc",
+			"news" 			 	: "#68fc48", //#68fc68", //#7ff4f4",    //"#8ff",
+			"polls"				: "#4482ff", //"#fe8",
 			"world news"		: "#ea3ce7",
 			"business" 			: "#8e8",
 			"sports" 			: "#88f",
 			"entertainment" 	: "#e85be4",
-			"technology" 		: "#8ff",
+			"technology" 		: "#aaa",    //"#ccc",
 			"science"			: "#8cf",
 		},
 		CategorySelect : [][2]string{
 			{"news", 			"news"},
+			{"polls", 			"polls"},
 			{"world news",		"world news"},
 			{"business",		"business"},
 			{"sports",			"sports"},
@@ -324,7 +327,9 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 				articleGroups []ArticleGroup, urlPath string, template string,
 				upvotes []int64, downvotes []int64, alertMessage string) {
 
-	//pr("renderNews")
+	pr("renderNews")
+	prVal("  username", username)
+	prVal("  userId", userId)
 
 	script := ""
 	switch(alertMessage) {
@@ -370,37 +375,26 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	//pr("newsHandler")
-
-	//prVal("r.URL.Query()", r.URL.Query())
+	pr("newsHandler")
 
 	reqCategory		:= parseUrlParam(r, "category")
-
 	reqAlert		:= parseUrlParam(r, "alert")
 
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
+	userId, username := GetSessionInfo(w, r)
 
-	// TODO: cache this, fetch every minute?
 	var articles []Article
 	if reqCategory == "" {
 		// Fetch 5 articles from each category
 		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
+	} else if reqCategory == "polls" {
+		// Fetch only polls.
+		articles = fetchPolls(userId, kMaxArticles)
 	} else {
-		// Ensure we have a valid category (prevent SQL injection)
-		if _, ok := newsCategoryInfo.HeaderColors[reqCategory]; !ok {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
 		// Fetch articles in requested category
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
 
 	upvotes, downvotes := deduceVotingArrows(articles)
-
-	//prVal("deduced upvotes", upvotes)
-	//prVal("deduced downvotes", downvotes)
 
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
 
@@ -422,9 +416,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqAlert		:= parseUrlParam(r, "alert")
 
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
+	userId, username := GetSessionInfo(w, r)
 
 	articleGroups := []ArticleGroup{}
 

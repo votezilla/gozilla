@@ -266,9 +266,7 @@ func testPopupHandler(w http.ResponseWriter, r *http.Request) {
 
 	pr("testPopupHandler")
 
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
+	userId, username := GetSessionInfo(w, r)
 
 	// Render the news articles.
 	testPopupArgs := struct {
@@ -322,9 +320,7 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the username.
-	userId := GetSession(r)
-	username := getUsername(userId)
+	userId, username := GetSessionInfo(w, r)
 
 	// TODO_REFACTOR: unify articles and posts in database.
 	article, err := fetchArticle(postId, userId)
@@ -344,7 +340,8 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 				"")
 	}
 
-	polls := fetchPolls(userId, postId)
+	// Suggested polls for further voting - on the sidebar.
+	polls := fetchSuggestedPolls(userId, postId)
 
 	upvotes, downvotes := deduceVotingArrows(append(polls, article))
 
