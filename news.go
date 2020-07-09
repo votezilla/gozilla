@@ -46,8 +46,8 @@ const (
 var (
 	newsCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
-			"news",
 			"polls",
+			"news",
 			"world news",
 			"business",
 			"sports",

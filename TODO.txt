@@ -8,10 +8,14 @@ v Done
                   
 
 
-HIGH PRIORITY (for test w/ Tom, Tyler): 
+HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
+
+X voting on a poll from /news goes to viewing poll instead of activating vote
 
 X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category just of polls.  I got fdbk f Ryan H to make POLLS more obvious.)
-  [] SERVER-TODO: create polls!!!
+	X Try making POLLS first.  (Will probably require better art)
+
+	[] SERVER-TODO: create polls!!!
   
 * Forms - REQUIRED:
 
@@ -35,7 +39,6 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
         
         X "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
 
-
 - Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
 
 - https
@@ -44,11 +47,11 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
 
 - privacy alias'
  
-- Unknown poll creation bug (possibly when adding / removing additional options ?)
+X Unknown poll creation bug (possibly when adding / removing additional options ?)
  
 - Unknown weird bug if you choose an obvious username on Chrome (?)
 
-- headline - doesn't show link
+X headline - doesn't show link
 
 - comment out ... f article til feature is active
  
@@ -66,11 +69,11 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
 
 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
 
-- from /news, hovering over any poll choice highlights all of them
+X from /news, hovering over any poll choice highlights all of them
 
 - poll article has link icon and "continue reading...", when it shouldn't
 
-- fix login crash asserts
+X fix login crash asserts
 
 
 

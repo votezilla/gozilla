@@ -97,12 +97,25 @@
 							</table>
 
 						{{ else }}                  {{/*NORMAL ARTICLE SIZE*/}}
-							<a href="/article/?postId={{$article.Id}}" target="_blank">
+							{{- if not $article.IsPoll -}}
+							   <a href="/article/?postId={{$article.Id}}" target="_blank">
+							{{- end -}}
 								<table border="0" cellpadding="0" cellspacing="0">
 									<tr valign="top">
-										<td rowspan="2" style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;" data-toggle="tooltip" data-placement="top" title="Join the discussion!">
+									  <td
+										  rowspan="2"
+										{{- if not $article.IsPoll }}
+										  style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;"
+										{{- end }}
+										  data-toggle="tooltip" data-placement="top" title="Join the discussion!">
 											<a href="/article/?postId={{$article.Id}}" target="_blank" style="cursor:pointer; height: 100%;">
-												<img src="{{$article.UrlToThumbnail}}" width="160" height="100%" style="visibility: hidden; max-height: 100px;">
+												<img
+													src="{{$article.UrlToThumbnail}}"
+													width="160" height="100"
+												  {{- if not $article.IsPoll }}
+													style="visibility: hidden;"
+												  {{- end -}}
+												>
 											</a>
 										</td>
 										<td style="min-width: 5px;"></td>
@@ -159,7 +172,9 @@
 									</tr>
 									<!--<tr class="spacer" style="height:5px"></tr>-->
 								</table>
-							</a>
+							{{- if not $article.IsPoll -}}
+							  </a>
+							{{- end -}}
 						{{ end }} {{/*article size*/}}
 					{{ end }} {{/*{{ if ne $article.Size -1 }}*/}}
 				{{ end }} {{/*range $j, $article := $articleRow*/}}
