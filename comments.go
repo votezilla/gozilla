@@ -358,10 +358,9 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 			linesLeft := kMaxCommentLines - numLinesApprox
 
 			length := len(textLine)
-			numLinesApprox += (length + 59) / 60 // Ceiling divide by 60 for mobile. (TODO: add 80 for desktop?)
+			numLinesApprox += ceil_div(length, 60) // Ceiling divide by 60 for mobile. (TODO: add 80 for desktop?)
 
-			//prVal("length", length)
-			//prVal("numLinesApprox", numLinesApprox)
+			pr("length: " + string(length) + " numLinesApprox: " + string(numLinesApprox))
 
 			if numLinesApprox > kMaxCommentLines {
 

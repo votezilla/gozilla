@@ -6,10 +6,10 @@
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		{{ if ne $articleGroup.Category "" }}
 		<a href="/news/?category={{$articleGroup.Category}}" target="_blank" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
-			<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
+			<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}}; padding: 0px; margin: 0px; margin-top: 4px;">
 				<div class="col-md-12 vz-col-md-12 text-uppercase">
 					<center>
-						<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black;">
+						<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 28px;">
 							<strong>
 									{{$articleGroup.Category}}
 							</strong>
@@ -75,16 +75,16 @@
 								{{ template "PollInlineForm" $article }}
 
 								<tr>
-									<td class="subtext" style="width: 100%; padding-left: 5px;">
+									<td class="subtext" style="width: 100%; padding-left: 5px; font-size: 20px;">
 										<table width="100%"><tr>
 											{{ template "PostVoteWidget" $article }}
-											<td align="center" style="width: auto;">
+											<!--<td align="center" style="width: auto;">
 												<a href="#">...</a>
-											</td>
+											</td>-->
 											<td align="right" style="width: 40%;">
 												<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-													<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: #0079d3;">
-														<img src="/static/comment icon.jpg" width=16 height=16>
+													<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: rgb(0, 114, 255);">
+														<img src="/static/comment icon 3.jpg" width=16 height=16>
 														{{$article.NumComments}} Comment{{if ne $article.NumComments 1}}s{{end}}
 													</a>
 												</span>
@@ -102,7 +102,7 @@
 							{{- end -}}
 								<table border="0" cellpadding="0" cellspacing="0">
 									<tr valign="top">
-									  <td
+									    <td
 										  rowspan="2"
 										{{- if not $article.IsPoll }}
 										  style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;"
@@ -111,11 +111,12 @@
 											<a href="/article/?postId={{$article.Id}}" target="_blank" style="cursor:pointer; height: 100%;">
 												<img
 													src="{{$article.UrlToThumbnail}}"
-													width="160" height="100"
+													width="160"
 												  {{- if not $article.IsPoll }}
+												    width="160"
 													style="visibility: hidden;"
 												  {{- end -}}
-												>
+												><!--height="100"-->
 											</a>
 										</td>
 										<td style="min-width: 5px;"></td>
@@ -132,7 +133,7 @@
 											<div>
 												<span>
 													<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article">
-														<div style="font-size:18px; {{if $article.IsPoll}}min-height: 32px;{{else}}min-height: 54px;{{end}} max-height: 78px; overflow: hidden; padding-right: 4px;">
+														<div style="font-size:20px; {{if $article.IsPoll}}min-height: 32px;{{else}}min-height: 54px/*76px;*/;{{end}} max-height: 92px;/*78px;*/ overflow: hidden; padding-right: 4px;">
 															{{$article.Title}}
 															{{ if not $article.Host }}
 																<img src="/static/link icon.jpg" class="hideUntilHover" style="height: 14px; width: 14px;">
@@ -156,21 +157,21 @@
 									</tr>
 									<tr>
 										<td></td>
-										<td class="subtext" style="width: 100%;">
+										<td class="subtext" style="width: 100%; font-size: 20px;">
 											<table width="100%"><tr>
 												{{ template "PostVoteWidget" $article }}
-												<td align="center" style="width: auto;">
+												<!--<td align="center" style="width: auto;">
 													<a href="#">...</a>
-												</td>
+												</td>-->
 												<td align="right" style="width: 40%;">
 													<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-														<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: #0079d3;"><img src="/static/comment icon.jpg" width=16 height=16 style="vertical-align: baseline;"> {{$article.NumComments}}</a>
+														<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: rgb(0, 114, 255)/*#0079d3*/;"><img src="/static/comment icon 3.jpg" width=16 height=16 style="vertical-align: baseline;"> {{$article.NumComments}}</a>
 													</span>
 												</td>
 											</tr></table>
 										</td>
 									</tr>
-									<!--<tr class="spacer" style="height:5px"></tr>-->
+									<tr class="spacer" style="height:5px"></tr>
 								</table>
 							{{- if not $article.IsPoll -}}
 							  </a>

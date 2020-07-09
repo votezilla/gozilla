@@ -46,7 +46,7 @@ const (
 	//kRegisterDetailsScript = "registerDetailsScript"
 	kRegister = "register"
 	kTestPopup = "testPopup"
-	kViewPollResults = "viewPollResults"
+	//kViewPollResults = "viewPollResults"
 	kViewPollResults2 = "viewPollResults2"
 )
 
@@ -119,11 +119,19 @@ func parseTemplateFiles() {
 	hDefineTemplate(kArticle, 		"base", "wide", "frame", "sidebar", "article", "comments")
 	hDefineTemplate(kNews, 			"base", "wide", "frame", "news")
 	hDefineTemplate(kNewsSources,	"base", "wide", "frame", "newsSources")  // nyi
+/*
+	hDefineTemplate(kCreate, 		"base", "wide", "frame", "nuField", "create")
+	hDefineTemplate(kCreateBlog, 	"base", "wide", "frame", "nuField", "createBlog")
+	hDefineTemplate(kCreateLink, 	"base", "wide", "frame", "nuField", "createLink")
+	hDefineTemplate(kCreatePoll, 	"base", "wide", "frame", "nuField", "createPoll")
+*/
 
 	hDefineTemplate(kCreate, 		"base", "narrow", "minFrame", "nuField", "create")
 	hDefineTemplate(kCreateBlog, 	"base", "narrow", "minFrame", "nuField", "createBlog")
 	hDefineTemplate(kCreateLink, 	"base", "narrow", "minFrame", "nuField", "createLink")
 	hDefineTemplate(kCreatePoll, 	"base", "narrow", "minFrame", "nuField", "createPoll")
+
+
 
 	//hDefineTemplate(kRegisterDetailsNopopup, "base", "narrow", "frame", "registerDetailsNopopup")
 
@@ -136,7 +144,7 @@ func parseTemplateFiles() {
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
 
-	hDefineTemplate(kViewPollResults,	"viewPollResults", "comments")
+	//hDefineTemplate(kViewPollResults,	"viewPollResults", "comments")
 	hDefineTemplate(kViewPollResults2,	"base", "wide", "frame", "sidebar", "viewPollResults2", "comments")
 	hDefineTemplate(kTestPopup, 		"testPopup")
 

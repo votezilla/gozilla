@@ -17,7 +17,7 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
 
 	[] SERVER-TODO: create polls!!!
   
-* Forms - REQUIRED:
+X Forms:
 
 	X dropdown forgets value!!!
    
@@ -39,7 +39,19 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
         
         X "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
 
-- Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
+X Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
+
+- deduce title for link sharing
+
+- incr voting + comment power * 10 for now
+
+X new dino thumbnails for Polls, (X that don't stretch vertically)
+
+- fix thumbnail aspect ratio in image service
+
+- leave comment prompt after viewing article
+
+- ++ "..." for too many options for poll
 
 - https
 
@@ -49,11 +61,11 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
  
 X Unknown poll creation bug (possibly when adding / removing additional options ?)
  
-- Unknown weird bug if you choose an obvious username on Chrome (?)
+Y Unknown weird bug if you choose an obvious username on Chrome (?)
 
 X headline - doesn't show link
 
-- comment out ... f article til feature is active
+X comment out ... f article til feature is active
  
 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
@@ -71,9 +83,11 @@ X headline - doesn't show link
 
 X from /news, hovering over any poll choice highlights all of them
 
-- poll article has link icon and "continue reading...", when it shouldn't
-
 X fix login crash asserts
+
+- add Create your own poll or news post on the left bottom of each news cat
+
+- See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
 
 
 
@@ -118,7 +132,17 @@ T - Email system.  Needs to:
 
 MED PRIORITY (for test with 100 friends):
 
+- Add news API's
+
 - Add news sources.
+
+- kw classifier ~> n cats
+
+- Follow Feed - section of news that displayes posts that ppl you follow follow have made
+
+- Notifications message UR w msg + link when someone comments on your post, etc.
+
+- diff dino images for discussions, blog entries, etc.
 
 - Allow updating & deleting of posts & comments.
 
@@ -134,8 +158,6 @@ MED PRIORITY (for test with 100 friends):
 
 
 - Replaced copyrighted art, or request permission to use.
-
-X - Sort comment siblings by up/down vote.
 
 = Start promoting.
 
@@ -158,7 +180,7 @@ X - Sort comment siblings by up/down vote.
 
 LOW PRIORITY (for launch with 1000 friends):
 
-- Add vote to DB and display results, also allow user to change vote.
+X Add vote to DB and display results, also allow user to change vote.
 
 - Facebook:
 
@@ -229,8 +251,11 @@ POSTPONED FEATURES:
 
 - Separate count for up / down votes?
 
+REFACTORING:
+- rename "server" to "service"
 
 REQUESTS:
 
-Ryan - add margins between Articles
+X Ryan - add margins between Articles
+
 

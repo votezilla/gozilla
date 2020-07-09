@@ -345,14 +345,23 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			newArticle.IsPoll 		  = true
 			newArticle.Title 		  = "POLL: " + newArticle.Title
 
+			check(json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData))
+
+			numCharsApprox := len(newArticle.Title)
+			numCharsApprox += 2 * len(newArticle.PollOptionData.Options)  // Treat checkbox as 2 characters. 
+			for _, option := range newArticle.PollOptionData.Options {
+				numCharsApprox += len(option)
+			}
+			numLinesApprox := ceil_div(numCharsApprox, 60)
+
+			prf("numCharsApprox: %d numLinesApprox: %d", numCharsApprox, numLinesApprox)
 
 			//newArticle.UrlToImage 	  = fmt.Sprintf("/static/ballotboxes/%d.jpg", rand.Intn(17)) // Pick a random ballotbox image.
 			//newArticle.UrlToThumbnail = newArticle.UrlToImage
-			newArticle.UrlToImage 	  = "/static/ballotbox.png"
-			newArticle.UrlToThumbnail = "/static/ballotbox small.png"
-
-			err = json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData)
-			check(err)
+			newArticle.UrlToImage 	  = "/static/ballotboxes/ballotbox 3dinos.jpg"
+			newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 1,
+												    "/static/ballotboxes/ballotbox 3dinos small.jpg",
+													"/static/ballotboxes/ballotbox 3dinos small 160x180.jpg")
 
 			//prVal("newArticle.PollOptionData", newArticle.PollOptionData)
 

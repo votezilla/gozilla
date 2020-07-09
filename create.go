@@ -41,7 +41,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 	form := makeForm(
 		nuTextField(kLink, "Share an article link", 50, 1, 1024, "article link").addFnValidator(urlValidator(false)).noSpellCheckOrCaps(),
 		nuTextField(kTitle, "Add a title", 50, 12, kMaxTitleLength, "article title"),
-		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false, "Please select a news category"),
+		nuSelectField(kCategory, "Select Category", newsCategoryInfo.CategorySelect, true, true, false, false, "Please select a news category"),
 		nuHiddenField(kThumbnail, ""),
 	)
 
@@ -115,7 +115,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		nuBoolField(kAnyoneCanAddOptions, "Allow anyone to add options", true),
 		nuBoolField(kCanSelectMultipleOptions, "Allow people to select multiple options", true),
 		nuBoolField(kRankedChoiceVoting, "Enable ranked-choice voting", false),
-		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false, "Please select a poll category"),
+		nuSelectField(kCategory, "Select Category", newsCategoryInfo.CategorySelect, true, true, false, false, "Please select a poll category"),
 	)
 
 	// Add fields for additional options that were added, there could be an arbitrary number, we'll cap it at 1024 for now.
@@ -175,7 +175,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 			form.val(kCategory),
 			"en",
 			"us",
-			"http://localhost:8080/static/ballotbox.png", // TODO: generate poll url from image search
+			"http://localhost:8080/static/ballotbox 3dinos.jpg", // TODO: generate poll url from image search
 			pollOptionsJson,
 		)
 		prVal("Just added a poll #", pollPostId)
@@ -224,7 +224,7 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 
 	form := makeForm(
 		nuTextField(kTitle, "Your blog post title...", 50, 12, 255, "blog title"),
-		nuSelectField(kCategory, "Category", newsCategoryInfo.CategorySelect, true, true, true, false, "Please select a blog category"),
+		nuSelectField(kCategory, "Select Category", newsCategoryInfo.CategorySelect, true, true, false, false, "Please select a blog category"),
 		nuHiddenField(kBlogVal, ""),  // Hidden field that gets the value from the blog.  Because there is JS required to get blog value.
 	)
 

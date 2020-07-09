@@ -101,6 +101,7 @@ var (
 const (
 	image_Unprocessed		= 0
 	image_Downsampled		= 1 // 125 x 75
+	                            // NOTE: THIS SHOULD BE THE NEW SIZE! 160 x 143 - thumbnail
 	image_DownsampleError	= -1
 
 	genThumbPass_PollPost	= 0

@@ -8,7 +8,7 @@
 		</td></tr>
 
 		<tr><td bgcolor=white>
-			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:4px; font-size: 20px;">
 				<tr>
 					<td style="width:18px; padding:1px">
 						<div style="border: 1px solid black; color: black; text-align:center;"><span style="color:#ff009c">v</span><span style="color:#0072ff">z</span></div>
@@ -16,7 +16,7 @@
 					<td style="line-height:12pt; height:10px; padding: 0px 5px; color:white !important;">
 						<span class="pagetop">
 							<!-- votezilla logo -->
-							<b class="hnname">
+							<b id="votezilla_title">
 								<a href="news" style="color:#ff009c">vote<span style="color:black">zilla</span></a>
 							</b>
 						<!-- nav menu -->
@@ -505,7 +505,7 @@ $(function () {
 											{{$option}}
 									</label>
 								{{ else }}
-									<label class="radio-inline" style="margin-bottom:0; cursor: pointer">
+									<label class="radio-inline vote" style="margin-bottom:0; cursor: pointer">
 										<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
 											   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
 										{{$option}}

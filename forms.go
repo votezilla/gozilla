@@ -494,10 +494,26 @@ func nuOtherField(name, placeholder string, inputLength, minLength, maxLength in
 type FormFrameArgs struct {
 	PageArgs
 	Form			Form
+/*	(in case we ever want forms to use the full "frame" and "wide" templates:
+	NavMenu			[]string
+	UrlPath			string
+	UserId			int64
+	Username		string
+	UpVotes			[]int64
+	DownVotes		[]int64
+*/
 }
 func makeFormFrameArgs(form *Form, title string) FormFrameArgs {
 	return FormFrameArgs {
 		PageArgs: 		PageArgs{Title: title},
 		Form: 			*form,
+/*
+		NavMenu:		navMenu, // just in case we use the full "frame" template.
+		UrlPath:		"create",
+		UserId:			14,
+		Username:		"newish69", // CHECKIN_TODO
+		UpVotes:		[]int64{},
+		DownVotes:		[]int64{},
+*/
 	}
 }

@@ -1,4 +1,4 @@
-body { font-family:Verdana, Geneva, sans-serif; }
+body { font-family:Verdana, Geneva, sans-serif; font-size: 18px; }
 
 .marginRow{
 	 margin-top:		0px 		!important;
@@ -37,22 +37,23 @@ body { font-family:Verdana, Geneva, sans-serif; }
 	padding-right:	0px			!important;
 }
 
-@media screen and (min-width:750px) { /* 576 */
+@media screen and (max-width:750px) { /* narrow screens - mobile */
+	#override .vz-col-md-6-right {
+		padding-left:	0px			!important;
+		padding-right:	0px			!important;
+		margin-left:	0px			!important;
+		margin-right:	0px			!important;
+	}
+	#votezilla_title {
+		display:none;
+	}
+}
+@media screen and (min-width:750px) { /* wide screens - desktop */
 	#override .vz-col-md-6-right {
 		padding-left:	15px		!important;
 		padding-right:	0px			!important;
 		margin-left:	0px			!important;
 		margin-right:	0px			!important;
-		/* background-color: red !important; */
-	}
-}
-@media screen and (max-width:750px) {
-	#override .vz-col-md-6-right {
-		padding-left:	0px		!important;
-		padding-right:	0px			!important;
-		margin-left:	0px			!important;
-		margin-right:	0px			!important;
-		/* background-color: green !important; */
 	}
 }
 
@@ -76,17 +77,19 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 	background-color: #9e9eff !important;
 }
 
-.btn-vote {
+#override .btn-vote {
 	color: #fff;
 	background-color: #0030ff; /* #0495c9; */
 	border-color: #2092ff;
 	cursor: pointer;
+	font-size: 20px;
 }
 .btn-vote:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open>.dropdown-toggle.btn-primary {
 	color: #fff;
 	background-color: #0072ff;
 	border-color: #62b7ff;
 	cursor: pointer;
+	font-size: 20px;
 }
 
 /* Alignment: next a .center, .alignLeft, or .alignRight beneath a .fullWidth. */
@@ -181,7 +184,7 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
 
 .submit { cursor:pointer; }
-.vote { line-height: 1.1; cursor: pointer; } /* A voting list item or submit button. */
+.vote { line-height: 1.1; cursor: pointer; font-size: 20px; } /* A voting list item or submit button. */
 .rankedVote { line-height: 1.1; width: 25px; padding: 0px 5px; }
 .rankedVoteLabel { line-height: 1.1; }
 .rankedVoteIntro { font-style: italic; }
@@ -202,7 +205,7 @@ a:target	{ background-color: yellow; }
 .default { font-family:Verdana, Geneva, sans-serif; }
 .admin   { font-family:Verdana, Geneva, sans-serif; }
 .title   { font-family:Verdana, Geneva, sans-serif; }
-.subtext { font-family:Verdana, Geneva, sans-serif; }
+.subtext { font-family:Verdana, Geneva, sans-serif; font-size: 18px; }
 
 
 
@@ -275,7 +278,5 @@ a:target	{ background-color: yellow; }
 
 .pagetop a:visited { color:#000000;}
 .topsel a:link, .topsel a:visited { color:#ffffff; }
-
-.pagebreak {page-break-before:always}
 
 pre:hover { overflow:auto }

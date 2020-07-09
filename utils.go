@@ -54,10 +54,11 @@ const MaxInt64 = int64(^uint64(0) >> 1)
 func ternary_int(b bool, i int, j int) 			int 	{ if b { return i } else { return j } }
 func ternary_int64(b bool, i int64, j int64)    int64 	{ if b { return i } else { return j } }
 func ternary_uint64(b bool, i uint64, j uint64) uint64 	{ if b { return i } else { return j } }
-func round(f float32) int { return int(f + .5) }
-func min_int(i int, j int) int { return ternary_int(i < j, i, j) }
-func max_int(i int, j int) int { return ternary_int(i > j, i, j) }
-func getBitFlag(flags, mask uint64) bool { return (flags & mask) != 0 }
+func round(f float32) 							int 	{ return int(f + .5) }
+func min_int(i int, j int) 						int 	{ return ternary_int(i < j, i, j) }
+func max_int(i int, j int) 						int 	{ return ternary_int(i > j, i, j) }
+func getBitFlag(flags, mask uint64) 			bool 	{ return (flags & mask) != 0 }
+func ceil_div(dividend int, divisor int) 		int 	{ return (dividend + (divisor - 1)) / divisor; }
 
 // Inline switch which takes and returns int values.
 // e.g. switch_int(2, // switch value:
