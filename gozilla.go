@@ -192,7 +192,7 @@ func WebServer() {
 //	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 	http.HandleFunc("/viewPollResults2/",   		hwrap(viewPollResultsHandler2))
 
-	// Server static file.
+	// Serve static files.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	// Special handling for favicon.ico.
@@ -210,10 +210,10 @@ func main() {
 	OpenDatabase()
 	defer CloseDatabase()
 
-	if flags.imageServer != "" {
-		ImageServer()
-	} else if flags.newsServer != "" {
-		NewsServer()
+	if flags.imageService != "" {
+		ImageService()
+	} else if flags.newsService != "" {
+		NewsService()
 	} else {
 		WebServer()
 	}

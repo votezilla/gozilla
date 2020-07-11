@@ -40,6 +40,8 @@ type Article struct {
 	Upvoted			int
 	VoteTally		int
 	NumComments		int
+	NumLines		int
+	ThumbnailStatus	int
 
 	IsPoll			bool
 	PollOptionData	PollOptionData

@@ -1,6 +1,10 @@
-// ImageServer
+// ImageService
 //
 // TODO(BUG): Handle out of memory gracefully.  Should occur when Photoshop is open.
+//
+// NOTE: Here's a useful query for checking the progress of the imageService:
+//
+// 		 SELECT ThumbnailStatus, UrlToImage <> '', COUNT(*) FROM vz.NewsPost GROUP BY ThumbnailStatus, UrlToImage <> '' ORDER BY ThumbnailStatus;
 
 package main
 
@@ -101,7 +105,8 @@ var (
 const (
 	image_Unprocessed		= 0
 	image_Downsampled		= 1 // 125 x 75
-	                            // NOTE: THIS SHOULD BE THE NEW SIZE! 160 x 143 - thumbnail
+	image_DownsampledV2     = 2 // NOTE: THIS SHOULD BE THE NEW SIZE! a - 160 x 116 - thumbnail
+	                            //       AND                          b - 160 x 150
 	image_DownsampleError	= -1
 
 	genThumbPass_PollPost	= 0
@@ -127,7 +132,7 @@ type ImageSizeResult struct {
 }
 
 // Download image from imageUrl, use outputNameId to form name before extension, extension stays the same.
-func downloadImage(imageUrl string, outputNameId int) error {
+func downloadImage(imageUrl string, outputNameId string) error {
     resp, err := httpGet(imageUrl, 10.0)
     if err != nil {
 		return err
@@ -135,7 +140,7 @@ func downloadImage(imageUrl string, outputNameId int) error {
     defer resp.Body.Close()
 
     //open a file for writing
-    file, err := os.Create("./static/downloads/" + strconv.Itoa(outputNameId) + filepath.Ext(imageUrl))
+    file, err := os.Create("./static/downloads/" + outputNameId + filepath.Ext(imageUrl))
     if err != nil {
 		return err
 	}
@@ -393,11 +398,19 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
 func downsamplePostImage(url string, id int, pass int, c chan DownsampleResult) {
 	prf("Downsampling image #%d pass %d urls %s\n", id, pass, url)
 
-	//	genThumbsPass_ScrapeUserPostImage = 0
-	//	genThumbsPass_DownsampleNewsImage = 1
-	//	NUM_GEN_THUMBS_PASSES             = 2
+	//image_Unprocessed		= 0
+	//image_Downsampled		= 1 // 125 x 75
+	//image_DownsampledV2     = 2 // NOTE: THIS SHOULD BE THE NEW SIZE! a - 160 x 116 - thumbnail
+	//                            //       AND                          b - 160 x 150
+	//image_DownsampleError	= -1
+
 	var err error
-	err = downsampleImage(url, "thumbnails", strconv.Itoa(id), "jpeg", 125, 75)
+	err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "a", "jpeg", 160, 116)
+	if err != nil {
+		// TODO: Downsample the Mozilla dinosaur head in this case.
+		prVal("downsamplePostImage called downsampleImage and then encountered some error", err)
+	}
+	err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "b", "jpeg", 160, 150)
 	if err != nil {
 		// TODO: Downsample the Mozilla dinosaur head in this case.
 		prVal("downsamplePostImage called downsampleImage and then encountered some error", err)
@@ -449,11 +462,11 @@ func fetchPostIds2Urls(query string) (ids2urls map[int]string) { //(urls []strin
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// image server - Continually checks for new images to shrink.  Images must be shrunk
+// image service - Continually checks for new images to shrink.  Images must be shrunk
 //				  to thumbnail size for faster webpage loads.
 //
 //////////////////////////////////////////////////////////////////////////////
-func ImageServer() {
+func ImageService() {
 	if flags.mode == "fetchNewsSourceIcons" {
 		for newsSource, imageUrl := range newsSourceIcons {
 			check(downsampleImage(imageUrl, "newsSourceIcons", newsSource, "png", 16, 16))
@@ -489,7 +502,7 @@ func ImageServer() {
 	}
 
 	pr("========================================")
-	pr("======== STARTING IMAGE SERVER =========")
+	pr("======== STARTING IMAGE SERVICE ========")
 	pr("========================================\n")
 
 	for {
@@ -527,21 +540,21 @@ func ImageServer() {
 									`UPDATE $$PollPost
 									 SET ThumbnailStatus = $1
 									 WHERE Id = $2::bigint`,
-									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
+									ternary_int(downsampleResult.err == nil, image_DownsampledV2, image_DownsampleError),
 									downsampleResult.postId)
 							case genThumbPass_LinkPost:
 								DbExec(
 									`UPDATE $$LinkPost
 									 SET ThumbnailStatus = $1
 									 WHERE Id = $2::bigint`,
-									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
+									ternary_int(downsampleResult.err == nil, image_DownsampledV2, image_DownsampleError),
 									downsampleResult.postId)
 							case genThumbPass_NewsPost:
 								DbExec(
 									`UPDATE $$NewsPost
 									 SET ThumbnailStatus = $1
 									 WHERE Id = $2::bigint`,
-									ternary_int(downsampleResult.err == nil, image_Downsampled, image_DownsampleError),
+									ternary_int(downsampleResult.err == nil, image_DownsampledV2, image_DownsampleError),
 									downsampleResult.postId)
 							default:
 								assert(false)

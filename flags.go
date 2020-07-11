@@ -19,10 +19,10 @@ var (
 		//printMask				PrintMask	// For selective logging.
 		port					string		// Which port to serve webpages from.
 		offlineNews				string		// Whether to use offline cached news, when working without Internet connection.
-		newsServer				string		// Whether to be the news server.
-		imageServer				string		// Whether to be the image server.
-		test					string		// Whether to run a simple test, instead of the actual server.
-		mode					string		// A special mode to run a server in.
+		newsService				string		// Whether to be the news service.
+		imageService			string		// Whether to be the image service.
+		test					string		// Whether to run a simple test, instead of the actual service.
+		mode					string		// A special mode to run a service in.
 		testUserId				string		// UserId to test being loggin in as.
 		isNewsAccelerated		string		// Whether News API queries should be accelerated
 	}
@@ -43,11 +43,11 @@ func parseCommandLineFlags() {
 	f6 := flag.String("cookieHashKey",	"very-secret",	"secure cookie hash key")
 	f7 := flag.String("cookieBlockKey",	"a-lot-secret", "secure cookie block key")
 	f8 := flag.String("newsAPIKey",		"",				"news API key from https://newsapi.org")
-	//f9 := flag.String("printMask",		"65535",		"log output mask")
+	//f9 := flag.String("printMask",	"65535",		"log output mask")
 	fa := flag.String("port",			"8080",			"which port to serve webpages from")
 	fb := flag.String("offlineNews",    "",				"whether to use offline news")
-	fc := flag.String("newsServer",		"",				"whether to be the news server")
-	fd := flag.String("imageServer",	"",				"whether to be the image server")
+	fc := flag.String("newsService",		"",			"whether to be the news service")
+	fd := flag.String("imageService",	"",				"whether to be the image service")
 	fe := flag.String("test",			"",				"whether to run a simple test, instead of the actual server")
 	ff := flag.String("mode",			"",				"a special mode to run a server in")
 	fg := flag.String("testUserId",		"",				"UserId to test being loggin in as")
@@ -74,8 +74,8 @@ func parseCommandLineFlags() {
 */
 	flags.port					= *fa
 	flags.offlineNews			= *fb
-	flags.newsServer			= *fc
-	flags.imageServer			= *fd
+	flags.newsService			= *fc
+	flags.imageService			= *fd
 	flags.test					= *fe
 	flags.mode					= *ff
 	flags.mode					= *ff

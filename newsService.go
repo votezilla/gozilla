@@ -306,17 +306,17 @@ func fetchNews(newsSource string) []Article {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// news server - On startup, and every 5 minutes, fetches the latest news, then
+// news service - On startup, and every 5 minutes, fetches the latest news, then
 //				 adds it to $$NewsPost table.
 //
 //////////////////////////////////////////////////////////////////////////////
-func NewsServer() {
+func NewsService() {
 	var newArticles []Article
 
 	newsAPITimeManager = MakeNewsAPITimeManager(500) // The News API allows up to 500 requests per day.
 
 	pr("========================================")
-	pr("======== STARTING NEWS SERVER ==========")
+	pr("======== STARTING NEWS SERVICE =========")
 	pr("========================================\n")
 
 	for {

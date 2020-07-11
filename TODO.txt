@@ -47,7 +47,7 @@ X Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on 
 
 X new dino thumbnails for Polls, (X that don't stretch vertically)
 
-- fix thumbnail aspect ratio in image service
+X fix thumbnail aspect ratio in image service (take into account calculated 2 vs 3 lines)
 
 - leave comment prompt after viewing article
 
@@ -252,7 +252,7 @@ POSTPONED FEATURES:
 - Separate count for up / down votes?
 
 REFACTORING:
-- rename "server" to "service"
+X rename "server" to "service"
 
 REQUESTS:
 

@@ -133,7 +133,19 @@
 											<div>
 												<span>
 													<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article">
-														<div style="font-size:20px; {{if $article.IsPoll}}min-height: 32px;{{else}}min-height: 54px/*76px;*/;{{end}} max-height: 92px;/*78px;*/ overflow: hidden; padding-right: 4px;">
+														<div style="
+															font-size:20px;
+														  {{if $article.IsPoll}}
+														    min-height: 32px;
+														  {{else}}
+														    min-height: 54px;
+														  {{end}} 
+														    max-height: 92px;
+														    overflow: hidden;
+														    padding-right: 4px;
+														">
+															{{/*$article.NumLines*/}}
+															{{/*$article.ThumbnailStatus*/}}
 															{{$article.Title}}
 															{{ if not $article.Host }}
 																<img src="/static/link icon.jpg" class="hideUntilHover" style="height: 14px; width: 14px;">

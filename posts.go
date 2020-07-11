@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	kDefaultImage     = "/static/mozilla dinosaur head.png"
-	kDefaultThumbnail = "/static/mozilla dinosaur thumbnail.png"
+	kDefaultImage       = "/static/mozilla dinosaur head.png"
+	kDefaultThumbnail   = "/static/mozilla dinosaur thumbnail.png"
+	kApproxCharsPerLine = 30
 )
 
 
@@ -316,13 +317,6 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			Title:			title,
 			Description:	description,
 			Url:			linkUrl,
-			UrlToImage:		coalesce_str(urlToImage, kDefaultImage),				 // Full-size image.  Uses a default image (mozilla head) as backup.
-			UrlToThumbnail:
-				ternary_str(thumbnailStatus == image_Unprocessed,					 // When thumnail is unprecessed, use...
-					coalesce_str(urlToImage, kDefaultThumbnail),                     // Uses full-size image as backup if thumbnail isn't processed yet, or default thumbnail (tiny mozilla head) as backup if image is missing.
-					ternary_str(urlToImage != "",
-						"/static/thumbnails/" + strconv.FormatInt(id, 10) + ".jpeg", // Thumbnail image processed.
-						kDefaultThumbnail)),										 // Dropback if no image.  (TODO: replace licensed art.)
 			PublishedAtUnix:publishedAt,
 			PublishedAt:	publishedAt.Format(time.UnixDate),
 			NewsSourceId:	newsSourceId,
@@ -338,6 +332,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			Upvoted:		upvoted,
 			VoteTally:		voteTally,
 			NumComments:	numComments,
+			ThumbnailStatus:thumbnailStatus,
 		}
 
 		// Handle polls.
@@ -347,25 +342,60 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 			check(json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData))
 
-			numCharsApprox := len(newArticle.Title)
-			numCharsApprox += 2 * len(newArticle.PollOptionData.Options)  // Treat checkbox as 2 characters. 
+			// Tally title characters.
+			numLinesApprox := ceil_div(len(newArticle.Title), kApproxCharsPerLine)
+
+			// Tally poll options separately (because divided by a newline).
+			numCharsApprox := 2 * len(newArticle.PollOptionData.Options)  // Treat checkbox as 2 characters.
 			for _, option := range newArticle.PollOptionData.Options {
 				numCharsApprox += len(option)
 			}
-			numLinesApprox := ceil_div(numCharsApprox, 60)
+			numLinesApprox += ceil_div(numCharsApprox, kApproxCharsPerLine)
 
 			prf("numCharsApprox: %d numLinesApprox: %d", numCharsApprox, numLinesApprox)
 
 			//newArticle.UrlToImage 	  = fmt.Sprintf("/static/ballotboxes/%d.jpg", rand.Intn(17)) // Pick a random ballotbox image.
 			//newArticle.UrlToThumbnail = newArticle.UrlToImage
 			newArticle.UrlToImage 	  = "/static/ballotboxes/ballotbox 3dinos.jpg"
-			newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 1,
+			newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 2,
 												    "/static/ballotboxes/ballotbox 3dinos small.jpg",
 													"/static/ballotboxes/ballotbox 3dinos small 160x180.jpg")
 
 			//prVal("newArticle.PollOptionData", newArticle.PollOptionData)
 
 			newArticle.Url = fmt.Sprintf("/article/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
+
+			newArticle.NumLines = numLinesApprox
+		} else {
+			numCharsApprox := len(newArticle.Title)
+
+			numLinesApprox := ceil_div(numCharsApprox, kApproxCharsPerLine)
+
+			//prf("numLines: %d title: %s", numLinesApprox, newArticle.Title)
+
+			newArticle.NumLines = numLinesApprox
+
+			newArticle.UrlToImage = coalesce_str(urlToImage, kDefaultImage)		  // Full-size image.  Uses a default image (mozilla head) as backup.
+
+			if urlToImage == ""	{
+				// Dropback if no image.  (TODO: replace licensed art.)
+				newArticle.UrlToThumbnail = kDefaultThumbnail
+			} else if thumbnailStatus == image_Unprocessed {
+				// Uses full-size image as backup if thumbnail isn't processed yet, or default thumbnail (tiny mozilla head) as backup if image is missing.
+				newArticle.UrlToThumbnail = urlToImage
+			} else if thumbnailStatus == image_DownsampledV2 {
+				// Downsamples into two version of the thumbnail, different heights depending on the height of the article.
+				newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 2,
+					"/static/thumbnails/" + strconv.FormatInt(id, 10) + "a.jpeg", // a - 160 x 116 - thumbnail
+					"/static/thumbnails/" + strconv.FormatInt(id, 10) + "b.jpeg") // b - 160 x 150
+			} else if thumbnailStatus == image_Downsampled {
+				// Old version of the thumbnail.
+				newArticle.UrlToThumbnail =
+					"/static/thumbnails/" + strconv.FormatInt(id, 10) + ".jpeg"
+			} else {
+				//prVal("image_DownsampledV2", image_DownsampledV2)
+				panic(fmt.Sprintf("Unexpected thumbnail status: %d", thumbnailStatus))
+			}
 		}
 
 		articles = append(articles, newArticle)

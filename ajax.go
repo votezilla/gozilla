@@ -245,7 +245,7 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 		prVal("parsedImages.Images removedDups", parsedImages.Images)
 
 
-/*		// THIS CODE WORKS, IT'S JUST TOO SLOW.  COULD KEEP IT FOR THE IMAGE SERVER.
+/*		// THIS CODE WORKS, IT'S JUST TOO SLOW.  COULD KEEP IT FOR THE IMAGE SERVICE.
 
 		// Get the sizes of the images, pick the best one with a size-based heuristic, multithreaded.
 		c := make(chan ImageSizeResult)
