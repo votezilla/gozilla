@@ -246,15 +246,15 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &numComments, &thumbnailStatus, &source,
 							&voteTally, &orderBy))
 		}
-		//prVal("id", id)
-		//prVal("author", author)
-		//prVal("title", title)
+		prVal("id", id)
+		prVal("author", author)
+		prVal("title", title)
 		//prVal("description", description)
 		//prVal("linkUrl", linkUrl)
 		//prVal("urlToImage", urlToImage)
-		//prVal("publishedAt", publishedAt)
+		prVal("publishedAt", publishedAt)
 		//prVal("newsSourceId", newsSourceId)
-		//prVal("category", category)
+		prVal("category", category)
 		//prVal("language", language)
 		//prVal("country", country)
 		//prVal("pollOptionJson", pollOptionJson)
@@ -263,7 +263,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		//prVal("voteTally", voteTally)
 		//prVal("numComments", numComments)
 		//prVal("thumbnailStatus", thumbnailStatus)
-		//prVal("source", source)
+		prVal("source", source)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
@@ -296,8 +296,13 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			hours := timeSince.Hours()
 			days := hours / 24.0
 			weeks := days / 7.0
+			years := days / 365.0
 
-			if weeks >= 1.0 {
+			if years > 20.0 {
+				timeSinceStr = "old"
+			} else if years >= 1.0 {
+				timeSinceStr = strconv.FormatFloat(years, 'f', 0, 32) + "y"
+			} else if weeks >= 1.0 {
 				timeSinceStr = strconv.FormatFloat(weeks, 'f', 0, 32) + "w"
 			} else if days >= 1.0 {
 				timeSinceStr = strconv.FormatFloat(days, 'f', 0, 32) + "d"
@@ -309,6 +314,14 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 				timeSinceStr = strconv.FormatFloat(seconds, 'f', 0, 32) + "s"
 			}
 		}
+
+		// Map the category to one that makes sense.
+		category, found := newsCategoryRemapping[category]
+		if !found {
+			category = "other"
+		}
+
+		prVal(">>category", category)
 
 		// Set the article information.
 		newArticle := Article{
@@ -334,6 +347,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			NumComments:	numComments,
 			ThumbnailStatus:thumbnailStatus,
 		}
+
 
 		// Handle polls.
 		if len(pollOptionJson) > 0 {
@@ -402,6 +416,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	}
 	check(rows.Err())
 	rows.Close()
+
+	prVal("len(articles)", len(articles))
 
 	return articles
 }

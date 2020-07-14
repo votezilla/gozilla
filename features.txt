@@ -28,3 +28,63 @@ INTERNAL FEATURES SO FAR:
 - Image scraping code.
 
 - Gozilla form library.
+
+
+MISC FIXED THINGS:
+
+X voting on a poll from /news goes to viewing poll instead of activating vote
+
+X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category just of polls.  I got fdbk f Ryan H to make POLLS more obvious.)
+	X Try making POLLS first.  (Will probably require better art)
+
+	X SERVER-TODO: create polls!!!
+  
+X Forms:
+
+	X dropdown forgets value!!!
+   
+        X password needs 2l input w/ matching verification and mask w eyeball
+
+	X remove autocap f username
+	
+	X dropdown text cutoff
+	
+	X "Select" text for dropdowns
+
+        X (optional) animate placeholder text to label / try always having label (Tried, it didn't look good.  Code is commented out in template file.)
+
+        X "Party" -> "Choose a Party"
+
+        X "Other" -> add text input
+        
+        X "Other" -> didn't let him register
+        
+        X "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
+
+X Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
+
+
+X new dino thumbnails for Polls, (X that don't stretch vertically)
+
+X fix thumbnail aspect ratio in image service (take into account calculated 2 vs 3 lines)
+
+
+X Unknown poll creation bug (possibly when adding / removing additional options ?)
+ 
+Y Unknown weird bug if you choose an obvious username on Chrome (?)
+
+X headline - doesn't show link
+
+X comment out ... f article til feature is active
+
+X rename "server" to "service"
+
+X Ryan - add margins between Articles
+
+X Add vote to DB and display results, also allow user to change vote.
+
+X from /news, hovering over any poll choice highlights all of them
+
+X fix login crash asserts
+
+X Tweak article cat colors

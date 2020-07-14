@@ -54,6 +54,7 @@ var (
 			"entertainment",
 			"technology",
 			"science",
+//			"other",
 		},
 		HeaderColors : map[string]string{
 			"news" 			 	: "#68fc48", //#68fc68", //#7ff4f4",    //"#8ff",
@@ -64,6 +65,7 @@ var (
 			"entertainment" 	: "#e85be4",
 			"technology" 		: "#aaa",    //"#ccc",
 			"science"			: "#8cf",
+//			"other"				: "#4af392",
 		},
 		CategorySelect : [][2]string{
 			{"news", 			"news"},
@@ -74,6 +76,7 @@ var (
 			{"entertainment",	"entertainment"},
 			{"technology",		"technology"},
 			{"science",			"science"},
+//			{"other",			"other"},
 		},
 	}
 

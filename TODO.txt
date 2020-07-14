@@ -10,93 +10,64 @@ v Done
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
-X voting on a poll from /news goes to viewing poll instead of activating vote
+Importance
+v
+  Difficulty
+  v
+B 3 - deduce title for link sharing
 
-X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category just of polls.  I got fdbk f Ryan H to make POLLS more obvious.)
-	X Try making POLLS first.  (Will probably require better art)
+B 3 - incr voting + comment power * 10 for now
 
-	[] SERVER-TODO: create polls!!!
+B 3 - leave comment prompt after viewing article
+
+A 3 - ++ "..." for too many options for poll
+
+A 2 - ++ "..." for items that are too long, when viewing results
+
+B 5 - Add more news API's
+
+C 5 - why so many missing images?
+
+B 5 - privacy alias'
   
-X Forms:
+B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
-	X dropdown forgets value!!!
-   
-        X password needs 2l input w/ matching verification and mask w eyeball
-
-	X remove autocap f username
-	
-	X dropdown text cutoff
-	
-	X "Select" text for dropdowns
-
-        X (optional) animate placeholder text to label / try always having label (Tried, it didn't look good.  Code is commented out in template file.)
-
-        X "Party" -> "Choose a Party"
-
-        X "Other" -> add text input
-        
-        X "Other" -> didn't let him register
-        
-        X "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
-
-X Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
-
-- deduce title for link sharing
-
-- incr voting + comment power * 10 for now
-
-X new dino thumbnails for Polls, (X that don't stretch vertically)
-
-X fix thumbnail aspect ratio in image service (take into account calculated 2 vs 3 lines)
-
-- leave comment prompt after viewing article
-
-- ++ "..." for too many options for poll
-
-- https
-
-- why so many missing images?
-
-- privacy alias'
- 
-X Unknown poll creation bug (possibly when adding / removing additional options ?)
- 
-Y Unknown weird bug if you choose an obvious username on Chrome (?)
-
-X headline - doesn't show link
-
-X comment out ... f article til feature is active
- 
-- comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
-
-- article - add back nav arrow
- 
-- Tom feedback: 
-
-  X Tweak article cat colors
-          
-  + Add poll creation explanations
+A 2 - article - add back nav arrow
+           
+A 2 - Add poll creation explanations
               
-- ability to update & delete posts, comments
+B 5 - ability to delete posts, comments
 
-- prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
+B 8 - ability to update posts, comments
 
-X from /news, hovering over any poll choice highlights all of them
+C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
 
-X fix login crash asserts
+C 2 - add Create your own poll or news post on the left bottom of each news cat
 
-- add Create your own poll or news post on the left bottom of each news cat
+A 3 - See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
 
-- See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
+B 2 - remove stretching from Mozilla nonheadline article news post
+
+B 2 - space out up/down buttons in /article
+
+B 5 - "POLL: How concerned are you about the Coronavirus?" - 2nd poll of the same one (u news) not working
+
+B 8 - Add "About" section - or implememnt simple blog first?
+
+A 5 - Need ability to add new option when voting
+
+B 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
 
 
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
 
-  - share w a few > fr' + fam
+B 3  - share w a few > fr' + fam
+  
+B 5  - https  
 
-  - c Univ' - prog intern' + phys' prof'
+C   - c Univ' - prog intern' + phys' prof'
 
   - why you voted comment
   
@@ -110,31 +81,29 @@ MED-HIGH PRIORITY (for test w/ 10 friends):
   + ability to message them or write on a news source' wall
 
   - Enable DDOS prevention somehow
-
-  - Add more news API's
   
   - Allow user to create simple, plaintext Blog (with image insertion for body or just thumbnail).
 
-  = Fix email - Emailed DO tech support.
-
-T - Email system.  Needs to:
-
-  - Implement Email verification.
-
-  - Implement Forgot password.
   
-  - Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
+
+  - Email system.  Needs to:
+  
+A 5  =   Fix email - Emailed DO tech support.
+
+  -   Implement Email verification.
+
+  -   Implement Forgot password.
+  
+  -   Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
  
-  - Remember previous page or close form upon success, and/or back tri buttons.
+  -   Remember previous page or close form upon success, and/or back tri buttons.
 
  -        Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.  Can prompt for logging in as well.
  
 
 MED PRIORITY (for test with 100 friends):
 
-- Add news API's
-
-- Add news sources.
+- c direct democracy organizations
 
 - kw classifier ~> n cats
 
@@ -179,8 +148,6 @@ MED PRIORITY (for test with 100 friends):
 
 
 LOW PRIORITY (for launch with 1000 friends):
-
-X Add vote to DB and display results, also allow user to change vote.
 
 - Facebook:
 
@@ -251,11 +218,6 @@ POSTPONED FEATURES:
 
 - Separate count for up / down votes?
 
-REFACTORING:
-X rename "server" to "service"
 
-REQUESTS:
-
-X Ryan - add margins between Articles
 
 

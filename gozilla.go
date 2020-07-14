@@ -6,14 +6,17 @@ import (
 	"net/http"
 
 	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
-	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
+	//       ttemplate does not, is not currently used and should not be used, but could be used for rendering HTML if absolutely necessary.
+	//       To re-enable ttemplate, be sure to enable it everywhere, including in utils.go.
 	htemplate "html/template"
-	ttemplate "text/template"
+	//ttemplate "text/template"
+
+    "net"
 )
 
 var (
 	htemplates  map[string]*htemplate.Template
-	ttemplates  map[string]*ttemplate.Template
+	//ttemplates  map[string]*ttemplate.Template
 
 	err		 	error
 
@@ -58,16 +61,32 @@ const (
 // USING: https://play.golang.org/p/Z6ATIgo_IM
 //        https://stackoverflow.com/questions/27234861/correct-way-of-getting-clients-ip-addresses-from-http-request-golang
 //
-// (WAIT TIL TESTING FROM AWS, OTHERWISE IT'S LOCALHOST, BASICALLY MEANINGLESS)
-//
 ///////////////////////////////////////////////////////////////////////////////
 func ipHandler(w http.ResponseWriter, r *http.Request) {
-	remoteAddr	 := r.RemoteAddr
-	forwardedFor := r.Header.Get("X-Forwarded-For")
 
-	fmt.Fprintf(w, "<p>remote addr: %s</p>", remoteAddr)
-	fmt.Fprintf(w, "<p>forwarded for: %s</p>", forwardedFor)
+	fmt.Fprintf(w, "<p>remote addr: %s</p>", r.RemoteAddr)
+	fmt.Fprintf(w, "<p>forwarded for: %s</p>", r.Header.Get("X-Forwarded-For"))
 	fmt.Fprintf(w, "<br><p>r: %+v</p>", r)
+
+	ip, port, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		fmt.Fprintf(w, "userip: %q is not IP:port", r.RemoteAddr)
+	}
+
+	userIP := net.ParseIP(ip)
+	if userIP == nil {
+		//return nil, fmt.Errorf("userip: %q is not IP:port", req.RemoteAddr)
+		fmt.Fprintf(w, "userip: %q is not IP:port", r.RemoteAddr)
+    }
+
+    // This will only be defined when site is accessed via non-anonymous proxy
+    // and takes precedence over RemoteAddr
+    // Header.Get is case-insensitive
+    forward := r.Header.Get("X-Forwarded-For")
+
+    fmt.Fprintf(w, "<p>IP: %s</p>", ip)
+    fmt.Fprintf(w, "<p>Port: %s</p>", port)
+    fmt.Fprintf(w, "<p>Forwarded for: %s</p>", forward)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,7 +113,7 @@ func parseTemplateFiles() {
 	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
 	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
 	htemplates = make(map[string]*htemplate.Template)
-	ttemplates = make(map[string]*ttemplate.Template)
+	//ttemplates = make(map[string]*ttemplate.Template)
 
 	getTemplatePath := func(page string) string {
 		return "templates/" + page + ".html"

@@ -168,9 +168,9 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 	var err error
 	if ok {
 		err = htemplates[templateName].Execute(w, data)
-	} else {
-		err = ttemplates[templateName].Execute(w, data)
-	}
+	}// else {
+	//	err = ttemplates[templateName].Execute(w, data)
+	//}
 	if err != nil {
 		check(err)
 		return
@@ -191,9 +191,9 @@ func renderTemplate(w io.Writer, templateName string, data interface{}) {
 	var err error
 	if ok {
 		err = htemplates[templateName].Execute(w, data)
-	} else {
-		err = ttemplates[templateName].Execute(w, data)
-	}
+	}// else {
+	//	err = ttemplates[templateName].Execute(w, data)
+	//}
 	check(err)
 }
 
