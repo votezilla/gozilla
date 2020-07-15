@@ -6,7 +6,7 @@
 
 		</div> {{/*col-md-9*/}}
 		<div class="col-md-3 vz-col-md-3-right">
-			<span style="font-size: 17px;">
+			<span style="font-size: 18px;">
 				<br>Remember to be respectful to the community!
 
 				<br><br>Democracy only works if we can have a positive, logical discussion.
@@ -37,7 +37,7 @@
 				</div>-->
 
 				<div>
-					<a href="{{$article.Url}}" target="_blank" style="">
+					<a href="{{$article.Url}}" target="_blank" style="font-size:{{if $article.IsPoll}}20px;{{else}}18px;{{end}} word-break: break-word;">
 						{{$article.Title}}
 					</a>
 					{{ template "PollInlineForm" $article }}
@@ -57,27 +57,11 @@
 
 			{{ end }}
 
-			<p> News sources:
-	<!--
-			{{/* range $aaa, $articleGroup := .ArticleGroups }}
-				<a href="/news/?category={{$articleGroup.Category}}" target="_blank">
-					<div style="color: #333; background-color: {{$articleGroup.HeaderColor}};">
-						<div class="text-uppercase">
-							<center>
-								<h5 style="color: #666; margin: 5px; text-shadow: 1px 1px 0px black;">
-									<strong>
-											{{$articleGroup.Category}}
-									</strong>
-								</h5>
-							</center>
-						</div>
-					</div>
-				</a>
-				<br>
-			{{ end */}}
-	-->
+<!--		<p> News sources:
 			<p>More news sources
-			<p>More articles from this source
+			<p>More articles from this source -->
+			<br>
+			<br>
 		</div> {{/*col-md-3*/}}
 	</div> {{/*row*/}}
 {{ end }}

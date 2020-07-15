@@ -401,6 +401,9 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
 
+//	pollArticleGroups := formatArticleGroups(articles, newsCategoryInfo, "polls", kNoHeadlines)
+//	articleGroups[0] = pollArticleGroups[0]  // Try copying the polls, as a test
+
 	renderNews(w, "News", username, userId, articleGroups, "news", kNews, upvotes, downvotes, reqAlert)
 }
 

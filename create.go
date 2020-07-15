@@ -109,9 +109,9 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("r.Method", r.Method)
 
 	form := makeForm(
-		nuTextField(kTitle, "Ask a poll question...", 50, 12, 255, "poll question"),
-		nuTextField(kOption1, "add option...", 50, 1, 255, "poll option"),
-		nuTextField(kOption2, "add option...", 50, 1, 255, "poll option"),
+		nuTextField(kTitle, "Ask a poll question...", 50, 12, 100, "poll question"),
+		nuTextField(kOption1, "add option...", 50, 1, 50, "poll option"),
+		nuTextField(kOption2, "add option...", 50, 1, 50, "poll option"),
 		nuBoolField(kAnyoneCanAddOptions, "Allow anyone to add options", true),
 		nuBoolField(kCanSelectMultipleOptions, "Allow people to select multiple options", true),
 		nuBoolField(kRankedChoiceVoting, "Enable ranked-choice voting", false),
@@ -132,7 +132,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		//       Leave the ""'s in the list so the position within the array can map directly to votes and indexes.
 		if r.FormValue(optionName) != "" {
 			prVal("Adding new poll option", optionName)
-			newOption := makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 255, "poll option")
+			newOption := makeTextField(optionName, fmt.Sprintf("Poll option %d:", i), "add option...", 50, 1, 50, "poll option")
 			form.addField(newOption)
 			pollOptions = append(pollOptions, newOption)
 		}

@@ -57,7 +57,7 @@
 
 								<tr valign="top">
 									<td class="title" style="padding-left: 5px;">
-										<span>
+										<span style="max-width: 100%; word-break: break-word;">
 											<a href="{{$article.Url}}" target="_blank" style="font-size: 22px;" data-toggle="tooltip" data-placement="top" title="Read the article">
 												{{$article.Title}}
 												{{ if not $article.Host }}
@@ -72,7 +72,9 @@
 									<tr><td class="spacer" style="height:5px"></td></tr>
 								{{- end }}
 
-								{{ template "PollInlineForm" $article }}
+								<tr><td>
+									{{ template "PollInlineForm" $article }}
+								</td></tr>
 
 								<tr>
 									<td class="subtext" style="width: 100%; padding-left: 5px; font-size: 20px;">
@@ -111,8 +113,9 @@
 											<a href="/article/?postId={{$article.Id}}" target="_blank" style="cursor:pointer; height: 100%;">
 												<img
 													src="{{$article.UrlToThumbnail}}"
-													width="160"
-												  {{- if not $article.IsPoll }}
+												  {{- if $article.IsPoll }}
+												    width="120/*80*/"
+												  {{- else }}
 												    width="160"
 													style="visibility: hidden;"
 												  {{- end -}}
@@ -135,13 +138,15 @@
 													<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article">
 														<div style="
 															font-size:20px;
+															max-width: 100%;
 														  {{if $article.IsPoll}}
 														    min-height: 32px;
 														  {{else}}
 														    min-height: 54px;
-														  {{end}} 
+														  {{end}}
 														    max-height: 92px;
-														    overflow: hidden;
+														    /*overflow: hidden;*/
+														    word-break: break-word;
 														    padding-right: 4px;
 														">
 															{{/*$article.NumLines*/}}
@@ -161,9 +166,7 @@
 														</a>
 													</span>
 												{{end}}
-												<table width="100%">
-													{{ template "PollInlineForm" $article }}
-												</table>
+												{{ template "PollInlineForm" $article }}
 											</div>
 										</td>
 									</tr>

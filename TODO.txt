@@ -10,85 +10,102 @@ v Done
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
+POLLS:
+Y cap option maxlength to somethig reasonable, like 30, when creating polls. - Already capped at 50, which seems reasonable.
+
+- Break word by width=50% if any option len > 20
+
+Y make polls not inline for clarity (one per line) - tried and too much space.  Added padding instead.
+
+- text field for Other option
+
+- "More options..." as link for more options
+
+X Improve spacing and clarity of polls on /news
+
+X fix weird wrapping issues with long titles and poll items (which Ryan was encountering too)
+
 Importance
 v
   Difficulty
   v
+A 3 - ++ "..." for too many options for poll
+
+A 2 - ++ "..." for items that are too long, when viewing results
+
+A 2 - article - add back nav arrow
+           
+A 2 - Add poll creation explanations
+
+X A 3 - See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
+
+A 5 - Need ability to add new option when voting
+
+DEADLINE Fri July 18
+
+B 2 - remove stretching from Mozilla nonheadline article news post
+
+B 2 - space out up/down buttons in /article
+
 B 3 - deduce title for link sharing
 
 B 3 - incr voting + comment power * 10 for now
 
 B 3 - leave comment prompt after viewing article
 
-A 3 - ++ "..." for too many options for poll
-
-A 2 - ++ "..." for items that are too long, when viewing results
-
-B 5 - Add more news API's
-
-C 5 - why so many missing images?
-
-B 5 - privacy alias'
-  
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
-A 2 - article - add back nav arrow
-           
-A 2 - Add poll creation explanations
-              
-B 5 - ability to delete posts, comments
-
-B 8 - ability to update posts, comments
-
-C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
-
-C 2 - add Create your own poll or news post on the left bottom of each news cat
-
-A 3 - See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
-
-B 2 - remove stretching from Mozilla nonheadline article news post
-
-B 2 - space out up/down buttons in /article
+B 5 - Add more news API's
 
 B 5 - "POLL: How concerned are you about the Coronavirus?" - 2nd poll of the same one (u news) not working
 
 B 8 - Add "About" section - or implememnt simple blog first?
 
-A 5 - Need ability to add new option when voting
+B 5 - privacy alias'
+              
+B 5 - ability to delete posts, comments
+
+B 8 - ability to update posts, comments
 
 B 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
+  
+B 8 - https  
 
+B 5 - why you voted comment
+  
+B 5 - click on news source / user icon to see their news articles / posts
+
+B 3 - share w a few > fr' + fam
+
+B 2 - hard to hit bottommost "more..." on /news
+
+B 2 - only show news posts w/ thumbnails
 
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
 
-B 3  - share w a few > fr' + fam
-  
-B 5  - https  
+C 8 - Change between alias and real name depending on a post's (or comment's) privacy settings.
 
-C   - c Univ' - prog intern' + phys' prof'
+C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
 
-  - why you voted comment
-  
-- click on news source / user icon to see their news articles / posts
+C 2 - add Create your own poll or news post on the left bottom of each news cat
 
-  + same for news cat'
+C 5 - why so many missing images?
 
-  - Send verification email... user doesn't get created until email gets verified.
-    Verify email and set emailVerified=True when email is verified
+C 8 + ability to message other users or write on a news source' wall
 
-  + ability to message them or write on a news source' wall
+C 13 - notifications
 
   - Enable DDOS prevention somehow
   
   - Allow user to create simple, plaintext Blog (with image insertion for body or just thumbnail).
 
-  
+  -   Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.  Can prompt for logging in as well.
 
   - Email system.  Needs to:
   
-A 5  =   Fix email - Emailed DO tech support.
+B 5  =   Fix email - Emailed DO tech support.
 
   -   Implement Email verification.
 
@@ -98,8 +115,12 @@ A 5  =   Fix email - Emailed DO tech support.
  
   -   Remember previous page or close form upon success, and/or back tri buttons.
 
- -        Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.  Can prompt for logging in as well.
  
+  -   Send verification email... user doesn't get created until email gets verified.
+      Verify email and set emailVerified=True when email is verified
+
+C   - c Univ' - prog intern' + phys' prof'
+
 
 MED PRIORITY (for test with 100 friends):
 
@@ -211,8 +232,6 @@ SUPER-LOW PRIORITY (100k)
 
 
 POSTPONED FEATURES:
-
-- Change between alias and real name depending on a post's (or comment's) privacy settings.
 
 - Docker (50% implemented, but turned out to be pain in the ass).
 

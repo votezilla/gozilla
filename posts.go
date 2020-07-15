@@ -246,15 +246,15 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &numComments, &thumbnailStatus, &source,
 							&voteTally, &orderBy))
 		}
-		prVal("id", id)
-		prVal("author", author)
-		prVal("title", title)
+		//prVal("id", id)
+		//prVal("author", author)
+		//prVal("title", title)
 		//prVal("description", description)
 		//prVal("linkUrl", linkUrl)
 		//prVal("urlToImage", urlToImage)
-		prVal("publishedAt", publishedAt)
+		//prVal("publishedAt", publishedAt)
 		//prVal("newsSourceId", newsSourceId)
-		prVal("category", category)
+		//prVal("category", category)
 		//prVal("language", language)
 		//prVal("country", country)
 		//prVal("pollOptionJson", pollOptionJson)
@@ -263,7 +263,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		//prVal("voteTally", voteTally)
 		//prVal("numComments", numComments)
 		//prVal("thumbnailStatus", thumbnailStatus)
-		prVal("source", source)
+		//prVal("source", source)
 
 		// Parse the hostname.  TODO: parse away the "www."
 		host := ""
@@ -348,7 +348,6 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			ThumbnailStatus:thumbnailStatus,
 		}
 
-
 		// Handle polls.
 		if len(pollOptionJson) > 0 {
 			newArticle.IsPoll 		  = true
@@ -371,7 +370,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			//newArticle.UrlToImage 	  = fmt.Sprintf("/static/ballotboxes/%d.jpg", rand.Intn(17)) // Pick a random ballotbox image.
 			//newArticle.UrlToThumbnail = newArticle.UrlToImage
 			newArticle.UrlToImage 	  = "/static/ballotboxes/ballotbox 3dinos.jpg"
-			newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 2,
+			newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 1,//2,
 												    "/static/ballotboxes/ballotbox 3dinos small.jpg",
 													"/static/ballotboxes/ballotbox 3dinos small 160x180.jpg")
 
@@ -380,7 +379,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			newArticle.Url = fmt.Sprintf("/article/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
 
 			newArticle.NumLines = numLinesApprox
-		} else {
+		} else { // Handle non-polls.
 			numCharsApprox := len(newArticle.Title)
 
 			numLinesApprox := ceil_div(numCharsApprox, kApproxCharsPerLine)
@@ -417,7 +416,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	check(rows.Err())
 	rows.Close()
 
-	prVal("len(articles)", len(articles))
+	//prVal("len(articles)", len(articles))
 
 	return articles
 }

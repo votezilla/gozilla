@@ -64,9 +64,9 @@ func minMaxLengthValidator(minLength, maxLength int, fieldNameForErrors string) 
 		length := len(value)
 
 		if length < minLength {
-			return false, fmt.Sprintf("Ensure %s has at least %v characters", fieldNameForErrors, minLength)
+			return false, fmt.Sprintf("Ensure %s has at least %v characters.  (It currently has %v characters.)", fieldNameForErrors, minLength, length)
 		} else if length > maxLength {
-			return false, fmt.Sprintf("Ensure %s has at most %v characters", fieldNameForErrors, maxLength)
+			return false, fmt.Sprintf("Ensure %s has at most %v characters.  (It currently has %v characters.)", fieldNameForErrors, maxLength, length)
 		} else {
 			return true, ""
 		}

@@ -184,9 +184,17 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1)}
 
 .submit { cursor:pointer; }
-.vote { line-height: 1.1; cursor: pointer; font-size: 20px; } /* A voting list item or submit button. */
-.rankedVote { line-height: 1.1; width: 25px; padding: 0px 5px; }
-.rankedVoteLabel { line-height: 1.1; }
+.vote {  /* A voting list item or submit button. */
+	line-height: 1.1;
+	cursor: pointer;
+	font-size: 20px;
+	padding-right: .5rem;
+	padding-top: .1rem;
+	padding-bottom: .1rem;
+	word-break: break-word;
+}
+.voteLabel { width: 500px; word-wrap: break-word; }
+.rankedVote { width: 30px; padding: 0px 5px; }
 .rankedVoteIntro { font-style: italic; }
 
 textarea { font-family:monospace; color:#000000; }

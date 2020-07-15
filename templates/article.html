@@ -38,7 +38,7 @@
 	  border-right:10px solid blue;
 	}
 	</style>
-	<div class="arrow-left"></div> BACK TO WHATEVER
+	<div class="arrow-left"></div> {{$article.Category}}
 	<a href="{{$article.Url}}" target="_blank" class="storylink">
 		<img src="{{$article.UrlToImage}}" width="100%">
 	</a>
@@ -69,10 +69,14 @@
 		<tr valign="top">
 			<td style="padding-left: 15px; padding-top: 10px;">
 				{{$article.Description}}
-				<br>
-				<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">Continue reading...</a>
+				{{ if not $article.IsPoll }}
+					<br>
+					<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">Continue reading...</a>
+				{{end}}
 			</td>
 		</tr>
+
+		{{ template "PollForm" $article }}
 
 		<tr>
 			<td class="subtext" style="width: 100%; padding-left: 5px; padding-top: 10px">
@@ -85,7 +89,7 @@
 			</td>
 		</tr>
 
-		{{ template "PollForm" $article }}
+
 
 		<tr class="spacer" style="height:5px"></tr>
 	</table>

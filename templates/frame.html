@@ -484,23 +484,25 @@ $(function () {
 	{{- if $article.IsPoll -}}
 		{{- $poll := $article.PollOptionData }}
 		{{ if $poll.RankedChoiceVoting }}
-			<tr valign="top">
-				<td style="width: 100%; padding-left: 5px;">
-				<i>Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</i>
-				</td>
-			</tr>
+			<div>
+				<div style="width: 100%; padding-left: 5px;">
+					<i>Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</i>
+				</div>
+			</div>
 		{{ end }}
-		<tr valign="top">
-			<td style="width: 100%; padding-left: 5px;">
-				<table width="100%">
-					<tr>
-						<td align="left">
+		<div valign="top">
+			<div style="width: 100%; padding-left: 5px;">
+				<div width="100%">
+					<div>
+						<div align="left">
 							{{ range $o, $option := $poll.Options }}
 								{{ if $poll.RankedChoiceVoting }}
-									<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
-									<label class="rankedVoteLabel">{{$option}}</label>
-								{{ else if $poll.CanSelectMultipleOptions }}
 									<label class="vote">
+										<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
+										{{$option}}
+									</label>
+								{{ else if $poll.CanSelectMultipleOptions }}
+									<label class="vote */voteLabel fixes labels but overlaps other news articles!*/">
 										<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
 											{{$option}}
 									</label>
@@ -511,16 +513,18 @@ $(function () {
 										{{$option}}
 									</label>
 								{{ end }}
+								<br>
 							{{ end }}
 
 							<span style="padding-left: 5px;">
 								<button type="submit" class="btn btn-vote btn-sm" {{template "VoteOnPollHandler" $article}}>Vote!</button>
 							</span>
-						</td>
-					</tr>
-				</table>
-			</td>
-		</tr>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 	{{ end }}
 {{ end }}
 
