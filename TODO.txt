@@ -25,6 +25,8 @@ X Improve spacing and clarity of polls on /news
 
 X fix weird wrapping issues with long titles and poll items (which Ryan was encountering too)
 
+X - fixed link to home from top header and "votezilla" logo.
+
 Importance
 v
   Difficulty
