@@ -127,8 +127,9 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		query = newsPostQuery
 	} else if onlyPolls {
 		query = pollCatQuery
-	} else if articlesPerCategory > 0 {
-		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery, pollCatQuery}, "\nUNION ALL\n")
+	// Removing this since pollCatQuery alongside pollPostQuery causes duplicate polls, which causes voting bugs!
+	//} else if articlesPerCategory > 0 {
+	//	query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery, pollCatQuery}, "\nUNION ALL\n")
 	} else {
 		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	}
@@ -215,6 +216,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	}
 
 	query += `;`
+
+	checkForDupId := map[int64]bool{}
 
 	rows := DbQuery(query)
 	for rows.Next() {
@@ -321,8 +324,6 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			category = "other"
 		}
 
-		prVal(">>category", category)
-
 		// Set the article information.
 		newArticle := Article{
 			Id:				id,
@@ -350,6 +351,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 		// Handle polls.
 		if len(pollOptionJson) > 0 {
+			prf("pollId %d category %s", newArticle.Id, category)
+
 			newArticle.IsPoll 		  = true
 			newArticle.Title 		  = "POLL: " + newArticle.Title
 
@@ -411,11 +414,17 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			}
 		}
 
+		// Check for articles with duplicate id's.  When polls have duplicate id's, it causes voting bugs!!!
+		_, found = checkForDupId[id]
+		assertMsg(!found, fmt.Sprintf("Found post with duplicate id: %d", id))
+		checkForDupId[id] = true
+
 		articles = append(articles, newArticle)
 	}
 	check(rows.Err())
 	rows.Close()
 
+	prVal("checkForDupId", checkForDupId)
 	//prVal("len(articles)", len(articles))
 
 	return articles

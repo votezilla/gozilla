@@ -486,6 +486,7 @@ $(function () {
 {{ define "PollInlineForm" }}
 	{{- $article := . -}}
 	{{- if $article.IsPoll -}}
+		{{/*$article.Id*/}}
 		{{- $poll := $article.PollOptionData }}
 		{{ if $poll.RankedChoiceVoting }}
 			<div>
@@ -506,7 +507,7 @@ $(function () {
 										{{$option}}
 									</label>
 								{{ else if $poll.CanSelectMultipleOptions }}
-									<label class="vote */voteLabel fixes labels but overlaps other news articles!*/">
+									<label class="vote /*voteLabel fixes labels but overlaps other news articles!*/">
 										<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
 											{{$option}}
 									</label>

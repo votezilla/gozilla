@@ -418,7 +418,7 @@ func NewsService() {
 					sqlStr = strings.TrimSuffix(sqlStr, ",")
 
 					// Do not insert duplicate news articles.
-					sqlStr += " ON CONFLICT (PublishedAt, Title) DO NOTHING"
+					sqlStr += " ON CONFLICT (LinkURL) DO NOTHING"
 
 					sqlStr += ";"
 

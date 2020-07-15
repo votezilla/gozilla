@@ -69,6 +69,7 @@ CREATE TABLE vz.NewsPost (
 
     UNIQUE(PublishedAt, Title)           -- This constraint prevents duplicate articles News API updates.
 ) INHERITS (vz.LinkPost);
+ALTER TABLE vz.newspost ADD UNIQUE(LinkURL);
 
 CREATE TABLE vz.BlogPost (
     Blog            TEXT        -- The actual blog article.  Text vs byte?  In this case, the description would give a preview or short summary in the zoomed in view.

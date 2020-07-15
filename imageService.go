@@ -109,10 +109,10 @@ const (
 	                            //       AND                          b - 160 x 150
 	image_DownsampleError	= -1
 
-	genThumbPass_PollPost	= 0
-	genThumbPass_LinkPost	= 1
-	genThumbPass_NewsPost	= 2
-	NUM_GEN_THUMBS_PASSES   = 3
+	//genThumbPass_PollPost	= 0 // Don't need, because all polls right now use the default dino jpg.
+	genThumbPass_LinkPost	= 0
+	genThumbPass_NewsPost	= 1
+	NUM_GEN_THUMBS_PASSES   = 2
 
 	kImageBatchSize = 5		// Number of images to convert to thumbnails per batch
 )
@@ -482,11 +482,11 @@ func ImageService() {
 
 	queries := [NUM_GEN_THUMBS_PASSES]string {
 
-		`SELECT UrlToImage, Id
-		 FROM $$PollPost
-		 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
-		 ORDER BY Created DESC
-		 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
+	//	`SELECT UrlToImage, Id
+	//	 FROM $$PollPost
+	//	 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
+	//	 ORDER BY Created DESC
+	//	 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
 
 		`SELECT UrlToImage, Id
 		 FROM $$LinkPost
@@ -535,13 +535,13 @@ func ImageService() {
 				select {
 					case downsampleResult := <-c: // TODO: this code can be moved to downsamplePostImage(), which then all collectively can become the callback function.
 						switch pass {
-							case genThumbPass_PollPost:
-								DbExec(
-									`UPDATE $$PollPost
-									 SET ThumbnailStatus = $1
-									 WHERE Id = $2::bigint`,
-									ternary_int(downsampleResult.err == nil, image_DownsampledV2, image_DownsampleError),
-									downsampleResult.postId)
+							//case genThumbPass_PollPost:
+							//	DbExec(
+							//		`UPDATE $$PollPost
+							//		 SET ThumbnailStatus = $1
+							//		 WHERE Id = $2::bigint`,
+							//		ternary_int(downsampleResult.err == nil, image_DownsampledV2, image_DownsampleError),
+							//		downsampleResult.postId)
 							case genThumbPass_LinkPost:
 								DbExec(
 									`UPDATE $$LinkPost
@@ -575,12 +575,12 @@ func ImageService() {
 							prf("Removing timed out id %d url %s", id, url)
 
 							switch pass {
-								case genThumbPass_PollPost:
-									DbExec(
-										`UPDATE $$PollPost
-										 SET ThumbnailStatus = -1
-										 WHERE Id = $1::bigint`,
-										id)
+								//case genThumbPass_PollPost:
+								//	DbExec(
+								//		`UPDATE $$PollPost
+								//		 SET ThumbnailStatus = -1
+								//		 WHERE Id = $1::bigint`,
+								//		id)
 								case genThumbPass_LinkPost:
 									DbExec(
 										`UPDATE $$LinkPost
