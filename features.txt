@@ -88,3 +88,41 @@ X from /news, hovering over any poll choice highlights all of them
 X fix login crash asserts
 
 X Tweak article cat colors
+
+X fixed link to home from top header and "votezilla" logo.
+
+X fixed weird voting issue (it was due to duplicate polls with same id in /news.)
+
+X upon poll creation error, n>=3 text inputs do not display with nuField format.
+
+X fixed duplicate news posts in DB bug
+
+X article - add back nav arrow
+
+X made /article link for poll to go to viewPollResults2 if you already voted.
+
+X Capped option maxlength to somethig reasonable, like 50, when creating polls.
+
+X upon poll creation error, n>=3 text inputs do not display with nuField format.
+
+x make polls not inline for clarity (one per line) - tried and too much space.  
+
+X Add padding to the poll options
+
+X Improve spacing and clarity of polls on /news
+
+X fix weird wrapping issues with long titles and poll items (which Ryan was encountering too)
+
+X fixed link to home from top header and "votezilla" logo.
+
+X fixed weird voting issue
+
+X fixed duplicate news posts in DB bug
+
+X made /article link for poll to go to viewPollResults2 if you already voted.
+
+X A 2 - article - add back nav arrow
+
+X A 3 - See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
+
+X removed polls from processing in imageService, because not needed.

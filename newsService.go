@@ -419,6 +419,7 @@ func NewsService() {
 
 					// Do not insert duplicate news articles.
 					sqlStr += " ON CONFLICT (LinkURL) DO NOTHING"
+					sqlStr += " ON CONFLICT (Title, NewsSourceId) DO NOTHING"
 
 					sqlStr += ";"
 

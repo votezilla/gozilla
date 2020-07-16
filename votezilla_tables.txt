@@ -70,6 +70,10 @@ CREATE TABLE vz.NewsPost (
     UNIQUE(PublishedAt, Title)           -- This constraint prevents duplicate articles News API updates.
 ) INHERITS (vz.LinkPost);
 ALTER TABLE vz.newspost ADD UNIQUE(LinkURL);
+ALTER TABLE vz.newspost ADD UNIQUE(Title, NewsSourceId);
+
+-- select a.newssourceid, a.title, a.linkurl, a.publishedat, a.created from vz.newspost a join vz.newspost b on a.title = b.title and a.newssourceid = b.newssourceid and a.id < b.id order by a.title, a.title, a.id;
+-- delete from vz.newspost where id in (select a.id from vz.newspost a join vz.newspost b on a.title = b.title and a.newssourceid = b.newssourceid and a.id < b.id);
 
 CREATE TABLE vz.BlogPost (
     Blog            TEXT        -- The actual blog article.  Text vs byte?  In this case, the description would give a preview or short summary in the zoomed in view.
