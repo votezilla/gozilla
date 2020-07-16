@@ -351,7 +351,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 		// Handle polls.
 		if len(pollOptionJson) > 0 {
-			prf("pollId %d category %s", newArticle.Id, category)
+			//prf("pollId %d category %s", newArticle.Id, category)
 
 			newArticle.IsPoll 		  = true
 			newArticle.Title 		  = "POLL: " + newArticle.Title
@@ -368,7 +368,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			}
 			numLinesApprox += ceil_div(numCharsApprox, kApproxCharsPerLine)
 
-			prf("numCharsApprox: %d numLinesApprox: %d", numCharsApprox, numLinesApprox)
+			//prf("numCharsApprox: %d numLinesApprox: %d", numCharsApprox, numLinesApprox)
 
 			//newArticle.UrlToImage 	  = fmt.Sprintf("/static/ballotboxes/%d.jpg", rand.Intn(17)) // Pick a random ballotbox image.
 			//newArticle.UrlToThumbnail = newArticle.UrlToImage
@@ -379,7 +379,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 			//prVal("newArticle.PollOptionData", newArticle.PollOptionData)
 
-			newArticle.Url = fmt.Sprintf("/article/?postId=%d", id) // "/comments" is synonymous with clicking on a post (or poll) to see more info.
+			newArticle.Url = fmt.Sprintf("/article/?postId=%d", id)
+			//newArticle.Url = fmt.Sprintf("/viewPollResults2/?postId=%d", id)  // This would take the user to directly viewing the results.  This is a design problem to figure out later.
 
 			newArticle.NumLines = numLinesApprox
 		} else { // Handle non-polls.

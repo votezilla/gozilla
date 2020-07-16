@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -90,6 +91,17 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	// Suggested articles for further reading - on the sidebar.
 	moreArticles := []Article{}
 	if article.IsPoll {
+		reqChangeVote := parseUrlParam(r, "changeVote")
+		prVal("reqChangeVote", reqChangeVote)
+		// Don't skip if this link is a request to change the vote
+		if reqChangeVote == "" {
+			// Check if user has already voted in this poll, and if so, take them to view the poll results.
+			if DbExists("SELECT * FROM $$PollVote WHERE UserId=$1 AND PollId=$2", userId, postId) {
+				http.Redirect(w, r, fmt.Sprintf("/viewPollResults2/?postId=%d", postId), http.StatusSeeOther)
+				return
+			}
+		}
+
 		moreArticles = fetchSuggestedPolls(userId, postId)
 	} else {
 		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId, userId, postId)

@@ -5,27 +5,56 @@ v Done
           v Hopeful # Days
               v Rough Due Date
                   v Actual # Days
-                  
 
+JUST FIXED:
+X fixed link to home from top header and "votezilla" logo.
 
-HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
+X fixed weird voting issue (it was due to duplicate polls with same id in /news.)
 
-POLLS:
-Y cap option maxlength to somethig reasonable, like 30, when creating polls. - Already capped at 50, which seems reasonable.
+X upon poll creation error, n>=3 text inputs do not display with nuField format.
 
-- Break word by width=50% if any option len > 20
+X fixed duplicate news posts in DB bug
 
-Y make polls not inline for clarity (one per line) - tried and too much space.  Added padding instead.
+X article - add back nav arrow
 
-- text field for Other option
+X made /article link for poll to go to viewPollResults2 if you already voted.
 
-- "More options..." as link for more options
+X Capped option maxlength to somethig reasonable, like 50, when creating polls.
+
+X upon poll creation error, n>=3 text inputs do not display with nuField format.
+
+x make polls not inline for clarity (one per line) - tried and too much space.  
+
+X Add padding to the poll options
 
 X Improve spacing and clarity of polls on /news
 
 X fix weird wrapping issues with long titles and poll items (which Ryan was encountering too)
 
-X - fixed link to home from top header and "votezilla" logo.
+X fixed link to home from top header and "votezilla" logo.
+
+X fixed weird voting issue
+
+X fixed duplicate news posts in DB bug
+
+X made /article link for poll to go to viewPollResults2 if you already voted.
+
+X A 2 - article - add back nav arrow
+
+X A 3 - See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
+
+X removed polls from processing in imageService, because not needed.
+
+
+HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
+
+POLLS:
+
+- Break word by width=50% if any option len > 20
+
+- text field for Other option
+
+- "More options..." as link for more options
 
 Importance
 v
@@ -35,11 +64,9 @@ A 3 - ++ "..." for too many options for poll
 
 A 2 - ++ "..." for items that are too long, when viewing results
 
-A 2 - article - add back nav arrow
+A 2 - category - add back nav arrow to 'news' or 'home'
            
 A 2 - Add poll creation explanations
-
-X A 3 - See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
 
 A 5 - Need ability to add new option when voting
 
@@ -83,6 +110,8 @@ B 2 - hard to hit bottommost "more..." on /news
 
 B 2 - only show news posts w/ thumbnails
 
+B 8 - collapse in columnwise the articles, when viewing a single category or polls.
+
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
@@ -122,6 +151,9 @@ B 5  =   Fix email - Emailed DO tech support.
       Verify email and set emailVerified=True when email is verified
 
 C   - c Univ' - prog intern' + phys' prof'
+
+
+
 
 
 MED PRIORITY (for test with 100 friends):

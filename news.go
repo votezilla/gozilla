@@ -31,7 +31,7 @@ type CategoryInfo struct {
 const (
 	kNumCols = 2
 	kRowsPerCategory = 4
-	kMaxArticles = 60
+	kMaxArticles = 250 //120 //60
 	kMaxTitleLength = 122
 
 	kSubmittedPosts = "created posts"
@@ -57,8 +57,8 @@ var (
 //			"other",
 		},
 		HeaderColors : map[string]string{
-			"news" 			 	: "#68fc48", //#68fc68", //#7ff4f4",    //"#8ff",
 			"polls"				: "#4482ff", //"#fe8",
+			"news" 			 	: "#68fc48", //#68fc68", //#7ff4f4",    //"#8ff",
 			"world news"		: "#ea3ce7",
 			"business" 			: "#8e8",
 			"sports" 			: "#88f",
@@ -68,8 +68,8 @@ var (
 //			"other"				: "#4af392",
 		},
 		CategorySelect : [][2]string{
-			{"news", 			"news"},
 			{"polls", 			"polls"},
+			{"news", 			"news"},
 			{"world news",		"world news"},
 			{"business",		"business"},
 			{"sports",			"sports"},
@@ -392,6 +392,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	} else if reqCategory == "polls" {
 		// Fetch only polls.
 		articles = fetchPolls(userId, kMaxArticles)
+		prVal("len(articles)", len(articles))
 	} else {
 		// Fetch articles in requested category
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)

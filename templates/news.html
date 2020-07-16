@@ -2,7 +2,6 @@
            But wait, does this work on mobile?  Have to get another phone to find out.. :?  */}}
 
 {{define "content"}}
-
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		{{ if ne $articleGroup.Category "" }}
 		<a href="/news/?category={{$articleGroup.Category}}" target="_blank" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
@@ -65,8 +64,19 @@
 												{{ end }}
 											</a>
 										</span>
+										{{if $article.Host}}
+											<br>
+											<span>
+												<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">
+													{{$article.Host}}
+													<img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
+												</a>
+											</span>
+										{{end}}
 									</td>
 								</tr>
+
+
 
 								{{- if $article.IsPoll }}
 									<tr><td class="spacer" style="height:5px"></td></tr>
@@ -144,7 +154,7 @@
 														  {{else}}
 														    min-height: 54px;
 														  {{end}}
-														    max-height: 92px;
+														    /*max-height: 92px;*/
 														    /*overflow: hidden;*/
 														    word-break: break-word;
 														    padding-right: 4px;
@@ -162,10 +172,12 @@
 												{{if $article.Host}}
 													<span>
 														<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">
-															{{$article.Host}} <img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
+															{{$article.Host}}
+															<img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
 														</a>
 													</span>
 												{{end}}
+
 												{{ template "PollInlineForm" $article }}
 											</div>
 										</td>

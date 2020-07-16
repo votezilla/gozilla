@@ -590,3 +590,11 @@ $(function () {
 	{{ end }}
 {{ end }}
 
+{{ define "BackToCategory" }}
+	<span class="pagetop" style="color: #0072ff; font-size: 20px;">
+		<a href="/news/?category={{.}}">
+			<i class="fa fa-caret-left" style="font-size:36px; vertical-align:middle;"></i>
+			{{.}}
+		</a>
+	</span>
+{{ end }}

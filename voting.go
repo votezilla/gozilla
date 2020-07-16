@@ -215,8 +215,12 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 			}
 
 			prf("Round %d results:", round)
-			for i, pollTallyResult := range pollTallyResults {
-				prf("\tOption %d\tCount %d\tPercentage %f", i, pollTallyResult.Count, pollTallyResult.Percentage)
+			for option, pollTallyResult := range pollTallyResults {
+				if contains_int64(eliminatedVoteOptions, int64(option)) {
+					continue
+				}
+
+				prf("\tOption %d\tCount %d\tPercentage %f", option, pollTallyResult.Count, pollTallyResult.Percentage)
 			}
 
 			// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
@@ -310,35 +314,54 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 	check(err)
 	prVal("decodedVoteData", decodedVoteData)
 
-	voteData := strings.Split(decodedVoteData, ",")
-
 	reqPostId := parseUrlParam(r, "postId")
 
 	postId, err := strconv.ParseInt(reqPostId, 10, 64) // Convert from string to int64.
 	if err != nil {
+		pr("error 1")
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
 		return
 	}
 
 	userId, username := GetSessionInfo(w, r)
-
-	// TODO_REFACTOR: unify articles and posts in database.
 	article, err := fetchArticle(postId, userId)
 	if err != nil {
+		pr("error 2")
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
 		return
 	}
 
+	var voteData []string
+	userVoteString := "" // userVoteString is a textual representation the user's vote(s)."
+	if reqVoteData == "" { // User just wants to see the poll results.
+		// Don't need to do anything here.
+		pr("reqVoteData == ''")
+
+		voteData = make([]string, len(article.PollOptionData.Options))
+	} else  {              // User got here by voting
+		pr("reqVoteData != ''")
+
+		voteData = strings.Split(decodedVoteData, ",")
+
+		for i, option := range(article.PollOptionData.Options) {
+			userVoteString += ternary_str(voteData[i] != "",  // if the vote was checked:
+				ternary_str(userVoteString != "", ", ", "") + //   concat with ", "
+					option,                                   //   all votes that were checked
+					"")
+		}
+	}
+
+	prVal("len(voteData)", len(voteData))
+	prVal("len(article.PollOptionData.Options)", len(article.PollOptionData.Options))
+	prVal("voteData", voteData)
+	prVal("article.PollOptionData.Options", article.PollOptionData.Options)
+
+
+
 	// Tally the votes
 	pollTallyResults := calcPollTally(postId, article.PollOptionData)
 
-	userVoteString := "" // userVoteString is a textual representation the user's vote(s)."
-	for i, option := range(article.PollOptionData.Options) {
-		userVoteString += ternary_str(voteData[i] != "",  // if the vote was checked:
-			ternary_str(userVoteString != "", ", ", "") + //   concat with ", "
-				option,                                   //   all votes that were checked
-				"")
-	}
+
 
 	// Suggested polls for further voting - on the sidebar.
 	polls := fetchSuggestedPolls(userId, postId)
