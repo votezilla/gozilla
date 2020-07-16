@@ -31,7 +31,7 @@ type CategoryInfo struct {
 const (
 	kNumCols = 2
 	kRowsPerCategory = 4
-	kMaxArticles = 250 //120 //60
+	kMaxArticles = 100 // 250 //120 //60
 	kMaxTitleLength = 122
 
 	kSubmittedPosts = "created posts"

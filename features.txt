@@ -128,3 +128,11 @@ X A 3 - See phone screenshot of weird science articles - 2367w old nat geo artic
 X removed polls from processing in imageService, because not needed.
 
 X added unique constraint for vz.newspost on (title, newsourceid)
+
+Y 2 - ++ "..." for items that are too long, when viewing results (Don't need now, since I cap the length to 50)
+
+X A 3 - "More options..." for too many options for poll
+
+X A 2 - Add poll creation explanations
+
+X Fixed ON CONFLICT sql bug in newsServer.  (Verified working on server.)

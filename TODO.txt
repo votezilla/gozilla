@@ -1,20 +1,6 @@
-[Est - Rushed Est - Date I'd like to hit]
-
-v Done
-     v Est # Days
-          v Hopeful # Days
-              v Rough Due Date
-                  v Actual # Days
-
 JUST FIXED:
 
-Y 2 - ++ "..." for items that are too long, when viewing results (Don't need now, since I cap the length to 50)
 
-X A 3 - "More options..." for too many options for poll
-
-X A 2 - Add poll creation explanations
-
-X Fixed ON CONFLICT sql bug in newsServer.  (Verified working on server.)
 
 WORKING ON:
 
@@ -83,7 +69,7 @@ B 8 - collapse in columnwise the articles, when viewing a single category or pol
   
 B 8 - thumbnail appears to be clipped on the left, on mobile
 
-B 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?)
+B 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
 B 2 - add Create your own poll or news post on the left bottom of each news cat
 

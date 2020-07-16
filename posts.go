@@ -48,7 +48,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	   `SELECT Id,
 	   		   NewsSourceId AS Author,
 	   		   Title,
-	   		   Description,
+	   		   COALESCE(Description, '') AS Description,
 	   		   LinkUrl,
 	   		   COALESCE(UrlToImage, '') AS UrlToImage,
 	   		   COALESCE(PublishedAt, Created) AS PublishedAt,
