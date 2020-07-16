@@ -191,9 +191,9 @@ hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1
 	padding-right: .5rem;
 	padding-top: .1rem;
 	padding-bottom: .1rem;
+	padding-left: .2rem;
 	word-break: break-word;
 }
-.voteLabel { width: 500px; word-wrap: break-word; }
 .rankedVote { width: 30px; padding: 0px 5px; }
 .rankedVoteIntro { font-style: italic; }
 

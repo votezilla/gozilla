@@ -516,12 +516,12 @@ $(function () {
 											{{$option}}
 										</label>
 									{{ else if $poll.CanSelectMultipleOptions }}
-										<label class="vote /*voteLabel fixes labels but overlaps other news articles!*/">
+										<label class="vote">
 											<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
 												{{$option}}
 										</label>
 									{{ else }}
-										<label class="radio-inline vote" style="margin-bottom:0; cursor: pointer">
+										<label class="radio-inline vote" style="cursor: pointer">
 											<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
 												   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
 											{{$option}}
@@ -529,10 +529,11 @@ $(function () {
 									{{ end }}
 									<br>
 								{{ else if eq $o $maxOptions }}
-									<a href="{{$article.Url}}&changeVote=true" target="_blank" style="font-size: 18px; color: #0072ff;">
-										More options...
-									</a>
-									<br>
+									<label class="vote">
+										<a href="{{$article.Url}}&changeVote=true" target="_blank" style="font-size: 18px; color: #0072ff;">
+											More options...
+										</a>
+									</label>
 									<br>
 								{{ end }}
 							{{ end }}
