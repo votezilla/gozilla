@@ -7,28 +7,22 @@ v Done
                   v Actual # Days
 
 JUST FIXED:
-X added unique constraint for vz.newspost on (title, newsourceid)
+
+Y 2 - ++ "..." for items that are too long, when viewing results (Don't need now, since I cap the length to 50)
+
+X A 3 - "More options..." for too many options for poll
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
 POLLS:
 
-- Break word by width=50% if any option len > 20
-
-- text field for Other option
-
-- "More options..." as link for more options
 
 Importance
 v
   Difficulty
   v
-A 3 - ++ "..." for too many options for poll
-
-A 2 - ++ "..." for items that are too long, when viewing results
-
-A 2 - category - add back nav arrow to 'news' or 'home'
+A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
            
 A 2 - Add poll creation explanations
 
@@ -82,13 +76,15 @@ B 8 - collapse in columnwise the articles, when viewing a single category or pol
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
 
-C 8 - Change between alias and real name depending on a post's (or comment's) privacy settings.
-
-C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
+C 2 - Break word by width=50% if any option len > 20	
 
 C 2 - add Create your own poll or news post on the left bottom of each news cat
 
+C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
+
 C 5 - why so many missing images?
+
+C 8 - Change between alias and real name depending on a post's (or comment's) privacy settings.
 
 C 8 + ability to message other users or write on a news source' wall
 

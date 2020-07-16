@@ -485,6 +485,14 @@ $(function () {
 
 {{ define "PollInlineForm" }}
 	{{- $article := . -}}
+
+	{{- $maxOptions := 0 }}
+	{{- if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
+		{{- $maxOptions = 10 }}
+	{{- else }}
+		{{- $maxOptions = 3 }}
+	{{ end }}
+
 	{{- if $article.IsPoll -}}
 		{{/*$article.Id*/}}
 		{{- $poll := $article.PollOptionData }}
@@ -501,24 +509,32 @@ $(function () {
 					<div>
 						<div align="left">
 							{{ range $o, $option := $poll.Options }}
-								{{ if $poll.RankedChoiceVoting }}
-									<label class="vote">
-										<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
-										{{$option}}
-									</label>
-								{{ else if $poll.CanSelectMultipleOptions }}
-									<label class="vote /*voteLabel fixes labels but overlaps other news articles!*/">
-										<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
+								{{ if lt $o $maxOptions }}
+									{{ if $poll.RankedChoiceVoting }}
+										<label class="vote">
+											<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
 											{{$option}}
-									</label>
-								{{ else }}
-									<label class="radio-inline vote" style="margin-bottom:0; cursor: pointer">
-										<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
-											   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
-										{{$option}}
-									</label>
+										</label>
+									{{ else if $poll.CanSelectMultipleOptions }}
+										<label class="vote /*voteLabel fixes labels but overlaps other news articles!*/">
+											<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
+												{{$option}}
+										</label>
+									{{ else }}
+										<label class="radio-inline vote" style="margin-bottom:0; cursor: pointer">
+											<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+												   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
+											{{$option}}
+										</label>
+									{{ end }}
+									<br>
+								{{ else if eq $o $maxOptions }}
+									<a href="{{$article.Url}}&changeVote=true" target="_blank" style="font-size: 18px; color: #0072ff;">
+										More options...
+									</a>
+									<br>
+									<br>
 								{{ end }}
-								<br>
 							{{ end }}
 
 							<span style="padding-left: 5px;">

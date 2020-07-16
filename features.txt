@@ -126,3 +126,5 @@ X A 2 - article - add back nav arrow
 X A 3 - See phone screenshot of weird science articles - 2367w old nat geo article, then only new-scientist.  (so nat geo is bad timestamp and then sorted very far back in the Q.)
 
 X removed polls from processing in imageService, because not needed.
+
+X added unique constraint for vz.newspost on (title, newsourceid)
