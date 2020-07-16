@@ -326,9 +326,13 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 // Render a news template
 //
 //////////////////////////////////////////////////////////////////////////////
-func renderNews(w http.ResponseWriter, title string, username string, userId int64,
-				articleGroups []ArticleGroup, urlPath string, template string,
-				upvotes []int64, downvotes []int64, alertMessage string) {
+func renderNews(w http.ResponseWriter, 
+				title, username string, 
+				userId int64,
+				articleGroups []ArticleGroup, 
+				urlPath, template string,
+				upvotes, downvotes []int64, 
+				category, alertMessage string) {
 
 	pr("renderNews")
 	prVal("  username", username)
@@ -349,6 +353,7 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 		Username		string
 		UserId			int64
 		ArticleGroups	[]ArticleGroup
+		Category		string
 		NavMenu			[]string
 		UrlPath			string
 		UpVotes			[]int64
@@ -358,6 +363,7 @@ func renderNews(w http.ResponseWriter, title string, username string, userId int
 		Username:		username,
 		UserId:			userId,
 		ArticleGroups:	articleGroups,
+		Category:		category,
 		NavMenu:		navMenu,
 		UrlPath:		urlPath,
 		UpVotes:		upvotes,
@@ -383,6 +389,12 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	reqCategory		:= parseUrlParam(r, "category")
 	reqAlert		:= parseUrlParam(r, "alert")
 
+	_, foundCategory := newsCategoryInfo.HeaderColors[reqCategory]  // Ensure we have a valid category (to prevent SQL injection).
+	if !foundCategory {
+		reqAlert = "Invalid category; displaying all news posts"
+		reqCategory = ""
+	}
+
 	userId, username := GetSessionInfo(w, r)
 
 	var articles []Article
@@ -405,7 +417,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 //	pollArticleGroups := formatArticleGroups(articles, newsCategoryInfo, "polls", kNoHeadlines)
 //	articleGroups[0] = pollArticleGroups[0]  // Try copying the polls, as a test
 
-	renderNews(w, "News", username, userId, articleGroups, "news", kNews, upvotes, downvotes, reqAlert)
+	renderNews(w, "News", username, userId, articleGroups, "news", kNews, upvotes, downvotes, reqCategory, reqAlert)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -481,7 +493,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 
 	// Render the history just like we render the news.
-	renderNews(w, "History", username, userId, articleGroups, "history", kNews, upvotes, downvotes, reqAlert)
+	renderNews(w, "History", username, userId, articleGroups, "history", kNews, upvotes, downvotes, "", reqAlert)
 }
 
 

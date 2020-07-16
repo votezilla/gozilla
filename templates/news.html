@@ -4,19 +4,58 @@
 {{define "content"}}
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		{{ if ne $articleGroup.Category "" }}
-		<a href="/news/?category={{$articleGroup.Category}}" target="_blank" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
-			<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}}; padding: 0px; margin: 0px; margin-top: 4px;">
-				<div class="col-md-12 vz-col-md-12 text-uppercase">
-					<center>
-						<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 28px;">
-							<strong>
-									{{$articleGroup.Category}}
-							</strong>
-						</h5>
-					</center>
+			{{ if $.Category }} {{/* For a specified category, add back and close arrows */}}
+				<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}}; padding: 0px; margin: 0px; margin-top: 4px;">
+					<div class="col-md-12 vz-col-md-12b text-uppercase" style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 28px;">
+						<table width="100%"><tr>
+							<td align="left" style="width: 25%">
+								<span class="pagetop" style="font-size: 20px; margin-top: 1rem; margin-bottom: 1rem;">
+									<a href="/news" style="color: #003980; font-size: 20px;">
+									  <h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 18px;">
+										<i class="fa fa-caret-left" style="font-size:36px; vertical-align:middle;"></i>
+										HOME
+									  </h5>
+									</a>
+								</span>
+							</td>
+							<td align="center" style="width: auto;">
+								<a href="/news/?category={{$articleGroup.Category}}" target="_blank" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
+									<center>
+										<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 28px;">
+											<strong>
+													{{$articleGroup.Category}}
+											</strong>
+										</h5>
+									</center>
+								</a>
+							</td>
+							<td align="right" style="width: 25%">
+								<span class="pagetop" style="font-size: 20px; margin-top: 1rem; margin-bottom: 1rem;">
+									<a href="/news" style="color: #003980; font-size:28px; vertical-align:middle;" onclick="window.close();">
+									  <h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 18px;">
+									    <i class="fa fa-times" aria-hidden="true" style="font-size:36px; vertical-align:middle; "></i>
+									  </h5>
+									</a>
+								</span>
+							</td>
+						</tr></table>
+					</div>
 				</div>
-			</div>
-		</a>
+			{{ else }} {{/* for HOME, just the category */}}
+				<a href="/news/?category={{$articleGroup.Category}}" target="_blank" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
+					<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}}; padding: 0px; margin: 0px; margin-top: 4px; padding-top: 7px; padding-bottom: 7px;">
+						<div class="col-md-12 vz-col-md-12 text-uppercase">
+							<center>
+								<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 32px;">
+									<strong>
+											{{$articleGroup.Category}}
+									</strong>
+								</h5>
+							</center>
+						</div>
+					</div>
+				</a>
+			{{ end }}
 		{{ end }}
 		<div class="row vz-row" style="background-color: white">
 			{{ range $i, $articleCol := $articleGroup.Articles }}

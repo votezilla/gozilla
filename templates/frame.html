@@ -608,10 +608,24 @@ $(function () {
 {{ end }}
 
 {{ define "BackToCategory" }}
-	<span class="pagetop" style="color: #0072ff; font-size: 20px;">
-		<a href="/news/?category={{.}}">
-			<i class="fa fa-caret-left" style="font-size:36px; vertical-align:middle;"></i>
-			{{.}}
-		</a>
-	</span>
+	<table width="100%"><tr>
+		<td align="left" style="width: 10%">
+			<span class="pagetop" style="font-size: 20px; margin-top: 1rem; margin-bottom: 1rem;">
+				<a href="/news/?category={{.}}" style="color: #003980; font-size: 20px;">
+					<i class="fa fa-caret-left" style="font-size:36px; vertical-align:middle;"></i>
+					{{ . }}
+				</a>
+			</span>
+		</td>
+		<td align="right" style="width: 10%">
+			<span class="pagetop" style="font-size: 20px; margin-top: 1rem; margin-bottom: 1rem;">
+				<a style="color: #003980; font-size:28px; vertical-align:middle;" onclick="window.close();">
+				  <h5 style="color: #003980; margin: 5px;">
+					<i class="fa fa-times" aria-hidden="true" style="font-size:36px; vertical-align:middle; "></i>
+				  </h5>
+				</a>
+			</span>
+		</td>
+	</table>
 {{ end }}
+

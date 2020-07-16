@@ -1,14 +1,9 @@
 JUST FIXED:
 
+A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
 
 
 WORKING ON:
-
-A 1 - radio options need more vertical padding, for mobile
-
-A 1 - check poll options need more left padding, on mobile
-
-A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
@@ -25,8 +20,7 @@ A 2 - remove stretching from Mozilla nonheadline article news post
 
 A 2 - incr voting + comment power * 10 for now
 
-A 2  - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
-
+A 2 - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
 A 2 - space out up/down buttons in /article
 
 A 5 - Need ability to add new option when voting
@@ -38,8 +32,6 @@ B 5 - leave comment prompt after viewing article
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
 B 5 - Add more news API's
-
-B 5 - "POLL: How concerned are you about the Coronavirus?" - 2nd poll of the same one (u news) not working
 
 B 8 - Add "About" section - or implememnt simple blog first?
 
@@ -62,14 +54,6 @@ B 3 - share w a few > fr' + fam
 B 2 - hard to hit bottommost "more..." on /news
 
 B 2 - only show news posts w/ thumbnails?  (still show other types of posts)  (try db query to see what % this would eliminate.)
-
-B 8 - collapse in columnwise the articles, when viewing a single category or polls.
-
-  - Too many tabs open
-  
-B 8 - thumbnail appears to be clipped on the left, on mobile
-
-B 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
 B 2 - add Create your own poll or news post on the left bottom of each news cat
 
@@ -116,6 +100,13 @@ B 5  =   Fix email - Emailed DO tech support.
 
 C   - c Univ' - prog intern' + phys' prof'
 
+C 8 - collapse in columnwise the articles, when viewing a single category or polls.
+
+C 5 - Too many tabs open
+
+C 8 - thumbnail appears to be clipped on the left, on mobile
+
+C 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
 
 

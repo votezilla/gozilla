@@ -5,16 +5,15 @@ body { font-family:Verdana, Geneva, sans-serif; font-size: 18px; }
 	 margin-bottom:		0px 		!important;
 }
 
+
+#override .vz-container {
+	padding-left:		0px			!important;
+	padding-right:		0px			!important;
+}
+
 #override .vz-col-md-12 {
 	padding-left: 		0px			!important;
 	padding-right: 		0px			!important;
-}
-
-#override .vz-container {
-	/*margin-left:		0px			!important;
-	margin-right:		0px			!important;*/
-	padding-left:		0px			!important;
-	padding-right:		0px			!important;
 }
 
 #override .vz-row {
@@ -47,6 +46,10 @@ body { font-family:Verdana, Geneva, sans-serif; font-size: 18px; }
 	#votezilla_title {
 		display:none;
 	}
+	#override .vz-col-md-12b {
+		padding-left: 		0px			!important;
+		padding-right: 		0px			!important;
+	}
 }
 @media screen and (min-width:750px) { /* wide screens - desktop */
 	#override .vz-col-md-6-right {
@@ -54,6 +57,10 @@ body { font-family:Verdana, Geneva, sans-serif; font-size: 18px; }
 		padding-right:	0px			!important;
 		margin-left:	0px			!important;
 		margin-right:	0px			!important;
+	}
+	#override .vz-col-md-12b {
+		padding-left: 		0px			!important;
+		padding-right: 		15px		!important;
 	}
 }
 
