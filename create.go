@@ -140,51 +140,60 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 
 	prVal("r.Method", r.Method)
 	prVal("r.PostForm", r.PostForm)
-	prVal("form", form)
+	//prVal("form", form)
 
 	if r.Method == "POST" && form.validateData(r) {
-		prVal("Valid form!!", form)
+		pr("Valid form!")
 
-		pr("Inserting new PollPost into database.")
+		prVal("form.val(kCanSelectMultipleOptions)", form.val(kCanSelectMultipleOptions))
+		prVal("form.val(kRankedChoiceVoting)", form.val(kRankedChoiceVoting))
 
-		// Serialize all of the poll options and flags into variables that can be inserted into database.
-		var pollOptionData PollOptionData
-		for i := 1; i < 1024; i++ {
-			value := r.FormValue(fmt.Sprintf("option%d", i))
-			if value != "" {
-				pollOptionData.Options = append(pollOptionData.Options, value)
+		if form.boolVal(kCanSelectMultipleOptions) && form.boolVal(kRankedChoiceVoting) { // These flags that cannot coexist.
+			pr("Both flags are set at once!")
+			form.setFieldError(kCanSelectMultipleOptions, "Cannot select Multiple Options and Ranked Choice options both at once")
+			form.setFieldError(kRankedChoiceVoting,       "Cannot select Multiple Options and Ranked Choice options both at once")
+		} else {
+			pr("Inserting new PollPost into database.")
+
+			// Serialize all of the poll options and flags into variables that can be inserted into database.
+			var pollOptionData PollOptionData
+			for i := 1; i < 1024; i++ {
+				value := r.FormValue(fmt.Sprintf("option%d", i))
+				if value != "" {
+					pollOptionData.Options = append(pollOptionData.Options, value)
+				}
 			}
+			pollOptionData.AnyoneCanAddOptions      = form.boolVal(kAnyoneCanAddOptions)
+			pollOptionData.CanSelectMultipleOptions = form.boolVal(kCanSelectMultipleOptions)
+			pollOptionData.RankedChoiceVoting       = form.boolVal(kRankedChoiceVoting)
+
+			pollOptionsJson, err := json.Marshal(pollOptionData)
+			check(err)
+
+			//prVal("pollOptionsJson", pollOptionsJson)
+
+			// Create the new poll.
+			pollPostId := DbInsert(
+				`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country, UrlToImage,
+										PollOptionData)
+				 VALUES($1::bigint, $2, $3, $4, $5, $6,
+						$7) returning id;`,
+				userId,
+				form.val(kTitle),
+				form.val(kCategory),
+				"en",
+				"us",
+				"http://localhost:8080/static/ballotbox 3dinos.jpg", // TODO: generate poll url from image search
+				pollOptionsJson,
+			)
+			prVal("Just added a poll #", pollPostId)
+
+			// Have user like their own polls by default.
+			voteUpDown(pollPostId, userId, true, true, false)
+
+			http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", pollPostId), http.StatusSeeOther)
+			return
 		}
-		pollOptionData.AnyoneCanAddOptions      = form.boolVal(kAnyoneCanAddOptions)
-		pollOptionData.CanSelectMultipleOptions = form.boolVal(kCanSelectMultipleOptions)
-		pollOptionData.RankedChoiceVoting       = form.boolVal(kRankedChoiceVoting)
-
-		pollOptionsJson, err := json.Marshal(pollOptionData)
-		check(err)
-
-		//prVal("pollOptionsJson", pollOptionsJson)
-
-		// Create the new poll.
-		pollPostId := DbInsert(
-			`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country, UrlToImage,
-			                        PollOptionData)
-			 VALUES($1::bigint, $2, $3, $4, $5, $6,
-			        $7) returning id;`,
-			userId,
-			form.val(kTitle),
-			form.val(kCategory),
-			"en",
-			"us",
-			"http://localhost:8080/static/ballotbox 3dinos.jpg", // TODO: generate poll url from image search
-			pollOptionsJson,
-		)
-		prVal("Just added a poll #", pollPostId)
-
-		// Have user like their own polls by default.
-		voteUpDown(pollPostId, userId, true, true, false)
-
-		http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", pollPostId), http.StatusSeeOther)
-		return
 	} else if r.Method == "POST" {
 		prVal("Invalid form!!", form)
 	}

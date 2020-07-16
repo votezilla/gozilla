@@ -18,7 +18,7 @@
 {{end}}
 
 {{define "checkboxField"}}
-	<div><input type=checkbox name="{{.Name}}" value="true"
+	<div style="font-size: 18px;"><input type=checkbox name="{{.Name}}" value="true"
 		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
 		{{- if .Id }} id="{{.Id}}"{{ end -}}
 		{{- if .Value}}checked{{ end }}

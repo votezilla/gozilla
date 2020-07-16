@@ -14,14 +14,16 @@
 
 	<p>
 	{{ template "field" $f.bAnyoneCanAddOptions -}}
+	<p class="nuFieldSubtext" style="margin-left: 50px;">Enables users to add their own options to the poll. Good for open-ended polls.</p>
 	{{ template "field" $f.bCanSelectMultipleOptions -}}
+	<p class="nuFieldSubtext" style="margin-left: 50px;">Enables users to selection multiple options.</p>
 	{{ template "field" $f.bRankedChoiceVoting -}}
+	<p class="nuFieldSubtext" style="margin-left: 50px;">Enables ranked choice voting.  Users can pick their 1st, 2nd, 3rd choices.  Gives third parties a fair chance.</p>
 	{{ template "field" $f.category -}}
 
 	<p>
 	{{ template "button" "Create Poll" }}
 	<br>
-
 
 <script>
 	var numOptions = 2;

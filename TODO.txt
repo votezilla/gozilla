@@ -12,19 +12,19 @@ Y 2 - ++ "..." for items that are too long, when viewing results (Don't need now
 
 X A 3 - "More options..." for too many options for poll
 
+X A 2 - Add poll creation explanations
+
+WORKING ON:
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
 POLLS:
-
 
 Importance
 v
   Difficulty
   v
 A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
-           
-A 2 - Add poll creation explanations
 
 A 5 - Need ability to add new option when voting
 
