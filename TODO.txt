@@ -14,7 +14,15 @@ X A 3 - "More options..." for too many options for poll
 
 X A 2 - Add poll creation explanations
 
+X Fixed ON CONFLICT sql bug in newsServer.  (Verified working on server.)
+
 WORKING ON:
+
+A 1 - radio options need more vertical padding, for mobile
+
+A 1 - check poll options need more left padding, on mobile
+
+A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
@@ -24,21 +32,22 @@ Importance
 v
   Difficulty
   v
-A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
-
-A 5 - Need ability to add new option when voting
 
 DEADLINE Fri July 18
 
-B 2 - remove stretching from Mozilla nonheadline article news post
+A 2 - remove stretching from Mozilla nonheadline article news post
 
-B 2 - space out up/down buttons in /article
+A 2 - incr voting + comment power * 10 for now
 
-B 3 - deduce title for link sharing
+A 2  - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
 
-B 3 - incr voting + comment power * 10 for now
+A 2 - space out up/down buttons in /article
 
-B 3 - leave comment prompt after viewing article
+A 5 - Need ability to add new option when voting
+
+B 5 - deduce title for link sharing
+
+B 5 - leave comment prompt after viewing article
 
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
@@ -71,6 +80,13 @@ B 2 - only show news posts w/ thumbnails?  (still show other types of posts)  (t
 B 8 - collapse in columnwise the articles, when viewing a single category or polls.
 
   - Too many tabs open
+  
+B 8 - thumbnail appears to be clipped on the left, on mobile
+
+B 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?)
+
+B 2 - add Create your own poll or news post on the left bottom of each news cat
+
 
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
@@ -78,7 +94,7 @@ MED-HIGH PRIORITY (for test w/ 10 friends):
 
 C 2 - Break word by width=50% if any option len > 20	
 
-C 2 - add Create your own poll or news post on the left bottom of each news cat
+C 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
 
 C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
 

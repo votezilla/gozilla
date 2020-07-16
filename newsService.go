@@ -81,7 +81,7 @@ var (
 //
 //////////////////////////////////////////////////////////////////////////////
 func MakeNewsAPITimeManager(maxRequestsPerDay int) *NewsAPITimeManager {
-	maxReqsPerDay := int(float32(maxRequestsPerDay) * .9)  // Give ourselves a 10% padding
+	maxReqsPerDay := int(float32(maxRequestsPerDay))
 
 	//prVal("maxReqsPerDay", maxReqsPerDay)
 	//prVal("(24 * time.Hour).Nanoseconds()", (24 * time.Hour).Nanoseconds())
