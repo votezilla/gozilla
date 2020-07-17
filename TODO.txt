@@ -1,6 +1,18 @@
 JUST FIXED:
 
+X A 2 - incr voting + comment power for now
+
+X A fixed issue where default thumbnail wasn't showing up during link post creation
+
 WORKING ON:
+
+A 3 - remove stretching from Mozilla nonheadline article news post
+
+A 2 - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
+A 2 - space out up/down buttons in /article
+
+A 5 - Need ability to add new option when voting
+
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
@@ -12,15 +24,6 @@ v
   v
 
 DEADLINE Fri July 18
-
-A 2 - remove stretching from Mozilla nonheadline article news post
-
-A 2 - incr voting + comment power * 10 for now
-
-A 2 - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
-A 2 - space out up/down buttons in /article
-
-A 5 - Need ability to add new option when voting
 
 B 5 - deduce title for link sharing
 
@@ -48,7 +51,7 @@ B 5 - click on news source / user icon to see their news articles / posts
 
 B 3 - share w a few > fr' + fam
 
-B 2 - hard to hit bottommost "more..." on /news
+B 1 - hard to hit bottommost "more..." on /news
 
 B 2 - only show news posts w/ thumbnails?  (still show other types of posts)  (try db query to see what % this would eliminate.)
 

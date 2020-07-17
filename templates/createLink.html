@@ -41,11 +41,14 @@ function findImagesFromLink(linkUrl) {
 		dataType: 'json',
 		success: function(r) { // TODO: Need to also call this on init.
 
+			if (!r.Images) {
+				r.Images = [];
+			}
+			r.Images.push('/static/mozilla dinosaur thumbnail.png');
+
 			console.log("AJAX - success r.Images = " + r.Images);
 
 			$('#image_container img').remove();
-
-			var Images = []
 
 			// First pass of adding images, so we can determine original image size, and sort by that as a quality heuristic.
 

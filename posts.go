@@ -146,17 +146,23 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			 )
 		SELECT posts.*,
 			COALESCE(votes.VoteTally, 0) AS VoteTally,
-			posts.PublishedAt + interval '12 hours' * LOG(GREATEST(
-				5 * COALESCE(votes.VoteTally, 0) +
-				posts.NumComments +
-				5 +
-				5 * (%s),
-			1)) AS OrderBy
+			posts.PublishedAt +
+				interval '12 hours' *
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (%s) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderBy
 		FROM posts
 		LEFT JOIN votes ON posts.Id = votes.PostId
 		ORDER BY OrderBy DESC`,
 		query,
-		ternary_str(bRandomizeTime, "RANDOM()", "0"))
+		ternary_str(bRandomizeTime, "5 * RANDOM()", "0"))
 
 	if articlesPerCategory > 0 {
 		// Select 5 articles of each category

@@ -2,6 +2,9 @@ package main
 
 // TODO: add an attribution to News.API on the website somewhere.
 
+// NOTE: This is how to identify news sources that have no thumbnail image:
+// select newssourceid, count(*), sum(case when urltoimage is null or urltoimage = '' then 1 else 0 end) from vz.newspost group by 1 order by 1;
+
 import (
 	"encoding/json"
 	"fmt"
