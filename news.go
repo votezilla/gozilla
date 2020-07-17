@@ -30,7 +30,7 @@ type CategoryInfo struct {
 
 const (
 	kNumCols = 2
-	kRowsPerCategory = 4
+	kRowsPerCategory = 3//4
 	kMaxArticles = 100 // 250 //120 //60
 	kMaxTitleLength = 122
 
@@ -125,14 +125,12 @@ func sortArticles(articles []Article) {
 //////////////////////////////////////////////////////////////////////////////
 //
 // Format article groups - take an array of articles, arrange it into article groups
-//                         for display on the webpage.
+//                         for display on /news.
 //	 categoryInfo - describes the category names and banner background colors.
 //	 onlyCategory - if == "", displays for articles grouped by category
 //				       != "", only display articles from a specific category
 //   headlines    - whether to display some articles as headlines (larger articles):
-//		    kNoHeadlines, kAlternateHeadlines, or kAllHeadlines.
-//
-// TODO: HTML-escape this!!!
+//		    		kNoHeadlines, kAlternateHeadlines, or kAllHeadlines.
 //
 //////////////////////////////////////////////////////////////////////////////
 func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines int) ([]ArticleGroup) {
@@ -326,12 +324,12 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 // Render a news template
 //
 //////////////////////////////////////////////////////////////////////////////
-func renderNews(w http.ResponseWriter, 
-				title, username string, 
+func renderNews(w http.ResponseWriter,
+				title, username string,
 				userId int64,
-				articleGroups []ArticleGroup, 
+				articleGroups []ArticleGroup,
 				urlPath, template string,
-				upvotes, downvotes []int64, 
+				upvotes, downvotes []int64,
 				category, alertMessage string) {
 
 	pr("renderNews")

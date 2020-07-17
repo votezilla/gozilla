@@ -148,3 +148,5 @@ A 2 - made category colorful headers thicker
 A 2 - incr voting + comment power for now
 
 A fixed issue where default thumbnail wasn't showing up during link post creation
+
+A 3 - remove stretching from Mozilla nonheadline article news post

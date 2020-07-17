@@ -174,7 +174,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 
 			// Create the new poll.
 			pollPostId := DbInsert(
-				`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country, UrlToImage,
+				`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country,
 										PollOptionData)
 				 VALUES($1::bigint, $2, $3, $4, $5, $6,
 						$7) returning id;`,
@@ -183,7 +183,6 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 				form.val(kCategory),
 				"en",
 				"us",
-				"http://localhost:8080/static/ballotbox 3dinos.jpg", // TODO: generate poll url from image search
 				pollOptionsJson,
 			)
 			prVal("Just added a poll #", pollPostId)
@@ -248,12 +247,11 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Update the user record with registration details.
 		blogPostId := DbInsert(
-			`INSERT INTO $$LinkPost(UserId, Title, Category, UrlToImage, Blog)
+			`INSERT INTO $$LinkPost(UserId, Title, Category, Blog)
 			 VALUES($1::bigint, $2, $3, $4) returning id;`,
 			userId,
 			form.val(kTitle),
 			form.val(kCategory),
-			"http://localhost:8080/static/ballotbox.png", // TODO: generate poll url from image search
 			form.val(kBlogVal))
 
 		// Have user like their own blogs by default.
