@@ -155,7 +155,7 @@
 									<tr valign="top">
 									    <td
 										  rowspan="2"
-										{{- if not $article.IsPoll }}
+										{{- if not (or $article.IsPoll $article.IsThumbnail) }}
 										  style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;"
 										{{- end }}
 										  data-toggle="tooltip" data-placement="top" title="Join the discussion!">
@@ -163,7 +163,9 @@
 												<img
 													src="{{$article.UrlToThumbnail}}"
 												  {{- if $article.IsPoll }}
-												    width="120/*80*/"
+												    width="120"
+												  {{- else if $article.IsThumbnail }}
+												    width="160"
 												  {{- else }}
 												    width="160"
 													style="visibility: hidden;"
@@ -188,7 +190,7 @@
 														<div style="
 															font-size:20px;
 															max-width: 100%;
-														  {{if $article.IsPoll}}
+														  {{if or $article.IsPoll $article.IsThumbnail}}
 														    min-height: 32px;
 														  {{else}}
 														    min-height: 54px;
@@ -200,6 +202,7 @@
 														">
 															{{/*$article.NumLines*/}}
 															{{/*$article.ThumbnailStatus*/}}
+															{{/*$article.UrlToThumbnail*/}}
 															{{$article.Title}}
 															{{ if not $article.Host }}
 																<img src="/static/link icon.jpg" class="hideUntilHover" style="height: 14px; width: 14px;">

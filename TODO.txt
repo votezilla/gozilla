@@ -1,12 +1,7 @@
 JUST FIXED:
-
-X A 2 - incr voting + comment power for now
-
-X A fixed issue where default thumbnail wasn't showing up during link post creation
+X A 3 - remove stretching from Mozilla nonheadline article news post
 
 WORKING ON:
-
-A 3 - remove stretching from Mozilla nonheadline article news post
 
 A 2 - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
 A 2 - space out up/down buttons in /article

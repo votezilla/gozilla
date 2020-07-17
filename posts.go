@@ -403,11 +403,12 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			if urlToImage == ""	{
 				// Dropback if no image.  (TODO: replace licensed art.)
 				newArticle.UrlToThumbnail = kDefaultThumbnail
+				newArticle.IsThumbnail = true
 			} else if thumbnailStatus == image_Unprocessed {
 				// Uses full-size image as backup if thumbnail isn't processed yet, or default thumbnail (tiny mozilla head) as backup if image is missing.
 				newArticle.UrlToThumbnail = urlToImage
 			} else if thumbnailStatus == image_DownsampledV2 {
-				// Downsamples into two version of the thumbnail, different heights depending on the height of the article.
+				// Downsamples into two version of the thumbnail, different heights depending on the height of the article.  (New version 2 of the thumbnail.)  TODO: maybe we can pick a or b ahead of time?
 				newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 2,
 					"/static/thumbnails/" + strconv.FormatInt(id, 10) + "a.jpeg", // a - 160 x 116 - thumbnail
 					"/static/thumbnails/" + strconv.FormatInt(id, 10) + "b.jpeg") // b - 160 x 150

@@ -43,6 +43,7 @@ type Article struct {
 	NumComments		int
 	NumLines		int
 	ThumbnailStatus	int
+	IsThumbnail		bool
 
 	IsPoll			bool
 	PollOptionData	PollOptionData

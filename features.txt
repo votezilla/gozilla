@@ -144,3 +144,7 @@ A 1 - check poll options need more left padding, on mobile
 A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
 
 A 2 - made category colorful headers thicker
+
+A 2 - incr voting + comment power for now
+
+A fixed issue where default thumbnail wasn't showing up during link post creation
