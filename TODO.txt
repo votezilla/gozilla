@@ -1,8 +1,5 @@
 JUST FIXED:
 
-A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
-
-
 WORKING ON:
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 

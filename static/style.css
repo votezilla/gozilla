@@ -200,6 +200,8 @@ hr{margin-top:1rem;margin-bottom:1rem;border:0;border-top:1px solid rgba(0,0,0,1
 	padding-bottom: .1rem;
 	padding-left: .2rem;
 	word-break: break-word;
+	margin: 6px;
+	margin-left: 8px;
 }
 .rankedVote { width: 30px; padding: 0px 5px; }
 .rankedVoteIntro { font-style: italic; }

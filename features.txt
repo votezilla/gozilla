@@ -140,3 +140,7 @@ X Fixed ON CONFLICT sql bug in newsServer.  (Verified working on server.)
 A 1 - radio options need more vertical padding, for mobile
 
 A 1 - check poll options need more left padding, on mobile
+
+A 2 - category - add back nav arrow to 'news' or 'home' or 'vz headlines'
+
+A 2 - made category colorful headers thicker

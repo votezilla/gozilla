@@ -530,7 +530,7 @@ $(function () {
 									<br>
 								{{ else if eq $o $maxOptions }}
 									<label class="vote">
-										<a href="{{$article.Url}}&changeVote=true" target="_blank" style="font-size: 18px; color: #0072ff;">
+										<a href="{{$article.Url}}&changeVote=true" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
 											More options...
 										</a>
 									</label>
@@ -539,7 +539,7 @@ $(function () {
 							{{ end }}
 
 							<span style="padding-left: 5px;">
-								<button type="submit" class="btn btn-vote btn-sm" {{template "VoteOnPollHandler" $article}}>Vote!</button>
+								<button type="submit" class="btn btn-vote btn-sm" style="margin: .5rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
 							</span>
 						</div>
 					</div>
@@ -580,16 +580,16 @@ $(function () {
 								<div>
 									<label class="vote">
 										<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
-										   	   value="{{$o}}" style="margin: 4px 4px 4px 0;">
+										   	   value="{{$o}}" style="margin: 6px;">
 										{{$option}}
 									</label>
 								</div>
 							{{ else }}
 								<div>
-									<label style="margin-bottom: 0">
+									<label class="vote" style="margin-bottom: 0">
 										<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
 											   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}
-											   style="margin: 4px 4px 4px 0;">
+											   style="margin: 8px;">
 										{{$option}}
 									</label>
 								</div>
@@ -598,7 +598,7 @@ $(function () {
 
 						<input name="vote_{{$article.Id}}_len" type=hidden value="{{len $poll.Options}}">
 
-						<button type="submit" class="btn btn-vote" style="margin: .5rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
+						<button type="submit" class="btn btn-vote" style="margin: 1rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
 					</td></tr>
 				</table>
 			</td>
