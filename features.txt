@@ -157,3 +157,5 @@ A 2 - up/down arrows need to be bigger and have more side spacing on mobile; the
 A 2 - space out up/down buttons in /article
 
 B 1 - add spacing around bottommost "more..." on /news
+
+C 5 - Too many tabs open

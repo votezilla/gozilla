@@ -19,15 +19,13 @@
 								</span>
 							</td>
 							<td align="center" style="width: auto;">
-								<a href="/news/?category={{$articleGroup.Category}}" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
-									<center>
-										<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 28px;">
-											<strong>
-													{{$articleGroup.Category}}
-											</strong>
-										</h5>
-									</center>
-								</a>
+								<center>
+									<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 28px;">
+										<strong>
+												{{$articleGroup.Category}}
+										</strong>
+									</h5>
+								</center>
 							</td>
 							<td align="right" style="width: 25%">
 								<span class="pagetop" style="font-size: 20px; margin-top: 1rem; margin-bottom: 1rem;">
@@ -275,7 +273,7 @@
 							</a>
 						</td>
 						<td align="right">
-							<a href="/news/?category={{$articleGroup.More}}"
+							<a href="/news/?category={{$articleGroup.More}}" target="_blank"
 							   style="font-size: 20px; color: #0072ff; padding: 8px;"
 							   data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
 								more {{$articleGroup.Category}}...
