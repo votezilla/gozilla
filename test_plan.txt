@@ -1,0 +1,46 @@
+Device:
+[] desktop
+[] mobile
+
+Browsers:
+[] Chrome
+[] Firefox
+[] Edge
+[] Samsung internet
+[] Safari - test online - [] get keyboard and test on old Hackintosh; have Susan / Steve N. test on their PC / phone.
+
+<< TESTED UP TO HERE
+
+[] Do all of the following on desktop + mobile:
+
+	Polls:
+	[] Create + vote on _ vote, change vote, verify results are correct for:
+	  [] Ranked vote
+	  [] Multi vote
+	  [] Single vote
+	[] Create poll w/ lots of words and options
+	[] Create link w/ 
+	  [] Good thumbnail
+	  [] Default thumbnail
+
+	Pages:
+	[] HOME
+	[] Each category
+
+	Comments:
+	[] Create bottom-level comment
+	[] Create nested comments
+
+	Account:
+
+	[] Sign up
+	  [] Test all fields having errors
+	  [] Test that values persist when submission had errors
+	[] Log out
+	[] Sign in via username
+	[] Sign in via email
+
+
+BUGS FOUND:
+[] On Edge, long text title or poll items other polls, in /news.  This occurs when there are really long words.
+  [] This occurs on my Edge, not on Tom's.  

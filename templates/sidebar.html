@@ -37,7 +37,10 @@
 				</div>-->
 
 				<div>
-					<a href="{{$article.Url}}" target="_blank" style="font-size:{{if $article.IsPoll}}20px;{{else}}18px;{{end}} word-break: break-word;">
+					<a href="{{$article.Url}}" target="_blank"
+					   style="font-size:{{if $article.IsPoll}}20px;{{else}}18px;{{end}}
+					   		  word-break: break-word;
+					   		  -ms-word-break: break-all;">
 						{{$article.Title}}
 					</a>
 					{{ template "PollInlineForm" $article }}

@@ -51,7 +51,12 @@
 							{{ range $o, $option := $poll.Options }}
 								{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
 								<tr> <!-- TODO: make it this style when option text is long. -->
-									<td style="min-width: 30%; max-width: 50%; word-wrap: break-word; vertical-align: top;">{{$option}}</td>
+									<td style="min-width: 30%; max-width: 50%;
+											   word-wrap: break-word;
+											   -ms-word-break: break-all;
+											   vertical-align: top;">
+										{{$option}}
+									</td>
 									<td width=10% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
 									<td width=50% nowrap>
 										<div class="w3-border" style="position:relative">

@@ -19,7 +19,7 @@
 				<span class="age" align="right">5h</span>
 
 				<p>
-					<a id="comment_{{$comment.Id}}" style="word-wrap: break-word; cursor: normal; color: black;">
+					<a id="comment_{{$comment.Id}}" style="word-wrap: break-word; -ms-word-break: break-all; cursor: normal; color: black;">
 						{{- range $_, $textLine := $comment.Text }}
 							{{ $textLine }}
 							<br>

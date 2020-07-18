@@ -102,7 +102,11 @@ C 8 - thumbnail appears to be clipped on the left, on mobile - it appears smart 
 
 C 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
+  - add ability to view news source feed 
+  
+  - add ability to view user feed
 
+  - ++ created polls to history
 
 MED PRIORITY (for test with 100 friends):
 
