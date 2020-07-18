@@ -76,12 +76,14 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Update the user record with registration details.
 		newPostId := DbInsert(
-			`INSERT INTO $$LinkPost(UserId, LinkURL, Title, Category, UrlToImage)
-			 VALUES($1::bigint, $2, $3, $4, $5) returning id;`,
+			`INSERT INTO $$LinkPost(UserId, LinkURL, Title, Category, Language, Country, UrlToImage)
+			 VALUES($1::bigint, $2, $3, $4, $5, $6, $7) returning id;`,
 			userId,
 			form.val(kLink),
 			form.val(kTitle),
 			form.val(kCategory),
+			"en",
+			"us",
 			thumbnail)
 
 		// Have user like their own posts by default.

@@ -1,0 +1,267 @@
+
+\connect vz
+SET client_encoding = 'UTF8';
+
+
+vv WORKS!!! vv
+
+
+
+	
+   WITH posts AS (SELECT * FROM vz.PollPost),
+	votes AS (
+		SELECT PostId,
+			   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+		FROM vz.PostVote
+		WHERE PostId IN (SELECT Id FROM posts)
+		GROUP BY PostId
+	)
+		SELECT posts.Id, posts.Title,
+		       COALESCE(votes.VoteTally, 0) AS VoteTally,
+		       posts.Created,
+			posts.Created +
+				interval '12 hours' *
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderBy,
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderByMetric,
+					
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					AS OrderByMetricLinear
+	FROM posts
+	LEFT JOIN votes ON posts.Id = votes.PostId
+	ORDER BY OrderBy DESC;	
+	
+	
+	
+	
+
+
+SELECT *
+FROM (
+	SELECT
+		*,
+		ROW_NUMBER() OVER (PARTITION BY Category ORDER BY
+			OrderBy DESC) AS r
+	FROM (
+
+	
+   WITH posts AS (SELECT * FROM vz.PollPost),
+	votes AS (
+		SELECT PostId,
+			   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+		FROM vz.PostVote
+		WHERE PostId IN (SELECT Id FROM posts)
+		GROUP BY PostId
+	)
+		SELECT posts.Id, 
+		       posts.Title,
+		       COALESCE(votes.VoteTally, 0) AS VoteTally,
+		       'polls' AS Category,
+		       posts.Created,
+			posts.Created +
+				interval '12 hours' *
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderBy,
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderByMetric,
+					
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					AS OrderByMetricLinear
+	FROM posts
+	LEFT JOIN votes ON posts.Id = votes.PostId
+	ORDER BY OrderBy DESC
+
+	) x
+) x
+WHERE x.r <= 4;
+
+
+
+Debugging new better sorting algorithm, so crappy polls don't get stuck at the top:
+
+SELECT *
+FROM (
+	SELECT
+		*,
+		ROW_NUMBER() OVER (PARTITION BY Category ORDER BY OrderBySimple DESC) AS r
+	FROM (
+
+	
+   WITH posts AS (SELECT * FROM vz.PollPost),
+	votes AS (
+		SELECT PostId,
+			   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+		FROM vz.PostVote
+		WHERE PostId IN (SELECT Id FROM posts)
+		GROUP BY PostId
+	)
+		SELECT posts.Id, 
+		       posts.Title,
+		       COALESCE(votes.VoteTally, 0) AS VoteTally,
+		       'polls' AS Category,
+		       posts.Created,
+			posts.Created +
+				interval '12 hours' *
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderBy,
+					posts.Created + interval '12 hours' *					
+					(
+							5 * (5 * COALESCE(votes.VoteTally, 0) +
+							     2 * posts.NumComments) +
+							5 * (0) 
+					) AS OrderBySimple,
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderByMetric,
+					
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					AS OrderByMetricLinear,
+						(
+							5 * (5 * COALESCE(votes.VoteTally, 0) +
+							     2 * posts.NumComments) +
+							5 * (0) 
+						)
+					AS OrderByMetricSimple
+	FROM posts
+	LEFT JOIN votes ON posts.Id = votes.PostId
+	ORDER BY OrderBySimple DESC
+
+	) x
+) x
+WHERE x.r <= 15;
+
+
+
+   WITH posts AS (SELECT * FROM vz.PollPost),
+	votes AS (
+		SELECT PostId,
+			   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+		FROM vz.PostVote
+		WHERE PostId IN (SELECT Id FROM posts)
+		GROUP BY PostId
+	)
+		SELECT posts.Id, 
+		       posts.Title,
+		       COALESCE(votes.VoteTally, 0) AS VoteTally,
+		       'polls' AS Category,
+		       posts.Created,
+			posts.Created +
+				interval '12 hours' *
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderBy,
+					posts.Created + interval '12 hours' *					
+					(
+							5 * (5 * COALESCE(votes.VoteTally, 0) +
+							     2 * posts.NumComments) +
+							5 * (0) 
+					) AS OrderBySimple,
+					LOG(
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					) AS OrderByMetric,
+					
+						GREATEST(
+							5 * (5 +
+								 5 * GREATEST(COALESCE(votes.VoteTally, 0), 0) +
+								 2 * posts.NumComments) +
+							5 * (0) +
+							2 * (LEAST(COALESCE(votes.VoteTally, 0), 0)),
+							1
+						)
+					AS OrderByMetricLinear,
+						(
+							5 * (5 * COALESCE(votes.VoteTally, 0) +
+							     2 * posts.NumComments) +
+							5 * (0) 
+						)
+					AS OrderByMetricSimple
+	FROM posts
+	LEFT JOIN votes ON posts.Id = votes.PostId
+	ORDER BY OrderBySimple DESC
+
+	) x
+) x
+WHERE x.r <= 15;

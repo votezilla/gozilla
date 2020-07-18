@@ -4,11 +4,12 @@ convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
 
-B 2 - only show news posts w/ thumbnails  (still show other types of posts)
 
 WORKING ON:
 
-A 13 - Need ability to add new option when voting
+A 2 - why does this poll sort so highly?: "Create a test poll question with lots of words and options and also it"
+
+A - Start getting feedback from close peeps!!  (Start with Tom, Dad)
 
 
 
@@ -21,7 +22,11 @@ v
   Difficulty
   v
 
-^^DEADLINE Fri July 18
+A 13 - Need ability to add new option when voting
+
+A 5 - Make article links more obvious.  Do what Yahoo news does on hover - text blue, underline, (bonus for overlay div for brightening).
+
+B 2 - sidebar up/down buttons and comment buttons are all small, esp. on mobile, also the '...' should be hidden for now.
 
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
@@ -86,10 +91,7 @@ B 5  =   Fix email - Emailed DO tech support.
 
   -   Implement Forgot password.
   
-  -   Make contrasting flags in poll creation disable the opposite flag when enabled, via JS.
- 
   -   Remember previous page or close form upon success, and/or back tri buttons.
-
  
   -   Send verification email... user doesn't get created until email gets verified.
       Verify email and set emailVerified=True when email is verified
@@ -133,6 +135,8 @@ MED PRIORITY (for test with 100 friends):
 - Let people customize their dinosaur heads.  How about when they post an article?
 
 - Let people pick cool dinosaur heads.
+
+- could pass .Article for previewing poll post (as headline or side article, using poll widget templates)
 
 
 - Replaced copyrighted art, or request permission to use.

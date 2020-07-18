@@ -30,7 +30,7 @@ type CategoryInfo struct {
 
 const (
 	kNumCols = 2
-	kRowsPerCategory = 3//4
+	kRowsPerCategory = 3 //4
 	kMaxArticles = 100 // 250 //120 //60
 	kMaxTitleLength = 122
 
