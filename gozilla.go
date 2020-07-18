@@ -106,7 +106,7 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// parse template files - Establishes the template inheritance structure for Votezilla HTML code.
+// parse template files - Parses the HTML template files.
 //
 ///////////////////////////////////////////////////////////////////////////////
 func parseTemplateFiles() {
@@ -132,38 +132,20 @@ func parseTemplateFiles() {
 		htemplates[handle] = htemplate.Must(htemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
 	}
 
-	// HTML templates
-	//tDefineTemplate(kForm, 			"base", "narrow", "frame", "form", "defaultForm")
 	hDefineTemplate(kNuForm, 		"base", "narrow", "frame", "nuField", "nuForm", "defaultForm")
 	hDefineTemplate(kArticle, 		"base", "wide", "frame", "sidebar", "article", "comments")
 	hDefineTemplate(kNews, 			"base", "wide", "frame", "news")
 	hDefineTemplate(kNewsSources,	"base", "wide", "frame", "newsSources")  // nyi
-/*
-	hDefineTemplate(kCreate, 		"base", "wide", "frame", "nuField", "create")
-	hDefineTemplate(kCreateBlog, 	"base", "wide", "frame", "nuField", "createBlog")
-	hDefineTemplate(kCreateLink, 	"base", "wide", "frame", "nuField", "createLink")
-	hDefineTemplate(kCreatePoll, 	"base", "wide", "frame", "nuField", "createPoll")
-*/
 
 	hDefineTemplate(kCreate, 		"base", "narrow", "minFrame", "nuField", "create")
 	hDefineTemplate(kCreateBlog, 	"base", "narrow", "minFrame", "nuField", "createBlog")
 	hDefineTemplate(kCreateLink, 	"base", "narrow", "minFrame", "nuField", "createLink")
 	hDefineTemplate(kCreatePoll, 	"base", "narrow", "minFrame", "nuField", "createPoll")
 
-
-
-	//hDefineTemplate(kRegisterDetailsNopopup, "base", "narrow", "frame", "registerDetailsNopopup")
-
-	// Popup forms (they do not inherit from 'base')
-	hDefineTemplate(kNuFormPopup, 	"popupBase", "nuField", "nuForm", "defaultForm")
-	hDefineTemplate(kLoginPopup, 	"popupBase", "nuField", "login")
-	//hDefineTemplate(kLogin,			"base", "narrow", "frame",  "nuField", "login")
-
 	hDefineTemplate(kLogin,			  "base", "narrow", "minFrame", "nuField", "login")
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
 
-	//hDefineTemplate(kViewPollResults,	"viewPollResults", "comments")
 	hDefineTemplate(kViewPollResults2,	"base", "wide", "frame", "sidebar", "viewPollResults2", "comments")
 	hDefineTemplate(kTestPopup, 		"testPopup")
 
@@ -185,7 +167,6 @@ func init() {
 func WebServer() {
 	InitSecurity()
 
-
 	http.HandleFunc("/",                		hwrap(newsHandler))
 	http.HandleFunc("/ajaxCreateComment/",		hwrap(ajaxCreateComment))
 	http.HandleFunc("/ajaxExpandComment/",		hwrap(ajaxExpandComment))
@@ -193,7 +174,6 @@ func WebServer() {
 	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
 	http.HandleFunc("/article/",       			hwrap(articleHandler))
-//	http.HandleFunc("/articleFrame/",       	hwrap(articleFrameHandler))
 	http.HandleFunc("/create/",   				hwrap(createHandler))
 	http.HandleFunc("/createBlog/",   			hwrap(createBlogHandler))
 	http.HandleFunc("/createLink/",   			hwrap(createLinkHandler))
@@ -205,10 +185,8 @@ func WebServer() {
 	http.HandleFunc("/news/",           		hwrap(newsHandler))
 	http.HandleFunc("/register/",       		hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
-//	http.HandleFunc("/registerDone/",   		hwrap(registerDoneHandler))     // being called directly from registerDetailsHandler
 	http.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
 	http.HandleFunc("/updatePassword/", 		hwrap(updatePasswordHandler))
-//	http.HandleFunc("/viewPollResults/",   		hwrap(viewPollResultsHandler))
 	http.HandleFunc("/viewPollResults2/",   		hwrap(viewPollResultsHandler2))
 
 	// Serve static files.
