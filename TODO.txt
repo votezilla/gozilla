@@ -1,11 +1,11 @@
 JUST FIXED:
 
+B 2 - only show news posts w/ thumbnails  (still show other types of posts)
 
 WORKING ON:
 
 A 5 - Need ability to add new option when voting
 
-B 2 - only show news posts w/ thumbnails?  (still show other types of posts)  (try db query to see what % this would eliminate.)
 
 = B 2 - add Create your own poll or news post on the left bottom of each news cat (PART I complete - the link.  TODO: feed category from url to default value.)
 
@@ -53,12 +53,11 @@ MED-HIGH PRIORITY (for test w/ 10 friends):
 
 C 2 - Break word by width=50% if any option len > 20	
 
-
 C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
 
 C 5 - why you voted comment
 
-C 5 - why so many missing images?  (I know - it's because associated-press has '' for link.  Need to scan page for og:image and use that as a backup.)
+C 8 - Need to scan page for og:image and use that as a backup.
 
 C 8 - Change between alias and real name depending on a post's (or comment's) privacy settings.
 
@@ -94,11 +93,9 @@ C   - c Univ' - prog intern' + phys' prof'
 
 C 3 - newly-created posts for 'NEWS' show up under 'WORLD NEWS' - country should be set based on whether user is in the US?
 
-C 5 - Too many tabs open
-
 C 8 - collapse in columnwise the articles, when viewing a single category or polls.
 
-C 8 - thumbnail appears to be clipped on the left, on mobile
+C 8 - thumbnail appears to be clipped on the left, on mobile - it appears smart crop doesn't always do what I want.  Experiment with manually centering the image, compare results, go with the better option and don't look back.
 
 C 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 

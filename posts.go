@@ -61,7 +61,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   ThumbnailStatus,
 			   'N' AS Source
 		FROM $$NewsPost
-		WHERE ThumbnailStatus <> -1 AND (Id %s) AND (NewsSourceId %s) AND ($$GetCategory(Category, Country) %s)`,
+		WHERE ThumbnailStatus <> -1 AND (Id %s) AND (NewsSourceId %s) AND ($$GetCategory(Category, Country) %s)
+		      AND UrlToImage != ''`, // << TODO: fetch og:Image for news posts with '' UrlToImage in newsService, as this is filtering out some news!
 		idCondition,
 		newsSourceIdCondition,
 		categoryCondition)
