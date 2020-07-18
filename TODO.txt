@@ -1,11 +1,13 @@
 JUST FIXED:
-A 2 - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
-A 2 - space out up/down buttons in /article
-
+B 1 - add spacing around bottommost "more..." on /news
 
 WORKING ON:
 
 A 5 - Need ability to add new option when voting
+
+B 2 - only show news posts w/ thumbnails?  (still show other types of posts)  (try db query to see what % this would eliminate.)
+
+B 2 - add Create your own poll or news post on the left bottom of each news cat
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
@@ -19,23 +21,17 @@ v
 
 ^^DEADLINE Fri July 18
 
-B 1 - hard to hit bottommost "more..." on /news
-
-B 2 - only show news posts w/ thumbnails?  (still show other types of posts)  (try db query to see what % this would eliminate.)
-
-B 2 - add Create your own poll or news post on the left bottom of each news cat
+B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
 B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
+  
+B 5 - click on news source / user icon to see their news articles / posts
 
 B 5 - deduce title for link sharing (via button)
 
 B 5 - leave comment prompt after viewing article
 
-B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
-
 B 5 - Add more news API's
-
-B 8 - Add "About" section - or implememnt simple blog first?
 
 B 5 - privacy alias'
               
@@ -47,10 +43,7 @@ B 8 - Allow user to specify new category when creating poll or post, then group 
   
 B 8 - https  
 
-B 5 - why you voted comment
-  
-B 5 - click on news source / user icon to see their news articles / posts
-
+B 8 - Add "About" section - or implememnt simple blog first?
 
 B 13 - display the results of polls you've voted on, on /news.  May require a pollTallyService to count results ahead of time and store them in a json column in the poll.
 
@@ -62,7 +55,9 @@ C 2 - Break word by width=50% if any option len > 20
 
 C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
 
-C 5 - why so many missing images?
+C 5 - why you voted comment
+
+C 5 - why so many missing images?  (I know - it's because associated-press has '' for link.  Need to scan page for og:image and use that as a backup.)
 
 C 8 - Change between alias and real name depending on a post's (or comment's) privacy settings.
 

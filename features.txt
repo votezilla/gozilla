@@ -152,3 +152,6 @@ A fixed issue where default thumbnail wasn't showing up during link post creatio
 A 3 - remove stretching from Mozilla nonheadline article news post
 
 X - fixed issue with default image for poll posts pointing to localhost, now it uses '' as proxy for default image.
+
+A 2 - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
+A 2 - space out up/down buttons in /article
