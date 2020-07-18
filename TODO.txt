@@ -1,5 +1,5 @@
 JUST FIXED:
-B 1 - add spacing around bottommost "more..." on /news
+
 
 WORKING ON:
 
@@ -7,7 +7,8 @@ A 5 - Need ability to add new option when voting
 
 B 2 - only show news posts w/ thumbnails?  (still show other types of posts)  (try db query to see what % this would eliminate.)
 
-B 2 - add Create your own poll or news post on the left bottom of each news cat
+= B 2 - add Create your own poll or news post on the left bottom of each news cat (PART I complete - the link.  TODO: feed category from url to default value.)
+
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 

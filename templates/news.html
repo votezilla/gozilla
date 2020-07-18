@@ -254,8 +254,24 @@
 				<!-- Needed for align right.  Does not play nicely with bootstrap divs.  So a table works for now. -->
 				<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
 					<tr>
+						<td align="left">
+							{{ $isPoll := eq $articleGroup.Category "polls" }}
+							<a
+								{{ if $isPoll }}
+									href="/createPoll?category={{$articleGroup.Category}}"
+								{{ else }}
+									href="/createLink?category={{$articleGroup.Category}}"
+								{{ end }}
+							   style="font-size: 20px; color: #0072ff; padding: 8px;">
+								{{ if $isPoll }}
+									create poll...
+								{{ else }}
+									create post...
+								{{ end }}
+							</a>
+						</td>
 						<td align="right">
-							<a href="/news/?category={{$articleGroup.More}}&more=1" target="_blank"
+							<a href="/news/?category={{$articleGroup.More}}" target="_blank"
 							   style="font-size: 20px; color: #0072ff; padding: 8px;"
 							   data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
 								more {{$articleGroup.Category}}...

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 var (
@@ -62,6 +63,17 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 		// TODO: some sort of security check for malicious linkUrl.
 
+		thumbnail := form.val(kThumbnail)
+
+		prVal("<<thumbnail", thumbnail)
+
+		// Check for default thumbnail (from createLink.html:47), replace with '' which is clear for detecting default image.
+		if strings.Contains(thumbnail, "mozilla%20dinosaur%20thumbnail.png") {
+			thumbnail = ""
+		}
+
+		prVal(">>thumbnail", thumbnail)
+
 		// Update the user record with registration details.
 		newPostId := DbInsert(
 			`INSERT INTO $$LinkPost(UserId, LinkURL, Title, Category, UrlToImage)
@@ -70,7 +82,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 			form.val(kLink),
 			form.val(kTitle),
 			form.val(kCategory),
-			form.val(kThumbnail))
+			thumbnail)
 
 		// Have user like their own posts by default.
 		voteUpDown(newPostId, userId, true, true, false)
