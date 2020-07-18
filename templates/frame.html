@@ -447,7 +447,7 @@ $(function () {
 		<span class="upvote" id="upvote{{$article.Id}}">
 			<a href="javascript:Vote({{$article.Id}}, true, false)" class="upvote" data-toggle="tooltip" data-placement="top" title="Up vote">&#x25B2;</a>
 		</span>
-		<a id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
+		{{$article.VoteTally}}
 		<span class="downvote" id="downvote{{$article.Id}}">
 			<a href="javascript:Vote({{$article.Id}}, false, false)" class="downvote" data-toggle="tooltip" data-placement="top" title="Down vote">&#x25BC;</a>
 		</span>
@@ -460,7 +460,7 @@ $(function () {
 		<span class="upvote" id="upvoteComment{{$tag.Id}}">
 			<a href="javascript:Vote({{$tag.Id}}, true, true)" class="upvote" data-toggle="tooltip" data-placement="top" title="Up vote">&#x25B2;</a>
 		</span>
-		<a id="votetallyComment{{$tag.Id}}">{{$tag.VoteTally}}</a>
+		{{$tag.VoteTally}}
 		<span class="downvote" id="downvoteComment{{$tag.Id}}">
 			<a href="javascript:Vote({{$tag.Id}}, false, true)" class="downvote" data-toggle="tooltip" data-placement="top" title="Down vote">&#x25BC;</a>
 		</span>

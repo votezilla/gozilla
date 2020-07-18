@@ -1,10 +1,9 @@
 JUST FIXED:
-X - fixed issue with default image for poll posts pointing to localhost, now it uses '' as proxy for default image.
-
-WORKING ON:
-
 A 2 - up/down arrows need to be bigger and have more side spacing on mobile; the comment icon, too
 A 2 - space out up/down buttons in /article
+
+
+WORKING ON:
 
 A 5 - Need ability to add new option when voting
 
@@ -25,6 +24,8 @@ B 1 - hard to hit bottommost "more..." on /news
 B 2 - only show news posts w/ thumbnails?  (still show other types of posts)  (try db query to see what % this would eliminate.)
 
 B 2 - add Create your own poll or news post on the left bottom of each news cat
+
+B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
 
 B 5 - deduce title for link sharing (via button)
 

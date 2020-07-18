@@ -210,20 +210,58 @@ textarea { font-family:monospace; color:#000000; }
 
 label.error { font-family:Verdana, Geneva, sans-serif; color:#ee0000; }
 
+
+#override .upvote, #override .downvote {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+#override .upvote {
+	margin-left: 5px;
+	margin-right: 2px;
+}
+
+#override .downvote {
+	margin-left: 2px;
+}
+
+#override .upvote   a:link,
+#override .upvote   a:visited {
+	color:#68a;
+	text-decoration: none;
+}
+#override .downvote a:link,
+#override .downvote a:visited {
+	color:#a86;
+	text-decoration: none;
+}
+
+#override .upvote   a:hover,
+#override .upvoted  a:link,
+#override .upvoted  a:visited {
+	color:#00f;
+	text-decoration: none;
+}
+#override .downvote a:hover,
+#override .downvoted a:link,
+#override .downvoted a:visited {
+	color:#f00;
+	text-decoration: none;
+}
+
 #override a:hover		{ color:#0072ff; text-decoration: none; }
 #override a:focus		{ color:#0048b8; text-decoration: none; }
 a:link      { color:#000000; }
 a:visited   { color:#000000; text-decoration:none; }
 a:target	{ background-color: yellow; }
 
-#override a       img.hideUntilHover { visibility: hidden; }
-#override a:hover img.hideUntilHover { visibility: visible; }
+#override a       img.hideUntilHover { display: none; }
+#override a:hover img.hideUntilHover { display: inline-block; }
 
 .default { font-family:Verdana, Geneva, sans-serif; }
 .admin   { font-family:Verdana, Geneva, sans-serif; }
 .title   { font-family:Verdana, Geneva, sans-serif; }
 .subtext { font-family:Verdana, Geneva, sans-serif; font-size: 18px; }
-
 
 
 @-webkit-keyframes bluePulse {
@@ -254,30 +292,6 @@ a:target	{ background-color: yellow; }
 	-webkit-animation-name: redPulse;
 	-webkit-animation-duration: 2s;
 	-webkit-animation-iteration-count: infinite;
-}
-
-#override .upvote   a:link,
-#override .upvote   a:visited {
-	color:#68a;
-	text-decoration: none;
-}
-#override .downvote a:link,
-#override .downvote a:visited {
-	color:#a86;
-	text-decoration: none;
-}
-
-#override .upvote   a:hover,
-#override .upvoted  a:link,
-#override .upvoted  a:visited {
-	color:#00f;
-	text-decoration: none;
-}
-#override .downvote a:hover,
-#override .downvoted a:link,
-#override .downvoted a:visited {
-	color:#f00;
-	text-decoration: none;
 }
 
 
