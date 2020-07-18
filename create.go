@@ -188,8 +188,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 			pollPostId := DbInsert(
 				`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country,
 										PollOptionData)
-				 VALUES($1::bigint, $2, $3, $4, $5, $6,
-						$7) returning id;`,
+				 VALUES($1::bigint, $2, $3, $4, $5, $6) returning id;`,
 				userId,
 				form.val(kTitle),
 				form.val(kCategory),

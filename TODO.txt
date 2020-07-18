@@ -56,6 +56,8 @@ MED-HIGH PRIORITY (for test w/ 10 friends):
 
 C 2 - Break word by width=50% if any option len > 20	
 
+C 3 - max username length is 345 - this is too long!
+
 C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
 
 C 5 - why you voted comment
