@@ -13,6 +13,15 @@ Browsers:
 
 [] Do all of the following on desktop + mobile:
 
+	Account:
+
+	[] Sign up
+	  [] Test all fields having errors
+	  [] Test that values persist when submission had errors
+	[] Log out
+	[] Sign in via username
+	[] Sign in via email
+	
 	Polls:
 	[] Create + vote on _ vote, change vote, verify results are correct for:
 	  [] Ranked vote
@@ -31,16 +40,12 @@ Browsers:
 	[] Create bottom-level comment
 	[] Create nested comments
 
-	Account:
 
-	[] Sign up
-	  [] Test all fields having errors
-	  [] Test that values persist when submission had errors
-	[] Log out
-	[] Sign in via username
-	[] Sign in via email
 
 
 BUGS FOUND:
-[] On Edge, long text title or poll items other polls, in /news.  This occurs when there are really long words.
-  [] This occurs on my Edge, not on Tom's.  
+- On Edge, long text title or poll items other polls, in /news.  This occurs when there are really long words.
+  This occurs on my Edge (44.19041.1.0), not on Tom's (81.0.416.88).  
+  X - fixed on localhost
+  
+[] submit and test these are fixed on server.
