@@ -37,11 +37,12 @@ Browsers:
 	  [] Good thumbnail
 	  [] Default thumbnail
 	
-<< TESTED UP TO HERE vv JUST FIXED POLL CREATION ON SERVER	  
-	  
 	[] Check that history works
 	[] Check top (vz) and top-level navigation links and close buttons
 
+	[] Check that up/down voting a news article, link post, poll post, and comment all work
+
+<< I tested everything else, so just fix the bug I found, re-test this ^^^, and push to server!!!
 	Pages:
 	[] HOME
 	[] Each category
@@ -52,9 +53,16 @@ Browsers:
 
 
 BUGS FOUND:
+- Fixed a bug preventing the ability to see immediate progress from up / down vote of any article in /news.  (Because I'd removed the anchor on a previous check-in.)
+
+BUGS LOCALLY COMMITTED:
+- Fixed article close button
 
 BUGS FIXED:
 - On Edge, long text title or poll items other polls, in /news.  This occurs when there are really long words.
   This occurs on my Edge (44.19041.1.0), not on Tom's (81.0.416.88).  Fixed, possibly, but it was for old IE browsers 
   which is a low market share.
 - createPoll was crashing due to SQL error, fixed.
+
+BUGS I WON'T FIX THIS PUSH:
+- sidebar up/down buttons and comment buttons are all small, esp. on mobile, also the '...' should be hidden for now.
