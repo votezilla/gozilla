@@ -1,13 +1,14 @@
+SERVER_PUSH_TODO: 
+convert mozilla thumbnail posts to '' on all posts
+
+
 JUST FIXED:
 
 B 2 - only show news posts w/ thumbnails  (still show other types of posts)
 
 WORKING ON:
 
-A 5 - Need ability to add new option when voting
-
-
-= B 2 - add Create your own poll or news post on the left bottom of each news cat (PART I complete - the link.  TODO: feed category from url to default value.)
+A 13 - Need ability to add new option when voting
 
 
 
@@ -24,7 +25,7 @@ v
 
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
-B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
+B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.  Maybe it's listing a dictionary?
   
 B 5 - click on news source / user icon to see their news articles / posts
 
@@ -50,6 +51,8 @@ B 13 - display the results of polls you've voted on, on /news.  May require a po
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
+	
+= C 2 - add Create your own poll or news post on the left bottom of each news cat (PART I complete - the link.  TODO: feed category from url to default value.)	
 
 C 2 - Break word by width=50% if any option len > 20	
 
