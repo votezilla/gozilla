@@ -383,7 +383,7 @@ function VoteOnPoll(pollId, numOptions, pollType) {
 				console.log(r);
 
 				// Open the View Poll Results in a new tab.
-				window.open(`/viewPollResults2/?postId=${pollId}&voteData=${voteData}`, '_blank');
+				window.open(`/viewPollResults/?postId=${pollId}&voteData=${voteData}`, '_blank');
 			},
 			error: function(r) {
 				console.log("AJAX Poll Vote - error");

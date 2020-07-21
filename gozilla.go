@@ -49,7 +49,7 @@ const (
 	//kRegisterDetailsScript = "registerDetailsScript"
 	kRegister = "register"
 	kTestPopup = "testPopup"
-	kViewPollResults2 = "viewPollResults2"
+	kViewPollResults = "viewPollResults"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -145,7 +145,7 @@ func parseTemplateFiles() {
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
 
-	hDefineTemplate(kViewPollResults2,	"base", "wide", "frame", "sidebar", "viewPollResults2", "comments")
+	hDefineTemplate(kViewPollResults,	"base", "wide", "frame", "sidebar", "viewPollResults", "comments")
 	hDefineTemplate(kTestPopup, 		"testPopup")
 
 	// Javascript snippets
@@ -186,7 +186,7 @@ func WebServer() {
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 	http.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
 	http.HandleFunc("/updatePassword/", 		hwrap(updatePasswordHandler))
-	http.HandleFunc("/viewPollResults2/",   	hwrap(viewPollResultsHandler2))
+	http.HandleFunc("/viewPollResults/",		hwrap(viewPollResultsHandler))
 
 	// Serve static files.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
