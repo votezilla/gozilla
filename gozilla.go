@@ -49,7 +49,6 @@ const (
 	//kRegisterDetailsScript = "registerDetailsScript"
 	kRegister = "register"
 	kTestPopup = "testPopup"
-	//kViewPollResults = "viewPollResults"
 	kViewPollResults2 = "viewPollResults2"
 )
 
@@ -187,7 +186,7 @@ func WebServer() {
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 	http.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
 	http.HandleFunc("/updatePassword/", 		hwrap(updatePasswordHandler))
-	http.HandleFunc("/viewPollResults2/",   		hwrap(viewPollResultsHandler2))
+	http.HandleFunc("/viewPollResults2/",   	hwrap(viewPollResultsHandler2))
 
 	// Serve static files.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
