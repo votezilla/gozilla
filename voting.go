@@ -300,10 +300,10 @@ func testPopupHandler(w http.ResponseWriter, r *http.Request) {
 //
 //////////////////////////////////////////////////////////////////////////////
 // TODO: This is just duplicate code, make it view the results.  (Same or different handler for adding the vote?)
-func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
+func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
-	pr("viewPollResultsHandler2")
+	pr("viewPollResultsHandler")
 
 	prVal("r.URL.Query()", r.URL.Query())
 
@@ -410,5 +410,5 @@ func viewPollResultsHandler2(w http.ResponseWriter, r *http.Request) {
 		MoreArticlesFromThisSource: polls,
 	}
 
-	executeTemplate(w, kViewPollResults2, viewPollArgs)
+	executeTemplate(w, kViewPollResults, viewPollArgs)
 }

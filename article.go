@@ -98,7 +98,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		if reqChangeVote == "" {
 			// Check if user has already voted in this poll, and if so, take them to view the poll results.
 			if DbExists("SELECT * FROM $$PollVote WHERE UserId=$1 AND PollId=$2", userId, postId) {
-				http.Redirect(w, r, fmt.Sprintf("/viewPollResults2/?postId=%d", postId), http.StatusSeeOther)
+				http.Redirect(w, r, fmt.Sprintf("/viewPollResults/?postId=%d", postId), http.StatusSeeOther)
 				return
 			}
 		}

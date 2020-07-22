@@ -383,7 +383,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			//prVal("newArticle.PollOptionData", newArticle.PollOptionData)
 
 			newArticle.Url = fmt.Sprintf("/article/?postId=%d", id)
-			//newArticle.Url = fmt.Sprintf("/viewPollResults2/?postId=%d", id)  // This would take the user to directly viewing the results.  This is a design problem to figure out later.
+			//newArticle.Url = fmt.Sprintf("/viewPollResults/?postId=%d", id)  // This would take the user to directly viewing the results.  This is a design problem to figure out later.
 
 			newArticle.NumLines = numLinesApprox
 		} else { // Handle non-polls.

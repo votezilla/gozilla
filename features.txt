@@ -172,3 +172,5 @@ Found & fixed while testing:
 - Fixed article close button
 
 - Fixed a bug preventing the ability to see immediate progress from up / down vote of any article in /news.  (Because I'd removed the anchor on a previous check-in.)
+
+A 2 - why does this poll sort so highly?: "Create a test poll question with lots of words and options and also it"

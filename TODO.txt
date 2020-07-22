@@ -7,10 +7,9 @@ JUST FIXED:
 
 WORKING ON:
 
-A 2 - why does this poll sort so highly?: "Create a test poll question with lots of words and options and also it"
+A 13 - Want to view poll results on /news & /article once you've voted on it
 
-A - Start getting feedback from close peeps!!  (Start with Tom, Dad)
-
+A - Start getting feedback from close peeps!!  (Start with Tom, Dad, Jeff, Steve D.)
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
@@ -25,6 +24,12 @@ v
 A 13 - Need ability to add new option when voting
 
 A 5 - Make article links more obvious.  Do what Yahoo news does on hover - text blue, underline, (bonus for overlay div for brightening).
+
+A 5 - equalize /news article order a little / prioritize page rank multiplied by less.
+
+A 2 - links & blogs should not be able to be shared to the category 'polls'
+
+A 13 - implement really simple blogging
 
 B 2 - sidebar up/down buttons and comment buttons are all small, esp. on mobile, also the '...' should be hidden for now.
 
@@ -48,7 +53,7 @@ B 8 - ability to update posts, comments
 
 B 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
   
-B 8 - https  
+B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
 
 B 8 - Add "About" section - or implememnt simple blog first?
 
@@ -111,6 +116,9 @@ C 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduc
   - add ability to view user feed
 
   - ++ created polls to history
+  
+C 2 - Ryan: "The ellipsis for long comments should be more obvious >> blue and test like show more and an arrow -> or something like that"  
+  
 
 MED PRIORITY (for test with 100 friends):
 
@@ -124,11 +132,31 @@ MED PRIORITY (for test with 100 friends):
 
 - diff dino images for discussions, blog entries, etc.
 
-- Allow updating & deleting of posts & comments.
-
 - Create some mission statement / google doc / blog posts.
 
 - Get the user's IP address.  (Needed for spam account & spam vote prevention.)
+
+
+D ? - Ryan: "I am unable to post comments with unicode characters. It fails without reporting an error (you only see it if you look in the xhr). Posting a poll allows some unicode characters but most get translated into those strange diamonds with question marks."  
+    
+D ? - When calculating if some text is too long, counts the number of bytes, not displayed Unicode characters.
+
+D - OPT: Use CDN for images -> DigitalOcean Spaces: https://cloud.digitalocean.com/spaces?i=5344af
+
+D - OPT: Profile Go code: https://flaviocopes.com/golang-profiling/
+
+D - OPT: Convert images to WebP
+
+D - OPT: Minify code: https://github.com/tdewolff/minify
+                      https://pkg.go.dev/github.com/tdewolff/minify?tab=overview
+                      
+D - OPT: http caching: https://www.sanarias.com/blog/115LearningHTTPcachinginGo
+
+D - votezilla.io/static folder is viewable to the public.
+
+D - Create a robots.txt file: https://moz.com/learn/seo/robotstxt  
+			      https://neilpatel.com/blog/robots-txt/
+
 
 - Implement limitation to downvoting.
 

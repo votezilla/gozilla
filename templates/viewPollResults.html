@@ -1,13 +1,13 @@
+{{define "mainContent"}}
+
 <div class="container vz-container">
 	<div class="row vz-row">
 		<div class="col-md-12 vz-col-md-12">
 			{{ $article := .Article }}
 			{{ $poll := $article.PollOptionData }}
-			{{ $vote := $.VoteData }}
-			{{/*
-			Poll = {{ $poll }}
-			Vote Data = {{ $vote }}
-			*/}}
+			{{ $vote := .VoteData }}
+
+			{{ template "BackToCategory" $article.Category }}
 
 			<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
 				<tr>
@@ -23,9 +23,7 @@
 
 				<tr valign="top">
 					<td class="title" style="padding-left: 5px;">
-						<span>
-							<a href="{{$article.Url}}" target="_blank" class="storylink">{{$article.Title}}</a>
-						</span>
+						{{$article.Title}}
 					</td>
 				</tr>
 
@@ -52,8 +50,13 @@
 							{{ $pollTallyResults := .PollTallyResults }}
 							{{ range $o, $option := $poll.Options }}
 								{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
-								<tr>
-									<td width=20% nowrap>{{$option}}</td>
+								<tr> <!-- TODO: make it this style when option text is long. -->
+									<td style="min-width: 30%; max-width: 50%;
+											   word-wrap: break-word;
+											   -ms-word-break: break-all;
+											   vertical-align: top;">
+										{{$option}}
+									</td>
 									<td width=10% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
 									<td width=50% nowrap>
 										<div class="w3-border" style="position:relative">
@@ -65,8 +68,12 @@
 								</tr>
 							{{ end }}
 						</table>
+
 						<br>
-						You voted {{$.UserVoteString}}.  <a href="/article/?postId={{$article.Id}}">Change your vote?</a> <br>
+						{{ if .UserVoteString }}
+							You voted {{.UserVoteString}}.
+						{{ end }}
+						<a href="/article/?postId={{$article.Id}}&changeVote=true" style="color: #0072ff;">Change your vote?</a> <br>
 				    </td>
 				</tr>
 				<tr class="spacer" style="height:5px"></tr>
@@ -82,3 +89,4 @@
 <br>
 <br>
 
+{{ end }}
