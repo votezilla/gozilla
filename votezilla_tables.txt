@@ -81,6 +81,7 @@ CREATE TABLE vz.BlogPost (
 
 CREATE TABLE vz.PollPost (
     PollOptionData  TEXT        -- JSON  
+    PollTallyResults TEXT	-- JSON
 ) INHERITS (vz.Post);
 
 

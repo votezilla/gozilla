@@ -36,6 +36,25 @@ func check(err error) {
 
 func nyi() { panic("Not yet implemented!") }
 
+// HTML-spewing assertion functions:
+func assertHtml(w http.ResponseWriter, ok bool) {
+    if !ok {
+        serveError(w, "Assert failed!")
+    }
+}
+
+func assertMsgHtml(w http.ResponseWriter, ok bool, errorMsg string) {
+    if !ok {
+        serveError(w, errorMsg)
+    }
+}
+
+func checkw(w http.ResponseWriter, err error) {
+    if err != nil {
+        serveError(w, err.Error())
+    }
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -51,14 +70,15 @@ const MaxInt64 = int64(^uint64(0) >> 1)
 // math functions
 //
 ///////////////////////////////////////////////////////////////////////////////
-func ternary_int(b bool, i int, j int) 			int 	{ if b { return i } else { return j } }
-func ternary_int64(b bool, i int64, j int64)    int64 	{ if b { return i } else { return j } }
-func ternary_uint64(b bool, i uint64, j uint64) uint64 	{ if b { return i } else { return j } }
-func round(f float32) 							int 	{ return int(f + .5) }
-func min_int(i int, j int) 						int 	{ return ternary_int(i < j, i, j) }
-func max_int(i int, j int) 						int 	{ return ternary_int(i > j, i, j) }
-func getBitFlag(flags, mask uint64) 			bool 	{ return (flags & mask) != 0 }
-func ceil_div(dividend int, divisor int) 		int 	{ return (dividend + (divisor - 1)) / divisor; }
+func ternary_int    (b bool, i, j int) 		int 	{ if b { return i } else { return j } }
+func ternary_int64  (b bool, i, j int64)    int64 	{ if b { return i } else { return j } }
+func ternary_uint64 (b bool, i, j uint64) 	uint64 	{ if b { return i } else { return j } }
+func ternary_float32(b bool, i, j float32)	float32 { if b { return i } else { return j } }
+func round(f float32) 						int 	{ return int(f + .5) }
+func min_int(i int, j int) 					int 	{ return ternary_int(i < j, i, j) }
+func max_int(i int, j int) 					int 	{ return ternary_int(i > j, i, j) }
+func getBitFlag(flags, mask uint64) 		bool 	{ return (flags & mask) != 0 }
+func ceil_div(dividend int, divisor int) 	int 	{ return (dividend + (divisor - 1)) / divisor; }
 
 // Inline switch which takes and returns int values.
 // e.g. switch_int(2, // switch value:
@@ -203,6 +223,12 @@ func serveHTML(w http.ResponseWriter, html string) {
 	fmt.Fprintf(w, html)
 }
 
+func serveError(w http.ResponseWriter, errorMsg string) {
+	http.Error(w, errorMsg, http.StatusInternalServerError)
+	//w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	//w.WriteHeader(http.StatusInternalServerError)
+	//fmt.Fprintf(w, error)
+}
 
 // http.Get with a 'timeout'-second timeout.
 func httpGet_Old(url string, timeout float32) (*http.Response, error){
@@ -252,4 +278,33 @@ func parseUrlParam(r *http.Request, name string) string {
 	} else {
 		return values[0]
 	}
+}
+
+func testPopupHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
+
+	pr("testPopupHandler")
+
+	userId, username := GetSessionInfo(w, r)
+
+	// Render the news articles.
+	testPopupArgs := struct {
+		PageArgs
+		Username			string
+		UserId				int64
+		NavMenu				[]string
+		UrlPath				string
+		UpVotes				[]int64
+		DownVotes			[]int64
+	}{
+		PageArgs:			PageArgs{Title: "Test popup"},
+		Username:			username,
+		UserId:				userId,
+		NavMenu:			navMenu,
+		UrlPath:			"testPopup",
+		UpVotes:			[]int64{},
+		DownVotes:			[]int64{},
+	}
+
+	executeTemplate(w, kTestPopup, testPopupArgs)
 }

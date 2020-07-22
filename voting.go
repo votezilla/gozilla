@@ -2,12 +2,9 @@ package main
 
 import (
 	"encoding/json"
-//	"fmt"
 	"github.com/lib/pq"
 	"net/http"
-	"net/url"
 	"strconv"
-	"strings"
 )
 
 type PollTallyResult struct {
@@ -16,6 +13,8 @@ type PollTallyResult struct {
 }
 
 type PollTallyResults []PollTallyResult
+
+type VoteData []string
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -43,7 +42,7 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
     //parse request to struct
     var vote struct {
 		PollId		int
-		VoteData	[]string
+		VoteData	VoteData
 	}
 
     err := json.NewDecoder(r.Body).Decode(&vote)
@@ -72,21 +71,44 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-    // Send poll vote to the database, removing any prior vote.
+	pollId := int64(vote.PollId)
+
+	// Send poll vote to the database, removing any prior vote.
 	DbExec(
 		`INSERT INTO $$PollVote(PollId, UserId, VoteOptionIds, VoteAmounts)
 		 VALUES ($1::bigint, $2::bigint, $3::int[], $4::int[])
 		 ON CONFLICT (PollId, UserId) DO UPDATE
 		 SET (VoteOptionIds, VoteAmounts) = ($3::int[], $4::int[])`,
-		vote.PollId,
+		pollId,
 		userId,
 		pq.Array(voteOptionIds),
 		pq.Array(voteAmounts))
 
+	// Tally the poll tally results, and cache them in the db.
+
+	article, err := fetchArticle(pollId, userId)
+	check(err)
+
+	pollTallyResults := calcPollTally(pollId, article.PollOptionData)
+	prVal("pollTallyResults", pollTallyResults)
+
+	pollTallyResultsJson, err := json.Marshal(pollTallyResults)
+   	check(err)
+   	prVal("pollTallyResultsJson", pollTallyResultsJson)
+
+	DbExec(
+		`UPDATE $$PollPost
+		 SET PollTallyResults = $1
+		 WHERE Id = $2::bigint`,
+		pollTallyResultsJson,
+		pollId)
+
     // create json response from struct
     a, err := json.Marshal(vote)
+    //checkw(err)
     if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        //http.Error(w, err.Error(), http.StatusInternalServerError)
+        serveError(w, err.Error())
         return
     }
     w.Write(a)
@@ -98,6 +120,8 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 //
 //////////////////////////////////////////////////////////////////////////////
 func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults {
+	prf("calcPollTally %d %v", pollId, pollOptionData)
+
 	numOptions := len(pollOptionData.Options)
 
 	pollTallyResults := make(PollTallyResults, numOptions)
@@ -120,6 +144,8 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 		}
 		check(rows.Err())
 
+		prVal(">>1 pollTallyResults", pollTallyResults)
+
 		dividend := 0
 		if !pollOptionData.CanSelectMultipleOptions { // Single select - basic survey - get the sum.
 			sum := 0
@@ -135,10 +161,14 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 			dividend = greatest
 		}
 
-		invDividendPercent := 100.0 / float32(dividend)
+		prVal("dividend", dividend)
+
+		invDividendPercent := ternary_float32(dividend != 0, 100.0 / float32(dividend), 0.0) // calc scalar dividend, prevent div by zero.
 		for i := range pollTallyResults {
 			pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
 		}
+
+		prVal(">>2 pollTallyResults", pollTallyResults)
 
 		return pollTallyResults
 	} else { // RankedChoiceVoting
@@ -265,35 +295,6 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 }
 
 
-func testPopupHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
-
-	pr("testPopupHandler")
-
-	userId, username := GetSessionInfo(w, r)
-
-	// Render the news articles.
-	testPopupArgs := struct {
-		PageArgs
-		Username			string
-		UserId				int64
-		NavMenu				[]string
-		UrlPath				string
-		UpVotes				[]int64
-		DownVotes			[]int64
-	}{
-		PageArgs:			PageArgs{Title: "Test popup"},
-		Username:			username,
-		UserId:				userId,
-		NavMenu:			navMenu,
-		UrlPath:			"testPopup",
-		UpVotes:			[]int64{},
-		DownVotes:			[]int64{},
-	}
-
-	executeTemplate(w, kTestPopup, testPopupArgs)
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // view poll results II - non-popup
@@ -306,13 +307,6 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	pr("viewPollResultsHandler")
 
 	prVal("r.URL.Query()", r.URL.Query())
-
-	reqVoteData := parseUrlParam(r, "voteData")
-	prVal("reqVoteData", reqVoteData)
-
-	decodedVoteData, err := url.QueryUnescape(reqVoteData)
-	check(err)
-	prVal("decodedVoteData", decodedVoteData)
 
 	reqPostId := parseUrlParam(r, "postId")
 
@@ -331,37 +325,9 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var voteData []string
-	userVoteString := "" // userVoteString is a textual representation the user's vote(s)."
-	if reqVoteData == "" { // User just wants to see the poll results.
-		// Don't need to do anything here.
-		pr("reqVoteData == ''")
-
-		voteData = make([]string, len(article.PollOptionData.Options))
-	} else  {              // User got here by voting
-		pr("reqVoteData != ''")
-
-		voteData = strings.Split(decodedVoteData, ",")
-
-		for i, option := range(article.PollOptionData.Options) {
-			userVoteString += ternary_str(voteData[i] != "",  // if the vote was checked:
-				ternary_str(userVoteString != "", ", ", "") + //   concat with ", "
-					option,                                   //   all votes that were checked
-					"")
-		}
-	}
-
-	prVal("len(voteData)", len(voteData))
-	prVal("len(article.PollOptionData.Options)", len(article.PollOptionData.Options))
-	prVal("voteData", voteData)
-	prVal("article.PollOptionData.Options", article.PollOptionData.Options)
-
-
 
 	// Tally the votes
 	pollTallyResults := calcPollTally(postId, article.PollOptionData)
-
-
 
 	// Suggested polls for further voting - on the sidebar.
 	polls := fetchSuggestedPolls(userId, postId)
@@ -369,11 +335,6 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	upvotes, downvotes := deduceVotingArrows(append(polls, article))
 
 	headComment, upcommentvotes, downcommentvotes := ReadCommentsFromDB(article.Id, userId)
-
-	prVal("upvotes", upvotes)
-	prVal("downvotes", downvotes)
-	prVal("upcommentvotes", upcommentvotes)
-	prVal("downcommentvotes", downcommentvotes)
 
 	// Render the news articles.
 	viewPollArgs := struct {
@@ -403,8 +364,6 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		DownVotes:					downvotes,
 		UpCommentVotes:				upcommentvotes,
 		DownCommentVotes: 			downcommentvotes,
-		VoteData:					voteData,	// The way this user just voted.
-		UserVoteString:				userVoteString,
 		PollTallyResults:			pollTallyResults,
 		HeadComment:				headComment,
 		MoreArticlesFromThisSource: polls,

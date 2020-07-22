@@ -19,12 +19,14 @@ type PollOptionData struct {
 
 // JSON-parsed format of an article.
 type Article struct {
+	// News parameters:
 	Author			string
 	Title			string
 	Description		string
 	Url				string
 	UrlToImage		string
 	PublishedAt		string
+
 	// Custom parameters:
 	Id				int64
 	UrlToThumbnail	string
@@ -35,7 +37,7 @@ type Article struct {
 	Country			string
 	PublishedAtUnix	time.Time
 	TimeSince		string
-	Size			int		// 0=normal, 1=large (headline)
+	Size			int		// 0=normal, 1=large (headline), 2=full page (article or viewPollResults)
 	AuthorIconUrl	string
 	Bucket			string  // "" by default, but can override Category as a way to categorize articles
 	Upvoted			int
@@ -45,8 +47,14 @@ type Article struct {
 	ThumbnailStatus	int
 	IsThumbnail		bool
 
-	IsPoll			bool
-	PollOptionData	PollOptionData
+	// Poll parameters:
+	IsPoll				bool
+	WeVoted				bool
+	PollOptionData		PollOptionData
+	PollTallyResults	PollTallyResults
+	VoteOptionIds	 	[]int64
+	VoteData			[]bool
+	//VoteOptionsMap		map[int64]bool
 }
 
 
@@ -80,7 +88,6 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
 		return
 	}
-
 
 	articleGroups := make([]ArticleGroup, len(newsCategoryInfo.CategoryOrder))
 

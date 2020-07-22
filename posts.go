@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/lib/pq"
 //	"math/rand"
 	"net/url"
 	"strconv"
@@ -40,7 +41,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	prVal("maxArticles", maxArticles)
 	prVal("fetchVotesForUserId", fetchVotesForUserId)
 
-	bRandomizeTime := true
+	bRandomizeTime := false// true // REVERT!!!!
 	//bRandomizeTime := (fetchVotesForUserId == -1)
 
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
@@ -57,6 +58,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	   		   Language,
 			   Country,
 			   '' AS PollOptionData,
+			   '' AS PollTallyResults,
 			   NumComments,
 			   ThumbnailStatus,
 			   'N' AS Source
@@ -80,6 +82,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			   'EN' AS Language,
 			   COALESCE(U.Country, ''),
 			   '' AS PollOptionData,
+			   '' AS PollTallyResults,
 			   NumComments,
 			   ThumbnailStatus,
 			   'L' AS Source
@@ -104,6 +107,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 				   'EN' AS Language,
 				   COALESCE(U.Country, ''),
 				   PollOptionData,
+				   COALESCE(PollTallyResults, ''),
 				   NumComments,
 				   ThumbnailStatus,
 				   'P' AS Source
@@ -175,6 +179,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 				Language,
 				Country,
 				PollOptionData,
+				PollTallyResults,
 				NumComments,
 				ThumbnailStatus,
 				Source,
@@ -200,17 +205,20 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	}
 
 	if fetchVotesForUserId >= 0 {
-		// Join query to post votes table.
+		// Join query to post vote and poll vote tables.
 		query = fmt.Sprintf(`
 			SELECT x.*,
 			   CASE WHEN v.Up IS NULL THEN 0
 					WHEN v.Up THEN 1
 					ELSE -1
-			   END AS Upvoted
+			   END AS Upvoted,
+			   w.VoteOptionIds
 			FROM (%s) x
 			LEFT JOIN $$PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
+			LEFT JOIN $$PollVote w ON x.Id = w.PollId AND (w.UserId = %d)
 			ORDER BY x.OrderBy DESC`,
 			query,
+			fetchVotesForUserId,
 			fetchVotesForUserId)
 	}
 
@@ -236,20 +244,25 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		var language		string
 		var country			string
 		var pollOptionJson	string
+		var pollTallyResultsJson	string
 		var orderBy			time.Time
 		var upvoted			int
 		var voteTally		int
 		var numComments		int
 		var thumbnailStatus	int
 		var source			string
+		var voteOptionIds 	[]int64
 
 		if fetchVotesForUserId >= 0 {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &numComments, &thumbnailStatus, &source,
-							&voteTally, &orderBy, &upvoted))
+							&publishedAt, &newsSourceId, &category, &language, &country,
+							&pollOptionJson, &pollTallyResultsJson, &numComments, &thumbnailStatus, &source,
+							&voteTally, &orderBy, &upvoted, pq.Array(&voteOptionIds)))
+
 		} else {
 			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
-							&publishedAt, &newsSourceId, &category, &language, &country, &pollOptionJson, &numComments, &thumbnailStatus, &source,
+							&publishedAt, &newsSourceId, &category, &language, &country,
+							&pollOptionJson, &pollTallyResultsJson, &numComments, &thumbnailStatus, &source,
 							&voteTally, &orderBy))
 		}
 		//prVal("id", id)
@@ -264,8 +277,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		//prVal("language", language)
 		//prVal("country", country)
 		//prVal("pollOptionJson", pollOptionJson)
+		//prVal("pollTallyResultsJson", pollTallyResultsJson)
 		//prVal("orderBy", orderBy)
 		//prVal("upvoted", upvoted)
+		//prVal("voteOptionIds", voteOptionIds)
 		//prVal("voteTally", voteTally)
 		//prVal("numComments", numComments)
 		//prVal("thumbnailStatus", thumbnailStatus)
@@ -347,6 +362,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 					"/static/newsSourceIcons/" + newsSourceId + ".png",  // News source icon.
 					"/static/mozilla dinosaur head.png"),                // TODO: we need real dinosaur icon art for users.
 			Upvoted:		upvoted,
+			VoteOptionIds:	voteOptionIds,
 			VoteTally:		voteTally,
 			NumComments:	numComments,
 			ThumbnailStatus:thumbnailStatus,
@@ -356,10 +372,35 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		if len(pollOptionJson) > 0 {
 			//prf("pollId %d category %s", newArticle.Id, category)
 
-			newArticle.IsPoll 		  = true
-			newArticle.Title 		  = "POLL: " + newArticle.Title
+			newArticle.IsPoll  = true
 
 			check(json.Unmarshal([]byte(pollOptionJson), &newArticle.PollOptionData))
+
+			// If this poll has already been voted on...
+			if len(pollTallyResultsJson) > 0 {
+				check(json.Unmarshal([]byte(pollTallyResultsJson), &newArticle.PollTallyResults))
+
+				prVal("newArticle.PollTallyResults", newArticle.PollTallyResults)
+
+				newArticle.WeVoted = true
+
+				// Convert voteOptionIds to map to make it easily lookupable by the html template.
+				//newArticle.VoteOptionsMap = make(map[int64]bool)
+				//for _, optionId := range voteOptionIds {
+				//	newArticle.VoteOptionsMap[optionId] = true
+				//}
+				prVal("voteOptionIds", voteOptionIds)
+
+				numOptions := len(newArticle.PollOptionData.Options)
+
+				newArticle.VoteData = make([]bool, numOptions)
+				for _, optionId := range voteOptionIds {
+					prVal("optionId", optionId)
+					newArticle.VoteData[optionId] = true
+				}
+			}
+
+			//newArticle.Title   = ternary_str(newArticle.WeVoted, "RESULTS: ", "POLL: ") + newArticle.Title
 
 			// Tally title characters.
 			numLinesApprox := ceil_div(len(newArticle.Title), kApproxCharsPerLine)
@@ -456,6 +497,7 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 	len := len(articles)
 
 	if len == 1 {
+		articles[0].Size = 2  // 2 means full-page article in /article or /viewPollResults.
 		return articles[0], nil
 	} else if len == 0 {
 		return Article{}, errors.New("Article not found")

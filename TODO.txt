@@ -3,11 +3,12 @@ convert mozilla thumbnail posts to '' on all posts
 
 
 JUST FIXED:
-
+Added back and close buttons to /create
 
 WORKING ON:
 
-A 13 - Want to view poll results on /news & /article once you've voted on it
+A 13 = Want to view poll results on /news & /article once you've voted on it
+     = NEXT STEP: Shorten poll results via ... so it takes less space.  Maybe rename to VOTED:
 
 A - Start getting feedback from close peeps!!  (Start with Tom, Dad, Jeff, Steve D.)
 
@@ -31,7 +32,7 @@ A 2 - links & blogs should not be able to be shared to the category 'polls'
 
 A 13 - implement really simple blogging
 
-B 2 - sidebar up/down buttons and comment buttons are all small, esp. on mobile, also the '...' should be hidden for now.
+B 2 - sidebar h buttons and comment buttons are all small, esp. on mobile, also the '...' should be hidden for now.
 
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 

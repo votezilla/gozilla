@@ -27,7 +27,12 @@
 						{{- range $i, $navItem := .NavMenu}}
 							{{- if ne $i 0 }} | {{end -}}
 							{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
-							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">{{$navItem}}</a>
+							<a href="/{{$navItem}}"
+							   style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};"
+								{{- if eq $navItem "create" -}} target="_blank" {{- end -}}
+							>
+								{{$navItem}}
+							</a>
 							{{- if eq $navItem $.UrlPath}}</span>{{end -}}
 						{{end -}}
 						</span>
@@ -290,7 +295,12 @@ function getVoteData(pollId, numOptions, pollType) {
 				voteData.push($(`#vote_${pollId}_${o}`).is(':checked') ? "x" : "");
 				break;
 			case "text":
-				voteData.push($(`#vote_${pollId}_${o}`).val());
+				var val = $(`#vote_${pollId}_${o}`).val();
+				// Convert undefined to ''.
+				if (!val) {
+					val = '';
+				}
+				voteData.push(val);
 				break;
 			default:
 				alert("Unhandled poll type AAA: " + pollType);
@@ -383,7 +393,7 @@ function VoteOnPoll(pollId, numOptions, pollType) {
 				console.log(r);
 
 				// Open the View Poll Results in a new tab.
-				window.open(`/viewPollResults/?postId=${pollId}&voteData=${voteData}`, '_blank');
+				window.open(`/viewPollResults/?postId=${pollId}`, '_blank');
 			},
 			error: function(r) {
 				console.log("AJAX Poll Vote - error");
@@ -483,6 +493,62 @@ $(function () {
 	)"
 {{ end }}
 
+
+{{ define "PollTallyResults" }}
+	<!--<tr><td><i>Results:</i></td></tr>-->
+	{{- $article := . -}}
+	{{- $poll := $article.PollOptionData -}}
+	{{- $pollTallyResults := $article.PollTallyResults -}}
+	{{/*- $vote := $article.VoteData -*/}}
+	{{- $maxOptions := 0 }}
+	{{- if eq $article.Size 1 }}     {{/*LARGE ARTICLE SIZE*/}}
+		{{- $maxOptions = 8 }}
+	{{- else if eq $article.Size 0 }}{{/*NORMAL ARTICLE SIZE*/}}
+		{{- $maxOptions = 3 }}
+	{{- else }}                      {{/*2 - FULLPAGE ARTICLE */}}
+		{{- $maxOptions = 999999 }}
+	{{ end }}
+
+	{{ range $o, $option := $poll.Options }}
+		{{ if lt $o $maxOptions }}
+			{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
+			<tr>
+				<td style="min-width: 30%; max-width: 50%;
+						   word-break: break-word;
+						   -ms-word-break: break-all;
+						   vertical-align: top;">
+					{{$option}}
+				</td>
+				<td width=10% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
+				<td width=30% nowrap>
+					<div class="w3-border" style="position:relative">
+						<div class="w3-grey" style="height:24px; width:{{$percentage}}"></div>
+					</div>
+				</td>
+				<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
+				<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
+			</tr>
+		{{ else if eq $o $maxOptions }}
+			<tr><td colspan=5><label class="vote">
+				<a href="/viewPollResults/?postId={{ $article.Id }}" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
+					More...
+				</a>
+			</td></label></tr>
+		{{ end }}
+	{{ end }}
+{{ end }}
+
+{{ define "PollTallyResultsInline" }}
+	<table width=100%>
+		<tr></tr>
+<!--		<tr>
+			<td colspan=3><h5><b>Results below:</b></h4></td>
+		</tr>
+-->		{{ template "PollTallyResults" . }}
+	</table>
+{{ end }}
+
+
 {{ define "PollInlineForm" }}
 	{{- $article := . -}}
 
@@ -494,59 +560,62 @@ $(function () {
 	{{ end }}
 
 	{{- if $article.IsPoll -}}
-		{{/*$article.Id*/}}
-		{{- $poll := $article.PollOptionData }}
-		{{ if $poll.RankedChoiceVoting }}
-			<div>
-				<div style="width: 100%; padding-left: 5px;">
-					<i>Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</i>
+		{{ if $article.WeVoted }}
+			{{ template "PollTallyResultsInline" $article }}
+		{{ else }}
+			{{/*$article.Id*/}}
+			{{- $poll := $article.PollOptionData }}
+			{{ if $poll.RankedChoiceVoting }}
+				<div>
+					<div style="width: 100%; padding-left: 5px;">
+						<i>Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.</i>
+					</div>
 				</div>
-			</div>
-		{{ end }}
-		<div valign="top">
-			<div style="width: 100%; padding-left: 5px;">
-				<div width="100%">
-					<div>
-						<div align="left">
-							{{ range $o, $option := $poll.Options }}
-								{{ if lt $o $maxOptions }}
-									{{ if $poll.RankedChoiceVoting }}
-										<label class="vote">
-											<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
-											{{$option}}
-										</label>
-									{{ else if $poll.CanSelectMultipleOptions }}
-										<label class="vote">
-											<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
+			{{ end }}
+			<div valign="top">
+				<div style="width: 100%; padding-left: 5px;">
+					<div width="100%">
+						<div>
+							<div align="left">
+								{{ range $o, $option := $poll.Options }}
+									{{ if lt $o $maxOptions }}
+										{{ if $poll.RankedChoiceVoting }}
+											<label class="vote">
+												<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
 												{{$option}}
+											</label>
+										{{ else if $poll.CanSelectMultipleOptions }}
+											<label class="vote">
+												<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
+													{{$option}}
+											</label>
+										{{ else }}
+											<label class="radio-inline vote" style="cursor: pointer">
+												<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+													   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
+												{{$option}}
+											</label>
+										{{ end }}
+										<br>
+									{{ else if eq $o $maxOptions }}
+										<label class="vote">
+											<a href="{{$article.Url}}&changeVote=true" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
+												More options...
+											</a>
 										</label>
-									{{ else }}
-										<label class="radio-inline vote" style="cursor: pointer">
-											<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
-												   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
-											{{$option}}
-										</label>
+										<br>
 									{{ end }}
-									<br>
-								{{ else if eq $o $maxOptions }}
-									<label class="vote">
-										<a href="{{$article.Url}}&changeVote=true" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
-											More options...
-										</a>
-									</label>
-									<br>
 								{{ end }}
-							{{ end }}
 
-							<span style="padding-left: 5px;">
-								<button type="submit" class="btn btn-vote btn-sm" style="margin: .5rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
-							</span>
+								<span style="padding-left: 5px;">
+									<button type="submit" class="btn btn-vote btn-sm" style="margin: .5rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-
+		{{ end }}
 	{{ end }}
 {{ end }}
 
@@ -628,4 +697,3 @@ $(function () {
 		</td>
 	</table>
 {{ end }}
-
