@@ -3,7 +3,8 @@ convert mozilla thumbnail posts to '' on all posts
 
 
 JUST FIXED:
-Added back and close buttons to /create
+A 5 - equalize /news article order a little / prioritize page rank multiplied by less.
+
 
 WORKING ON:
 
@@ -15,6 +16,13 @@ A - Start getting feedback from close peeps!!  (Start with Tom, Dad, Jeff, Steve
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
+
+FEEDBACK:
+C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
+  ^ Ryan H: Only listing the first three options in the summary is going to influence votes. Try not including the poll choices in the summary at all? or at least not be able to vote from the summary? Should polls have descriptions? (yes).
+
+
+
 POLLS:
 
 Importance
@@ -24,9 +32,11 @@ v
 
 A 13 - Need ability to add new option when voting
 
-A 5 - Make article links more obvious.  Do what Yahoo news does on hover - text blue, underline, (bonus for overlay div for brightening).
+A 21 - Add activity tab (like FB notifications, but list all ppl)
 
-A 5 - equalize /news article order a little / prioritize page rank multiplied by less.
+A 8 - Add history for other ppl (also listing of ppl)
+
+A 5 - Make article links more obvious.  Do what Yahoo news does on hover - text blue, underline, (bonus for overlay div for brightening).
 
 A 2 - links & blogs should not be able to be shared to the category 'polls'
 
@@ -68,6 +78,8 @@ MED-HIGH PRIORITY (for test w/ 10 friends):
 C 2 - Break word by width=50% if any option len > 20	
 
 C 3 - max username length is 345 - this is too long!
+
+C 3 - voting from history doesn't work when there are duplicates.  Could just manually remove duplicates in Go after the query.
 
 C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
 
@@ -119,7 +131,8 @@ C 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduc
   - ++ created polls to history
   
 C 2 - Ryan: "The ellipsis for long comments should be more obvious >> blue and test like show more and an arrow -> or something like that"  
-  
+
+
 
 MED PRIORITY (for test with 100 friends):
 

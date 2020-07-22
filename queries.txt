@@ -6,6 +6,17 @@ SET client_encoding = 'UTF8';
 vv WORKS!!! vv
 
 
+View posts by each user:
+select p.id, userid, u.username, title from vz.post p join vz.user u on p.userid = u.id order by userid;
+
+View comments by each user:
+select c.id, userid, u.username, substring(text, 0, 20) from vz.comment c join vz.user u on c.userid = u.id order by userid
+
+View up/down votes by each user:
+select v.created, v.up, v.postid, u.id, u.username, p.title from vz.postvote v join vz.user u on v.userid = u.id join vz.post p on p.id = v.postid order by u.id;
+
+View poll votes by each user:
+select v.voteoptionids, v.voteamounts, v.pollid, u.id, u.username, p.title from vz.pollvote v join vz.user u on v.userid = u.id join vz.post p on p.id = v.pollid order by u.id;
 
 	
    WITH posts AS (SELECT * FROM vz.PollPost),
