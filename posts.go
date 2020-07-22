@@ -152,10 +152,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		SELECT posts.*,
 			COALESCE(votes.VoteTally, 0) AS VoteTally,
 			posts.PublishedAt +
-				interval '60 hours' *
+				interval '24 hours' *
 				(
-					5 * COALESCE(votes.VoteTally, 0) +
-					2 * posts.NumComments +
+					3 * COALESCE(votes.VoteTally, 0) +
+					0.5 * posts.NumComments +
 					5 * (%s)
 				) AS OrderBy
 		FROM posts
