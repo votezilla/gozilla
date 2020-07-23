@@ -382,21 +382,24 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 				prVal("newArticle.PollTallyResults", newArticle.PollTallyResults)
 
-				newArticle.WeVoted = true
+				if len(voteOptionIds) > 0 {
+					newArticle.WeVoted = true
 
-				// Convert voteOptionIds to map to make it easily lookupable by the html template.
-				//newArticle.VoteOptionsMap = make(map[int64]bool)
-				//for _, optionId := range voteOptionIds {
-				//	newArticle.VoteOptionsMap[optionId] = true
-				//}
-				prVal("voteOptionIds", voteOptionIds)
+					// Convert voteOptionIds to map to make it easily lookupable by the html template.
+					//newArticle.VoteOptionsMap = make(map[int64]bool)
+					//for _, optionId := range voteOptionIds {
+					//	newArticle.VoteOptionsMap[optionId] = true
+					//}
+					prVal("voteOptionIds", voteOptionIds)
 
-				numOptions := len(newArticle.PollOptionData.Options)
+					numOptions := len(newArticle.PollOptionData.Options)
 
-				newArticle.VoteData = make([]bool, numOptions)
-				for _, optionId := range voteOptionIds {
-					prVal("optionId", optionId)
-					newArticle.VoteData[optionId] = true
+
+					newArticle.VoteData = make([]bool, numOptions)
+					for _, optionId := range voteOptionIds {
+						prVal("optionId", optionId)
+						newArticle.VoteData[optionId] = true
+					}
 				}
 			}
 
@@ -406,11 +409,16 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			numLinesApprox := ceil_div(len(newArticle.Title), kApproxCharsPerLine)
 
 			// Tally poll options separately (because divided by a newline).
+			longestItem := 0 // Calc the longest item length.
 			numCharsApprox := 2 * len(newArticle.PollOptionData.Options)  // Treat checkbox as 2 characters.
 			for _, option := range newArticle.PollOptionData.Options {
-				numCharsApprox += len(option)
+				length := len(option)
+				numCharsApprox += length
+
+				longestItem = max_int(longestItem, length)
 			}
 			numLinesApprox += ceil_div(numCharsApprox, kApproxCharsPerLine)
+			newArticle.LongestItem = longestItem
 
 			//prf("numCharsApprox: %d numLinesApprox: %d", numCharsApprox, numLinesApprox)
 
@@ -459,6 +467,9 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 				panic(fmt.Sprintf("Unexpected thumbnail status: %d", thumbnailStatus))
 			}
 		}
+
+		newArticle.Ellipsify = func(text string, maxLength int) string { return ellipsify(text, maxLength); }
+
 
 		// Check for articles with duplicate id's.  When polls have duplicate id's, it causes voting bugs!!!
 		_, found = checkForDupId[id]

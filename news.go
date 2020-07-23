@@ -103,9 +103,7 @@ var (
 //////////////////////////////////////////////////////////////////////////////
 func formatArticle(article *Article) {
 	// Truncate the title if it's too long.
-	if len(article.Title) > kMaxTitleLength {
-		article.Title = article.Title[0:kMaxTitleLength] + "..."
-	}
+	article.Title = ellipsify(article.Title, kMaxTitleLength)
 }
 
 //////////////////////////////////////////////////////////////////////////////

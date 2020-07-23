@@ -55,6 +55,9 @@ type Article struct {
 	VoteOptionIds	 	[]int64
 	VoteData			[]bool
 	//VoteOptionsMap		map[int64]bool
+	LongestItem			int
+
+	Ellipsify			func(text string, maxLength int) string
 }
 
 

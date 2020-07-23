@@ -109,6 +109,18 @@ func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
 func str_to_bool(s string) bool { return s == "true" }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
 
+// Truncate and add "..." if text is longer than maxLength.
+func ellipsify(s string, maxLength int) string {
+	length := len(s)
+
+	if length > maxLength {
+		s = s[0:maxLength]
+		s += "..."
+	}
+
+	return s
+}
+
 // Maps the input from an array of strings to an output array of strings, using the map function.
 func map_str(mapFn func(string)string, input []string) []string {
 	output := make([]string, len(input))

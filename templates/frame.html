@@ -513,33 +513,67 @@ $(function () {
 		{{ if lt $o $maxOptions }}
 			{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
 			<tr>
-				<td style="min-width: 30%; max-width: 50%;
-						   word-break: break-word;
-						   -ms-word-break: break-all;
-						   vertical-align: top;">
-					{{$option}}
-				</td>
-				<td width=10% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
-				<td width=30% nowrap>
-					<div class="w3-border" style="position:relative">
-						<div class="w3-grey" style="height:24px; width:{{$percentage}}"></div>
-					</div>
-				</td>
-				<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
-				<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
+				{{ if or (lt $article.LongestItem 20) (eq $article.Size 2) }}
+					<td style="min-width: 30%; max-width: 50%;
+							   word-break: break-word;
+							   -ms-word-break: break-all;
+							   vertical-align: top;">
+						{{/*$option*/}} {{(call $article.Ellipsify $option 42)}}
+					</td>
+					<td width=10% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
+					<td width=30% nowrap>
+						<div class="w3-border" style="position:relative">
+							<div class="w3-grey" style="height:24px; width:{{$percentage}}"></div>
+						</div>
+					</td>
+					<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
+					<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
+				{{ else }} {{/* If there's a long item, uses compact layout with fewer columns. */}}
+					<td style="width: 90%;
+							   word-break: break-word;
+							   -ms-word-break: break-all;
+							   vertical-align: top;">
+						{{/*$option*/}} {{(call $article.Ellipsify $option 42)}}
+					</td>
+					<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
+					<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
+				{{ end }}
 			</tr>
 		{{ else if eq $o $maxOptions }}
-			<tr><td colspan=5><label class="vote">
-				<a href="/viewPollResults/?postId={{ $article.Id }}" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
-					More...
-				</a>
-			</td></label></tr>
+			<tr><td colspan=5>
+				<table width=100%>
+					<tr>
+						<td align=left>
+							<a href="/viewPollResults/?postId={{ $article.Id }}" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 0px;">
+								More...
+							</a>
+						</td>
+						<td align=right>
+							<label class="vote">
+								<a href="/article/?postId={{$article.Id}}&changeVote=true" style="color: #0072ff; font-size: 18px;">Change your vote?</a>
+							</label>
+						</td>
+				</table>
+			</td></tr>
 		{{ end }}
+	{{ end }}
+	{{ if le (len $poll.Options) $maxOptions }}
+		<tr><td colspan=5>
+			<table width=100%>
+				<tr>
+					<td align=right>
+						<label class="vote">
+							<a href="/article/?postId={{$article.Id}}&changeVote=true" style="color: #0072ff; font-size: 18px;">Change your vote?</a>
+						</label>
+					</td>
+				</tr>
+			</table>
+		</tr>
 	{{ end }}
 {{ end }}
 
 {{ define "PollTallyResultsInline" }}
-	<table width=100%>
+	<table width=100% style="margin-left: 0px;">
 		<tr></tr>
 <!--		<tr>
 			<td colspan=3><h5><b>Results below:</b></h4></td>

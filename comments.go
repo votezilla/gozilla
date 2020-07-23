@@ -371,13 +371,7 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 					linesLeft = 0
 				}
 
-				// Truncate last line if too long.
-				if length > linesLeft*kCharsPerLine {
-					newComment.Text[i] = newComment.Text[i][:linesLeft*kCharsPerLine]
-				}
-
-				// End the line with ellipsis.
-				newComment.Text[i] += "..."
+				newComment.Text[i] = ellipsify(newComment.Text[i], linesLeft*kCharsPerLine)
 
 				newComment.IsExpandible = true
 
