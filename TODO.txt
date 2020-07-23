@@ -2,11 +2,7 @@ SERVER_PUSH_TODO:
 convert mozilla thumbnail posts to '' on all posts
 
 
-JUST FIXED (7/22):
-A 13 - Want to view poll results on /news & /article once you've voted on it
-     - Shorten poll results via ... so it takes less space.  Maybe rename to VOTED:
-
-A 5 - equalize /news article order a little / prioritize page rank multiplied by less.
+JUST FIXED:
 
 
 WORKING ON:
@@ -16,11 +12,6 @@ A - Start getting feedback from close peeps!!  (Start with Tom, Dad, Jeff, Steve
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
-
-
-FEEDBACK:
-C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
-  ^ Ryan H: Only listing the first three options in the summary is going to influence votes. Try not including the poll choices in the summary at all? or at least not be able to vote from the summary? Should polls have descriptions? (yes).
 
 
 
@@ -42,6 +33,8 @@ A 5 - Make article links more obvious.  Do what Yahoo news does on hover - text 
 A 2 - links & blogs should not be able to be shared to the category 'polls'
 
 A 13 - implement really simple blogging
+
+A 8 - upgrade DigitalOcean instance $5 -> $10
 
 B 3 - history needs polls section
 
@@ -72,6 +65,13 @@ B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with
 B 8 - Add "About" section - or implememnt simple blog first?
 
 B 13 - display the results of polls you've voted on, on /news.  May require a pollTallyService to count results ahead of time and store them in a json column in the poll.
+
+
+FEEDBACK:
+C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
+  ^ Ryan H: Only listing the first three options in the summary is going to influence votes. Try not including the poll choices in the summary at all? or at least not be able to vote from the summary? Should polls have descriptions? (yes).
+
+
 
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --

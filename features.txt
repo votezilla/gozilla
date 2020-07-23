@@ -174,3 +174,9 @@ Found & fixed while testing:
 - Fixed a bug preventing the ability to see immediate progress from up / down vote of any article in /news.  (Because I'd removed the anchor on a previous check-in.)
 
 A 2 - why does this poll sort so highly?: "Create a test poll question with lots of words and options and also it"
+
+JUST FIXED (7/22):
+A 13 - Want to view poll results on /news & /article once you've voted on it
+     - Shorten poll results via ... so it takes less space.  Maybe rename to VOTED:
+
+A 5 - equalize /news article order a little / prioritize page rank multiplied by less.
