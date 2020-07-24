@@ -6,7 +6,11 @@
 			{{ $article := .Article }}
 			{{ $poll := $article.PollOptionData }}
 
-			{{ template "BackToCategory" $article.Category }}
+			{{ if $article.IsPoll }}
+				{{ template "BackToCategory" "polls" }}
+			{{ else }}
+				{{ template "BackToCategory" $article.Category }}
+			{{ end }}
 
 			<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
 				<tr>

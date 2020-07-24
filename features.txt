@@ -187,3 +187,7 @@ A 2 - try defaulting polls to no flags set.  (http://votezilla.io/viewPollResult
 
 A - 2 - Article (poll) - need smaller header image because it's hiding poll from user, creating confusion.
     ^^ I addressed this by anchoring user to the start of the poll when they go there.
+A - 2 - clicking on comment icon from /news - should take you to "leave a comment" anchor - otherwise, confusing (TOM)
+
+A - 2 - on multi-select poll, divide by total not max, so it adds up to 100% (TOM)
+

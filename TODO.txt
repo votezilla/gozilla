@@ -4,9 +4,7 @@ convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
 
-A - 2 - clicking on comment icon from /news - should take you to "leave a comment" anchor - otherwise, confusing (TOM)
-
-A - 2 - on multi-select poll, divide by total not max, so it adds up to 100% (TOM)
+C - 2 - have back button for polls go back to POLLS
 
 
 WORKING ON:
@@ -94,7 +92,6 @@ FEEDBACK:
 C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
   ^ Ryan H: Only listing the first three options in the summary is going to influence votes. Try not including the poll choices in the summary at all? or at least not be able to vote from the summary? Should polls have descriptions? (yes).
 
-C - 2 - have back button for polls go back to POLLS (?)
 
 TOM FEEDBACK:
 D - TOM: Add Votezilla to search engines.  (He tried to search for votezilla.io on the search engine!) (Need to optimize and improve SEO first!) (TOM)
