@@ -4,11 +4,12 @@ convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
 
+A - 2 - clicking on comment icon from /news - should take you to "leave a comment" anchor - otherwise, confusing (TOM)
+
+A - 2 - on multi-select poll, divide by total not max, so it adds up to 100% (TOM)
 
 
 WORKING ON:
-
-A - PUSH code to server
 
 A+ - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
@@ -26,10 +27,6 @@ Importance
 v
   Difficulty
   v
-
-A - 2 - on multi-select poll, divide by total not max, so it adds up to 100% (TOM)
-
-A - 2 - clicking on comment icon from /news - should take you to "leave a comment" anchor - otherwise, confusing (TOM)
 
 A - 8 - cats need to be more obvious that they are clickable, maybe thick underline / link icon / spell it out (i.e. MORE NEWS...) (TOM)
          ^^ + vv

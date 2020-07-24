@@ -197,7 +197,7 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 		prVal(">>1 pollTallyResults", pollTallyResults)
 
 		dividend := 0
-		if !pollOptionData.CanSelectMultipleOptions { // Single select - basic survey - get the sum.
+		if true { // Always divide by the total, even for multi-select, since that makes everything add up to 100%.  //!pollOptionData.CanSelectMultipleOptions { // Single select - basic survey - get the sum.
 			sum := 0
 			for i := range pollTallyResults {
 				sum += pollTallyResults[i].Count
