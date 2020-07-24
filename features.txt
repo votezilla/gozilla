@@ -180,3 +180,10 @@ A 13 - Want to view poll results on /news & /article once you've voted on it
      - Shorten poll results via ... so it takes less space.  Maybe rename to VOTED:
 
 A 5 - equalize /news article order a little / prioritize page rank multiplied by less.
+
+A 13 - Need ability to add new option when voting
+
+A 2 - try defaulting polls to no flags set.  (http://votezilla.io/viewPollResults/?postId=88165)  Ryan H.: "I chose None because I noticed several polls where it did not make sense to choose more than one option and accidentally did so myself. It would be nice to be able to change a poll if there have not been any votes on it (except maybe your own). Need to be able to delete a poll or post or comment."
+
+A - 2 - Article (poll) - need smaller header image because it's hiding poll from user, creating confusion.
+    ^^ I addressed this by anchoring user to the start of the poll when they go there.

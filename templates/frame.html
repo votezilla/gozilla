@@ -399,7 +399,7 @@ function validateVoteData(pollType, voteData, newVoteData, newOptions) {
 	}
 }
 
-function VoteOnPoll(pollId, numOptions, pollType) {
+function VoteOnPoll(pollId, numOptions, pollType, windowTarget) {
 	if ({{.UserId}} == -1) {
 		alert("You must be logged in to do that!");  // TODO: make this a modal that prompts for login / register
 
@@ -436,7 +436,7 @@ function VoteOnPoll(pollId, numOptions, pollType) {
 				console.log(r);
 
 				// Open the View Poll Results in a new tab.
-				window.open(`/viewPollResults/?postId=${pollId}`, '_blank');
+				window.open(`/viewPollResults/?postId=${pollId}`, windowTarget);
 			},
 			error: function(r) {
 				console.log("AJAX Poll Vote - error");
@@ -527,12 +527,17 @@ $(function () {
 		{{- $article.Id }},
 		{{- len $poll.Options }},
 		{{- if $poll.RankedChoiceVoting }}
-			{{- "text" }}
+			{{- "text" }},
 		{{- else if $poll.CanSelectMultipleOptions }}
-			{{- "checkbox" }}
+			{{- "checkbox" }},
 		{{- else }}
-			{{- "radio" }}
+			{{- "radio" }},
 		{{- end -}}
+		{{- if eq $article.Size 2 }}
+			{{- "_self" }}
+		{{- else }}
+			{{- "_blank" }}
+		{{- end }}
 	)"
 {{ end }}
 
