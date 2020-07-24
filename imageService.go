@@ -507,7 +507,7 @@ func ImageService() {
 
 	for {
 		// Downsample news images
-		for pass := 0; pass < NUM_GEN_THUMBS_PASSES; pass++ { // REVERT!!!
+		for pass := 0; pass < NUM_GEN_THUMBS_PASSES; pass++ {
 			pr("========================================")
 			prf("======= FETCHING IMAGES PASS: %d =======", pass)
 			pr("========================================\n")

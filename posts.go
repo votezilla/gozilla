@@ -41,7 +41,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	prVal("maxArticles", maxArticles)
 	prVal("fetchVotesForUserId", fetchVotesForUserId)
 
-	bRandomizeTime := false// true // REVERT!!!!
+	bRandomizeTime := true // TODO: make a flag for this.
 	//bRandomizeTime := (fetchVotesForUserId == -1)
 
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
@@ -431,7 +431,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 			//prVal("newArticle.PollOptionData", newArticle.PollOptionData)
 
-			newArticle.Url = fmt.Sprintf("/article/?postId=%d", id)
+			newArticle.Url = fmt.Sprintf("/article/?postId=%d#vote", id)
 			//newArticle.Url = fmt.Sprintf("/viewPollResults/?postId=%d", id)  // This would take the user to directly viewing the results.  This is a design problem to figure out later.
 
 			newArticle.NumLines = numLinesApprox

@@ -21,36 +21,85 @@ var (
 	err		 	error
 
 	// NavMenu (constant)
-	navMenu		= []string{"news", "create", "history"}
+	navMenu		= []string{"news", "create", "history", "activity" }
 )
 
 
-// Template arguments for webpage template.
-type PageArgs struct {
-	Title			string
-	Script			string
-}
+
 
 const (
+	kActivity = "activity"
 	kArticle = "article"
 	kCreate = "create"
 	kCreateBlog = "createBlog"
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
-	//kForm = "form"
 	kLogin = "login"
 	kLoginPopup = "loginPopup"
 	kNews = "news"
 	kNewsSources = "newsSources"
 	kNuForm = "nuForm"
 	kNuFormPopup = "nuFormPopup"
+	kRegister = "register"
 	kRegisterDetails = "registerDetails"
 	kRegisterDetailsNopopup = "registerDetailsNopopup"
-	//kRegisterDetailsScript = "registerDetailsScript"
-	kRegister = "register"
 	kTestPopup = "testPopup"
 	kViewPollResults = "viewPollResults"
 )
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// HTML Template Args
+//
+///////////////////////////////////////////////////////////////////////////////
+// Page Args
+type PageArgs struct {
+	Title			string
+	Script			string
+}
+
+// Form Frame Args
+type FormFrameArgs struct {
+	PageArgs
+	Form			Form
+}
+func makeFormFrameArgs(form *Form, title string) FormFrameArgs {
+	return FormFrameArgs {
+		PageArgs: 		PageArgs{Title: title},
+		Form: 			*form,
+	}
+}
+
+// Frame Args
+type FrameArgs struct {
+	PageArgs
+	NavMenu			[]string
+	UrlPath			string
+	UserId			int64
+	Username		string
+	UpVotes			[]int64
+	DownVotes		[]int64
+}
+func makeFrameArgs(title, script, urlPath string, userId int64, username string) FrameArgs {
+	return FrameArgs {
+		PageArgs: 		PageArgs{Title: title, Script: script},
+		NavMenu:		navMenu,
+		UrlPath:		urlPath,
+		UserId:			userId,
+		Username:		username,
+	}
+}
+func makeFrameArgs2(title, script, urlPath string, userId int64, username string, upVotes, downVotes []int64) FrameArgs {
+	return FrameArgs {
+		PageArgs: 		PageArgs{Title: title, Script: script},
+		NavMenu:		navMenu,
+		UrlPath:		urlPath,
+		UserId:			userId,
+		Username:		username,
+		UpVotes:		upVotes,
+		DownVotes:		downVotes,
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -96,11 +145,50 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	// TODO: we could add DNS Attack code defense here.  Check the ip, apply various masks.
 
+	// TODO: Log IP here!
+	// Current output:
+	//  Handling request from: GET /article/?postId=17653&addOption=1 HTTP/1.1
+	//  Host: localhost:8080
+	//  accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+	//  sec-fetch-dest: document
+	//  accept-language: en-US,en;q=0.9
+	//  cookie: UserId=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	//  connection: keep-alive
+	//  upgrade-insecure-requests: 1
+	//  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
+	//  sec-fetch-site: same-origin
+	//  sec-fetch-mode: navigate
+	//  sec-fetch-user: ?1
+	//  referer: http://localhost:8080/article/?postId=17653
+	//  accept-encoding: gzip, deflate, br
+
+	// Should log: URL, referer, IP, user-agent, userId
+	// url := fmt.Sprintf("%v %v %v", r.Method, r.URL, r.Proto)
+	// for name, headers := range r.Header {
+	//	name = strings.ToLower(name)
+	//	for _, h := range headers {
+	//		request = append(request, fmt.Sprintf("%v: %v", name, h))
+	//	}
+	// }
+	// ^^ including accept-language: en-US,en;q=0.9
+	// ^^ including referer: http://localhost:8080/article/?postId=17653
+	// ^^ including user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
+	// userId I can lookup up
+
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		prf("\nHandling request from: %s\n", formatRequest(r))
 
 		handler(w, r)
 	}
+}
+
+func activityHandler(w http.ResponseWriter, r *http.Request) {
+	serveHTML(w, "Coming Soon: an activity activity")
+
+	userId, username := GetSessionInfo(w, r)
+
+	executeTemplate(w, kActivity, makeFrameArgs("votezilla - Activity", "", kActivity, userId, username))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -135,6 +223,7 @@ func parseTemplateFiles() {
 	hDefineTemplate(kArticle, 		"base", "wide", "frame", "sidebar", "article", "comments")
 	hDefineTemplate(kNews, 			"base", "wide", "frame", "news")
 	hDefineTemplate(kNewsSources,	"base", "wide", "frame", "newsSources")  // nyi
+	hDefineTemplate(kActivity, 		"base", "wide", "frame", "activity")
 
 	hDefineTemplate(kCreate, 		"base", "narrow", "minFrame", "nuField", "create")
 	hDefineTemplate(kCreateBlog, 	"base", "narrow", "minFrame", "nuField", "createBlog")
@@ -173,6 +262,7 @@ func WebServer() {
 	http.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
 	http.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
 	http.HandleFunc("/article/",       			hwrap(articleHandler))
+	http.HandleFunc("/activity/",       		hwrap(activityHandler))
 	http.HandleFunc("/create/",   				hwrap(createHandler))
 	http.HandleFunc("/createBlog/",   			hwrap(createBlogHandler))
 	http.HandleFunc("/createLink/",   			hwrap(createLinkHandler))

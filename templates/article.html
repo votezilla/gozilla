@@ -59,4 +59,60 @@
 	</table>
 
 	{{ template "comments" . }}
+
+<script>
+	{{ $poll := $article.PollOptionData }}
+
+	function addOption(pollId) {
+		if (numNewOptions > 16) {
+			alert("Adding too many options at once!");
+			return;
+		}
+
+		var newVoteOption = $("#addOptionLink");
+
+		newVoteOption.before(`
+			{{ if $poll.RankedChoiceVoting }}
+				<label>
+					<input id="vote_N${numNewOptions}" type="digit" value="" size="1"
+						   maxlength="1" style="width: 25px; padding: 5px; margin: 4px 4px 4px 0; margin-right: 0;">
+				</label>
+			{{ else if $poll.CanSelectMultipleOptions }}
+				<label class="vote">
+					<input id="vote_N${numNewOptions}" type="checkbox" class="vote"
+						   value="N${numNewOptions}" style="margin: 6px; margin-right: 0;">
+				</label>
+			{{ else }}
+				<label class="vote" style="margin-bottom: 0">
+					<input id="vote_N${numNewOptions}" type="radio" class="vote"
+						   name="vote_{{$article.Id}}"
+						   style="margin: 8px; margin-right: 0;">
+				</label>
+			{{ end }}
+
+			  <input id="vote_NewOption${numNewOptions}" type="text" class="nuField"
+			  		 name="vote_NewOption${numNewOptions}"
+					 value="" size="30" maxlength="50"
+					 placeholder="New option"
+					 style="width: 60%; margin: 4px 4px 4px 0;"><br>
+		`);
+
+		numNewOptions++;
+
+		if (numNewOptions > 1024) // Max number of options allowed
+			return;
+	}
+
+	$(function() {
+	    console.log("window.location.hash = " + window.location.hash);
+
+		// If user came here from a prompt to add an option to the poll, add an option and give it focus.
+	    if (window.location.hash == '#vote_NewOption0') {
+	    	addOption({{ $article.Id }});
+
+	    	$('#vote_NewOption0').focus();
+	    }
+	});
+</script>
+
 {{end}} {{/*mainContent*/}}

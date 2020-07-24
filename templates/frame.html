@@ -1,4 +1,9 @@
 {{define "body"}}
+<script>
+// Global variables:
+var numNewOptions = 0; // Also used by addOption() in article.html
+</script>
+
 {{ template "beginFrame" . }}
 	{{/* Header w/ banner + nav menu. */}}
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6ef">
@@ -280,37 +285,6 @@ $(function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Get the vote data from the form - how the user voted on this poll, i.e. what their vote is.
-function getVoteData(pollId, numOptions, pollType) {
-	console.log(`getVoteData(${pollId}, ${pollType})`);
-
-	console.log(`numOptions = ${numOptions}`);
-
-	var voteData = [];
-
-	for (var o = 0; o < numOptions; o++) {
-		switch(pollType) {
-			case "radio":
-			case "checkbox":
-				voteData.push($(`#vote_${pollId}_${o}`).is(':checked') ? "x" : "");
-				break;
-			case "text":
-				var val = $(`#vote_${pollId}_${o}`).val();
-				// Convert undefined to ''.
-				if (!val) {
-					val = '';
-				}
-				voteData.push(val);
-				break;
-			default:
-				alert("Unhandled poll type AAA: " + pollType);
-		}
-	}
-	console.log(voteData);
-
-	return voteData;
-}
-
 function ordinal(num) {
 	switch(num) {
 		case 1: return "1st";
@@ -320,24 +294,87 @@ function ordinal(num) {
 	}
 }
 
-function validateVoteData(pollType, voteData) {
+function getOptionVal(optionSelector, pollType) {
+	optionObj = $(optionSelector);
+	switch(pollType) {
+		case "radio":
+		case "checkbox":
+			return optionObj.is(':checked') ? "x" : "";
+		case "text":
+			var val = optionObj.val();
+			// Convert undefined to ''.
+			if (!val) {
+				val = '';
+			}
+			return val;
+		default:
+			console.log("Unhandled poll type AAA: " + pollType);
+			alert("Unhandled poll type AAA: " + pollType);
+			return null;
+	}
+}
+
+// Get the vote data from the form - how the user voted on this poll, i.e. what their vote is.
+// Has to handle the possibility of new options being dynamically added by the user.
+// returns (voteData,    <- the checkbox/radio bool array voteData for the poll: ["x" or ""].
+//          newVoteData, <- the checkbox/radio bool array voteData for the new options that the user added: ["x" or ""].
+//          newOptions,  <- the new options that have been added by the user.
+function getVoteData(pollId, numOptions, pollType) {
+	console.log(`getVoteData(${pollId}, ${pollType})`);
+
+	console.log(`numOptions = ${numOptions}`);
+	console.log(`numNewOptions = ${numNewOptions}`);
+
+	var voteData = [];
+	var newVoteData = [];
+	var newOptions = []
+
+	for (var o = 0; o < numOptions; o++) {
+		voteData.push(getOptionVal(`#vote_${pollId}_${o}`, pollType));
+	}
+	for (var o = 0; o < numNewOptions; o++) {
+		newVoteData.push(getOptionVal(`#vote_N${o}`, pollType));
+		newOptions.push(getOptionVal(`#vote_NewOption${o}`, "text"));
+	}
+	console.log("voteData = " + voteData);
+	console.log("newVoteData = " + newVoteData);
+	console.log("newOptions = " + newOptions);
+
+	return [voteData, newVoteData, newOptions];
+}
+
+function validateVoteData(pollType, voteData, newVoteData, newOptions) {
+	console.log("validataVoteData newOptions: " + newOptions);
+
+	for (var i = 0; i < newOptions.length; i++) {
+		// Because we will filter out options that have empty text, we must make sure those options do not have votes.
+		if (newOptions[i] == "" && newVoteData[i] != "") {
+			alert('You must specify the name of your new option, if you wish to vote on it.');
+			return false;
+		}
+	}
+
 	switch(pollType) {
 		case "radio":
 		case "checkbox": // Multiple choices valid
 			console.log(voteData);
 
-			valid = voteData.reduce((a, b) => a || b)  // OR all the choices together.
+			valid = voteData.reduce((a, b) => a || b) ||   // OR all the choices together.
+				 newVoteData.reduce((a, b) => a || b)
 			console.log("valid = " + valid);
 
 			if (!valid) {
 				alert(`You must select ${pollType == "checkbox" ? "at least " : ""}one option`);
+				return false;
 			}
 
-			return valid; // Make sure one is picked.
+			return true;
 		case "text": // Ranked voting
-			sorted = voteData.filter(x => x != "").sort(); // creates a copy of voteData, then sorts it
+			joinedData = voteData.concat(newVoteData);
+			sorted = joinedData.filter(x => x != "").sort(); // creates a copy of voteData, then sorts it
 
 			console.log(voteData);
+			console.log(newVoteData);
 			console.log(sorted);
 
 			// Check for valid ranked voting, i.e. "1", "2", ...
@@ -356,6 +393,7 @@ function validateVoteData(pollType, voteData) {
 			console.log("return true");
 			return true;
 		default:
+			console.log("Unhandled poll type BBB: " + pollType);
 			alert("Unhandled poll type BBB: " + pollType);
 			return false;
 	}
@@ -373,11 +411,11 @@ function VoteOnPoll(pollId, numOptions, pollType) {
 	console.log("pollType = " + pollType);
 	console.log("userId = " + {{.UserId}});
 
-	voteData = getVoteData(pollId, numOptions, pollType);
+	const [voteData, newVoteData, newOptions] = getVoteData(pollId, numOptions, pollType);
 
-	console.log({PollId: pollId, VoteData: voteData});
+	console.log({PollId: pollId, VoteData: voteData, NewVoteData: newVoteData, NewOptions: newOptions, NumOriginalOptions: numOptions});
 
-	if (validateVoteData(pollType, voteData)) { // Check if voting data is valid.
+	if (validateVoteData(pollType, voteData, newVoteData, newOptions)) { // Check if voting data is valid.
 		console.log("valid vote data");
 
 		// Place poll vote
@@ -385,7 +423,12 @@ function VoteOnPoll(pollId, numOptions, pollType) {
 			url: '/ajaxPollVote/',
 			type: "post",
 			contentType: 'application/json; charset=utf-8',
-			data: JSON.stringify({PollId: pollId, VoteData: voteData}),
+			data: JSON.stringify({
+				PollId: pollId,
+				VoteData: voteData,
+				NewVoteData: newVoteData,
+				NewOptions: newOptions,
+				NumOriginalOptions: numOptions}),
 			dataType: 'json',
 			success: function(r) {
 				console.log("AJAX Poll Vote - success");
@@ -505,7 +548,7 @@ $(function () {
 		{{- $maxOptions = 8 }}
 	{{- else if eq $article.Size 0 }}{{/*NORMAL ARTICLE SIZE*/}}
 		{{- $maxOptions = 3 }}
-	{{- else }}                      {{/*2 - FULLPAGE ARTICLE */}}
+	{{- else }}                      {{/*FULLPAGE ARTICLE (2) */}}
 		{{- $maxOptions = 999999 }}
 	{{ end }}
 
@@ -550,7 +593,9 @@ $(function () {
 						</td>
 						<td align=right>
 							<label class="vote">
-								<a href="/article/?postId={{$article.Id}}&changeVote=true" style="color: #0072ff; font-size: 18px;">Change your vote?</a>
+								<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" style="color: #0072ff; font-size: 18px;">
+									Change your vote?
+								</a>
 							</label>
 						</td>
 				</table>
@@ -563,7 +608,9 @@ $(function () {
 				<tr>
 					<td align=right>
 						<label class="vote">
-							<a href="/article/?postId={{$article.Id}}&changeVote=true" style="color: #0072ff; font-size: 18px;">Change your vote?</a>
+							<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" style="color: #0072ff; font-size: 18px;">
+								Change your vote?
+							</a>
 						</label>
 					</td>
 				</tr>
@@ -575,10 +622,7 @@ $(function () {
 {{ define "PollTallyResultsInline" }}
 	<table width=100% style="margin-left: 0px;">
 		<tr></tr>
-<!--		<tr>
-			<td colspan=3><h5><b>Results below:</b></h4></td>
-		</tr>
--->		{{ template "PollTallyResults" . }}
+		{{ template "PollTallyResults" . }}
 	</table>
 {{ end }}
 
@@ -590,7 +634,7 @@ $(function () {
 	{{- if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
 		{{- $maxOptions = 8 }}
 	{{- else }}
-		{{- $maxOptions = 3 }}
+		{{- $maxOptions = 3 }}   {{/*SMALL ARTICLE SIZE*/}}
 	{{ end }}
 
 	{{- if $article.IsPoll -}}
@@ -621,7 +665,7 @@ $(function () {
 										{{ else if $poll.CanSelectMultipleOptions }}
 											<label class="vote">
 												<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
-													{{$option}}
+												{{$option}}
 											</label>
 										{{ else }}
 											<label class="radio-inline vote" style="cursor: pointer">
@@ -633,7 +677,7 @@ $(function () {
 										<br>
 									{{ else if eq $o $maxOptions }}
 										<label class="vote">
-											<a href="{{$article.Url}}&changeVote=true" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
+											<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
 												More options...
 											</a>
 										</label>
@@ -641,9 +685,18 @@ $(function () {
 									{{ end }}
 								{{ end }}
 
-								<span style="padding-left: 5px;">
+								{{ if and $poll.AnyoneCanAddOptions (le (len $poll.Options) $maxOptions) }}
+									<label class="vote">
+										<a href="/article/?postId={{$article.Id}}&addOption=1#vote_NewOption0" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
+											Add option...
+										</a>
+										<br>
+									</label>
+								{{ end }}
+
+								<div style="padding-left: 5px;">
 									<button type="submit" class="btn btn-vote btn-sm" style="margin: .5rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
-								</span>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -653,11 +706,11 @@ $(function () {
 	{{ end }}
 {{ end }}
 
-
 {{ define "PollForm" }}
 	{{- $article := . -}}
 	{{- if $article.IsPoll -}}
 		{{- $poll := $article.PollOptionData }}
+		<a id="vote" href="#"> <!-- Anchor so user sees the poll. -->
 		<tr valign="top">
 			<td class="title" style="padding-left: 5px;">
 				<table width="100%">
@@ -676,7 +729,7 @@ $(function () {
 									<label>
 										<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
 											   maxlength="1" style="width: 25px; padding: 5px; margin: 4px 4px 4px 0;">
-											   {{$option}}
+										{{$option}}
 									</label>
 								</div>
 							{{ else if $poll.CanSelectMultipleOptions }}
@@ -699,7 +752,20 @@ $(function () {
 							{{ end }}
 						{{ end }}
 
-						<input name="vote_{{$article.Id}}_len" type=hidden value="{{len $poll.Options}}">
+						{{ if $poll.AnyoneCanAddOptions }}
+							<div id="addOptionLink">
+								<label class="vote" style="margin: 0px;">
+									<a href="javascript:addOption({{$article.Id}})" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
+										Add option...
+									</a>
+									<br>
+								</label>
+							</div>
+						{{ end }}
+
+						{{- $poll := $article.PollOptionData }}
+
+						<input name="vote_{{ $article.Id }}_len" type=hidden value="{{ len $poll.Options }}">
 
 						<button type="submit" class="btn btn-vote" style="margin: 1rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
 					</td></tr>

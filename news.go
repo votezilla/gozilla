@@ -334,6 +334,9 @@ func renderNews(w http.ResponseWriter,
 	prVal("  username", username)
 	prVal("  userId", userId)
 
+	title = "votezilla - " + title
+
+	// TODO: use a cookie to only alert about being logged in once?
 	script := ""
 	switch(alertMessage) {
 		case "LoggedIn": 		script = "alert('You are now logged in :)')"
@@ -345,25 +348,13 @@ func renderNews(w http.ResponseWriter,
 
 	// Render the news articles.
 	newsArgs := struct {
-		PageArgs
-		Username		string
-		UserId			int64
+		FrameArgs
 		ArticleGroups	[]ArticleGroup
 		Category		string
-		NavMenu			[]string
-		UrlPath			string
-		UpVotes			[]int64
-		DownVotes		[]int64
 	}{
-		PageArgs:		PageArgs{Title: "votezilla - " + title, Script: script},
-		Username:		username,
-		UserId:			userId,
+		FrameArgs:		makeFrameArgs2(title, script, urlPath, userId, username, upvotes, downvotes),
 		ArticleGroups:	articleGroups,
 		Category:		category,
-		NavMenu:		navMenu,
-		UrlPath:		urlPath,
-		UpVotes:		upvotes,
-		DownVotes:		downvotes,
 	}
 
 	//prVal("UpVotes", upvotes)

@@ -126,8 +126,8 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		nuTextField(kTitle, "Ask a poll question...", 50, 12, 100, "poll question"),
 		nuTextField(kOption1, "add option...", 50, 1, 50, "poll option 1"),
 		nuTextField(kOption2, "add option...", 50, 1, 50, "poll option 2"),
-		nuBoolField(kAnyoneCanAddOptions, "Allow anyone to add options", true),
-		nuBoolField(kCanSelectMultipleOptions, "Allow people to select multiple options", true),
+		nuBoolField(kAnyoneCanAddOptions, "Allow anyone to add options", false),
+		nuBoolField(kCanSelectMultipleOptions, "Allow people to select multiple options", false),
 		nuBoolField(kRankedChoiceVoting, "Enable ranked-choice voting", false),
 		nuSelectField(kCategory, "Select Category", newsCategoryInfo.CategorySelect, true, true, false, false, "Please select a poll category"),
 	)
@@ -203,7 +203,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 			// Have user like their own polls by default.
 			voteUpDown(pollPostId, userId, true, true, false)
 
-			http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", pollPostId), http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d#vote", pollPostId), http.StatusSeeOther)
 			return
 		}
 	} else if r.Method == "POST" {

@@ -50,6 +50,7 @@ type Article struct {
 	// Poll parameters:
 	IsPoll				bool
 	WeVoted				bool
+	ShowNewOption		bool  // Prompt for new option creation when voting on poll
 	PollOptionData		PollOptionData
 	PollTallyResults	PollTallyResults
 	VoteOptionIds	 	[]int64
@@ -99,20 +100,24 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		articleGroups[c].HeaderColor = newsCategoryInfo.HeaderColors[category]
 	}
 
-	// Suggested articles for further reading - on the sidebar.
 	moreArticles := []Article{}
 	if article.IsPoll {
+		// Check if user has already voted in this poll, and if so, take them to view the poll results.
 		reqChangeVote := parseUrlParam(r, "changeVote")
 		prVal("reqChangeVote", reqChangeVote)
-		// Don't skip if this link is a request to change the vote
-		if reqChangeVote == "" {
-			// Check if user has already voted in this poll, and if so, take them to view the poll results.
+		if reqChangeVote == "" {  // But don't redirect if this is a request to change their vote.
 			if DbExists("SELECT * FROM $$PollVote WHERE UserId=$1 AND PollId=$2", userId, postId) {
 				http.Redirect(w, r, fmt.Sprintf("/viewPollResults/?postId=%d", postId), http.StatusSeeOther)
 				return
 			}
 		}
 
+		reqAddOption := parseUrlParam(r, "addOption")
+		if reqAddOption != "" {
+			article.ShowNewOption = true
+		}
+
+		// Suggested articles for further reading - on the sidebar.
 		moreArticles = fetchSuggestedPolls(userId, postId)
 	} else {
 		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId, userId, postId)
@@ -133,28 +138,17 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Render the news articles.
 	articleArgs := struct {
-		PageArgs
-		Username		string
-		UserId			int64
-		NavMenu			[]string
-		UrlPath			string
+		FrameArgs
 		Article			Article
-		UpVotes			[]int64
-		DownVotes		[]int64
 		UpCommentVotes	[]int64
 		DownCommentVotes []int64
 		HeadComment		Comment
 		ArticleGroups	[]ArticleGroup
 		MoreArticlesFromThisSource	[]Article
 	}{
-		PageArgs:		PageArgs{Title: "votezilla - Article"},
-		Username:		username,
-		UserId:			userId,
-		NavMenu:		navMenu,
-		UrlPath:		"news",
+		FrameArgs:		makeFrameArgs2("votezilla - Article", "", "news", userId, username, upvotes, downvotes),
+
 		Article:		article,
-		UpVotes:		upvotes,
-		DownVotes:		downvotes,
 		UpCommentVotes:	upcommentvotes,
 		DownCommentVotes: downcommentvotes,
 		HeadComment:	headComment,

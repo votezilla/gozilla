@@ -4,9 +4,14 @@ convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
 
+A 2 - try defaulting polls to no flags set.  (http://votezilla.io/viewPollResults/?postId=88165)  Ryan H.: "I chose None because I noticed several polls where it did not make sense to choose more than one option and accidentally did so myself. It would be nice to be able to change a poll if there have not been any votes on it (except maybe your own). Need to be able to delete a poll or post or comment."
+
 
 WORKING ON:
 
+A 13 - Need ability to add new option when voting
+  x - works!
+  [] test w ranked and multi-select polls
 
 A - Start getting feedback from close peeps!!  (Start with Tom, Dad, Jeff, Steve D.)
 
@@ -22,7 +27,7 @@ v
   Difficulty
   v
 
-A 13 - Need ability to add new option when voting
+B 2 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
 
 A 21 - Add activity tab (like FB notifications, but list all ppl)
 
@@ -34,7 +39,11 @@ A 2 - links & blogs should not be able to be shared to the category 'polls'
 
 A 13 - implement really simple blogging
 
+
 A 8 - upgrade DigitalOcean instance $5 -> $10
+
+A 5 - provide better underlining for /news articles, especially cat headers.  Also hover of articles, poss make them blue too.https://stackoverflow.com/questions/13840403/edit-line-thickness-of-css-underline-attribute?rq=1#:~:text=You%20can%20adjust%20underline%20position,want%20to%20underline%20an%20href.
+	https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
 
 B 3 - history needs polls section
 
@@ -66,13 +75,47 @@ B 8 - Add "About" section - or implememnt simple blog first?
 
 B 13 - display the results of polls you've voted on, on /news.  May require a pollTallyService to count results ahead of time and store them in a json column in the poll.
 
+B 8 - newlines are getting stripped from comments, and markdown would be nice.
+
+
 
 FEEDBACK:
 C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
   ^ Ryan H: Only listing the first three options in the summary is going to influence votes. Try not including the poll choices in the summary at all? or at least not be able to vote from the summary? Should polls have descriptions? (yes).
 
 
+TOM FEEDBACK:
+D - Add Votezilla to search engines.  (Need to optimize and improve SEO first!)
 
+A - 3 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page)
+
+ - seeing mostly liberal news sources (I need to add Fox News)
+ 
+ - no login problems - it was easy!
+ 
+A - 2 - Article (poll) - need smaller header image because it's hiding poll from user, creating confusion
+
+ - "I don't like questions that require an expert answer." (about quantum physics, self-driving polls)
+ 
+A - 2 - on multi-select poll, divide by total not max, so it adds up to 100%
+
+A - 2 - on sidebar, more ____ (i.e. polls) should be clickable
+
+F - on poll, wondered if he could press ENTER instead of clicking on the Vote button.  
+ 
+ - history - add header or splashscreen explaing what it is
+ 
+ - create - add Create Discussion
+ 
+ - too many tabs open
+ 
+ - didn't naturally figure out up / down / comment icons
+ 
+A - 2 - clicking on comment icon from /news - should take you to "leave a comment" anchor - otherwise, confusing
+
+A - cats need to be more obvious that they are clickable, maybe thick underline / link icon / spell it out (i.e. MORE NEWS...)
+
+ 
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
 	

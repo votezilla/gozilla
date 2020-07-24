@@ -178,15 +178,15 @@ func GetSession(r *http.Request) (userId int64) {
 }
 
 // Get userId, username from the secure cookie.
-func GetSessionInfo(w http.ResponseWriter, r *http.Request) (int64, string) {
-	userId := GetSession(r)
+func GetSessionInfo(w http.ResponseWriter, r *http.Request) (userId int64, username string) {
+	userId = GetSession(r)
 
 	if userId == -1 {
 		pr(`GetSessionInfo: -1, ""`)
 		return -1, ""
 	}
 
-	username := ""
+	username = ""
 	rows := DbQuery("SELECT Username FROM $$User WHERE Id = $1::bigint;", userId)
 	if rows.Next() {
 		err := rows.Scan(&username)
@@ -200,7 +200,7 @@ func GetSessionInfo(w http.ResponseWriter, r *http.Request) (int64, string) {
 
 	prf("GetSessionInfo %d, %s", userId, username)
 
-	return userId, username
+	return
 }
 
 func RefreshSession(w http.ResponseWriter, r *http.Request) {

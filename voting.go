@@ -16,6 +16,7 @@ type PollTallyResults []PollTallyResult
 
 type VoteData []string
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // ajax poll vote
@@ -41,8 +42,11 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 
     //parse request to struct
     var vote struct {
-		PollId		int
-		VoteData	VoteData
+		PollId				int
+		VoteData			[]string
+		NewVoteData			[]string
+		NewOptions			[]string
+		NumOriginalOptions	int
 	}
 
     err := json.NewDecoder(r.Body).Decode(&vote)
@@ -55,9 +59,9 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
     prVal("=======>>>>> vote", vote)
 
     // Convert voteDataJson into parallel arrays for more compact database storage.
+	// 1) Voting for existing options:
     voteOptionIds := make([]int, 0)
     voteAmounts := make([]int, 0)
-
     for optionId, str := range vote.VoteData {
 		if str != "" {
 			voteOptionIds = append(voteOptionIds, optionId)
@@ -70,8 +74,55 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	// 2) Voting for new options the user just added, while remembering the new options added.
+	newOptions := make([]string, 0)        // New options the user just added.
+	newOptionId := vote.NumOriginalOptions // Index of the next option the user might vote on.
+	for o, newOption := range vote.NewOptions {
+		if newOption != "" { // Filter out empty options (they were probably mistakes), along with corresponding votes for them.
+			newOptions = append(newOptions, newOption) // Add new user-submitted option.
+
+			str := vote.NewVoteData[o]
+			if str != "" {
+				voteOptionIds = append(voteOptionIds, newOptionId)
+
+				if str != "x" { // Ranked Voting
+					voteAmount, err := strconv.Atoi(str)
+					check(err)
+
+					voteAmounts = append(voteAmounts, voteAmount)
+				}
+			}
+
+			newOptionId++
+		}
+	}
 
 	pollId := int64(vote.PollId)
+
+	// If the user has added new options...
+	if len(newOptions) > 0 {
+		// For each valid new option, add it to the poll.
+		rows := DbQuery("SELECT PollOptionData FROM $$PollPost WHERE Id = $1::bigint", pollId)
+		for rows.Next() {
+			var pollOptionJson	string
+			err := rows.Scan(&pollOptionJson)
+			check(err)
+
+			var pollOptionData PollOptionData
+			assert(len(pollOptionJson) > 0)
+			check(json.Unmarshal([]byte(pollOptionJson), &pollOptionData))
+
+			// Add the new option.
+			pollOptionData.Options = append(pollOptionData.Options, newOptions...)
+
+			a, err := json.Marshal(pollOptionData)
+			check(err)
+
+			DbExec("UPDATE $$PollPost SET PollOptionData = $1 WHERE Id = $2::bigint", a, pollId)
+		}
+		check(rows.Err())
+	}
+
 
 	// Send poll vote to the database, removing any prior vote.
 	DbExec(
@@ -85,7 +136,6 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 		pq.Array(voteAmounts))
 
 	// Tally the poll tally results, and cache them in the db.
-
 	article, err := fetchArticle(pollId, userId)
 	check(err)
 
@@ -105,7 +155,7 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
 
     // create json response from struct
     a, err := json.Marshal(vote)
-    //checkw(err)
+
     if err != nil {
         //http.Error(w, err.Error(), http.StatusInternalServerError)
         serveError(w, err.Error())
@@ -325,7 +375,6 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	// Tally the votes
 	pollTallyResults := calcPollTally(postId, article.PollOptionData)
 
@@ -352,7 +401,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UserVoteString				string
 		PollTallyResults			PollTallyResults
 		HeadComment					Comment
-		MoreArticlesFromThisSource	[] Article
+		MoreArticlesFromThisSource	[]Article
 	}{
 		PageArgs:					PageArgs{Title: "View Poll Results"},
 		Username:					username,

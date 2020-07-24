@@ -299,24 +299,5 @@ func testPopupHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId, username := GetSessionInfo(w, r)
 
-	// Render the news articles.
-	testPopupArgs := struct {
-		PageArgs
-		Username			string
-		UserId				int64
-		NavMenu				[]string
-		UrlPath				string
-		UpVotes				[]int64
-		DownVotes			[]int64
-	}{
-		PageArgs:			PageArgs{Title: "Test popup"},
-		Username:			username,
-		UserId:				userId,
-		NavMenu:			navMenu,
-		UrlPath:			"testPopup",
-		UpVotes:			[]int64{},
-		DownVotes:			[]int64{},
-	}
-
-	executeTemplate(w, kTestPopup, testPopupArgs)
+	executeTemplate(w, kTestPopup, makeFrameArgs("Test popup", "", "testPopup", userId, username))
 }
