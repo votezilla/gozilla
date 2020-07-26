@@ -25,7 +25,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 					<td style="line-height:12pt; height:10px; padding: 0px 5px; color:white !important;">
 						<span class="pagetop">
 							<!-- votezilla logo -->
-							<b id="votezilla_title">
+							<b id="desktop_only">
 								<a href="/news" style="color:#ff009c">vote<span style="color:black">zilla</span></a>
 							</b>
 						<!-- nav menu -->
@@ -550,9 +550,9 @@ $(function () {
 	{{/*- $vote := $article.VoteData -*/}}
 	{{- $maxOptions := 0 }}
 	{{- if eq $article.Size 1 }}     {{/*LARGE ARTICLE SIZE*/}}
-		{{- $maxOptions = 8 }}
+		{{- $maxOptions = 12 }}
 	{{- else if eq $article.Size 0 }}{{/*NORMAL ARTICLE SIZE*/}}
-		{{- $maxOptions = 3 }}
+		{{- $maxOptions = 12 }}
 	{{- else }}                      {{/*FULLPAGE ARTICLE (2) */}}
 		{{- $maxOptions = 999999 }}
 	{{ end }}
@@ -637,9 +637,9 @@ $(function () {
 
 	{{- $maxOptions := 0 }}
 	{{- if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
-		{{- $maxOptions = 8 }}
+		{{- $maxOptions = 12 }}
 	{{- else }}
-		{{- $maxOptions = 3 }}   {{/*SMALL ARTICLE SIZE*/}}
+		{{- $maxOptions = 12 }}   {{/*SMALL ARTICLE SIZE*/}}
 	{{ end }}
 
 	{{- if $article.IsPoll -}}
@@ -656,25 +656,25 @@ $(function () {
 				</div>
 			{{ end }}
 			<div valign="top">
-				<div style="width: 100%; padding-left: 5px;">
+				<div style="width: 100%;">
 					<div width="100%">
 						<div>
 							<div align="left">
 								{{ range $o, $option := $poll.Options }}
 									{{ if lt $o $maxOptions }}
 										{{ if $poll.RankedChoiceVoting }}
-											<label class="vote">
+											<label class="vote2">
 												<input id="vote_{{$article.Id}}_{{$o}}" type="digit" class="rankedVote" value="" size="1" maxlength="1">
 												{{$option}}
 											</label>
 										{{ else if $poll.CanSelectMultipleOptions }}
-											<label class="vote">
+											<label class="vote2">
 												<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote" value="{{$o}}">
 												{{$option}}
 											</label>
 										{{ else }}
 											<label class="radio-inline vote" style="cursor: pointer">
-												<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+												<input class="vote2" id="vote_{{$article.Id}}_{{$o}}" type="radio"
 													   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}>
 												{{$option}}
 											</label>

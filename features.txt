@@ -191,3 +191,6 @@ A - 2 - clicking on comment icon from /news - should take you to "leave a commen
 
 A - 2 - on multi-select poll, divide by total not max, so it adds up to 100% (TOM)
 
+C - 2 - have back button for polls go back to POLLS
+
+B 2 - make polls that have results abbreviated (due to long option text) should list # of votes.

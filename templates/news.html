@@ -2,6 +2,24 @@
            But wait, does this work on mobile?  Have to get another phone to find out.. :?  */}}
 
 {{define "content"}}
+	{{- if eq $.FrameArgs.UrlPath "history"}}
+		<br>
+		<center>
+			<h5>
+				<b>HISTORY:</b> Come here to find all the polls and articles you've created, voted on, or commented on.
+			</h5>
+		</center>
+		<br>
+	{{- else if eq $.FrameArgs.UrlPath "news"}}
+		<br>
+		<center>
+			<h5>
+			<b>Welcome to Votezilla:</b> a censorship-free social network based on creating polls, voting, sharing news, and fostering positive political discussion.  <span id="desktop_only"> (Or nerd out on other topics you love.)</span>
+			</h5>
+		</center>
+		<br>
+	{{- end }}
+
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
 		{{ if ne $articleGroup.Category "" }}
 			{{ if $.Category }} {{/* For a specified category, add back and close arrows */}}
@@ -40,7 +58,9 @@
 					</div>
 				</div>
 			{{ else }} {{/* for HOME, just the category */}}
-				<a href="/news/?category={{$articleGroup.Category}}" target="_blank" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
+				{{ if $articleGroup.More }}
+				  <a href="/news/?category={{$articleGroup.Category}}" target="_blank" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
+				{{ end }}
 					<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}}; padding: 0px; margin: 0px; margin-top: 4px; padding-top: 7px; padding-bottom: 7px;">
 						<div class="col-md-12 vz-col-md-12 text-uppercase">
 							<center>
@@ -52,7 +72,9 @@
 							</center>
 						</div>
 					</div>
-				</a>
+				{{ if $articleGroup.More }}
+				  </a>
+				{{ end }}
 			{{ end }}
 		{{ end }}
 		<div class="row vz-row" style="background-color: white">
@@ -74,14 +96,14 @@
 				">
 				{{ range $j, $article := $articleCol }}
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
-						{{ if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
+						{{ if and (eq $article.Size 1) (not $article.IsPoll) }} {{/*LARGE ARTICLE SIZE... alt logic: and (eq $article.Size 1) (not $article.IsPoll)*/}}
 
 							<a href="/article/?postId={{$article.Id}}" target="_blank" style="cursor:pointer">
 								<img src="{{$article.UrlToImage}}" width="100%" style="max-height: 600px;" data-toggle="tooltip" data-placement="top" title="View the discussion">
 
 							{{ if $article.IsPoll }}
 								<center><b><span style="font-size:28px;">
-									{{if $article.WeVoted}}&#x2611; RESULTS{{else}}&#x25a2; POLL{{end}}
+									{{if $article.WeVoted}}&#x2611; RESULTS{{else}}<span style="color:blue">&#x25a2; POLL</span>{{end}}
 								</span></b></center>
 							{{ end }}
 							</a>
@@ -168,7 +190,7 @@
 											<img
 												src="{{$article.UrlToThumbnail}}"
 											  {{- if $article.IsPoll }}
-												width="120"
+												width="80"
 											  {{- else if $article.IsThumbnail }}
 												width="160"
 											  {{- else }}
@@ -177,8 +199,8 @@
 											  {{- end -}}
 											><!--height="100"-->
 										{{ if $article.IsPoll }}
-											<center><b><span style="font-size:22px;">
-												{{if $article.WeVoted}}&#x2611; RESULTS{{else}}&#x25a2; POLL{{end}}
+											<center><b><span style="font-size:18px;">
+												{{if $article.WeVoted}}&#x2611; RESULTS{{else}}<span style="color:blue">&#x25a2; POLL</span>{{end}}
 											</span></b></center>
 										{{ end }}
 										</a>

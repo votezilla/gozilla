@@ -5,6 +5,10 @@ SET client_encoding = 'UTF8';
 
 vv WORKS!!! vv
 
+// Start building query for activity / notifications:
+SELECT p.id, userid, u.username, title FROM vz.post p join vz.user
+
+
 
 View posts by each user:
 select p.id, userid, u.username, title from vz.post p join vz.user u on p.userid = u.id order by userid;

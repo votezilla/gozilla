@@ -188,8 +188,9 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			FROM (
 				SELECT
 					*,
-					ROW_NUMBER() OVER (PARTITION BY Category ORDER BY
-						OrderBy DESC) AS r
+					ROW_NUMBER() OVER (
+						PARTITION BY Category
+						ORDER BY OrderBy DESC) AS r
 				FROM (%s) x
 			) x
 			WHERE x.r <= %d`,
@@ -519,6 +520,23 @@ func fetchArticle(id int64, userId int64) (Article, error) {
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// fetch news articles.  We'll use this to help build the activity / notifications.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchArticles(articlesPerCategory int, userId int64, maxArticles int) ([]Article) {
+	return _queryArticles(
+		"IS NOT NULL",        // idCondition
+		"IS NOT NULL",        // userIdCondition
+		"IS NOT NULL",        // categoryCondition
+		"IS NOT NULL",		  // newsSourceIdCondition	string
+		-1,  				  // articlesPerCategory 	int
+		maxArticles,		  // maxArticles 			int
+		userId,				  // fetchVotesForUserId 	int64
+		false)				  // onlyPolls				bool
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // fetch news articles partitioned by category, up to articlesPerCategory
 // articles per category, up to maxArticles total.
 //
@@ -554,11 +572,29 @@ func fetchArticlesCommentedOnByUser(userId int64, maxArticles int) ([]Article) {
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// fetch polls voted on by a user.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchPollsVotedOnByUser(userId int64, maxArticles int) ([]Article) {
+	return _queryArticles(
+		"IN (SELECT PollId FROM $$PollVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")", // idCondition
+		"IS NOT NULL",																			   // userIdCondition
+		"IS NOT NULL",																			   // categoryCondition
+		"IS NOT NULL",						                                                       // newsSourceIdCondition	string
+		-1,																						   // articlesPerCategory 	int
+		maxArticles,																			   // maxArticles 			int
+		userId,																					   // fetchVotesForUserId 	int64
+		false)							 														   // onlyPolls				bool
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // fetch articles within a particular category, up to maxArticles total,
 // which userId voted on.
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesUpDownVotedOnByUser(userId int64, maxArticles int) ([]Article) {
+	pr("fetchArticlesUpDownVotedOnByUser:")
 	return _queryArticles(
 		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  // idCondition
 		"IS NOT NULL",                                                                              // userIdCondition
@@ -667,4 +703,21 @@ func fetchSuggestedPolls(userId, skipArticleId int64) (articles []Article) {
 		5,     			// maxArticles 				int
 		userId,         // fetchVotesForUserId 		int64
 		true)			// onlyPolls				bool
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch polls posted by user
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchPollsPostedByUser(userId int64, maxArticles int) (articles []Article) {
+	return _queryArticles(
+		"IS NOT NULL",							// idCondition				string
+		"= " + strconv.FormatInt(userId, 10),   // userIdCondition
+		"IS NOT NULL",  						// categoryCondition 	    string
+		"IS NOT NULL",							// newsSourceIdCondition	string
+		-1,             						// articlesPerCategory 		int
+		maxArticles,    						// maxArticles 				int
+		userId,         						// fetchVotesForUserId 		int64
+		true)									// onlyPolls				bool
 }

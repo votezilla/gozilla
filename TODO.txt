@@ -4,7 +4,9 @@ convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
 
-C - 2 - have back button for polls go back to POLLS
+Added POLLS to history.
+Shrunk poll dino images a little
+Increase num visible poll items from 3/8 to 12/12.
 
 
 WORKING ON:
@@ -51,11 +53,7 @@ B 2 - on sidebar, more ____ (i.e. polls) should be clickable (TOM)
  
 B 3 - history needs polls section
 
-B 2 - links & blogs should not be able to be shared to the category 'polls'
-
 B 2 - sidebar h buttons and comment buttons are all small, esp. on mobile, also the '...' should be hidden for now.
-
-B 2 - make polls that have results abbreviated (due to long option text) should list # of votes.
 
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
@@ -167,8 +165,11 @@ C 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduc
   
 C 2 - Ryan: "The ellipsis for long comments should be more obvious >> blue and test like show more and an arrow -> or something like that"  
 
-C 2 - ranked vote checkbox should only check the "1", or list the rank.
+C 2 - history tab should be hidden when user is not logged in
 
+D 2 - ranked vote checkbox should list the rank.
+
+D 3 - sort history just by time posted desc
 
 
 MED PRIORITY (for test with 100 friends):

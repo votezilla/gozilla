@@ -15,7 +15,7 @@ import (
 
 // A group of articles, separated by a header.
 type ArticleGroup struct {
-	Articles		[][]Article // Arrow of rows, each row has 2 articles.
+	Articles		[][]Article // 2 columns, 3 Articles each.
 	Category		string
 	HeaderColor		string
 	HeadlineSide	int		// 0=left, 1=right (On large, i.e. non-mobile, devices...)
@@ -34,9 +34,11 @@ const (
 	kMaxArticles = 100 // 250 //120 //60
 	kMaxTitleLength = 122
 
+	kSubmittedPolls = "submitted polls"
+	kVotedPolls = "voted polls"
 	kSubmittedPosts = "created posts"
 	kCommentedPosts = "commented posts"
-	kVotedPosts = "voted posts"
+	kVotedPosts = "up/down voted posts"
 
 	kNoHeadlines = 0
 	kAlternateHeadlines = 1
@@ -85,11 +87,15 @@ var (
 			kCommentedPosts,
 			kSubmittedPosts,
 			kVotedPosts,
+			kSubmittedPolls,
+			kVotedPolls,
 		},
 		HeaderColors : map[string]string{
 			kCommentedPosts: "#f90",
 			kSubmittedPosts : "#aaf",
 			kVotedPosts : "#ccc",
+			kSubmittedPolls : "#da8",
+			kVotedPolls : "#fa9",
 		},
 	}
 )
@@ -238,8 +244,11 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 					articleGroups[cat].Articles[col][row] = article
 					articleGroups[cat].Articles[col][row].Size = size
 
-					//articleGroups[cat].Articles[col][row].Title =
-					//	articleGroups[cat].Articles[col][row].Title[0:29] + " " + strconv.Itoa(row) + " " + strconv.Itoa(col) + " " + strconv.Itoa(currArticle)
+					// HACK: make polls never be headlines.  TODO: Clean this up.
+					prVal("category", category)
+					if category == "polls" {
+						articleGroups[cat].Articles[col][row].Size = 0
+					}
 				}
 
 				// Inc row, col
@@ -385,7 +394,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	userId, username := GetSessionInfo(w, r)
 
 	var articles []Article
-	if reqCategory == "" {
+	if reqCategory == "" { // /news
 		// Fetch 5 articles from each category
 		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
 	} else if reqCategory == "polls" {
@@ -401,8 +410,16 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
 
-//	pollArticleGroups := formatArticleGroups(articles, newsCategoryInfo, "polls", kNoHeadlines)
-//	articleGroups[0] = pollArticleGroups[0]  // Try copying the polls, as a test
+	// vv WORKS! - TODO_OPT: fix so poll don't require an extra db query
+	polls := fetchPolls(userId, 2 * kRowsPerCategory)
+	pollArticleGroups := formatArticleGroups(polls, newsCategoryInfo, "polls", kNoHeadlines)
+	
+	if reqCategory == "" { // /news
+		//prVal("articleGroups[0]", articleGroups[0])
+		//prVal("pollArticleGroups[0]", pollArticleGroups[0])
+		articleGroups[0] = pollArticleGroups[0]  // Try copying the polls, as a test
+		articleGroups[0].More = "polls"
+	}
 
 	renderNews(w, "News", username, userId, articleGroups, "news", kNews, upvotes, downvotes, reqCategory, reqAlert)
 }
@@ -425,15 +442,65 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	userId, username := GetSessionInfo(w, r)
 
 	articleGroups := []ArticleGroup{}
-
 	allArticles := []Article{}
+/*	dupIds := map[int64]bool{}
 
-	// Get articles posted by user
+	removeDupIds := func(articles []Article) (filteredArticles []Article) {
+		numAddedArticles := 0
+		for _, article := range articles {
+
+			// If duplicate id exists, purge the article.
+			//_, found := dupIds[article.Id]
+			//if !found {
+				filteredArticles = append(filteredArticles, article)
+				dupIds[article.Id] = true
+				numAddedArticles++
+
+			//	if numAddedArticles >= 6 {
+			//		break
+			//	}
+			//}
+		}
+		return
+	}
+*/
+/*
+	pr("Get polls posted by user") // << Removed because it's a subset of "articles posted by user".
+	{
+		articles := fetchPollsPostedByUser(userId, kNumCols * kRowsPerCategory)
+		//articles = removeDupIds(articles)
+
+		allArticles = append(allArticles, articles...)
+
+		for a := range articles {
+			articles[a].Bucket = kSubmittedPolls
+		}
+
+		articleGroups = append(articleGroups,
+			formatArticleGroups(articles, historyCategoryInfo, kSubmittedPolls, kNoHeadlines)...)
+	}
+*/
+	pr("Get polls voted on by user")
+	{
+		articles := fetchPollsVotedOnByUser(userId, kNumCols * kRowsPerCategory)
+		//articles = removeDupIds(articles)
+
+		allArticles = append(allArticles, articles...)
+
+		for a := range articles {
+			articles[a].Bucket = kVotedPolls
+		}
+
+		articleGroups = append(articleGroups,
+			formatArticleGroups(articles, historyCategoryInfo, kVotedPolls, kNoHeadlines)...)
+	}
+
 	pr("Get articles posted by user")
 	{
 		articles := fetchArticlesPostedByUser(userId, kNumCols * kRowsPerCategory)
+		//articles = removeDupIds(articles)
 
-		allArticles = articles
+		allArticles = append(allArticles, articles...)
 
 		for a := range articles {
 			articles[a].Bucket = kSubmittedPosts
@@ -443,10 +510,10 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 			formatArticleGroups(articles, historyCategoryInfo, kSubmittedPosts, kNoHeadlines)...)
 	}
 
-	// Get articles commented on by user
 	pr("Get articles commented on by user")
 	{
 		articles := fetchArticlesCommentedOnByUser(userId, kNumCols * kRowsPerCategory)
+		//articles = removeDupIds(articles)
 
 		allArticles = append(allArticles, articles...)
 
@@ -458,10 +525,10 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 			formatArticleGroups(articles, historyCategoryInfo, kCommentedPosts, kNoHeadlines)...)
 	}
 
-	// Get articles up/down voted on by user, and set their bucket accordingly.
 	pr("Get articles voted on by user, and set their bucket accordingly.")
 	{
 		articles := fetchArticlesUpDownVotedOnByUser(userId, kNumCols * kRowsPerCategory)
+		//articles = removeDupIds(articles)
 
 		allArticles = append(allArticles, articles...)
 
@@ -477,6 +544,10 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 	prVal("upvotes", upvotes)
 	prVal("downvotes", downvotes)
+
+	for g, _ := range articleGroups {
+		articleGroups[g].More = "" // Clear any "More ___..." links, since they don't lead anywhere yet.
+	}
 
 
 	// Render the history just like we render the news.
