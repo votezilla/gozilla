@@ -14,7 +14,7 @@ WORKING ON:
 A+ - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
-A 21 - Add activity tab (like FB notifications, but list all ppl)
+A 21 = Add activity tab (like FB notifications, but list all ppl)
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 

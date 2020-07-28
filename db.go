@@ -18,13 +18,13 @@ var (
 
 // Open database.
 func OpenDatabase() {
-	pr("OpenDatabase")
+	//pr("OpenDatabase")
 
 	// Connect to database
 	dbInfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
 		flags.dbUser, flags.dbPassword, flags.dbName)
 
-	prf("dbInfo: %s", dbInfo)
+	//prf("dbInfo: %s", dbInfo)
 
 	db, err = sqlx.Connect("postgres", dbInfo)//sql.Open("postgres", dbInfo)
 	check(err)
@@ -34,17 +34,17 @@ func OpenDatabase() {
 	db.SetMaxIdleConns(0)
     db.SetConnMaxLifetime(time.Nanosecond)
 
-	prVal("db", db)
+	//prVal("db", db)
 }
 
 // Close database.
 func CloseDatabase() {
-	pr("CloseDatabase")
+	//pr("CloseDatabase")
 
 	open := db.Stats().OpenConnections
 	if open > 0 {
 		// This could also modify the return code...
-		prf("failed to close %d connections!", open)
+		//prf("failed to close %d connections!", open)
     }
 
 	if db != nil {
@@ -54,7 +54,7 @@ func CloseDatabase() {
 
 func DbTrackOpenConnections() {
 	// This could also modify the return code...
-	prVal("Open connections", db.Stats().OpenConnections)
+	//prVal("Open connections", db.Stats().OpenConnections)
 }
 
 // Replace all instances of "$$" with "votezilla." or whatever the schema is, in the query.
@@ -65,7 +65,7 @@ func replaceSchema(query string) string {
 // Executes a query that does not return anything.  Necessary for not leaking connections.
 func DbExec(query string, values ...interface{}) {
 	query = replaceSchema(query)
-	prf("DbExec query:%s %v", query, values)
+	//prf("DbExec query:%s %v", query, values)
 
 	_, err = db.Exec(query, values...)
 	check(err)
@@ -75,7 +75,7 @@ func DbExec(query string, values ...interface{}) {
 // Panics on error.
 func DbInsert(query string, values ...interface{}) int64 {
 	query = replaceSchema(query)
-	prf("DbInsert query:%s %v", query, values)
+	//prf("DbInsert query:%s %v", query, values)
 
 	var lastInsertId int64
 
@@ -90,7 +90,7 @@ func DbInsert(query string, values ...interface{}) int64 {
 // Panics on error.
 func DbQuery(query string, values ...interface{}) *sql.Rows {
 	query = replaceSchema(query)
-	prf("DbQuery query:%s %v", query, values)  
+	//prf("DbQuery query:%s %v", query, values)
 
 	rows, err := db.Query(query, values...)
 	check(err)
@@ -101,7 +101,7 @@ func DbQuery(query string, values ...interface{}) *sql.Rows {
 // Panics on error
 func DbExists(query string, values ...interface{}) bool {
 	query = replaceSchema(query)
-	prf("DbExists query:%s %v", query, values)
+	//prf("DbExists query:%s %v", query, values)
 
 	rows := DbQuery(query, values...)
 

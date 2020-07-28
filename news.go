@@ -140,7 +140,7 @@ func sortArticles(articles []Article) {
 func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines int) ([]ArticleGroup) {
 	//rowsPerCategory := ternary_int(onlyCategory == "", kRowsPerCategory, kMaxArticles)
 
-	pr("formatArticleGroups")
+	//pr("formatArticleGroups")
 
 	var categoryOrder []string
 	if onlyCategory != "" {
@@ -245,7 +245,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 					articleGroups[cat].Articles[col][row].Size = size
 
 					// HACK: make polls never be headlines.  TODO: Clean this up.
-					prVal("category", category)
+					//prVal("category", category)
 					if category == "polls" {
 						articleGroups[cat].Articles[col][row].Size = 0
 					}
@@ -413,7 +413,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	// vv WORKS! - TODO_OPT: fix so poll don't require an extra db query
 	polls := fetchPolls(userId, 2 * kRowsPerCategory)
 	pollArticleGroups := formatArticleGroups(polls, newsCategoryInfo, "polls", kNoHeadlines)
-	
+
 	if reqCategory == "" { // /news
 		//prVal("articleGroups[0]", articleGroups[0])
 		//prVal("pollArticleGroups[0]", pollArticleGroups[0])

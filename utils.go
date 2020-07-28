@@ -87,8 +87,8 @@ func ceil_div(dividend int, divisor int) 	int 	{ return (dividend + (divisor - 1
 //			2, 300)   // case 2: return 300
 //		returns 300
 func switch_int(switch_val int, cases_and_values ...int) int {
-	prVal("switch_val", switch_val)
-	prVal("cases_and_values", cases_and_values)
+	//prVal("switch_val", switch_val)
+	//prVal("cases_and_values", cases_and_values)
 
 	for c := 0; c + 1 < len(cases_and_values); c += 2 {
 		if switch_val == cases_and_values[c] {

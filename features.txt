@@ -194,3 +194,5 @@ A - 2 - on multi-select poll, divide by total not max, so it adds up to 100% (TO
 C - 2 - have back button for polls go back to POLLS
 
 B 2 - make polls that have results abbreviated (due to long option text) should list # of votes.
+
+Added POLLS to history; Improved poll layout a little: Made them kNoHeadlines; shrunk poll dino images a little; increase num visible poll items from 3/8 to 12/12.

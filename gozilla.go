@@ -183,14 +183,6 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 	}
 }
 
-func activityHandler(w http.ResponseWriter, r *http.Request) {
-	serveHTML(w, "Coming Soon: an activity activity")
-
-	userId, username := GetSessionInfo(w, r)
-
-	executeTemplate(w, kActivity, makeFrameArgs("votezilla - Activity", "", kActivity, userId, username))
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // parse template files - Parses the HTML template files.

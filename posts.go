@@ -32,16 +32,16 @@ const (
 //////////////////////////////////////////////////////////////////////////////
 func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, newsSourceIdCondition string,
 					articlesPerCategory int, maxArticles int, fetchVotesForUserId int64, onlyPolls bool) (articles []Article) {
-	pr("_queryArticles")
-	prVal("idCondition", idCondition)
-	prVal("userIdCondition", userIdCondition)
-	prVal("categoryCondition", categoryCondition)
-	prVal("newsSourceIdCondition", newsSourceIdCondition)
-	prVal("articlesPerCategory", articlesPerCategory)
-	prVal("maxArticles", maxArticles)
-	prVal("fetchVotesForUserId", fetchVotesForUserId)
+	//pr("_queryArticles")
+	//prVal("idCondition", idCondition)
+	//prVal("userIdCondition", userIdCondition)
+	//prVal("categoryCondition", categoryCondition)
+	//prVal("newsSourceIdCondition", newsSourceIdCondition)
+	//prVal("articlesPerCategory", articlesPerCategory)
+	//prVal("maxArticles", maxArticles)
+	//prVal("fetchVotesForUserId", fetchVotesForUserId)
 
-	bRandomizeTime := true // TODO: make a flag for this.
+	bRandomizeTime := true // TODO: make a flag for this.  <<<<<<<<<<<<< HOW DO I REGULATE THIS?  SET TO FALSE WHEN COMING FROM ACTIVITY, OR
 	//bRandomizeTime := (fetchVotesForUserId == -1)
 
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
@@ -381,7 +381,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			if len(pollTallyResultsJson) > 0 {
 				check(json.Unmarshal([]byte(pollTallyResultsJson), &newArticle.PollTallyResults))
 
-				prVal("newArticle.PollTallyResults", newArticle.PollTallyResults)
+				//prVal("newArticle.PollTallyResults", newArticle.PollTallyResults)
 
 				if len(voteOptionIds) > 0 {
 					newArticle.WeVoted = true
@@ -391,14 +391,14 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 					//for _, optionId := range voteOptionIds {
 					//	newArticle.VoteOptionsMap[optionId] = true
 					//}
-					prVal("voteOptionIds", voteOptionIds)
+					//prVal("voteOptionIds", voteOptionIds)
 
 					numOptions := len(newArticle.PollOptionData.Options)
 
 
 					newArticle.VoteData = make([]bool, numOptions)
 					for _, optionId := range voteOptionIds {
-						prVal("optionId", optionId)
+						//prVal("optionId", optionId)
 						newArticle.VoteData[optionId] = true
 					}
 				}
@@ -482,7 +482,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	check(rows.Err())
 	rows.Close()
 
-	prVal("checkForDupId", checkForDupId)
+	//prVal("checkForDupId", checkForDupId)
 	//prVal("len(articles)", len(articles))
 
 	return articles
@@ -594,7 +594,7 @@ func fetchPollsVotedOnByUser(userId int64, maxArticles int) ([]Article) {
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesUpDownVotedOnByUser(userId int64, maxArticles int) ([]Article) {
-	pr("fetchArticlesUpDownVotedOnByUser:")
+	//pr("fetchArticlesUpDownVotedOnByUser:")
 	return _queryArticles(
 		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  // idCondition
 		"IS NOT NULL",                                                                              // userIdCondition
@@ -625,7 +625,7 @@ func fetchArticlesWithinCategory(category string, userId int64, maxArticles int)
 			userId,								   // fetchVotesForUserId 	int64
 			false)							 	   // onlyPolls				bool
 	} else {
-		prVal("Unknown category", category)
+		//prVal("Unknown category", category)
 		return []Article{}
 	}
 }
