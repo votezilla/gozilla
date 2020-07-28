@@ -5,7 +5,7 @@
 <br>
 <br>
 <div class="row vz-row">
-	<div class="col-md-12 vz-col-md-12">
+	<div class="col-md-8 vz-col-md-8 center">
 		<center>
 			<h5 style="margin: 5px; font-size: 32px;">
 				<strong>
@@ -14,7 +14,6 @@
 			</h5>
 		</center>
 		{{- range $o, $order := .ListOrder }}
-			order = {{ $order }}
 			{{- $message := (index $.Messages $order) -}}
 			{{- $article := (index $.Articles $order) -}}
 			<div>
@@ -23,7 +22,6 @@
 				</span>
 				<span class="age">
 					{{ $article.TimeSince }}
-					{{ $article.PublishedAt }}
 				</span>
 				<span class="title" style="font-size: 20px; color: #003980; padding-left: 5px; max-width: 100%; word-break: break-word; -ms-word-break: break-all;">
 					{{ $message }}

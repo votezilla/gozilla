@@ -139,11 +139,42 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Create a list order, and sort the activities by date, indirectly, via the list order.
 	assert(len(allArticles) == len(messages))
-	listOrder := make([]int, len(allArticles))
-	for i := 0; i < len(allArticles); i++ {
-		listOrder[i] = i
+	prVal("len(allArticles)", len(allArticles))
+
+	var listOrder []int
+	for j := 8; j < len(allArticles); j++ {
+		prf("J = %d", j)
+
+		listOrder = make([]int, j)//len(allArticles))  // <<<< IT WORKS UP TO 8, BUT AT 16 IT FAILS!!!
+		for i := 0; i < len(listOrder); i++ {
+			listOrder[i] = i
+		}
+//		prVal("<< SORT", listOrder)
+//		pr("CREATED:")
+//		for i := 0; i < len(listOrder); i++ {
+//			prf("  %2d: %#v", i, allArticles[listOrder[i]].PublishedAt)
+//		}
+
+		// vvv
+		sort.Slice(listOrder, func(i, j int) bool {
+			return allArticles[listOrder[i]].PublishedAtUnix.After(
+				   allArticles[listOrder[j]].PublishedAtUnix)
+		})
+
+/*		prVal(">> SORT", listOrder)
+		pr("CREATED:")
+		for i := 0; i < len(listOrder); i++ {
+			prf("  %2d: %#v", i, allArticles[listOrder[i]].PublishedAt)
+		}
+		for i := 0; i < len(listOrder) - 1; i++ {
+			assertMsg(allArticles[listOrder[i]].PublishedAtUnix.After(
+					  allArticles[listOrder[i+1]].PublishedAtUnix) ||
+					  allArticles[listOrder[i]].PublishedAtUnix.Equal(
+					  allArticles[listOrder[i+1]].PublishedAtUnix),
+				fmt.Sprintf("%d is before %d", i, i+1))
+		}
+*/
 	}
-	sort.Slice(listOrder, func(i, j int) bool { return allArticles[listOrder[i]].PublishedAt > allArticles[listOrder[j]].PublishedAt })
 
 	// Render the news articles.
 	args := struct {
