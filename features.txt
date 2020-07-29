@@ -196,3 +196,9 @@ C - 2 - have back button for polls go back to POLLS
 B 2 - make polls that have results abbreviated (due to long option text) should list # of votes.
 
 Added POLLS to history; Improved poll layout a little: Made them kNoHeadlines; shrunk poll dino images a little; increase num visible poll items from 3/8 to 12/12.
+
+Added POLLS to history.
+
+Shrunk poll dino images a little
+
+Increase num visible poll items from 3/8 to 12/12.

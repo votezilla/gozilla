@@ -23,6 +23,53 @@ const (
 )
 
 
+func getTimeSinceString(publishedAt time.Time, longform bool) string {
+	timeSince := time.Since(publishedAt)
+	seconds := timeSince.Seconds()
+	minutes := timeSince.Minutes()
+	hours := timeSince.Hours()
+	days := hours / 24.0
+	weeks := days / 7.0
+	years := days / 365.0
+
+	if longform {
+		s := ""
+		if years > 20.0 {
+			s = "a long time"
+		} else if years >= 1.0 {
+			s = strconv.FormatFloat(years, 'f', 0, 32) + " year" + ternary_str(years >= 2.0, "s", "")
+		} else if weeks >= 1.0 {
+			s = strconv.FormatFloat(weeks, 'f', 0, 32) + " week" + ternary_str(weeks >= 2.0, "s", "")
+		} else if days >= 1.0 {
+			s = strconv.FormatFloat(days, 'f', 0, 32) + " day" + ternary_str(days >= 2.0, "s", "")
+		} else if hours >= 1.0 {
+			s = strconv.FormatFloat(hours, 'f', 0, 32) + " hour" + ternary_str(hours >= 2.0, "s", "")
+		} else if minutes >= 1.0 {
+			s = strconv.FormatFloat(minutes, 'f', 0, 32) + " minute" + ternary_str(minutes >= 2.0, "s", "")
+		} else {
+			s = strconv.FormatFloat(seconds, 'f', 0, 32) + " second" + ternary_str(seconds >= 2.0, "s", "")
+		}
+		s += " ago"
+		return s
+	} else {  // Short form
+		if years > 20.0 {
+			return "old"
+		} else if years >= 1.0 {
+			return strconv.FormatFloat(years, 'f', 0, 32) + "y"
+		} else if weeks >= 1.0 {
+			return strconv.FormatFloat(weeks, 'f', 0, 32) + "w"
+		} else if days >= 1.0 {
+			return strconv.FormatFloat(days, 'f', 0, 32) + "d"
+		} else if hours >= 1.0 {
+			return strconv.FormatFloat(hours, 'f', 0, 32) + "h"
+		} else if minutes >= 1.0 {
+			return strconv.FormatFloat(minutes, 'f', 0, 32) + "m"
+		} else {
+			return strconv.FormatFloat(seconds, 'f', 0, 32) + "s"
+		}
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // query news articles and user posts from database, with condition test on the
@@ -48,6 +95,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	newsPostQuery := fmt.Sprintf(
 	   `SELECT Id,
 	   		   NewsSourceId AS Author,
+	   		   -1::bigint AS UserId,
 	   		   Title,
 	   		   COALESCE(Description, '') AS Description,
 	   		   LinkUrl,
@@ -72,6 +120,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	linkPostQuery := fmt.Sprintf(
 	   `SELECT P.Id,
 		       U.Username AS Author,
+	   		   UserId,
 		       P.Title,
 		       '' AS Description,
 		       P.LinkUrl,
@@ -93,36 +142,30 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		userIdCondition,
 		categoryCondition)
 
-	pollPostQueryBuilder := func(pollsCategory bool) string {
-		return fmt.Sprintf(
-		   `SELECT P.Id,
-				   U.Username AS Author,
-				   P.Title,
-				   '' AS Description,
-				   FORMAT('/poll/?postId=%%s', P.Id) AS LinkUrl,
-				   COALESCE(P.UrlToImage, '') AS UrlToImage,
-				   P.Created AS PublishedAt,
-				   '' AS NewsSourceId,
-				   %s AS Category,
-				   'EN' AS Language,
-				   COALESCE(U.Country, ''),
-				   PollOptionData,
-				   COALESCE(PollTallyResults, ''),
-				   NumComments,
-				   ThumbnailStatus,
-				   'P' AS Source
-			FROM $$PollPost P
-			JOIN $$User U ON P.UserId = U.Id
-			WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
-			ternary_str(pollsCategory, "'polls'", "$$GetCategory(Category, U.Country)"),
-			idCondition,
-			userIdCondition,
-			categoryCondition)
-	}
-
-	pollPostQuery := pollPostQueryBuilder(false)
-
-	pollCatQuery := pollPostQueryBuilder(true)
+	pollPostQuery := fmt.Sprintf(
+	   `SELECT P.Id,
+			   U.Username AS Author,
+			   UserId,
+			   P.Title,
+			   '' AS Description,
+			   FORMAT('/poll/?postId=%%s', P.Id) AS LinkUrl,
+			   COALESCE(P.UrlToImage, '') AS UrlToImage,
+			   P.Created AS PublishedAt,
+			   '' AS NewsSourceId,
+			   $$GetCategory(Category, U.Country) AS Category,
+			   'EN' AS Language,
+			   COALESCE(U.Country, ''),
+			   PollOptionData,
+			   COALESCE(PollTallyResults, ''),
+			   NumComments,
+			   ThumbnailStatus,
+			   'P' AS Source
+		FROM $$PollPost P
+		JOIN $$User U ON P.UserId = U.Id
+		WHERE (P.Id %s) AND (U.Id %s) AND ($$GetCategory(Category, U.Country) %s)`,	// Removed: 'ThumbnailStatus = 1 AND' because all polls currently use same thumbnail status
+		idCondition,
+		userIdCondition,
+		categoryCondition)
 
 	// TODO: Optimize queries so we only create strings that we will actually use.
 	query := ""
@@ -131,10 +174,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	} else if newsSourceIdCondition != "IS NOT NULL" {  // We're just querying news posts.
 		query = newsPostQuery
 	} else if onlyPolls {
-		query = pollCatQuery
-	// Removing this since pollCatQuery alongside pollPostQuery causes duplicate polls, which causes voting bugs!
-	//} else if articlesPerCategory > 0 {
-	//	query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery, pollCatQuery}, "\nUNION ALL\n")
+		query = pollPostQuery
 	} else {
 		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	}
@@ -169,6 +209,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		query = fmt.Sprintf(`
 			SELECT Id,
 				Author,
+				UserId,
 				Title,
 				Description,
 				LinkUrl,
@@ -235,6 +276,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	for rows.Next() {
 		var id				int64
 		var author			string
+		var userId			int64
 		var title			string
 		var description		string
 		var linkUrl			string
@@ -255,13 +297,13 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		var voteOptionIds 	[]int64
 
 		if fetchVotesForUserId >= 0 {
-			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
+			check(rows.Scan(&id, &author, &userId, &title, &description, &linkUrl, &urlToImage,
 							&publishedAt, &newsSourceId, &category, &language, &country,
 							&pollOptionJson, &pollTallyResultsJson, &numComments, &thumbnailStatus, &source,
 							&voteTally, &orderBy, &upvoted, pq.Array(&voteOptionIds)))
 
 		} else {
-			check(rows.Scan(&id, &author, &title, &description, &linkUrl, &urlToImage,
+			check(rows.Scan(&id, &author, &userId, &title, &description, &linkUrl, &urlToImage,
 							&publishedAt, &newsSourceId, &category, &language, &country,
 							&pollOptionJson, &pollTallyResultsJson, &numComments, &thumbnailStatus, &source,
 							&voteTally, &orderBy))
@@ -309,34 +351,6 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		}
 		//prVal("host", host)
 
-		// Format time since article was posted to a short format, e.g. "2h" for 2 hours.
-		var timeSinceStr string
-		{
-			timeSince := time.Since(publishedAt)
-			seconds := timeSince.Seconds()
-			minutes := timeSince.Minutes()
-			hours := timeSince.Hours()
-			days := hours / 24.0
-			weeks := days / 7.0
-			years := days / 365.0
-
-			if years > 20.0 {
-				timeSinceStr = "old"
-			} else if years >= 1.0 {
-				timeSinceStr = strconv.FormatFloat(years, 'f', 0, 32) + "y"
-			} else if weeks >= 1.0 {
-				timeSinceStr = strconv.FormatFloat(weeks, 'f', 0, 32) + "w"
-			} else if days >= 1.0 {
-				timeSinceStr = strconv.FormatFloat(days, 'f', 0, 32) + "d"
-			} else if hours >= 1.0 {
-				timeSinceStr = strconv.FormatFloat(hours, 'f', 0, 32) + "h"
-			} else if minutes >= 1.0 {
-				timeSinceStr = strconv.FormatFloat(minutes, 'f', 0, 32) + "m"
-			} else {
-				timeSinceStr = strconv.FormatFloat(seconds, 'f', 0, 32) + "s"
-			}
-		}
-
 		// Map the category to one that makes sense.
 		category, found := newsCategoryRemapping[category]
 		if !found {
@@ -347,6 +361,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		newArticle := Article{
 			Id:				id,
 			Author:			author, // haha hijacking Author to be the poster
+			UserId:			userId,
 			Title:			title,
 			Description:	description,
 			Url:			linkUrl,
@@ -357,7 +372,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			Category:		category,
 			Language:		language,
 			Country:		country,
-			TimeSince:		timeSinceStr,
+			TimeSince:		getTimeSinceString(publishedAt, false),
 			AuthorIconUrl:
 				ternary_str(newsSourceId != "",
 					"/static/newsSourceIcons/" + newsSourceId + ".png",  // News source icon.
@@ -640,6 +655,24 @@ func fetchArticlesPostedByUser(userId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
 		"IS NOT NULL", 						   // idCondition
 		"= " + strconv.FormatInt(userId, 10),  // userIdCondition
+		"IS NOT NULL",                         // categoryCondition
+		"IS NOT NULL",						   // newsSourceIdCondition	string
+		-1,									   // articlesPerCategory 	int
+		maxArticles,						   // maxArticles 			int
+		userId,								   // fetchVotesForUserId 	int64
+		false)							 	   // onlyPolls				bool
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch articles not posted by a user.
+//   category - optional, can provide "" to skip.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchArticlesNotPostedByUser(userId int64, maxArticles int) ([]Article) {
+	return _queryArticles(
+		"IS NOT NULL", 						   // idCondition
+		"<> " + strconv.FormatInt(userId, 10), // userIdCondition
 		"IS NOT NULL",                         // categoryCondition
 		"IS NOT NULL",						   // newsSourceIdCondition	string
 		-1,									   // articlesPerCategory 	int

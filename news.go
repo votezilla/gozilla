@@ -309,7 +309,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 //
 //////////////////////////////////////////////////////////////////////////////
 func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64) {
-	prVal("deduceVotingArrows len(articles)", len(articles))
+	//prVal("deduceVotingArrows len(articles)", len(articles))
 
 	for _, article := range articles {
 
@@ -320,8 +320,8 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 		}
 	}
 
-	prVal("upvotes", upvotes)
-	prVal("downvotes", downvotes)
+	//prVal("upvotes", upvotes)
+	//prVal("downvotes", downvotes)
 
 	return upvotes, downvotes
 }

@@ -12,22 +12,28 @@
 					Activity feed
 				</strong>
 			</h5>
+			<br>
 		</center>
 		{{- range $o, $order := .ListOrder }}
 			{{- $message := (index $.Messages $order) -}}
 			{{- $article := (index $.Articles $order) -}}
+			{{- $link    := (index $.Links    $order) -}}
 			<div>
-				<span>
-					<img src="{{ $article.UrlToThumbnail }}" width="60">
-				</span>
-				<span class="age">
-					{{ $article.TimeSince }}
-				</span>
-				<span class="title" style="font-size: 20px; color: #003980; padding-left: 5px; max-width: 100%; word-break: break-word; -ms-word-break: break-all;">
-					{{ $message }}
-				</span>
+				<a>
+					<span><img src="{{$article.AuthorIconUrl}}" width=24 height=24></span>
+					<span style="color: #88f; font-size: 18px;">{{$article.Author}}</span>
+				</a>
+				<a href="{{ $link }}" target="_blank" style="font-size: 18px; color: #003980; padding-left: 5px; max-width: 100%; word-break: break-word; -ms-word-break: break-all;">
+					<span class="title">
+						{{ $message }}
+					</span>
+					&middot;
+					<span class="title" style="font-size: 16px">{{$article.TimeSince}}</span>
+				</a>
 			</div>
 		{{- end }}
 	</div>
 </div>
+<br>
+<br>
 {{end}}

@@ -4,9 +4,7 @@ convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
 
-Added POLLS to history.
-Shrunk poll dino images a little
-Increase num visible poll items from 3/8 to 12/12.
+A 8 - Add activity tab (like FB notifications, but list all ppl) - 1st pass done
 
 
 WORKING ON:
@@ -14,11 +12,12 @@ WORKING ON:
 A+ - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
-A 21 = Add activity tab (like FB notifications, but list all ppl)
+A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have
+  
+A - 8 - Add more activities notifications
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
-
 
 
 POLLS:
@@ -27,7 +26,7 @@ Importance
 v
   Difficulty
   v
-
+  
 A - 8 - cats need to be more obvious that they are clickable, maybe thick underline / link icon / spell it out (i.e. MORE NEWS...) (TOM)
          ^^ + vv
   - provide better underlining for /news articles, Also hover of articles, poss make them blue too.https://stackoverflow.com/questions/13840403/edit-line-thickness-of-css-underline-attribute?rq=1#:~:text=You%20can%20adjust%20underline%20position,want%20to%20underline%20an%20href.

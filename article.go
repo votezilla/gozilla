@@ -29,6 +29,7 @@ type Article struct {
 
 	// Custom parameters:
 	Id				int64
+	UserId			int64
 	UrlToThumbnail	string
 	NewsSourceId	string
 	Host			string

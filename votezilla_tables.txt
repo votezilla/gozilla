@@ -120,7 +120,7 @@ CREATE TABLE vz.Comment (
     UserId              BIGINT NOT NULL, -- The user who left this comment.        
     ParentId            BIGINT,          -- The parent comment, hierarchially.         
 
-	VoteTally       	INT              NOT NULL DEFAULT 0,  -- Up/down votes
+    VoteTally       	INT              NOT NULL DEFAULT 0,  -- Up/down votes
     
     Text                TEXT NOT NULL,	 -- Max length is 40000, but TEXT type is easier to deal with in Golang.
     PrevRevisions       VARCHAR(40000)[],
