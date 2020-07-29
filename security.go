@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"github.com/gorilla/securecookie"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -258,14 +259,19 @@ func logIP(r *http.Request) {
 	// Add the request string
 	pr("===========================================")
 	pr("logIP")
+
+	ip, port, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		prf("userip: %q is not IP:port", r.RemoteAddr)
+	}
+	prVal("IP", ip)
+	prVal("Port", port)
+
 	prVal("Method", r.Method)	// GET
 	prVal("Path", r.URL.Path)			// /article/?postId=17653&addOption=1
 	prVal("RawQuery", r.URL.RawQuery)
 
 	prVal("Host",		r.Host)
-	//hostParts := strings.Split(r.Host, ":")
-	//prVal("Host", join(hostParts[0])
-	//prVal("Port", hostParts[1])
 
 	prVal("Language", 	join(r.Header["Accept-Language"]))
 	prVal("Referer", 	join(r.Header["Referer"]))
