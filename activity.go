@@ -126,6 +126,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 	allArticles := []Article{}
 	messages    := []string{}
 	links       := []string{}
+	unvisited	:= []bool{}
 
 	pr("Get articles shared by user")
 	{
@@ -138,6 +139,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 				article.Title))
 
 			links = append(links, fmt.Sprintf("/article?postId=%d", article.Id))
+			unvisited = append(unvisited, true)
 
 			articles[a].TimeSince = getTimeSinceString(article.PublishedAtUnix, true)
 		}
@@ -158,6 +160,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 				ellipsify(comment.Comment, 42)))
 
 			links = append(links, fmt.Sprintf("/article?postId=%d#comment_%d", article.Id, comment.Id))
+			unvisited = append(unvisited, true)
 		}
 
 		allArticles = append(allArticles, articles...)
@@ -195,6 +198,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 		Articles	[]Article
 		ListOrder	[]int
 		Links		[]string
+		Unvisited	[]bool
 	}{
 		FrameArgs:	makeFrameArgs("votezilla - Activity", "", kActivity, userId, username),
 		//FrameArgs:	makeFrameArgs2("votezilla - Activity", "", kActivity, userId, username, upvotes, downvotes),
@@ -202,6 +206,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 		Articles:	allArticles,
 		ListOrder:	listOrder,
 		Links:		links,
+		Unvisited:	unvisited,
 	}
 	executeTemplate(w, kActivity, args)
 }

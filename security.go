@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/securecookie"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -224,3 +225,62 @@ func RefreshSession(w http.ResponseWriter, r *http.Request) {
 func InitSecurity() {
 	cookieCypher = securecookie.New([]byte(flags.secureCookieHashKey), []byte(flags.secureCookieBlockKey))
 }
+
+
+
+// TODO: we could add DNS Attack code defense here.  Check the ip, apply various masks.
+
+// accept-language: en-US,en;q=0.9
+// referer: http://localhost:8080/article/?postId=17653
+// user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
+// userId I can lookup up
+
+func logIP(r *http.Request) {
+	// TODO: Log IP here!
+	// Current output:
+	//  Handling request from: GET /article/?postId=17653&addOption=1 HTTP/1.1
+	//  Host: localhost:8080
+	//  accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+	//  sec-fetch-dest: document
+	//  accept-language: en-US,en;q=0.9
+	//  cookie: UserId=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	//  connection: keep-alive
+	//  upgrade-insecure-requests: 1
+	//  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
+	//  sec-fetch-site: same-origin
+	//  sec-fetch-mode: navigate
+	//  sec-fetch-user: ?1
+	//  referer: http://localhost:8080/article/?postId=17653
+	//  accept-encoding: gzip, deflate, br
+
+	join := func(strList []string) string { return strings.Join(strList, "[,]") }
+
+	// Add the request string
+	pr("===========================================")
+	pr("logIP")
+	prVal("Method", r.Method)	// GET
+	prVal("Path", r.URL.Path)			// /article/?postId=17653&addOption=1
+	prVal("RawQuery", r.URL.RawQuery)
+	
+	hostParts := strings.Split(r.Host, ":")
+	prVal("Host", hostParts[0])
+	prVal("Port", hostParts[1])
+	
+	prVal("Language", 	join(r.Header["Accept-Language"]))
+	prVal("Referer", 	join(r.Header["Referer"]))
+	prVal("UserAgent", 	join(r.Header["User-Agent"]))
+	
+	//prVal("r.Form.Encode()", 	r.Form.Encode())
+
+	userId := GetSession(r)
+	prVal("userId", userId)
+
+
+	// ^^ including accept-language: en-US,en;q=0.9
+	// ^^ including referer: http://localhost:8080/article/?postId=17653
+	// ^^ including user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
+	// userId I can lookup up
+	pr("<<")
+
+}
+

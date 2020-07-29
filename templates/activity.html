@@ -15,10 +15,11 @@
 			<br>
 		</center>
 		{{- range $o, $order := .ListOrder }}
-			{{- $message := (index $.Messages $order) -}}
-			{{- $article := (index $.Articles $order) -}}
-			{{- $link    := (index $.Links    $order) -}}
-			<div>
+			{{- $message	:= (index $.Messages  $order) -}}
+			{{- $article	:= (index $.Articles  $order) -}}
+			{{- $link		:= (index $.Links     $order) -}}
+			{{- $unvisited	:= (index $.Unvisited $order) -}}
+			<div style="{{if $unvisited}}background-color: #eef;{{end}}">
 				<a>
 					<span><img src="{{$article.AuthorIconUrl}}" width=24 height=24></span>
 					<span style="color: #88f; font-size: 18px;">{{$article.Author}}</span>

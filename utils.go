@@ -267,7 +267,7 @@ func formatRequest(r *http.Request) string {
 	request = append(request, fmt.Sprintf("Host: %v", r.Host))
 	// Loop through headers
 	for name, headers := range r.Header {
-		name = strings.ToLower(name)
+		//name = strings.ToLower(name)
 		for _, h := range headers {
 			request = append(request, fmt.Sprintf("%v: %v", name, h))
 		}

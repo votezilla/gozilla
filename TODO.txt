@@ -9,13 +9,16 @@ A 8 - Add activity tab (like FB notifications, but list all ppl) - 1st pass done
 
 WORKING ON:
 
+A - 2 - Change color of Activities once you've clicked on them
+  
+A - 8 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
+
 A+ - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
-A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have
-  
-A - 8 - Add more activities notifications
-
+A - 13 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
+	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
+	
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
@@ -26,6 +29,8 @@ Importance
 v
   Difficulty
   v
+  
+A - 8 - basic /user page, based on history.  
   
 A - 8 - cats need to be more obvious that they are clickable, maybe thick underline / link icon / spell it out (i.e. MORE NEWS...) (TOM)
          ^^ + vv
@@ -89,6 +94,7 @@ FEEDBACK:
 C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
   ^ Ryan H: Only listing the first three options in the summary is going to influence votes. Try not including the poll choices in the summary at all? or at least not be able to vote from the summary? Should polls have descriptions? (yes).
 
+C - I'd like to have links or additional inline documentation before taking a poll. oh, you could have an optional voter's pamphlet for each poll. Weird thing--as I am typing this the page kept scrolling back to the top. (RYAN)
 
 TOM FEEDBACK:
 D - TOM: Add Votezilla to search engines.  (He tried to search for votezilla.io on the search engine!) (Need to optimize and improve SEO first!) (TOM)

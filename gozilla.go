@@ -143,41 +143,10 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
-	// TODO: we could add DNS Attack code defense here.  Check the ip, apply various masks.
-
-	// TODO: Log IP here!
-	// Current output:
-	//  Handling request from: GET /article/?postId=17653&addOption=1 HTTP/1.1
-	//  Host: localhost:8080
-	//  accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-	//  sec-fetch-dest: document
-	//  accept-language: en-US,en;q=0.9
-	//  cookie: UserId=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-	//  connection: keep-alive
-	//  upgrade-insecure-requests: 1
-	//  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
-	//  sec-fetch-site: same-origin
-	//  sec-fetch-mode: navigate
-	//  sec-fetch-user: ?1
-	//  referer: http://localhost:8080/article/?postId=17653
-	//  accept-encoding: gzip, deflate, br
-
-	// Should log: URL, referer, IP, user-agent, userId
-	// url := fmt.Sprintf("%v %v %v", r.Method, r.URL, r.Proto)
-	// for name, headers := range r.Header {
-	//	name = strings.ToLower(name)
-	//	for _, h := range headers {
-	//		request = append(request, fmt.Sprintf("%v: %v", name, h))
-	//	}
-	// }
-	// ^^ including accept-language: en-US,en;q=0.9
-	// ^^ including referer: http://localhost:8080/article/?postId=17653
-	// ^^ including user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
-	// userId I can lookup up
-
-
 	return func(w http.ResponseWriter, r *http.Request) {
-		prf("\nHandling request from: %s\n", formatRequest(r))
+		prf("\n Handling request from: %s\n", formatRequest(r))
+
+		logIP(r)
 
 		handler(w, r)
 	}
