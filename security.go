@@ -261,15 +261,16 @@ func logIP(r *http.Request) {
 	prVal("Method", r.Method)	// GET
 	prVal("Path", r.URL.Path)			// /article/?postId=17653&addOption=1
 	prVal("RawQuery", r.URL.RawQuery)
-	
-	hostParts := strings.Split(r.Host, ":")
-	prVal("Host", hostParts[0])
-	prVal("Port", hostParts[1])
-	
+
+	prVal("Host",		r.Host)
+	//hostParts := strings.Split(r.Host, ":")
+	//prVal("Host", join(hostParts[0])
+	//prVal("Port", hostParts[1])
+
 	prVal("Language", 	join(r.Header["Accept-Language"]))
 	prVal("Referer", 	join(r.Header["Referer"]))
 	prVal("UserAgent", 	join(r.Header["User-Agent"]))
-	
+
 	//prVal("r.Form.Encode()", 	r.Form.Encode())
 
 	userId := GetSession(r)

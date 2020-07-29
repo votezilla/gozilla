@@ -126,6 +126,7 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 		//return nil, fmt.Errorf("userip: %q is not IP:port", req.RemoteAddr)
 		fmt.Fprintf(w, "userip: %q is not IP:port", r.RemoteAddr)
     }
+    fmt.Fprintf(w, "<p>User IP: %s</p>", userIP)
 
     // This will only be defined when site is accessed via non-anonymous proxy
     // and takes precedence over RemoteAddr
