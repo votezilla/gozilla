@@ -56,7 +56,7 @@ var (
 			"entertainment",
 			"technology",
 			"science",
-//			"other",
+			"other",
 		},
 		HeaderColors : map[string]string{
 			"polls"				: "#4482ff", //"#fe8",
@@ -67,7 +67,7 @@ var (
 			"entertainment" 	: "#e85be4",
 			"technology" 		: "#aaa",    //"#ccc",
 			"science"			: "#8cf",
-//			"other"				: "#4af392",
+			"other"				: "#4af392",
 		},
 		CategorySelect : [][2]string{
 			{"polls", 			"polls"},
@@ -78,7 +78,7 @@ var (
 			{"entertainment",	"entertainment"},
 			{"technology",		"technology"},
 			{"science",			"science"},
-//			{"other",			"other"},
+			{"other",			"other"},
 		},
 	}
 
@@ -140,7 +140,12 @@ func sortArticles(articles []Article) {
 func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines int) ([]ArticleGroup) {
 	//rowsPerCategory := ternary_int(onlyCategory == "", kRowsPerCategory, kMaxArticles)
 
-	//pr("formatArticleGroups")
+	//prVal("formatArticleGroups   onlyCategory", onlyCategory)
+
+	//prVal("len(articles)", len(articles))
+	//for _, article := range articles {
+	//	prVal("article.Category", article.Category)
+	//}
 
 	var categoryOrder []string
 	if onlyCategory != "" {
@@ -411,10 +416,11 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
 
 	// vv WORKS! - TODO_OPT: fix so poll don't require an extra db query
-	polls := fetchPolls(userId, 2 * kRowsPerCategory)
-	pollArticleGroups := formatArticleGroups(polls, newsCategoryInfo, "polls", kNoHeadlines)
 
 	if reqCategory == "" { // /news
+		// Reformat the polls to have 6 visible, with no headlines.  (Polls with headlines waste a lot of space.)
+		pollArticleGroups := formatArticleGroups(articles, newsCategoryInfo, "polls", kNoHeadlines)
+
 		//prVal("articleGroups[0]", articleGroups[0])
 		//prVal("pollArticleGroups[0]", pollArticleGroups[0])
 		articleGroups[0] = pollArticleGroups[0]  // Try copying the polls, as a test
