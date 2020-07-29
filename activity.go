@@ -129,7 +129,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 
 	pr("Get articles shared by user")
 	{
-		articles := fetchArticlesNotPostedByUser(userId, 10)
+		articles := fetchArticlesNotPostedByUser(userId, 50)
 
 		for a, article := range articles {
 			messages = append(messages, fmt.Sprintf(
@@ -147,7 +147,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 
 	pr("Get articles commented on by user")
 	{
-		articles, comments := fetchRecentComments(userId, 10)
+		articles, comments := fetchRecentComments(userId, 50)
 
 		for a, article := range articles {
 			comment := comments[a]
@@ -155,7 +155,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 				"  commented on %s article '%s': '%s'",
 				ternary_str(article.UserId == userId, "your", "the"),
 				article.Title,
-				comment.Comment))
+				ellipsify(comment.Comment, 42)))
 
 			links = append(links, fmt.Sprintf("/article?postId=%d#comment_%d", article.Id, comment.Id))
 		}
