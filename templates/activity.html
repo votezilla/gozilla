@@ -2,6 +2,14 @@
            But wait, does this work on mobile?  Have to get another phone to find out.. :?  */}}
 
 {{define "content"}}
+<style>
+.unvisited{
+	background-color: #eef;
+}
+.visited{
+	background-color: white;
+}
+</style>
 <br>
 <br>
 <div class="row vz-row">
@@ -19,12 +27,14 @@
 			{{- $article	:= (index $.Articles  $order) -}}
 			{{- $link		:= (index $.Links     $order) -}}
 			{{- $unvisited	:= (index $.Unvisited $order) -}}
-			<div style="{{if $unvisited}}background-color: #eef;{{end}}">
+			<div id="n{{$o}}" class="{{if $unvisited}}unvisited{{else}}visited{{end}}">
 				<a>
 					<span><img src="{{$article.AuthorIconUrl}}" width=24 height=24></span>
 					<span style="color: #88f; font-size: 18px;">{{$article.Author}}</span>
 				</a>
-				<a href="{{ $link }}" target="_blank" style="font-size: 18px; color: #003980; padding-left: 5px; max-width: 100%; word-break: break-word; -ms-word-break: break-all;">
+				<a href="{{ $link }}" target="_blank"
+				   style="font-size: 18px; color: #003980; padding-left: 5px; max-width: 100%; word-break: break-word; -ms-word-break: break-all;"
+				   onclick="$('#n{{$o}}').removeClass('unvisited');">
 					<span class="title">
 						{{ $message }}
 					</span>

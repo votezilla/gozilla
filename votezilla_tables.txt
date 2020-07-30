@@ -29,11 +29,11 @@ CREATE TABLE vz.User (
     Schooling       TEXT,
     
     -- Details - other fields
-    OtherGender     	 TEXT,
-    OtherParty      	 TEXT,
-    OtherRace       	 TEXT,
-    OtherCountry	 TEXT,
-    OtherMaritalStatus	 TEXT,
+    OtherGender              TEXT,
+    OtherParty               TEXT,
+    OtherRace                TEXT,
+    OtherCountry         TEXT,
+    OtherMaritalStatus         TEXT,
     OtherSchoolCompleted TEXT,
     
     -- Verification status
@@ -81,7 +81,7 @@ CREATE TABLE vz.BlogPost (
 
 CREATE TABLE vz.PollPost (
     PollOptionData  TEXT        -- JSON  
-    PollTallyResults TEXT	-- JSON
+    PollTallyResults TEXT        -- JSON
 ) INHERITS (vz.Post);
 
 
@@ -120,9 +120,9 @@ CREATE TABLE vz.Comment (
     UserId              BIGINT NOT NULL, -- The user who left this comment.        
     ParentId            BIGINT,          -- The parent comment, hierarchially.         
 
-    VoteTally       	INT              NOT NULL DEFAULT 0,  -- Up/down votes
+    VoteTally               INT              NOT NULL DEFAULT 0,  -- Up/down votes
     
-    Text                TEXT NOT NULL,	 -- Max length is 40000, but TEXT type is easier to deal with in Golang.
+    Text                TEXT NOT NULL,         -- Max length is 40000, but TEXT type is easier to deal with in Golang.
     PrevRevisions       VARCHAR(40000)[],
     
     -- Materialized path - this sorts it into a tree hierarchy for us, though 
@@ -147,6 +147,29 @@ CREATE TABLE vz.Comment (
     Deleted             BOOL DEFAULT false
 );
 CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, Path);  -- The simpler way
+
+
+CREATE TABLE vz.Request (
+    Ip                  TEXT NOT NULL,    -- e.g. "73.240.47.68"
+    Port                TEXT NOT NULL,    -- e.g. "62568"
+    Method              TEXT NOT NULL,    -- e.g. "GET"
+    Path                TEXT NOT NULL,    -- e.g. "/ip/"
+    RawQuery            TEXT NOT NULL,    -- e.g. "" or "?x=5"
+    Language            TEXT NOT NULL,    -- e.g. "en-US,en;q=0.9"
+    Referer             TEXT NOT NULL,    -- e.g. full ip address of the previous website
+    
+    UserId              BIGINT,           -- userId if user is logged in; -1 otherwise
+    
+    Created             TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE TABLE vz.HasVisited (
+    UserId              BIGINT NOT NULL,
+    PathQuery           TEXT NOT NULL
+);
+CREATE UNIQUE INDEX user_path_query_index ON vz.HasVisited (UserId, PathQuery);
+
+
 
 -- FUNCTIONS
 -- Gets the category based on the category and user's country of origin.

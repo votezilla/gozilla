@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -126,7 +127,6 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 	allArticles := []Article{}
 	messages    := []string{}
 	links       := []string{}
-	unvisited	:= []bool{}
 
 	pr("Get articles shared by user")
 	{
@@ -138,8 +138,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 				ternary_str(article.UserId == userId, "your", "an"),
 				article.Title))
 
-			links = append(links, fmt.Sprintf("/article?postId=%d", article.Id))
-			unvisited = append(unvisited, true)
+			links = append(links, fmt.Sprintf("/article/?postId=%d", article.Id))
 
 			articles[a].TimeSince = getTimeSinceString(article.PublishedAtUnix, true)
 		}
@@ -159,8 +158,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 				article.Title,
 				ellipsify(comment.Comment, 42)))
 
-			links = append(links, fmt.Sprintf("/article?postId=%d#comment_%d", article.Id, comment.Id))
-			unvisited = append(unvisited, true)
+			links = append(links, fmt.Sprintf("/article/?postId=%d#comment_%d", article.Id, comment.Id))
 		}
 
 		allArticles = append(allArticles, articles...)
@@ -183,13 +181,38 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 			   allArticles[listOrder[j]].PublishedAtUnix)
 	})
 
-/*	for i := 0; i < len(listOrder) - 1; i++ {
-		assertMsg(allArticles[listOrder[i]].PublishedAtUnix.After(
-				  allArticles[listOrder[i+1]].PublishedAtUnix) ||
-				  allArticles[listOrder[i]].PublishedAtUnix.Equal(
-				  allArticles[listOrder[i+1]].PublishedAtUnix),
-			fmt.Sprintf("%d is before %d", i, i+1))
-	}*/
+	prVal("links", links)
+
+	// Look up which links have been visited
+	unvisited := make([]bool, len(allArticles))
+	{
+		// Copy this user's visited links for from database to a hash.
+		visitedLinks := map[string]bool{}
+		rows := DbQuery(`SELECT PathQuery FROM $$HasVisited WHERE UserId=$1::bigint`, userId)
+		for	rows.Next() {
+			pathQuery := ""
+			rows.Scan(&pathQuery)
+
+			visitedLinks[pathQuery] = true
+		}
+		check(rows.Err())
+		rows.Close()
+
+		prVal("visitedLinks", visitedLinks)
+
+		// Look up whether each link is in the hash, copy results to unvisited.
+		for a, link := range links {
+			// Strip off the hash for comparison, because the hash can never reach a server.
+			cleanLink := strings.Split(link, "#")[0]
+
+			prVal("cleanLink", cleanLink)
+
+			_, found := visitedLinks[cleanLink]
+			unvisited[a] = !found
+
+			prf("  link %s %s found", cleanLink, ternary_str(found, "is", "is not"))
+		}
+	}
 
 	// Render the news articles.
 	args := struct {

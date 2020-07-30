@@ -4,19 +4,22 @@ convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
 
-A 8 - Add activity tab (like FB notifications, but list all ppl) - 1st pass done
+A - 8 - Add activity tab (like FB notifications, but list all ppl) - 1st pass done
+
+A - 5 - Change and remember the color of Activities once you've clicked on them
+
+A - 8 - Get the user's IP address.  (Needed for spam account & spam vote prevention.)
 
 
 WORKING ON:
 
-A - 2 - Change color of Activities once you've clicked on them
   
 A - 8 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
 A+ - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
-A - 13 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
+A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
 	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
 	
 
@@ -191,7 +194,6 @@ MED PRIORITY (for test with 100 friends):
 
 - Create some mission statement / google doc / blog posts.
 
-- Get the user's IP address.  (Needed for spam account & spam vote prevention.)
 
 
 D ? - Ryan: "I am unable to post comments with unicode characters. It fails without reporting an error (you only see it if you look in the xhr). Posting a poll allows some unicode characters but most get translated into those strange diamonds with question marks."  
