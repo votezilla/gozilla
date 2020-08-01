@@ -4,24 +4,19 @@ convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
 
-A - 8 - Add activity tab (like FB notifications, but list all ppl) - 1st pass done
+Started creation of firewall security system.
 
-A - 5 - Change and remember the color of Activities once you've clicked on them
-
-A - 8 - Get the user's IP address.  (Needed for spam account & spam vote prevention.)
 
 
 WORKING ON:
 
-  
-A - 8 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
+A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
+	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
 
 A+ - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
-A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
-	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
-	
+A - block Chinese hackers.	
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
 
@@ -51,6 +46,8 @@ A 8 - Add history for other ppl (also listing of ppl)
 A 13 - implement really simple blogging
 
 A - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
+
+B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
 B 2 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
 
@@ -179,6 +176,7 @@ D 2 - ranked vote checkbox should list the rank.
 
 D 3 - sort history just by time posted desc
 
+D 2 - RYAN: I don't want to have to dig into the comments to find the info -- it should be in the poll description.
 
 MED PRIORITY (for test with 100 friends):
 
@@ -199,6 +197,8 @@ MED PRIORITY (for test with 100 friends):
 D ? - Ryan: "I am unable to post comments with unicode characters. It fails without reporting an error (you only see it if you look in the xhr). Posting a poll allows some unicode characters but most get translated into those strange diamonds with question marks."  
     
 D ? - When calculating if some text is too long, counts the number of bytes, not displayed Unicode characters.
+
+B ? - Ryan: "Lookin better duder!  I still think the polls / articles need better separation.  Maybe a border?  For me this is a big deal."
 
 D - OPT: Use CDN for images -> DigitalOcean Spaces: https://cloud.digitalocean.com/spaces?i=5344af
 

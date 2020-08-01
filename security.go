@@ -6,10 +6,8 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"github.com/gorilla/securecookie"
-    "net"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -225,70 +223,5 @@ func RefreshSession(w http.ResponseWriter, r *http.Request) {
 // Should be called from init()
 func InitSecurity() {
 	cookieCypher = securecookie.New([]byte(flags.secureCookieHashKey), []byte(flags.secureCookieBlockKey))
-}
-
-func logIP(r *http.Request) {
-	join := func(strList []string) string { return strings.Join(strList, "[,]") }
-
-	ip, port, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		prf("userip: %q is not IP:port", r.RemoteAddr)
-	}
-
-	userId := GetSession(r)
-
-	path  := r.URL.Path
-	query := r.URL.RawQuery
-
-	//pr(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	//prVal("r.URL", r.URL)
-
-	DbExec(`INSERT INTO vz.Request(Ip, Port, Method, Path, RawQuery, Language, Referer, UserId)
-			VALUES($1, $2, $3, $4, $5, $6, $7, $8::bigint);`,
-			ip,
-			port,
-			r.Method,
-			path,
-			query,
-			join(r.Header["Accept-Language"]),
-			join(r.Header["Referer"]),
-			userId)
-
-	//prVal("userId", userId)
-	//prVal("path + query", path + query)
-	DbExec(`INSERT INTO vz.HasVisited(UserId, PathQuery)
-			VALUES($1::bigint, $2)
-			ON CONFLICT DO NOTHING;`,
-			userId,
-			path + "?" + query)
-
-/*
-	// Add the request string
-	pr("===========================================")
-	pr("logIP")
-
-	ip, port, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		prf("userip: %q is not IP:port", r.RemoteAddr)
-	}
-	prVal("IP", ip)
-	prVal("Port", port)
-
-	prVal("Method", r.Method)	// GET
-	prVal("Path", r.URL.Path)			// /article/?postId=17653&addOption=1
-	prVal("RawQuery", r.URL.RawQuery)
-
-	prVal("Host",		r.Host)
-
-	prVal("Language", 	join(r.Header["Accept-Language"]))
-	prVal("Referer", 	join(r.Header["Referer"]))
-	prVal("UserAgent", 	join(r.Header["User-Agent"]))
-
-	//prVal("r.Form.Encode()", 	r.Form.Encode())
-
-	userId := GetSession(r)
-	prVal("userId", userId)
-	pr("<<")
-*/
 }
 

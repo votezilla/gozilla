@@ -202,3 +202,9 @@ Added POLLS to history.
 Shrunk poll dino images a little
 
 Increase num visible poll items from 3/8 to 12/12.
+
+A - 8 - Add activity tab (like FB notifications, but list all ppl) - 1st pass done
+
+A - 5 - Change and remember the color of Activities once you've clicked on them
+
+A - 8 - Get the user's IP address.  (Needed for spam account & spam vote prevention.)
