@@ -147,7 +147,9 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 	return func(w http.ResponseWriter, r *http.Request) {
 		prf("\n Handling request from: %s\n", formatRequest(r))
 
-		CheckAndLogIP(r)    // Run logIP in the background.
+		if !CheckAndLogIP(r) {
+			return  // blocked request from spam.
+		}
 
 		handler(w, r)  // Handle the request.
 	}
