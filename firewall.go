@@ -95,8 +95,6 @@ func checkIP(ip string) bool {
 	prVal("bytes", bytes)
 
 	net8 := bytes[0]
-	net16 := strings.Join(bytes[0:2], ".")
-
 	if whiteNetCount8[net8] > 0 {
 		return true
 	}
@@ -105,12 +103,16 @@ func checkIP(ip string) bool {
 		return false
 	}
 
-	if whiteNetCount16[net16] > 0 {
-		return true
-	}
-	if blackNetCount16[net16] >= 2 {
-		prf("Blocking IP: %s due to net16 count of %d!", ip, blackNetCount16[net16])
-		return false
+	if len(bytes) >= 2 {
+		net16 := strings.Join(bytes[0:2], ".")
+
+		if whiteNetCount16[net16] > 0 {
+			return true
+		}
+		if blackNetCount16[net16] >= 2 {
+			prf("Blocking IP: %s due to net16 count of %d!", ip, blackNetCount16[net16])
+			return false
+		}
 	}
 
 	return true
@@ -155,12 +157,12 @@ func CheckAndLogIP(r *http.Request) bool {
 
 	userId := GetSession(r)
 
-	// Block method=POST if not logged in.
-	if userId < 0 && r.Method == "POST" {
-		pr("blocking non-logged-in post from: " + ip)
-		recordBadIP(ip)
-		return false
-	}
+// DISABLE THIS - it results in you not being able to log in!!!	// Block method=POST if not logged in
+//	if userId < 0 && r.Method == "POST" {
+//		pr("blocking non-logged-in post from: " + ip)
+//		recordBadIP(ip)
+//		return false
+//	}
 
 	path  := r.URL.Path
 	query := r.URL.RawQuery

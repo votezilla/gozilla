@@ -38,17 +38,17 @@ X Add "POLLS" to main news page, right after NEWS or as 1st cat.  (A category ju
 	X Try making POLLS first.  (Will probably require better art)
 
 	X SERVER-TODO: create polls!!!
-  
+
 X Forms:
 
 	X dropdown forgets value!!!
-   
+
         X password needs 2l input w/ matching verification and mask w eyeball
 
 	X remove autocap f username
-	
+
 	X dropdown text cutoff
-	
+
 	X "Select" text for dropdowns
 
         X (optional) animate placeholder text to label / try always having label (Tried, it didn't look good.  Code is commented out in template file.)
@@ -56,9 +56,9 @@ X Forms:
         X "Party" -> "Choose a Party"
 
         X "Other" -> add text input
-        
+
         X "Other" -> didn't let him register
-        
+
         X "Party" -> Add other common parties, like Libertarian, Socialist, Progressive?
 
 X Make up / ranking / down + n comments bigger on mobile, so ppl c C / click on it!  Aldo top menu.  May need to keep vz but remove votezilla for space on top?
@@ -70,7 +70,7 @@ X fix thumbnail aspect ratio in image service (take into account calculated 2 vs
 
 
 X Unknown poll creation bug (possibly when adding / removing additional options ?)
- 
+
 Y Unknown weird bug if you choose an obvious username on Chrome (?)
 
 X headline - doesn't show link
@@ -105,7 +105,7 @@ X Capped option maxlength to somethig reasonable, like 50, when creating polls.
 
 X upon poll creation error, n>=3 text inputs do not display with nuField format.
 
-x make polls not inline for clarity (one per line) - tried and too much space.  
+x make polls not inline for clarity (one per line) - tried and too much space.
 
 X Add padding to the poll options
 
@@ -164,7 +164,7 @@ B 2 - only show news posts w/ thumbnails  (still show other types of posts)
 
 Found & fixed while testing:
 - On Edge, long text title or poll items other polls, in /news.  This occurs when there are really long words.
-  This occurs on my Edge (44.19041.1.0), not on Tom's (81.0.416.88).  Fixed, possibly, but it was for old IE browsers 
+  This occurs on my Edge (44.19041.1.0), not on Tom's (81.0.416.88).  Fixed, possibly, but it was for old IE browsers
   which is a low market share.
 
 - createPoll was crashing due to SQL error, fixed.
@@ -208,3 +208,5 @@ A - 8 - Add activity tab (like FB notifications, but list all ppl) - 1st pass do
 A - 5 - Change and remember the color of Activities once you've clicked on them
 
 A - 8 - Get the user's IP address.  (Needed for spam account & spam vote prevention.)
+
+Started creation of firewall security system.
