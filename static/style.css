@@ -313,6 +313,11 @@ a:target	{ background-color: yellow; }
 	-webkit-animation-iteration-count: infinite;
 }
 
+.carousel-control.left, .carousel-control.right {
+  left: 0;
+  z-index: 1;
+}
+
 
 .active{border:2px solid #f00;}
 

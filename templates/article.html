@@ -1,11 +1,7 @@
 {{define "mainContent"}}
 	{{ $article := .Article }}
 
-	{{ if $article.IsPoll }}
-		{{ template "BackToCategory" "polls" }}
-	{{ else }}
-		{{ template "BackToCategory" $article.Category }}
-	{{ end }}
+	{{ template "BackToCategory" $article.Category }}
 
 	<a href="{{$article.Url}}" target="_blank" class="storylink">
 		<img src="{{$article.UrlToImage}}" width="100%">

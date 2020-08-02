@@ -1,24 +1,24 @@
-SERVER_PUSH_TODO: 
+SERVER_PUSH_TODO:
 convert mozilla thumbnail posts to '' on all posts
 
-
 JUST FIXED:
+A 2 - too many tabs open
 
-Started creation of firewall security system.
+A 40% x 13 - Tutorial - got the pop-up working, and basic carousel working!!!
 
-
+ - fixed a firewall crash when working from localhost
 
 WORKING ON:
-
-A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
-	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
 
 A+ - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
-A - block Chinese hackers.	
 
-HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad): 
+A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
+	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
+
+
+HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
 
 
 POLLS:
@@ -27,9 +27,9 @@ Importance
 v
   Difficulty
   v
-  
-A - 8 - basic /user page, based on history.  
-  
+
+A - 8 - basic /user page, based on history.
+
 A - 8 - cats need to be more obvious that they are clickable, maybe thick underline / link icon / spell it out (i.e. MORE NEWS...) (TOM)
          ^^ + vv
   - provide better underlining for /news articles, Also hover of articles, poss make them blue too.https://stackoverflow.com/questions/13840403/edit-line-thickness-of-css-underline-attribute?rq=1#:~:text=You%20can%20adjust%20underline%20position,want%20to%20underline%20an%20href.
@@ -37,57 +37,56 @@ A - 8 - cats need to be more obvious that they are clickable, maybe thick underl
          ^^ + vv
       Make article links more obvious.  Do what Yahoo news does on hover - text blue, underline, (bonus for overlay div for brightening).
 
-A 8 - seeing mostly liberal news sources (I need to add Fox News) (TOM)
+A 8 - seeing mostly liberal news sources (I need to add Fox News) (TOM) (or see if other news apis would have fox, then that would be better to do first.)
 
 A 8 - upgrade DigitalOcean instance $5 -> $10
 
 A 8 - Add history for other ppl (also listing of ppl)
 
-A 13 - implement really simple blogging
-
 A - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
 
+A 5 - deduce title for link sharing (via button)
+
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
+
+B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
+
+B 13 - implement really simple blogging
 
 B 2 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
 
 B 2 - history - add header or splashscreen explaing what it is (TOM)
 
 B 2 - on sidebar, more ____ (i.e. polls) should be clickable (TOM)
- 
-B 3 - history needs polls section
 
 B 2 - sidebar h buttons and comment buttons are all small, esp. on mobile, also the '...' should be hidden for now.
 
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
-B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.  
-  
-B 5 - click on news source / user icon to see their news articles / posts
+B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
 
-B 5 - deduce title for link sharing (via button)
+B 5 - click on news source / user icon to see their news articles / posts
 
 B 5 - leave comment prompt after viewing article
 
 B 5 - Add more news API's
 
 B 5 - privacy alias'
-              
+
 B 5 - ability to delete posts, comments
 
 B 8 - create - add Create Discussion (requires image upload) (TOM)
- 
+
 B 8 - ability to update posts, comments
 
 B 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
-  
+
 B 8 - Add "About" section - or implememnt simple blog first?
 
 B 13 - display the results of polls you've voted on, on /news.  May require a pollTallyService to count results ahead of time and store them in a json column in the poll.
 
 B 8 - newlines are getting stripped from comments, and markdown would be nice.
 
-B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
 
 
 FEEDBACK:
@@ -98,22 +97,22 @@ C - I'd like to have links or additional inline documentation before taking a po
 
 TOM FEEDBACK:
 D - TOM: Add Votezilla to search engines.  (He tried to search for votezilla.io on the search engine!) (Need to optimize and improve SEO first!) (TOM)
- 
+
 ~ - no login problems - it was easy! (TOM)
 
 ~ - "I don't like questions that require an expert answer." (about quantum physics, self-driving polls) (TOM)
- 
+
 ~ - on poll, wondered if he could press ENTER instead of clicking on the Vote button.   (TOM)
 
-~ - too many tabs open
- 
- 
+
+
+
 MED-HIGH PRIORITY (for test w/ 10 friends):
 	-- DEPLOY May 8, LAUNCH May 11 --
-	
-= C 2 - add Create your own poll or news post on the left bottom of each news cat (PART I complete - the link.  TODO: feed category from url to default value.)	
 
-C 2 - Break word by width=50% if any option len > 20	
+= C 2 - add Create your own poll or news post on the left bottom of each news cat (PART I complete - the link.  TODO: feed category from url to default value.)
+
+C 2 - Break word by width=50% if any option len > 20
 
 C 3 - max username length is 345 - this is too long!
 
@@ -134,21 +133,21 @@ C 8 - organize cat posts in columns to save vertical space, on desktop... oh yea
 C 13 - notifications
 
   - Enable DDOS prevention somehow
-  
+
   - Allow user to create simple, plaintext Blog (with image insertion for body or just thumbnail).
 
   -   Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.  Can prompt for logging in as well.
 
   - Email system.  Needs to:
-  
+
 B 5  =   Fix email - Emailed DO tech support.
 
   -   Implement Email verification.
 
   -   Implement Forgot password.
-  
+
   -   Remember previous page or close form upon success, and/or back tri buttons.
- 
+
   -   Send verification email... user doesn't get created until email gets verified.
       Verify email and set emailVerified=True when email is verified
 
@@ -162,13 +161,13 @@ C 8 - thumbnail appears to be clipped on the left, on mobile - it appears smart 
 
 C 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
-  - add ability to view news source feed 
-  
+  - add ability to view news source feed
+
   - add ability to view user feed
 
   - ++ created polls to history
-  
-C 2 - Ryan: "The ellipsis for long comments should be more obvious >> blue and test like show more and an arrow -> or something like that"  
+
+C 2 - Ryan: "The ellipsis for long comments should be more obvious >> blue and test like show more and an arrow -> or something like that"
 
 C 2 - history tab should be hidden when user is not logged in
 
@@ -194,8 +193,8 @@ MED PRIORITY (for test with 100 friends):
 
 
 
-D ? - Ryan: "I am unable to post comments with unicode characters. It fails without reporting an error (you only see it if you look in the xhr). Posting a poll allows some unicode characters but most get translated into those strange diamonds with question marks."  
-    
+D ? - Ryan: "I am unable to post comments with unicode characters. It fails without reporting an error (you only see it if you look in the xhr). Posting a poll allows some unicode characters but most get translated into those strange diamonds with question marks."
+
 D ? - When calculating if some text is too long, counts the number of bytes, not displayed Unicode characters.
 
 B ? - Ryan: "Lookin better duder!  I still think the polls / articles need better separation.  Maybe a border?  For me this is a big deal."
@@ -208,12 +207,12 @@ D - OPT: Convert images to WebP
 
 D - OPT: Minify code: https://github.com/tdewolff/minify
                       https://pkg.go.dev/github.com/tdewolff/minify?tab=overview
-                      
+
 D - OPT: http caching: https://www.sanarias.com/blog/115LearningHTTPcachinginGo
 
 D - votezilla.io/static folder is viewable to the public.
 
-D - Create a robots.txt file: https://moz.com/learn/seo/robotstxt  
+D - Create a robots.txt file: https://moz.com/learn/seo/robotstxt
 			      https://neilpatel.com/blog/robots-txt/
 
 
@@ -239,11 +238,11 @@ D - Create a robots.txt file: https://moz.com/learn/seo/robotstxt
   + Move all JS code to a commen .js file (?)
 
   + Move all/most style html stuff to the common .cs file.
-  
+
   + Golang + Postgres
-  
+
   + JS
-  
+
   + Other
 
 
@@ -252,7 +251,7 @@ LOW PRIORITY (for launch with 1000 friends):
 - Facebook:
 
   + Invite friends.
-  
+
   + Share article via FB button.
 
 - Add an attribution to News.API on the website somewhere.
@@ -263,7 +262,7 @@ LOW PRIORITY (for launch with 1000 friends):
 
 - Defend DNS attack.
 
-- Display the steps going on, for a ranked 
+- Display the steps going on, for a ranked
 
 - Let people update their information.
 
@@ -280,6 +279,8 @@ LOW PRIORITY (for launch with 1000 friends):
 - Unit tests, especially for voting.  Double-especially for ranked voting.
 
 - Use pretty dinosaurs for 403 errors.
+
+- Ryan: "When ready, Votezilla should be open sourced.  A core tenet of Votezilla could be the integrity of its voting system -- and as a potential leap, one day for a national online voting site.  There are a number of reasons why online voting makes sense, the coronavirus is just highlighting it more than ever with the threat of delaying our elections.  However, there is a lot of UNDERSTANDABLE and VALID mistrust of electronic voting.  The best way to remove the mistrust is for the voting technology to be independently verified and scanned for potential exploits.  I wonder if something like blockchain could be used."
 
 
 LOWER PRIORITY (10k):

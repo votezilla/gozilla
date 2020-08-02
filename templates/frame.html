@@ -32,10 +32,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						{{- range $i, $navItem := .NavMenu}}
 							{{- if ne $i 0 }} | {{end -}}
 							{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
-							<a href="/{{$navItem}}"
-							   style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};"
-								{{- if eq $navItem "create" -}} target="_blank" {{- end -}}
-							>
+							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
 								{{$navItem}}
 							</a>
 							{{- if eq $navItem $.UrlPath}}</span>{{end -}}
@@ -46,21 +43,17 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						<!-- login / register / logout -->
 						<span class="pagetop">
 							{{- if .Username }}
-								<a href="/user?id={{.Username}}">{{.Username}}</a> | <a href="/logout">logout</a>
+								<a href="/history?id={{.Username}}">{{.Username}}</a> |
+								<a href="/logout">logout</a>
 							{{- else -}}
-								<a href="/login" target="_blank">log in</a>
-								<!--
-								<a data-target="#myModal" data-toggle="modal" data-path="login" data-title="Log In" style="cursor:pointer">
-									log in
-								</a>-->
-								/
-								<a href="/register" target="_blank">sign up</a>
-								<!--
-								<a href="/register">
-								<a data-target="#myModal" data-toggle="modal" data-path="register" data-title="Sign Up" style="cursor:pointer">
-									sign up
-								</a>-->
+								<a href="/login">log in</a> |
+								<a href="/register">sign up</a>
 							{{end -}}
+						<!-- TUTORIAL POP-UP WINDOW:
+							<a data-target="#myModal" data-toggle="modal" data-path="tutorial" data-title="Log In" style="cursor:pointer">
+								tutorial
+							</a>
+						-->
 						</span>
 					</td>
 				</tr>
@@ -104,27 +97,44 @@ $('#myModal').on('show.bs.modal', function(e) {
 
 	var path = rt.data('path');
 
+	console.log("Modal path = " + path);
+
 	if (path == null) {
 		alert("Modal's data-path parameter is null.");
 		return;
 	}
 
-	console.log("path = " + path);
-
 	var title = rt.data('title');
-	console.log("title = " + title);
+	console.log("Modal title = " + title);
 	$('.modal-title').text(title);
 
 	// Allow custom modal popup behavior.
 	if (window[path + "_Modal"] != null) {
+		console.log("Executing custom modal popup behavior.");
 		window[path + "_Modal"](rt);  // This calls a custom modal handler, i.e. viewPollResults_Modal(rt).
 		return;
 	}
 
-	$('.modal-body').load(`/${path}/`, function() { // works, now also testing...
+	console.log(`About to perform load of /${path}/`)
+	$('.modal-body').load(`/${path}/`, function(response, status, xhr) { // works, now also testing...
+		if ( status == "error" ) {
+   			var msg = "Sorry but there was a load error: " + xhr.statusText;
+			alert(msg);
+			console.log(msg);
+			return;
+  		}
+
+
 		console.log('Load was performed');
 
-		$('.modal').modal({show: true});
+		var modal = $('.modal')
+
+		if (modal) {
+			console.log("Showing modal");
+			modal.modal({show: true});
+		} else {
+			console.log("Not showing modal!!!!!");
+		}
 	});
 });
 
@@ -592,7 +602,7 @@ $(function () {
 				<table width=100%>
 					<tr>
 						<td align=left>
-							<a href="/viewPollResults/?postId={{ $article.Id }}" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 0px;">
+							<a href="/viewPollResults/?postId={{ $article.Id }}" style="font-size: 18px; color: #0072ff; margin-left: 0px;">
 								More...
 							</a>
 						</td>
@@ -682,7 +692,7 @@ $(function () {
 										<br>
 									{{ else if eq $o $maxOptions }}
 										<label class="vote">
-											<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
+											<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
 												More options...
 											</a>
 										</label>
@@ -692,7 +702,7 @@ $(function () {
 
 								{{ if and $poll.AnyoneCanAddOptions (le (len $poll.Options) $maxOptions) }}
 									<label class="vote">
-										<a href="/article/?postId={{$article.Id}}&addOption=1#vote_NewOption0" target="_blank" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
+										<a href="/article/?postId={{$article.Id}}&addOption=1#vote_NewOption0" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
 											Add option...
 										</a>
 										<br>

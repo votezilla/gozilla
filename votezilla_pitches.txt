@@ -1,1 +1,3 @@
+To anyone fed up with censorship, I've created a censorship-free social network called Votezilla, for speaking openly, creating and voting in polls, and sharing news!  You're invited to join, and I could use your support.  It's in beta right now, and I could use your feedback.  http://votezilla.io
+
 So I'm working on another project,  Votezilla.  A censorship-free social network based on creating polls, voting, sharing news, and positive political discussion.

@@ -54,14 +54,16 @@ func analyzeNetCount(ipListArray []string) (map[string]int, map[string]int) {
 	netCount16	:= map[string]int{}
 
 	for _, ip := range ipListArray {
-		prVal("ip", ip)
+		//prVal("ip", ip)
 
 		bytes := strings.Split(ip, ".")
 		net8 := bytes[0]
-		net16 := strings.Join(bytes[0:2], ".")
-
 		netCount8[net8]++
-		netCount16[net16]++
+
+		if len(bytes) >= 2 {
+			net16 := strings.Join(bytes[0:2], ".")
+			netCount16[net16]++
+		}
 	}
 
 	return netCount8, netCount16
@@ -71,10 +73,10 @@ func analyzeIPs() {
 	blackNetCount8, blackNetCount16 = analyzeNetCount(blacklistArray)
 	whiteNetCount8, whiteNetCount16 = analyzeNetCount(whitelistArray)
 
-	dumpVal("blackNetCount8",  blackNetCount8)
-	dumpVal("blackNetCount16", blackNetCount16)
-	dumpVal("whiteNetCount8",  whiteNetCount8)
-	dumpVal("whiteNetCount16", whiteNetCount16)
+	//dumpVal("blackNetCount8",  blackNetCount8)
+	//dumpVal("blackNetCount16", blackNetCount16)
+	//dumpVal("whiteNetCount8",  whiteNetCount8)
+	//dumpVal("whiteNetCount16", whiteNetCount16)
 }
 
 // Returns true if it's a safe IP, false if it's an evil IP.
@@ -121,14 +123,18 @@ func checkIP(ip string) bool {
 func recordBadIP(ip string) {
 	prVal("recordBadIP", ip)
 
+	blacklist[ip] = true
+
 	// Keep track of bad ip in the runtime.
 	bytes := strings.Split(ip, ".")
-	net8 := bytes[0]
-	net16 := strings.Join(bytes[0:2], ".")
 
-	blacklist[ip] = true
+	net8 := bytes[0]
 	blackNetCount8[net8]++
-	blackNetCount16[net16]++
+
+	if len(bytes) >= 2 {
+		net16 := strings.Join(bytes[0:2], ".")
+		blackNetCount16[net16]++
+	}
 
 	// Write new bad ip to file.
 	f, err := os.OpenFile("blacklist.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

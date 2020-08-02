@@ -35,15 +35,14 @@ const (
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
 	kLogin = "login"
-	kLoginPopup = "loginPopup"
 	kNews = "news"
 	kNewsSources = "newsSources"
 	kNuForm = "nuForm"
 	kNuFormPopup = "nuFormPopup"
 	kRegister = "register"
 	kRegisterDetails = "registerDetails"
-	kRegisterDetailsNopopup = "registerDetailsNopopup"
 	kTestPopup = "testPopup"
+	kTutorial = "tutorial"
 	kViewPollResults = "viewPollResults"
 )
 
@@ -199,7 +198,10 @@ func parseTemplateFiles() {
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
 
 	hDefineTemplate(kViewPollResults,	"base", "wide", "frame", "sidebar", "viewPollResults", "comments")
+
+	// Pop-ups:
 	hDefineTemplate(kTestPopup, 		"testPopup")
+	hDefineTemplate(kTutorial, 			"tutorial")
 
 	// Javascript snippets
 	//tDefineTemplate(kRegisterDetailsScript, "registerDetailsScript")  // TODO: find a new home for this.  Just add to registerDetails(?)
@@ -239,6 +241,7 @@ func WebServer() {
 	http.HandleFunc("/register/",       		hwrap(registerHandler))
 	http.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
 	http.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
+	http.HandleFunc("/tutorial/"	,   		hwrap(tutorialHandler))
 	http.HandleFunc("/updatePassword/", 		hwrap(updatePasswordHandler))
 	http.HandleFunc("/viewPollResults/",		hwrap(viewPollResultsHandler))
 

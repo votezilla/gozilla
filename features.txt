@@ -210,3 +210,7 @@ A - 5 - Change and remember the color of Activities once you've clicked on them
 A - 8 - Get the user's IP address.  (Needed for spam account & spam vote prevention.)
 
 Started creation of firewall security system.
+
+B 3 - history needs polls section
+
+A - block Chinese hackers.
