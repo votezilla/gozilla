@@ -236,46 +236,66 @@ label.error { font-family:Verdana, Geneva, sans-serif; color:#ee0000; }
 }
 
 #override .upvote {
-	margin-left: 5px;
-	margin-right: 2px;
+	margin-left: 2px;
+	margin-right: 1px;
 }
 
 #override .downvote {
-	margin-left: 2px;
+	margin-left: 1px;
+	margin-right: 2px;
 }
 
-#override .upvote   a:link,
-#override .upvote   a:visited {
-	color:#68a;
+#override .upvote a:link,
+#override .upvote a:visited {
+	color: #d39; /*#a86;*/
 	text-decoration: none;
 }
+
 #override .downvote a:link,
 #override .downvote a:visited {
-	color:#a86;
+	color: #39d; /*#68a;*/
 	text-decoration: none;
 }
 
 #override .upvote   a:hover,
 #override .upvoted  a:link,
 #override .upvoted  a:visited {
-	color:#00f !important;
+	color: #f00;
 	text-decoration: none;
 }
 #override .downvote a:hover,
 #override .downvoted a:link,
 #override .downvoted a:visited {
-	color:#f00 !important;
+	color: #00f;
 	text-decoration: none;
 }
 
-#override a:hover		{ color:#0072ff !important; text-decoration: none !important; }
-#override a:focus		{ color:#0048b8 !important; text-decoration: none !important; }
-a:link      { color:#000000; }
-a:visited   { color:#000000; text-decoration:none; }
-a:target	{ background-color: yellow; }
 
-#override a       img.hideUntilHover { display: none; }
-#override a:hover img.hideUntilHover { display: inline-block; }
+#override .articleTitle,
+#override .articleTitle a {
+	/*color: #003980;*/
+	/*color: #0220e8;*/
+	/*color: #012cb4;*/
+
+	max-width: 100%;
+	word-break: break-word;
+	-ms-word-break: break-all;
+}
+
+
+#override .articleTitle a:hover,
+#override .anchor a:hover,
+#override .anchor a:focus,
+#override a.pollImageLabel:hover,
+#override a.pollImageLabel:focus {
+	color: blue !important;
+	/*text-decoration: none !important;*/
+}
+/*#override .articleTitle a:visited
+{
+	color: red !important;
+}*/
+
 
 .default { font-family:Verdana, Geneva, sans-serif; }
 .admin   { font-family:Verdana, Geneva, sans-serif; }
@@ -283,16 +303,21 @@ a:target	{ background-color: yellow; }
 .subtext { font-family:Verdana, Geneva, sans-serif; font-size: 18px; }
 
 
-@-webkit-keyframes bluePulse {
-	from { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
-	50%  { text-shadow: 0px 0px 5px rgba(0,0,255,1); }
-	to   { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
-}
+
 
 #override .upvoted a:link,
 #override .upvoted a:visited,
 #override .upvoted a:hover,
 #override .upvoted a:focus {
+	-webkit-animation-name: redPulse;
+	-webkit-animation-duration: 2s;
+	-webkit-animation-iteration-count: infinite;
+}
+
+#override .downvoted a:link,
+#override .downvoted a:visited,
+#override .downvoted a:hover,
+#override .downvoted a:focus {
 	-webkit-animation-name: bluePulse;
 	-webkit-animation-duration: 2s;
 	-webkit-animation-iteration-count: infinite;
@@ -303,14 +328,10 @@ a:target	{ background-color: yellow; }
 	50%  { text-shadow: 0px 0px 5px rgba(255,0,0,1); }
 	to   { text-shadow: 0px 0px 5px rgba(255,0,0,0); }
 }
-
-#override .downvoted a:link,
-#override .downvoted a:visited,
-#override .downvoted a:hover,
-#override .downvoted a:focus {
-	-webkit-animation-name: redPulse;
-	-webkit-animation-duration: 2s;
-	-webkit-animation-iteration-count: infinite;
+@-webkit-keyframes bluePulse {
+	from { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
+	50%  { text-shadow: 0px 0px 5px rgba(0,0,255,1); }
+	to   { text-shadow: 0px 0px 5px rgba(0,0,255,0); }
 }
 
 .carousel-control.left, .carousel-control.right {
@@ -323,7 +344,7 @@ a:target	{ background-color: yellow; }
 
 .yclinks { font-family:Verdana, Geneva, sans-serif; color:#828282; }
 .pagetop { font-family:Verdana, Geneva, sans-serif; color:#222222; }
-.pagetop a:hover { color: #0072ff !important; text-decoration: none !important; } <!-- This line doesn't work -->
+.pagetop a:hover, .pagetop a:focus { color: #0072ff !important; text-decoration: none !important; } <!-- This line doesn't work -->
 .comhead { font-family:Verdana, Geneva, sans-serif; color:#828282; }
 .comment { font-family:Verdana, Geneva, sans-serif; }
 

@@ -1,6 +1,5 @@
 {{/* TODO: to free up vertical real estate, try concatting articlesrc, time, vote count, num comments, ... onto the top line, all together.
            But wait, does this work on mobile?  Have to get another phone to find out.. :?  */}}
-
 {{define "content"}}
 	{{- if eq $.FrameArgs.UrlPath "history"}}
 		<br>
@@ -21,6 +20,7 @@
 	{{- end }}
 
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}
+		<div style="height: 4px"></div>
 		{{ if ne $articleGroup.Category "" }}
 			{{ if $.Category }} {{/* For a specified category, add back and close arrows */}}
 				<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}}; padding: 0px; margin: 0px; margin-top: 4px;">
@@ -45,7 +45,7 @@
 									</h5>
 								</center>
 							</td>
-							<td align="right" style="width: 25%">
+							<td align="right" style="width: 15%">
 								<span class="pagetop" style="font-size: 20px; margin-top: 1rem; margin-bottom: 1rem;">
 									<a href="/news" style="color: #003980; font-size:28px; vertical-align:middle;" onclick="window.close();">
 									  <h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 18px;">
@@ -64,10 +64,14 @@
 					<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}}; padding: 0px; margin: 0px; margin-top: 4px; padding-top: 7px; padding-bottom: 7px;">
 						<div class="col-md-12 vz-col-md-12 text-uppercase">
 							<center>
-								<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 32px;">
-									<strong>
-											{{$articleGroup.Category}}
-									</strong>
+								<h5 style="color: #fff; margin: 5px; text-shadow: 1px 1px 0px black; font-size: 32px; font-weight: bold">
+									{{if ne $.FrameArgs.UrlPath "history"}}
+										<i class="fa fa-caret-right" style="font-size:36px;"></i><u>
+									{{end}}
+										{{$articleGroup.Category}}
+									{{if ne $.FrameArgs.UrlPath "history"}}
+										</u><i class="fa fa-caret-left" style="font-size:36px;"></i>
+									{{end}}
 								</h5>
 							</center>
 						</div>
@@ -77,6 +81,8 @@
 				{{ end }}
 			{{ end }}
 		{{ end }}
+		<div style="height: 4px"></div>
+
 		<div class="row vz-row" style="background-color: white">
 			{{ range $i, $articleCol := $articleGroup.Articles }}
 				<div class="col-md-6 vz-col-md-6
@@ -98,7 +104,7 @@
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
 						{{ if and (eq $article.Size 1) (not $article.IsPoll) }} {{/*LARGE ARTICLE SIZE... alt logic: and (eq $article.Size 1) (not $article.IsPoll)*/}}
 
-							<a href="/article/?postId={{$article.Id}}" style="cursor:pointer">
+							<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer">
 								<img src="{{$article.UrlToImage}}" width="100%" style="max-height: 600px;" data-toggle="tooltip" data-placement="top" title="View the discussion">
 
 							{{ if $article.IsPoll }}
@@ -121,13 +127,13 @@
 
 								<tr valign="top">
 									<td class="title" style="padding-left: 5px;">
-										<span style="max-width: 100%; word-break: break-word; -ms-word-break: break-all;">
+										<span class="articleTitle">
 											<a href="{{$article.Url}}" target="_blank"
-											   style="font-size: 22px; color: #003980;"
+											   style="font-size: 22px;"
 											   data-toggle="tooltip" data-placement="top" title="Read the article">
 												{{$article.Title}}
 												{{ if not $article.Host }}
-													<img src="/static/link icon.jpg" class="hideUntilHover" style="height: 16px; width: 16px;">
+													<i class="fas fa-external-link-alt" style="font-size: 14px; vertical-align: middle;"></i>
 												{{ end }}
 											</a>
 										</span>
@@ -136,7 +142,7 @@
 											<span>
 												<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">
 													{{$article.Host}}
-													<img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
+													<i class="fas fa-external-link-alt" style="font-size: 10px; vertical-align: middle;"></i>
 												</a>
 											</span>
 										{{end}}
@@ -152,20 +158,13 @@
 								</td></tr>
 
 								<tr>
-									<td class="subtext" style="width: 100%; padding-left: 5px; font-size: 20px;">
+									<td class="subtext" style="width: 100%; font-size: 20px;">
 										<table width="100%"><tr>
 											{{ template "PostVoteWidget" $article }}
 											<!--<td align="center" style="width: auto;">
 												<a href="#">...</a>
 											</td>-->
-											<td align="right" style="width: 40%;">
-												<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-													<a href="/article/?postId={{$article.Id}}#commentsTarget" data-toggle="tooltip" title="Join the discussion!" style="color: rgb(0, 114, 255);">
-														<img src="/static/comment icon 3.jpg" width=16 height=16>
-														{{$article.NumComments}} Comment{{if ne $article.NumComments 1}}s{{end}}
-													</a>
-												</span>
-											</td>
+											{{ template "CommentWidget" $article }}
 										</tr></table>
 									</td>
 								</tr>
@@ -186,7 +185,7 @@
 									  style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;"
 									{{- end }}
 									  data-toggle="tooltip" data-placement="top" title="Join the discussion!">
-										<a href="/article/?postId={{$article.Id}}" style="cursor:pointer; height: 100%;">
+										<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer; height: 100%;">
 											<img
 												src="{{$article.UrlToThumbnail}}"
 											  {{- if $article.IsPoll }}
@@ -221,38 +220,32 @@
 
 										<div>
 											<span>
-												<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article">
-													<div style="
-														color: #003980;
-														font-size:20px;
-														max-width: 100%;
-													  {{if or $article.IsPoll $article.IsThumbnail}}
-														min-height: 32px;
-													  {{else}}
-														min-height: 54px;
-													  {{end}}
-														/*max-height: 92px;*/
-														/*overflow: hidden;*/
-														-ms-word-break: break-all;
-														word-break: break-word;
-														padding-right: 4px;
+												<div class="articleTitle"
+													style="
+													font-size:20px;
+												  {{if or $article.IsPoll $article.IsThumbnail}}
+													min-height: 32px;
+												  {{else}}
+													min-height: 54px;
+												  {{end}}
+													max-height: 92px;
+													overflow: hidden;
+													padding-right: 4px;
 													">
-														{{/*$article.NumLines*/}}
-														{{/*$article.ThumbnailStatus*/}}
-														{{/*$article.UrlToThumbnail*/}}
+													<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article">
 														{{$article.Title}}
 														{{ if not $article.Host }}
-															<img src="/static/link icon.jpg" class="hideUntilHover" style="height: 14px; width: 14px;">
+															<i class="fas fa-external-link-alt" style="font-size: 12px; vertical-align: middle;"></i>
 														{{ end }}
-													</div>
-												</a>
+													</a>
+												</div>
 											</span>
 
 											{{if $article.Host}}
 												<span>
 													<a href="{{$article.Url}}" target="_blank" style="color: #0079d3;">
 														{{$article.Host}}
-														<img src="/static/link icon.jpg" style="height: 12px; width: 12px;">
+														<i class="fas fa-external-link-alt" style="font-size: 10px; vertical-align: middle;"></i>
 													</a>
 												</span>
 											{{end}}
@@ -269,15 +262,7 @@
 											<!--<td align="center" style="width: auto;">
 												<a href="#">...</a>
 											</td>-->
-											<td align="right" style="width: 40%;">
-												<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-													<a href="/article/?postId={{$article.Id}}#commentsTarget"
-													   data-toggle="tooltip" title="Join the discussion!" style="font-size: 20px; color: rgb(0, 114, 255)/*#0079d3*/;">
-														<img src="/static/comment icon 3.jpg" width=18 height=18 style="vertical-align: middle;">
-														{{$article.NumComments}}
-													</a>
-												</span>
-											</td>
+											{{ template "CommentWidget" $article }}
 										</tr></table>
 									</td>
 								</tr>
@@ -301,6 +286,7 @@
 									href="/createLink?category={{$articleGroup.Category}}"
 								{{ end }}
 							   style="font-size: 20px; color: #0072ff; padding: 8px;">
+								<i class='fas fa-plus-circle' style='font-size:24px; vertical-align:middle;'></i>
 								{{ if $isPoll }}
 									create poll...
 								{{ else }}
@@ -312,6 +298,7 @@
 							<a href="/news/?category={{$articleGroup.More}}"
 							   style="font-size: 20px; color: #0072ff; padding: 8px;"
 							   data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
+								<i class='fas fa-plus-circle' style='font-size:24px; vertical-align:middle;'></i>
 								more {{$articleGroup.Category}}...
 							</a>
 						</td>

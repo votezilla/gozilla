@@ -21,7 +21,7 @@ var (
 	err		 	error
 
 	// NavMenu (constant)
-	navMenu		= []string{"news", "create", "history", "activity" }
+	navMenu		= []string{"news", "create", "activity" }
 )
 
 
@@ -182,9 +182,10 @@ func parseTemplateFiles() {
 		htemplates[handle] = htemplate.Must(htemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
 	}
 
+	hDefineTemplate(kNews, 			"base", "wide", "frame", "news")
+
 	hDefineTemplate(kNuForm, 		"base", "narrow", "frame", "nuField", "nuForm", "defaultForm")
 	hDefineTemplate(kArticle, 		"base", "wide", "frame", "sidebar", "article", "comments")
-	hDefineTemplate(kNews, 			"base", "wide", "frame", "news")
 	hDefineTemplate(kNewsSources,	"base", "wide", "frame", "newsSources")  // nyi
 	hDefineTemplate(kActivity, 		"base", "wide", "frame", "activity")
 

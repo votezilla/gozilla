@@ -28,21 +28,18 @@
 				<p>
 
 				{{- if $comment.IsExpandible -}}
-					<a id="expand_{{$comment.Id}}" onClick="ExpandComment({{$comment.Id}})" style="cursor: pointer; color: black;">
+					<a id="expand_{{$comment.Id}}" href="javascript:ExpandComment({{$comment.Id}})" style="cursor: pointer;">
 						Expand...
 					</a>
 				{{- end -}}
 
 				<table class="commentWidgets"><tr>
 					{{ template "CommentVoteWidget" $comment }}
-
-					<td align="center" style="width: auto;">
-						<a href="#">...</a>
-					</td>
 					<td align="right" style="width: 40%;">
-						<span style="size: 16px">
-							<a href="javascript:ReplyToComment({{$comment.PostId}}, {{$comment.Id}})">
-								<img src="/static/comment.png" width="16" height="16"> Reply
+						<span style="float: right; vertical-align: text-bottom; padding-right: 5px;" class="alignRight anchor">
+							<a href="javascript:ReplyToComment({{$comment.PostId}}, {{$comment.Id}})" id="expand_{{$comment.Id}}">
+								<i class='far fa-comment' style='font-size:20px'></i>
+								Reply
 							</a>
 						</span>
 					</td>
@@ -114,18 +111,13 @@
 			color: #666;
 		}
 
+		.commentWidgets {
+			width: 100%;
+		}
 		@media screen and (min-width:750px) { /* LARGE DEVICES */
-			.commentWidgets {
-				width: 92%;
-			}
-
 			.vzcomment_children { margin-left: 26px; border-left: 1.5px solid #ddf; }
 		}
 		@media screen and (max-width:750px) { /* SMALL DEVICES */
-			.commentWidgets {
-				width: 100%;
-			}
-
 			.vzcomment_children { margin-left: 24px; border-left: 1.5px solid #ddf; }
 		}
 		.vzcomment          		{ margin-left: 20px; }

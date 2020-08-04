@@ -214,3 +214,9 @@ Started creation of firewall security system.
 B 3 - history needs polls section
 
 A - block Chinese hackers.
+
+A 2 - too many tabs open
+
+A 40% x 13 - Tutorial - got the pop-up working, and basic carousel working!!!
+
+ - fixed a firewall crash when working from localhost

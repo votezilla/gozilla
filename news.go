@@ -337,12 +337,16 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 //
 //////////////////////////////////////////////////////////////////////////////
 func renderNews(w http.ResponseWriter,
-				title, username string,
+				title,
+				username string,
 				userId int64,
 				articleGroups []ArticleGroup,
-				urlPath, template string,
-				upvotes, downvotes []int64,
-				category, alertMessage string) {
+				urlPath,
+				template string,
+				upvotes,
+				downvotes []int64,
+				category,
+				alertMessage string) {
 
 	pr("renderNews")
 	prVal("  username", username)

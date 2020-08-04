@@ -26,16 +26,6 @@
 
 			{{ range $_, $article := .MoreArticlesFromThisSource }}
 				<br>
-
-				<!--<div class="subtext">
-					<a href="#">
-						<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
-						<span style="color: #88f">{{$article.Author}}</span>
-					</a>
-					&middot;
-					<span class="age" align="right">{{$article.TimeSince}}</span>
-				</div>-->
-
 				<div>
 					<a href="{{$article.Url}}" target="_blank"
 					   style="font-size:{{if $article.IsPoll}}20px;{{else}}18px;{{end}}
@@ -46,18 +36,10 @@
 					{{ template "PollInlineForm" $article }}
 				</div>
 
-				<table width="100%"><tr>
+				<table style="width:100%; font-size: 16px;"><tr>
 					{{ template "PostVoteWidget" $article }}
-					<td align="center" style="width: auto;">
-						<a href="#">...</a>
-					</td>
-					<td align="right" style="width: 40%;">
-						<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
-							<a href="/article/?postId={{$article.Id}}" data-toggle="tooltip" title="Join the discussion!" style="color: #0079d3;"><img src="/static/comment icon 3.jpg" width=16 height=16> {{$article.NumComments}}</a>
-						</span>
-					</td>
+					{{ template "CommentWidget" $article }}
 				</tr></table>
-
 			{{ end }}
 
 <!--		<p> News sources:

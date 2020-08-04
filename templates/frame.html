@@ -32,9 +32,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						{{- range $i, $navItem := .NavMenu}}
 							{{- if ne $i 0 }} | {{end -}}
 							{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
-							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
-								{{$navItem}}
-							</a>
+							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">{{$navItem}}</a>
 							{{- if eq $navItem $.UrlPath}}</span>{{end -}}
 						{{end -}}
 						</span>
@@ -43,7 +41,9 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						<!-- login / register / logout -->
 						<span class="pagetop">
 							{{- if .Username }}
-								<a href="/history?id={{.Username}}">{{.Username}}</a> |
+								<a href="/history?id={{.Username}}">
+									<span><img src="/static/mozilla dinosaur head.png" width=24 height=24></span>
+									{{.Username}}</a> |
 								<a href="/logout">logout</a>
 							{{- else -}}
 								<a href="/login">log in</a> |
@@ -52,8 +52,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						<!-- TUTORIAL POP-UP WINDOW:
 							<a data-target="#myModal" data-toggle="modal" data-path="tutorial" data-title="Log In" style="cursor:pointer">
 								tutorial
-							</a>
-						-->
+							</a>-->
 						</span>
 					</td>
 				</tr>
@@ -507,13 +506,33 @@ $(function () {
 {{ define "PostVoteWidget" }}
 	{{ $article := . }}
 	<td align="left" style="width: 40%;">
-		<span class="upvote" id="upvote{{$article.Id}}">
+		<span class="upvote" id="upvote{{$article.Id}}"
+		{{- if eq $article.Size 1 }} style="margin-left: 5px;" {{ end -}}
+		>
 			<a href="javascript:Vote({{$article.Id}}, true, false)" class="upvote" data-toggle="tooltip" data-placement="top" title="Up vote">&#x25B2;</a>
 		</span>
 		<a id="votetally{{$article.Id}}">{{$article.VoteTally}}</a>
 		<span class="downvote" id="downvote{{$article.Id}}">
 			<a href="javascript:Vote({{$article.Id}}, false, false)" class="downvote" data-toggle="tooltip" data-placement="top" title="Down vote">&#x25BC;</a>
 		</span>
+<!--
+		<span class="upvote" id="upvote{{$article.Id}}">
+			<a href="javascript:Vote({{$article.Id}}, true, false)" class="upvote" data-toggle="tooltip" data-placement="top" title="Up vote">
+				<i class="fa fa-arrow-up" aria-hidden="true"></i>
+			</a>
+		</span>
+		<a id="votetally{{$article.Id}}">{{$article.VoteTally}}</a><span class="downvote" id="downvote{{$article.Id}}">
+			<a href="javascript:Vote({{$article.Id}}, false, false)" class="downvote" data-toggle="tooltip" data-placement="top" title="Down vote">
+				<i class="fa fa-arrow-down" aria-hidden="true"></i>
+			</a>
+		</span>
+-->
+			<!--<i class="fas fa-thumbs-up" style="font-size:24px; vertical-align:middle;"></i>-->
+			<!--<i class="fa fa-angle-up" aria-hidden="true"></i>-->
+			<!--<i class="fas fa-thumbs-down" style="font-size:24px; vertical-align:middle;"></i>
+			<i class="fas fa-thumbs-down" style="font-size:24px; vertical-align:middle;" data-fa-transform="flip-h"></i>-->
+			<!--<i class="fa fa-angle-down" aria-hidden="true"></i>-->
+
 	</td>
 {{ end }}
 
@@ -529,6 +548,33 @@ $(function () {
 		</span>
 	</td>
 {{ end }}
+
+{{define "CommentWidget"}}
+	{{ $article := . }}
+	<td align="right" style="width: 60%;">
+		<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+			<a href="/article/?postId={{$article.Id}}#commentsTarget"
+			   data-toggle="tooltip" title="Join the discussion!"
+			   style="color: rgb(0, 114, 255);">
+				<i class='far fa-comment'></i>
+				{{ $article.NumComments }}
+				{{ if or (eq $article.Size 1) ($article.IsPoll) }}
+					 Comment{{if ne $article.NumComments 1}}s{{end}}
+				{{ end }}
+			</a>
+		</span>
+	</td>
+<!--	<td align="right" style="width: 40%;">
+		<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
+			<a href="/article/?postId={{$article.Id}}#commentsTarget"
+			   data-toggle="tooltip" title="Join the discussion!"
+			   style="font-size: 20px; color: rgb(0, 114, 255);">
+				<img src="/static/comment icon 3.jpg" width=18 height=18 style="vertical-align: middle;">
+				{{$article.NumComments}}
+			</a>
+		</span>
+	</td>-->
+{{end}}
 
 {{ define "VoteOnPollHandler" }}
 	{{- $article := . -}}
