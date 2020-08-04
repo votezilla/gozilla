@@ -117,6 +117,46 @@ B - load comments AFTER article - could use an iframe.  this will speed up in-si
 B - great 10-step guide to optimization!!! - https://www.eurovps.com/blog/reasons-for-slow-website-loading/#:~:text=A%20large%20volume%20of%20unoptimized,your%20website%20to%20load%20slowly.
 
 
+
+NEW STUFF:
+- tutorial should be very short
+
+- 8 dino colors would be really cool. For user portrait, but that also becomes the color of the default image.  Use userId % 8. (If user later updates their profile pic, it will down sample to make their avatar.  Or they could just change their color too.)
+
+- sharing articles nees better thumbnail - use og:image
+
+- make bus cards
+
+- A- - It would be nice if urls in comments became links. also basic html tags.
+
+- refresh icon on top to load more news
+
+- I need to create interesting polls
+
+- B - default user-created posts to US (?)
+
+- C - ChicaWhisperer article sidebar says more from [blank]:
+
+- page never loads, probably crashes: http://votezilla.io/viewPollResults/?postId=3589#commentsTarget
+  BUT then it started working.  Maybe server was chugging?
+
+- B - n 2 add demographic breakdown to polls because it's cool.
+
+- C - vote timeline - looks cool and doesn't require much data.  Need to add time to table.
+
+ - cacheService for unloggedIn users?  w h SEO?
+
+ - D - write go script (via flag) to clear test votes.
+
+ - C 21 - infinite scroll I'd you keep scrolling down
+
+- D 21 - the bottom of each cat c have carousel / next / prev buttons to dynamically load and pan to more articles in an ArticleGroup
+
+- B 3 - add og:image to Votezilla pages
+
+- add notif if some1 liked ur comment?
+
+
 FEEDBACK:
 C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
   ^ Ryan H: Only listing the first three options in the summary is going to influence votes. Try not including the poll choices in the summary at all? or at least not be able to vote from the summary? Should polls have descriptions? (yes).
@@ -218,6 +258,7 @@ MED PRIORITY (for test with 100 friends):
 - diff dino images for discussions, blog entries, etc.
 
 - Create some mission statement / google doc / blog posts.
+
 
 
 
