@@ -148,7 +148,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	/*
 		pr("Get polls posted by user") // << Removed because it's a subset of "articles posted by user".
 		{
-			articles := fetchPollsPostedByUser(viewUserId, kNumCols * kRowsPerCategory)
+			articles := fetchPollsPostedByUser(viewUserId, userId, kNumCols * kRowsPerCategory)
 			//articles = removeDupIds(articles)
 
 			allArticles = append(allArticles, articles...)
@@ -198,7 +198,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 		{
 			pr("Get articles commented on by user")
 
-			articles := fetchArticlesCommentedOnByUser(viewUserId, kNumCols * kRowsPerCategory)
+			articles := fetchArticlesCommentedOnByUser(viewUserId, userId, kNumCols * kRowsPerCategory)
 			//articles = removeDupIds(articles)
 
 			allArticles = append(allArticles, articles...)
@@ -215,7 +215,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 		if isMe {
 			pr("Get articles voted on by user, and set their bucket accordingly.")
 
-			articles := fetchArticlesUpDownVotedOnByUser(viewUserId, kNumCols * kRowsPerCategory)
+			articles := fetchArticlesUpDownVotedOnByUser(viewUserId, userId, kNumCols * kRowsPerCategory)
 			//articles = removeDupIds(articles)
 
 			allArticles = append(allArticles, articles...)

@@ -574,16 +574,17 @@ func fetchArticlesPartitionedByCategory(articlesPerCategory int, userId int64, m
 // fetch articles comented on by a user.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesCommentedOnByUser(userId int64, maxArticles int) ([]Article) {
+func fetchArticlesCommentedOnByUser(creatorUserId, voterUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IN (SELECT PostId FROM $$Comment WHERE UserId = " + strconv.FormatInt(userId, 10) + ")", // idCondition
-		"IS NOT NULL",																			  // userIdCondition
-		"IS NOT NULL",																			  // categoryCondition
-		"IS NOT NULL",						                                                      // newsSourceIdCondition	string
-		-1,																						  // articlesPerCategory 	int
-		maxArticles,																			  // maxArticles 			int
-		userId,																					  // fetchVotesForUserId 	int64
-		false)							 														  // onlyPolls				bool
+		"IN (SELECT PostId FROM $$Comment WHERE UserId = " +
+			strconv.FormatInt(creatorUserId, 10) + ")", // idCondition
+		"IS NOT NULL",									// userIdCondition
+		"IS NOT NULL",									// categoryCondition
+		"IS NOT NULL",						            // newsSourceIdCondition	string
+		-1,												// articlesPerCategory 	int
+		maxArticles,									// maxArticles 			int
+		voterUserId,									// fetchVotesForUserId 	int64
+		false)							 				// onlyPolls				bool
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -610,17 +611,18 @@ func fetchPollsVotedOnByUser(creatorUserId, voterUserId int64, maxArticles int) 
 // which userId voted on.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesUpDownVotedOnByUser(userId int64, maxArticles int) ([]Article) {
+func fetchArticlesUpDownVotedOnByUser(creatorUserId, voterUserId int64, maxArticles int) ([]Article) {
 	//pr("fetchArticlesUpDownVotedOnByUser:")
 	return _queryArticles(
-		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")",  // idCondition
-		"IS NOT NULL",                                                                              // userIdCondition
-		"IS NOT NULL",                                                                              // categoryCondition
-		"IS NOT NULL",						                                                        // newsSourceIdCondition	string
-		-1,																							// articlesPerCategory 	int
-		maxArticles,																				// maxArticles 			int
-		userId,																						// fetchVotesForUserId 	int64
-		false)							 															// onlyPolls				bool
+		"IN (SELECT PostId FROM $$PostVote WHERE UserId = " +
+			strconv.FormatInt(creatorUserId, 10) + ")",  // idCondition
+		"IS NOT NULL",                                   // userIdCondition
+		"IS NOT NULL",                                   // categoryCondition
+		"IS NOT NULL",						             // newsSourceIdCondition	string
+		-1,												 // articlesPerCategory 	int
+		maxArticles,									 // maxArticles 			int
+		voterUserId,									 // fetchVotesForUserId 	int64
+		false)							 				 // onlyPolls				bool
 }
 
 //////////////////////////////////////////////////////////////////////////////
