@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -108,6 +109,7 @@ func ternary_str(b bool, s1 string, s2 string) 	string 	{ if b { return s1 } els
 func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
 func str_to_bool(s string) bool { return s == "true" }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
+func str_to_int64(s string) (int64, error) { return strconv.ParseInt(s, 10, 64); }
 
 // Truncate and add "..." if text is longer than maxLength.
 func ellipsify(s string, maxLength int) string {

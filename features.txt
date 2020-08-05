@@ -220,3 +220,35 @@ A 2 - too many tabs open
 A 40% x 13 - Tutorial - got the pop-up working, and basic carousel working!!!
 
  - fixed a firewall crash when working from localhost
+
+ 8/3:
+ A - 8 - cats need to be more obvious that they are clickable, maybe thick underline / link icon / spell it out (i.e. MORE NEWS...) (TOM)
+          ^^ + vv
+   - provide better underlining for /news articles, Also hover of articles, poss make them blue too.https://stackoverflow.com/questions/13840403/edit-line-thickness-of-css-underline-attribute?rq=1#:~:text=You%20can%20adjust%20underline%20position,want%20to%20underline%20an%20href.
+ 	https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
+          ^^ + vv
+       Make article links more obvious.  Do what Yahoo news does on hover - text blue, underline, (bonus for overlay div for brightening).
+
+ A - 2 - register with search engines
+
+ A 2 - fix hover style for categories and "[] POLL" or "[] RESULTS"
+
+ B 3 - on sidebar, buttons are too small, and it needs the new button style.
+
+ B 5 - converted icons to font awesome
+
+ A 3 - made up/down icons brighter
+
+ B 3 - made all links better and more blue
+
+ B 3 - made up/down icons brighter
+
+ B 1 - fixed up/down icon positioning
+
+ B 1 - made user link point to history
+
+ B 3 - fixed nonheadline articles being too many lines;
+
+ B 5 - converted icons to font awesome;
+
+~ - made everything looks more awesome!!!"

@@ -203,6 +203,38 @@ func GetSessionInfo(w http.ResponseWriter, r *http.Request) (userId int64, usern
 	return
 }
 
+func GetUsername(userId int64) (username string) {
+	rows := DbQuery("SELECT Username FROM $$User WHERE Id = $1::bigint;", userId)
+	if rows.Next() {
+		err := rows.Scan(&username)
+		check(err)
+	} else {  // User was deleted from db; destroy session to maintain consistency.
+		panic("userId not found")
+		return ""
+	}
+	check(rows.Err())
+	rows.Close()
+	return
+}
+
+// Return -1 if not found or error.
+func UsernameToUserId(username string) int64 {
+	prVal("UsernameToUserId... username", username)
+	rows := DbQuery("SELECT Id FROM $$User WHERE Username = $1;", username)
+	if rows.Next() {
+		var userId int64
+		err := rows.Scan(&userId)
+		check(err)
+		return userId
+	} else {  // User was deleted from db; destroy session to maintain consistency.
+		panic("userId not found")
+		return -1
+	}
+	check(rows.Err())
+	rows.Close()
+	return -1
+}
+
 func RefreshSession(w http.ResponseWriter, r *http.Request) {
 /*	pr("RefreshSession")
 

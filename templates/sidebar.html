@@ -15,10 +15,16 @@
 
 				<br><br>No personal attacks, trolling, or name-calling will be tolerated.  All viewpoints are welcome.
 
+				<br><br>
 				{{ if .Article.IsPoll }}
-					<br><br>More <b><span style="color: #88f;">polls:</span></b>
+					<a href="/news/?category=polls">
+						More <b><span style="color: #88f;">polls:</span></b>
+					</a>
 				{{ else }}
-					<br><br>More from <b><span style="color: #88f;">{{ .Article.NewsSourceId }}:</span></b>
+					<a href="/history/?username={{.Article.NewsSourceId}}">
+						More from <b><span style="color: #88f;">{{ .Article.NewsSourceId }}:</span></b>
+					</a>
+
 				{{ end }}
 			</span>
 
@@ -36,7 +42,7 @@
 					{{ template "PollInlineForm" $article }}
 				</div>
 
-				<table style="width:100%; font-size: 16px;"><tr>
+				<table style="width:100%; font-size: 18px;"><tr>
 					{{ template "PostVoteWidget" $article }}
 					{{ template "CommentWidget" $article }}
 				</tr></table>

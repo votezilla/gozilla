@@ -3,10 +3,32 @@
 {{define "content"}}
 	{{- if eq $.FrameArgs.UrlPath "history"}}
 		<br>
+
 		<center>
-			<h5>
-				<b>HISTORY:</b> Come here to find all the polls and articles you've created, voted on, or commented on.
-			</h5>
+			<table style="border: black 1px solid; border-spacing: 20px; border-collapse: separate;">
+				<tr>
+					<td><img src="/static/mozilla%20dinosaur%20head.png" width=256></td>
+					<td>
+						<h5 class="desktop_only">
+							{{if .ViewUsername}}
+								<b>PROFILE:</b> Check out what {{.ViewUsername}} has been up to.
+							{{else}}
+								<b>HISTORY:</b> Find all the polls and articles you've created, voted on, or commented on.
+							{{end}}
+						</h5>
+					</td>
+				</tr>
+				<tr>
+					<td style="font-size: 24px; text-align: center;">
+						{{if .ViewUsername}}
+							{{template "UserTagHistory" .ViewUsername }}
+						{{else}}
+							{{template "UserTagHistory" .Username }}
+						{{end}}
+					</td>
+					<td></td>
+				</tr>
+			</table>
 		</center>
 		<br>
 	{{- else if eq $.FrameArgs.UrlPath "news"}}
@@ -59,7 +81,7 @@
 				</div>
 			{{ else }} {{/* for HOME, just the category */}}
 				{{ if $articleGroup.More }}
-				  <a href="/news/?category={{$articleGroup.Category}}" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
+				  <a class="cat" href="/news/?category={{$articleGroup.Category}}" data-toggle="tooltip" title="More {{$articleGroup.Category}} articles!">
 				{{ end }}
 					<div class="row vz-row" style="color: #333; background-color: {{$articleGroup.HeaderColor}}; padding: 0px; margin: 0px; margin-top: 4px; padding-top: 7px; padding-bottom: 7px;">
 						<div class="col-md-12 vz-col-md-12 text-uppercase">
@@ -113,13 +135,10 @@
 								</span></b></center>
 							{{ end }}
 							</a>
-							<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+							<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%;">
 								<tr>
 									<td align="left" style="width: 35%; padding-left:5px;">
-										<a>
-											<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
-											<span style="color: #88f">{{$article.Author}}</span>
-										</a>
+										{{ template "UserTag" $article }}
 										&middot;
 										<span class="age" align="right">{{$article.TimeSince}}</span>
 									</td>
@@ -210,10 +229,7 @@
 									<td style="min-width: 5px;"></td>
 									<td class="title">
 										<div class="subtext">
-											<a>
-												<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
-												<span style="color: #88f;">{{$article.Author}}</span>
-											</a>
+											{{ template "UserTag" $article }}
 											&middot;
 											<span class="age" align="right">{{$article.TimeSince}}</span>
 										</div>

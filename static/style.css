@@ -46,7 +46,7 @@ body {
 		margin-left:	0px			!important;
 		margin-right:	0px			!important;
 	}
-	#desktop_only {
+	.desktop_only {
 		display:none;
 	}
 	#override .vz-col-md-12b {
@@ -287,22 +287,23 @@ label.error { font-family:Verdana, Geneva, sans-serif; color:#ee0000; }
 #override .anchor a:hover,
 #override .anchor a:focus,
 #override a.pollImageLabel:hover,
-#override a.pollImageLabel:focus {
+#override a.pollImageLabel:focus,
+#override a.user:hover,
+#override a.user:focus,
+#override a.title:hover,
+#override a.title:focus,
+#override a.userTag:hover,
+#override a.userTag:focus {
 	color: blue !important;
-	/*text-decoration: none !important;*/
 }
-/*#override .articleTitle a:visited
-{
-	color: red !important;
-}*/
 
+#override a.cat:hover,
+#override a.cat:focus {
+	text-decoration: none;
+}
 
-.default { font-family:Verdana, Geneva, sans-serif; }
-.admin   { font-family:Verdana, Geneva, sans-serif; }
 .title   { font-family:Verdana, Geneva, sans-serif; }
 .subtext { font-family:Verdana, Geneva, sans-serif; font-size: 18px; }
-
-
 
 
 #override .upvoted a:link,
@@ -353,6 +354,5 @@ label.error { font-family:Verdana, Geneva, sans-serif; color:#ee0000; }
 .nosee { visibility: hidden; pointer-events: none; cursor: default }
 
 .pagetop a:visited { color:#000000;}
-.topsel a:link, .topsel a:visited { color:#ffffff; }
 
 pre:hover { overflow:auto }

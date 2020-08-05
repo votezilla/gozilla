@@ -11,10 +11,7 @@
 			<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
 				<tr>
 					<td align="left" style="width: 35%; padding-left:5px;">
-						<a href="#">
-							<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
-							<span style="color: #88f">{{$article.Author}}</span>
-						</a>
+						{{ template "UserTag" $article }}
 						&middot;
 						<span class="age" align="right">{{$article.TimeSince}}</span>
 					</td>

@@ -25,15 +25,15 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 					<td style="line-height:20px; height:10px; padding: 0px 5px; color:white !important;">
 						<span class="pagetop">
 							<!-- votezilla logo -->
-							<b id="desktop_only">
+							<b class="desktop_only">
 								<a href="/news" style="color:#ff009c">vote<span style="color:black">zilla</span></a>
 							</b>
 						<!-- nav menu -->
 						{{- range $i, $navItem := .NavMenu}}
 							{{- if ne $i 0 }} | {{end -}}
-							{{- if eq $navItem $.UrlPath}}<span class="topsel">{{end -}}
-							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">{{$navItem}}</a>
-							{{- if eq $navItem $.UrlPath}}</span>{{end -}}
+							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
+								{{$navItem}}
+							</a>
 						{{end -}}
 						</span>
 					</td>
@@ -41,9 +41,11 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						<!-- login / register / logout -->
 						<span class="pagetop">
 							{{- if .Username }}
-								<a href="/history?id={{.Username}}">
-									<span><img src="/static/mozilla dinosaur head.png" width=24 height=24></span>
-									{{.Username}}</a> |
+								{{- if eq "history" $.UrlPath}}
+									{{ template "UserTagMainMenuSel" .Username }} |
+								{{- else }}
+									{{ template "UserTagMainMenu" .Username }} |
+								{{- end }}
 								<a href="/logout">logout</a>
 							{{- else -}}
 								<a href="/login">log in</a> |
@@ -540,11 +542,11 @@ $(function () {
 	{{ $tag := . }}
 	<td align="left" style="width: 40%;">
 		<span class="upvote" id="upvoteComment{{$tag.Id}}">
-			<a href="javascript:Vote({{$tag.Id}}, true, true)" class="upvote" data-toggle="tooltip" data-placement="top" title="Up vote">&#x25B2;</a>
+			<a href="javascript:Vote({{$tag.Id}}, true, true)" class="upvote" style="font-size: 18px;" data-toggle="tooltip" data-placement="top" title="Up vote">&#x25B2;</a>
 		</span>
 		<a id="votetallyComment{{$tag.Id}}">{{$tag.VoteTally}}</a>
 		<span class="downvote" id="downvoteComment{{$tag.Id}}">
-			<a href="javascript:Vote({{$tag.Id}}, false, true)" class="downvote" data-toggle="tooltip" data-placement="top" title="Down vote">&#x25BC;</a>
+			<a href="javascript:Vote({{$tag.Id}}, false, true)" class="downvote" style="font-size: 18px;" data-toggle="tooltip" data-placement="top" title="Down vote">&#x25BC;</a>
 		</span>
 	</td>
 {{ end }}
@@ -857,4 +859,50 @@ $(function () {
 			</span>
 		</td>
 	</table>
+{{ end }}
+
+
+{{ define "UserTag" }}
+	{{ $article := . }}
+	<a href="/history/?username={{$article.Author}}" class="userTag">
+		<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
+		<span style="color: #88f">{{$article.Author}}</span></a>
+{{ end }}
+
+{{ define "UserTagL" }}
+	{{ $article := . }}
+	<a href="/history/?username={{$article.Author}}" class="userTag">
+		<span><img src="{{$article.AuthorIconUrl}}" width=24 height=24></span>
+		<span style="color: #88f; font-size: 18px;">{{$article.Author}}</span></a>
+{{ end }}
+
+
+{{ define "CommentUserTag" }}
+	{{ $comment := . }}
+	<a href="/history?username={{$comment.Username}}" class="userTag">
+		<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
+		<span style="color: #88f;">{{$comment.Username}}</span></a>
+{{ end }}
+
+{{ define "UserTagMainMenu" }}
+	<a href="/history">
+		<span class="desktop_only">
+			<img src="/static/mozilla dinosaur head.png" width=24 height=24>
+		</span>
+		{{.}}</a>
+{{ end }}
+
+{{ define "UserTagMainMenuSel" }}
+	<a href="/history">
+		<span class="desktop_only">
+			<img src="/static/mozilla dinosaur head.png" width=24 height=24>
+		</span>
+		<span style="color: #0072ff;">
+			{{.}}
+		<span>
+	</a>
+{{ end }}
+
+{{ define "UserTagHistory" }}
+	{{.}}
 {{ end }}

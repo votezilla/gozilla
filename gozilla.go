@@ -221,6 +221,7 @@ func init() {
 
 func WebServer() {
 	InitSecurity()
+	InitNewsSources()
 
 	http.HandleFunc("/",                		hwrap(newsHandler))
 	http.HandleFunc("/ajaxCreateComment/",		hwrap(ajaxCreateComment))

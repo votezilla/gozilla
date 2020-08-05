@@ -34,6 +34,7 @@ type Comment struct {
 // For representing a hierarchical tree of comments in a flattened list.
 type CommentTag struct {
 	Id        int64
+	UserId	  int64
 	Username  string
 	Text      []string // an array of strings, separated by <br>.  Do it this way so the template can handle it.
 	VoteTally int

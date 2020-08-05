@@ -1,16 +1,8 @@
-//[] Use Colly for web scraping: https://github.com/gocolly/colly
-//[] ++ Fox News
-//[] Scroll keeps bringing up new topics.  When you reach bottom, infinite scroll has MORE NEWS, MORE WORLD NEWS, etc.
-//   Then EVEN MORE NEWS, YET EVEN MORE NEWS, YET EVEN MORE MORE NEWS, OODLES OF NEWS, etc.  Kind of humorous.
-
 package main
 
 import (
 	"net/http"
-	//"math/rand"
 	"sort"
-	//"strconv"
-	//"net/url"
 )
 
 // A group of articles, separated by a header.
@@ -36,7 +28,7 @@ const (
 
 	kSubmittedPolls = "submitted polls"
 	kVotedPolls = "voted polls"
-	kSubmittedPosts = "created posts"
+	kSubmittedPosts = "created polls & posts"
 	kCommentedPosts = "commented posts"
 	kVotedPosts = "up/down voted posts"
 
@@ -46,6 +38,8 @@ const (
 )
 
 var (
+	newsSourceList = map[string]bool{}
+
 	newsCategoryInfo = CategoryInfo {
 		CategoryOrder : []string{
 			"polls",
@@ -79,23 +73,6 @@ var (
 			{"technology",		"technology"},
 			{"science",			"science"},
 			{"other",			"other"},
-		},
-	}
-
-	historyCategoryInfo = CategoryInfo {
-		CategoryOrder : []string{
-			kCommentedPosts,
-			kSubmittedPosts,
-			kVotedPosts,
-			kSubmittedPolls,
-			kVotedPolls,
-		},
-		HeaderColors : map[string]string{
-			kCommentedPosts: "#f90",
-			kSubmittedPosts : "#aaf",
-			kVotedPosts : "#ccc",
-			kSubmittedPolls : "#da8",
-			kVotedPolls : "#fa9",
 		},
 	}
 )
@@ -305,6 +282,28 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		articleGroups[cat - 1].More = onlyCategory
 	}
 
+	// Prune empty article groups.
+	for g := len(articleGroups) - 1; g >= 0; g-- {
+		//prVal("g", g)
+		numArticles := 0
+		for _, articleRow := range articleGroups[g].Articles {
+			//prf("  len(articleRow) %d", len(articleRow))
+
+			for _, article := range articleRow {
+				//prf("    article.Title", article.Title)
+				if article.Title != "" {
+					numArticles++
+				}
+			}
+		}
+		//prf("For g = %d, numArticles = %d", g, numArticles)
+
+		if numArticles == 0 {
+			//prf("Deleting ArticleGroup g", g)
+			articleGroups = append(articleGroups[:g], articleGroups[g+1:]...) // Delete this empty article group.
+		}
+	}
+
 	return articleGroups
 }
 
@@ -340,6 +339,7 @@ func renderNews(w http.ResponseWriter,
 				title,
 				username string,
 				userId int64,
+				viewUsername string,
 				articleGroups []ArticleGroup,
 				urlPath,
 				template string,
@@ -354,7 +354,7 @@ func renderNews(w http.ResponseWriter,
 
 	title = "votezilla - " + title
 
-	// TODO: use a cookie to only alert about being logged in once?
+	// TODO: use a cookie to only alert about being logged in once?  Also, make this into a pop-up.
 	script := ""
 	switch(alertMessage) {
 		case "LoggedIn": 		script = "alert('You are now logged in :)')"
@@ -369,10 +369,12 @@ func renderNews(w http.ResponseWriter,
 		FrameArgs
 		ArticleGroups	[]ArticleGroup
 		Category		string
+		ViewUsername	string
 	}{
 		FrameArgs:		makeFrameArgs2(title, script, urlPath, userId, username, upvotes, downvotes),
 		ArticleGroups:	articleGroups,
 		Category:		category,
+		ViewUsername:	viewUsername,
 	}
 
 	//prVal("UpVotes", upvotes)
@@ -431,137 +433,22 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articleGroups[0].More = "polls"
 	}
 
-	renderNews(w, "News", username, userId, articleGroups, "news", kNews, upvotes, downvotes, reqCategory, reqAlert)
+	renderNews(w, "News", username, userId, "", articleGroups, "news", kNews, upvotes, downvotes, reqCategory, reqAlert)
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// History handler - of user posts, up/down votes,
-//                   TODO: comments
-//
-///////////////////////////////////////////////////////////////////////////////
-func historyHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
 
-	pr("historyHandler")
 
-	//prVal("r.URL.Query()", r.URL.Query())
+func InitNewsSources() {
+	rows := DbQuery("SELECT NewsSourceId FROM $$NewsPost GROUP BY 1 ORDER BY 1")
+	for rows.Next() {
+		newsSource := ""
+		err := rows.Scan(&newsSource)
+		check(err)
 
-	reqAlert		:= parseUrlParam(r, "alert")
-
-	userId, username := GetSessionInfo(w, r)
-
-	articleGroups := []ArticleGroup{}
-	allArticles := []Article{}
-/*	dupIds := map[int64]bool{}
-
-	removeDupIds := func(articles []Article) (filteredArticles []Article) {
-		numAddedArticles := 0
-		for _, article := range articles {
-
-			// If duplicate id exists, purge the article.
-			//_, found := dupIds[article.Id]
-			//if !found {
-				filteredArticles = append(filteredArticles, article)
-				dupIds[article.Id] = true
-				numAddedArticles++
-
-			//	if numAddedArticles >= 6 {
-			//		break
-			//	}
-			//}
-		}
-		return
+		newsSourceList[newsSource] = true
 	}
-*/
-/*
-	pr("Get polls posted by user") // << Removed because it's a subset of "articles posted by user".
-	{
-		articles := fetchPollsPostedByUser(userId, kNumCols * kRowsPerCategory)
-		//articles = removeDupIds(articles)
-
-		allArticles = append(allArticles, articles...)
-
-		for a := range articles {
-			articles[a].Bucket = kSubmittedPolls
-		}
-
-		articleGroups = append(articleGroups,
-			formatArticleGroups(articles, historyCategoryInfo, kSubmittedPolls, kNoHeadlines)...)
-	}
-*/
-	pr("Get polls voted on by user")
-	{
-		articles := fetchPollsVotedOnByUser(userId, kNumCols * kRowsPerCategory)
-		//articles = removeDupIds(articles)
-
-		allArticles = append(allArticles, articles...)
-
-		for a := range articles {
-			articles[a].Bucket = kVotedPolls
-		}
-
-		articleGroups = append(articleGroups,
-			formatArticleGroups(articles, historyCategoryInfo, kVotedPolls, kNoHeadlines)...)
-	}
-
-	pr("Get articles posted by user")
-	{
-		articles := fetchArticlesPostedByUser(userId, kNumCols * kRowsPerCategory)
-		//articles = removeDupIds(articles)
-
-		allArticles = append(allArticles, articles...)
-
-		for a := range articles {
-			articles[a].Bucket = kSubmittedPosts
-		}
-
-		articleGroups = append(articleGroups,
-			formatArticleGroups(articles, historyCategoryInfo, kSubmittedPosts, kNoHeadlines)...)
-	}
-
-	pr("Get articles commented on by user")
-	{
-		articles := fetchArticlesCommentedOnByUser(userId, kNumCols * kRowsPerCategory)
-		//articles = removeDupIds(articles)
-
-		allArticles = append(allArticles, articles...)
-
-		for a := range articles {
-			articles[a].Bucket = kCommentedPosts
-		}
-
-		articleGroups = append(articleGroups,
-			formatArticleGroups(articles, historyCategoryInfo, kCommentedPosts, kNoHeadlines)...)
-	}
-
-	pr("Get articles voted on by user, and set their bucket accordingly.")
-	{
-		articles := fetchArticlesUpDownVotedOnByUser(userId, kNumCols * kRowsPerCategory)
-		//articles = removeDupIds(articles)
-
-		allArticles = append(allArticles, articles...)
-
-		for a := range articles {
-			articles[a].Bucket = kVotedPosts
-		}
-
-		articleGroups = append(articleGroups,
-			formatArticleGroups(articles, historyCategoryInfo, kVotedPosts, kNoHeadlines)...)
-	}
-
-	upvotes, downvotes := deduceVotingArrows(allArticles)
-
-	prVal("upvotes", upvotes)
-	prVal("downvotes", downvotes)
-
-	for g, _ := range articleGroups {
-		articleGroups[g].More = "" // Clear any "More ___..." links, since they don't lead anywhere yet.
-	}
-
-
-	// Render the history just like we render the news.
-	renderNews(w, "History", username, userId, articleGroups, "history", kNews, upvotes, downvotes, "", reqAlert)
+	check(rows.Err())
+	rows.Close()
 }
 
 

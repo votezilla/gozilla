@@ -205,12 +205,12 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 			// Strip off the hash for comparison, because the hash can never reach a server.
 			cleanLink := strings.Split(link, "#")[0]
 
-			prVal("cleanLink", cleanLink)
+			//prVal("cleanLink", cleanLink)
 
 			_, found := visitedLinks[cleanLink]
 			unvisited[a] = !found
 
-			prf("  link %s %s found", cleanLink, ternary_str(found, "is", "is not"))
+			//prf("  link %s %s found", cleanLink, ternary_str(found, "is", "is not"))
 		}
 	}
 
