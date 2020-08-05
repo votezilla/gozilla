@@ -591,15 +591,16 @@ func fetchArticlesCommentedOnByUser(userId int64, maxArticles int) ([]Article) {
 // fetch polls voted on by a user.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchPollsVotedOnByUser(userId int64, maxArticles int) ([]Article) {
+func fetchPollsVotedOnByUser(creatorUserId, voterUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IN (SELECT PollId FROM $$PollVote WHERE UserId = " + strconv.FormatInt(userId, 10) + ")", // idCondition
+		"IN (SELECT PollId FROM $$PollVote WHERE UserId = " +
+			strconv.FormatInt(creatorUserId, 10) + ")", 										   // idCondition
 		"IS NOT NULL",																			   // userIdCondition
 		"IS NOT NULL",																			   // categoryCondition
 		"IS NOT NULL",						                                                       // newsSourceIdCondition	string
 		-1,																						   // articlesPerCategory 	int
 		maxArticles,																			   // maxArticles 			int
-		userId,																					   // fetchVotesForUserId 	int64
+		voterUserId,																			   // fetchVotesForUserId 	int64
 		false)							 														   // onlyPolls				bool
 }
 
@@ -652,16 +653,16 @@ func fetchArticlesWithinCategory(category string, userId int64, maxArticles int)
 //   category - optional, can provide "" to skip.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesPostedByUser(userId int64, maxArticles int) ([]Article) {
+func fetchArticlesPostedByUser(creatorUserId, voterUserId int64, maxArticles int) ([]Article) {
 	return _queryArticles(
-		"IS NOT NULL", 						   // idCondition
-		"= " + strconv.FormatInt(userId, 10),  // userIdCondition
-		"IS NOT NULL",                         // categoryCondition
-		"IS NOT NULL",						   // newsSourceIdCondition	string
-		-1,									   // articlesPerCategory 	int
-		maxArticles,						   // maxArticles 			int
-		userId,								   // fetchVotesForUserId 	int64
-		false)							 	   // onlyPolls				bool
+		"IS NOT NULL", 						   		  // idCondition
+		"= " + strconv.FormatInt(creatorUserId, 10),  // userIdCondition
+		"IS NOT NULL",                         		  // categoryCondition
+		"IS NOT NULL",						   		  // newsSourceIdCondition	string
+		-1,									   		  // articlesPerCategory 	int
+		maxArticles,						   		  // maxArticles 			int
+		voterUserId,								  // fetchVotesForUserId 	int64
+		false)							 	   		  // onlyPolls				bool
 }
 
 //////////////////////////////////////////////////////////////////////////////

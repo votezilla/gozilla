@@ -166,7 +166,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 		{
 			pr("Get articles posted by user")
 
-			articles := fetchArticlesPostedByUser(viewUserId, kNumCols * kRowsPerCategory)
+			articles := fetchArticlesPostedByUser(viewUserId, userId, kNumCols * kRowsPerCategory)
 			//articles = removeDupIds(articles)
 
 			allArticles = append(allArticles, articles...)
@@ -182,7 +182,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 		if isMe {
 			pr("Get polls voted on by user")
 
-			articles := fetchPollsVotedOnByUser(viewUserId, kNumCols * kRowsPerCategory)
+			articles := fetchPollsVotedOnByUser(viewUserId, userId, kNumCols * kRowsPerCategory)
 			//articles = removeDupIds(articles)
 
 			allArticles = append(allArticles, articles...)
@@ -194,7 +194,6 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 			articleGroups = append(articleGroups,
 				formatArticleGroups(articles, historyCategoryInfo, kVotedPolls, kNoHeadlines)...)
 		}
-
 
 		{
 			pr("Get articles commented on by user")

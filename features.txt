@@ -241,14 +241,19 @@ A 40% x 13 - Tutorial - got the pop-up working, and basic carousel working!!!
 
  B 3 - made all links better and more blue
 
- B 3 - made up/down icons brighter
-
  B 1 - fixed up/down icon positioning
 
  B 1 - made user link point to history
 
  B 3 - fixed nonheadline articles being too many lines;
 
- B 5 - converted icons to font awesome;
-
 ~ - made everything looks more awesome!!!"
+
+8/5:
+A 8 - click on news source / user icon to see their news articles / posts
+
+B 2 - history - add header or splashscreen explaing what it is (TOM)
+
+B 2 - on sidebar, more ____ (i.e. polls) should be clickable (TOM)
+
+Clicking on source should display more news of that source - right now

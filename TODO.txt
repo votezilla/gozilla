@@ -2,18 +2,14 @@ SERVER_PUSH_TODO:
 convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
-A 8 - click on news source / user icon to see their news articles / posts
-
-B 2 - history - add header or splashscreen explaing what it is (TOM)
-
-B 2 - on sidebar, more ____ (i.e. polls) should be clickable (TOM)
+A 3 - fixed a voting bug that revealed another voter's vote in /history
 
 WORKING ON:
 
-Clicking on source should display more news of that source - right now
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 A 3 - deduce title for link sharing (via button)
 
+B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
 
 
 
@@ -41,8 +37,6 @@ A 3 - list news sources and ppl
 A - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
-
-B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
 
 B 2 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
 
@@ -81,6 +75,7 @@ C 2 - sidebar h buttons and comment buttons are all small, esp. on mobile.
 C - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
+C - In history, display comments overview with the article.  Hmm.. realizing this may need to become an Activity-style list, sorted by time
 
 NEW STUFF:
 
