@@ -2,7 +2,8 @@ SERVER_PUSH_TODO:
 convert mozilla thumbnail posts to '' on all posts
 
 JUST FIXED:
-A 3 - fixed a voting bug that revealed another voter's vote in /history
+
+displaying just 4 polls on /news, so news can be discovered easier.
 
 WORKING ON:
 
