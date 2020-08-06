@@ -237,7 +237,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			WHERE x.r <= %d OR (x.Category = 'polls' AND x.r <= %d)`,
 			query,
 			articlesPerCategory,
-			articlesPerCategory + 2) // Hack: polls can fit 2 more because none are headlines.
+			articlesPerCategory) // Hack: polls can fit 2 more because none are headlines.
 	} else {
 		query = fmt.Sprintf(`
 			SELECT
