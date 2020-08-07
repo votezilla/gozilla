@@ -130,6 +130,7 @@ func InitWebServer2() {
 	}
 
 	fmt.Printf("Server listening on %s", server.Addr)
+	go http.ListenAndServe(":80", mux)
 	if err := server.ListenAndServeTLS("certs/localhost.crt", "certs/localhost.key"); err != nil {
 	    fmt.Println(err)
 	}
