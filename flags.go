@@ -26,10 +26,7 @@ var (
 		testUserId				string		// UserId to test being loggin in as.
 		isNewsAccelerated		string		// Whether News API queries should be accelerated
 		randomizeTime			string
-
 		skipWhitelist			bool
-		inProduction			bool		// If true, we start HTTPS server
-		redirectHTTPToHTTPS		bool		// If true, we redirect HTTP to HTTPS
 		domain				string
 	}
 )
@@ -61,8 +58,6 @@ func parseCommandLineFlags() {
 	fi := flag.String("randomizeTime", 		"true",			"True to randomize article order a little, in /news.")
 
 	flag.BoolVar(&flags.skipWhitelist, 		 "skipWhitelist", false, "skip reading the whitelist, which is slow")
-	flag.BoolVar(&flags.inProduction, 		 "inProduction", false, "if true, we start HTTPS server")
-	flag.BoolVar(&flags.redirectHTTPToHTTPS, "redirect-to-https", false, "if true, we redirect HTTP to HTTPS")
 	flag.StringVar(&flags.domain, "domain", "", "domain name to request your certificate")
 
 	prVal("Command Line Args", os.Args)

@@ -1,17 +1,16 @@
 
 JUST FIXED:
   - Enable DDOS prevention somehow
+  B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
 
 
 WORKING ON:
 
-B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
 
 Backup letsencrypt files.  (***See below)
 
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 A 3 - deduce title for link sharing (via button)
-
 
 
 
@@ -25,18 +24,20 @@ v
   Difficulty
   v
 
+A - 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
+
+A - . - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
+
+A - 3 - sharing articles nees better thumbnail - use og:image, og:Title
+
 A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
 	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
 
-A - 8 - basic /user page, based on history.
+- make bus cards
 
-A 8 - seeing mostly liberal news sources (I need to add Fox News) (TOM) (or see if other news apis would have fox, then that would be better to do first.)
+B 8 - seeing mostly liberal news sources (I need to add Fox News) (TOM) (or see if other news apis would have fox, then that would be better to do first.)
 
 A 8 - upgrade DigitalOcean instance $5 -> $10
-
-A 3 - list news sources and ppl
-
-A - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
@@ -46,7 +47,7 @@ B 2 - Poll options need a "Poll options:" label for the group, possibly the char
 
 B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
 
-B 5 - Add more news API's
+B 5 - Add more news API's (hopefully some incl. Fox News)
 
 B 8 - privacy alias'
 
@@ -74,12 +75,13 @@ B - load comments AFTER article - could use an iframe.  this will speed up in-si
 
 B - great 10-step guide to optimization!!! - https://www.eurovps.com/blog/reasons-for-slow-website-loading/#:~:text=A%20large%20volume%20of%20unoptimized,your%20website%20to%20load%20slowly.
 
-C 2 - sidebar h buttons and comment buttons are all small, esp. on mobile.
+C 3 - list news sources and ppl
 
-C - 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
+C 3 - In history, display comments overview with the article.  Hmm.. realizing this may need to become an Activity-style list, sorted by time
+
+C 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
-C - In history, display comments overview with the article.  Hmm.. realizing this may need to become an Activity-style list, sorted by time
 
 NEW STUFF:
 
@@ -91,9 +93,7 @@ NEW STUFF:
 
 - 8 dino colors would be really cool. For user portrait, but that also becomes the color of the default image.  Use userId % 8. (If user later updates their profile pic, it will down sample to make their avatar.  Or they could just change their color too.)
 
-- sharing articles nees better thumbnail - use og:image
 
-- make bus cards
 
 - A- - It would be nice if urls in comments became links. also basic html tags.
 
@@ -194,8 +194,6 @@ C 3 - newly-created posts for 'NEWS' show up under 'WORLD NEWS' - country should
 C 8 - collapse in columnwise the articles, when viewing a single category or polls.
 
 C 8 - thumbnail appears to be clipped on the left, on mobile - it appears smart crop doesn't always do what I want.  Experiment with manually centering the image, compare results, go with the better option and don't look back.
-
-C 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
   - add ability to view news source feed
 

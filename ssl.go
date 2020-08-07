@@ -37,12 +37,6 @@ func getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) func(hello *t
 func InitWebServer2() {
 	mux := SetupWebHandlers()
 
-/*	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "Hello HTTP/2")
-	})
-*/
-
 	server := http.Server {
 		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
