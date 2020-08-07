@@ -14,6 +14,7 @@ import (
 	"fmt"
 	//"io"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
@@ -115,6 +116,25 @@ func InitWebServer() {
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+// Ref: [200~https://marcofranssen.nl/build-a-go-webserver-on-http-2-using-letsencrypt/
+func redirectHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" && r.Method != "HEAD" {
+	    http.Error(w, "Use HTTPS", http.StatusBadRequest)
+	    return
+	}
+	target := "https://" + stripPort(r.Host) + r.URL.RequestURI()
+	http.Redirect(w, r, target, http.StatusFound)
+}
+
+func stripPort(hostport string) string {
+  host, _, err := net.SplitHostPort(hostport)
+  if err != nil {
+    return hostport
+  }
+  return net.JoinHostPort(host, "443")
+}
+
 func InitWebServer2() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +150,9 @@ func InitWebServer2() {
 	}
 
 	fmt.Printf("Server listening on %s", server.Addr)
-	go http.ListenAndServe(":80", mux)
+	//go http.ListenAndServe(":80", mux)
+	go http.ListenAndServe(":80", http.HandlerFunc(redirectHTTP))
+
 	if err := server.ListenAndServeTLS("certs/localhost.crt", "certs/localhost.key"); err != nil {
 	    fmt.Println(err)
 	}

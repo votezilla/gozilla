@@ -4,6 +4,7 @@ gozilla
 *.exe~
 *.tws
 *.swp
+*.swo
 demos/*
 static/downloads/*
 static/thumbnails/*
