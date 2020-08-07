@@ -25,6 +25,10 @@ var (
 		mode					string		// A special mode to run a service in.
 		testUserId				string		// UserId to test being loggin in as.
 		isNewsAccelerated		string		// Whether News API queries should be accelerated
+		inProduction			string
+		randomizeTime			string
+		dosLimit				string
+		dosInterval				string
 	}
 )
 
