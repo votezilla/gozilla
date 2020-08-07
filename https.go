@@ -1,5 +1,5 @@
 package main
-
+/*
 // https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go.html
 // To run:
 // go run main.go
@@ -186,4 +186,4 @@ func InitWebServer2() {
 	if err := server.ListenAndServeTLS("certs/localhost.crt", "certs/localhost.key"); err != nil {
 	    fmt.Println(err)
 	}
-}
+}*/
