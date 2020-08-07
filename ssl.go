@@ -35,34 +35,41 @@ func getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) func(hello *t
 }
 
 func InitWebServer2() {
-
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Hello HTTP/2")
 	})
 
-	fmt.Println("TLS domain", domain)
-	certManager := autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(flags.domain),
-		Cache:      autocert.DirCache("certs"),
-	}
-
-	tlsConfig := certManager.TLSConfig()
-	tlsConfig.GetCertificate = getSelfSignedOrLetsEncryptCert(&certManager)
-	server := http.Server{
-		Addr:      ":443",
+	server := http.Server {
 		Handler:   mux,
-		TLSConfig: tlsConfig,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 		IdleTimeout:  120 * time.Second,
 	}
 
-	go http.ListenAndServe(":80", certManager.HTTPHandler(nil))
-	fmt.Println("Server listening on", server.Addr)
-	if err := server.ListenAndServeTLS("", ""); err != nil {
-		fmt.Println(err)
+	if flags.domain != "" {
+		// Running SSL in production - votezilla.io
+		certManager := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(flags.domain),
+			Cache:      autocert.DirCache("certs"),
+		}
+
+		tlsConfig := certManager.TLSConfig()
+		tlsConfig.GetCertificate = getSelfSignedOrLetsEncryptCert(&certManager)
+
+		server.Addr		 = ":443"
+		server.TLSConfig = tlsConfig
+
+		go http.ListenAndServe(":80", certManager.HTTPHandler(nil))
+
+		fmt.Println("Server listening on", server.Addr)
+		check(server.ListenAndServeTLS("", ""))
+	} else {
+		// Running on localhost
+		server.Addr		= ":" + flags.port
+	
+		fmt.Println("Server listening on", server.Addr)
+		check(server.ListenAndServe())
 	}
 }

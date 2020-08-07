@@ -262,41 +262,6 @@ func WebServer() {
 	InitNewsSources()
 	InitFirewall()
 	InitWebServer2()
-
-/*
-	httpSrv.HandleFunc("/",                		hwrap(newsHandler))
-	httpSrv.HandleFunc("/ajaxCreateComment/",		hwrap(ajaxCreateComment))
-	httpSrv.HandleFunc("/ajaxExpandComment/",		hwrap(ajaxExpandComment))
-	httpSrv.HandleFunc("/ajaxPollVote/",			hwrap(ajaxPollVoteHandler))
-	httpSrv.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
-	httpSrv.HandleFunc("/ajaxVote/",				hwrap(ajaxVoteHandler))
-	httpSrv.HandleFunc("/article/",       			hwrap(articleHandler))
-	httpSrv.HandleFunc("/activity/",       		hwrap(activityHandler))
-	httpSrv.HandleFunc("/create/",   				hwrap(createHandler))
-	httpSrv.HandleFunc("/createBlog/",   			hwrap(createBlogHandler))
-	httpSrv.HandleFunc("/createLink/",   			hwrap(createLinkHandler))
-	httpSrv.HandleFunc("/createPoll/",   			hwrap(createPollHandler))
-	httpSrv.HandleFunc("/history/",        		hwrap(historyHandler))
-	httpSrv.HandleFunc("/ip/",             		hwrap(ipHandler))
-	httpSrv.HandleFunc("/login/",          		hwrap(loginHandler))
-	httpSrv.HandleFunc("/logout/",         		hwrap(logoutHandler))
-	httpSrv.HandleFunc("/news/",           		hwrap(newsHandler))
-	httpSrv.HandleFunc("/register/",       		hwrap(registerHandler))
-	httpSrv.HandleFunc("/registerDetails/",		hwrap(registerDetailsHandler))
-	httpSrv.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
-	httpSrv.HandleFunc("/tutorial/"	,   		hwrap(tutorialHandler))
-	httpSrv.HandleFunc("/updatePassword/", 		hwrap(updatePasswordHandler))
-	httpSrv.HandleFunc("/viewPollResults/",		hwrap(viewPollResultsHandler))
-
-	// Serve static files.
-	httpSrv.Handle("/static/", httpSrv.StripPrefix("/static/", httpSrv.FileServer(httpSrv.Dir("./static"))))
-
-	// Special handling for favicon.ico.
-	httpSrv.Handle("/favicon.ico", httpSrv.FileServer(httpSrv.Dir("./static")))
-
-	pr("Listening on httpSrv://localhost:" + flags.port + "...")
-	check(httpSrv.ListenAndServe(":" + flags.port, nil))
-	*/
 }
 
 func main() {
