@@ -257,9 +257,17 @@ func CheckAndLogIP(r *http.Request) error {
 	return nil // OK request
 }
 
-func init() {
+func InitFirewall() {
+	pr("reading blacklist")
 	blacklist = readIPsFile("blacklist.txt")
-	whitelist = readIPsFile("whitelist.txt")
+	if flags.skipWhitelist {
+		pr("skipping whitelist")
+		emptyList := IPs(bitarray.NewSparseBitArray())
+		whitelist = &emptyList
+	} else {
+		pr("reading whitelist")
+		whitelist = readIPsFile("whitelist.txt")
+	}
 
 	// custom tests
 	//testIPs()

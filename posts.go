@@ -88,8 +88,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	//prVal("maxArticles", maxArticles)
 	//prVal("fetchVotesForUserId", fetchVotesForUserId)
 
-	bRandomizeTime := true;  // TODO: make a flag for this.  <<<<<<<<<<<<< HOW DO I REGULATE THIS?  SET TO FALSE WHEN COMING FROM ACTIVITY, OR
-	//bRandomizeTime := (fetchVotesForUserId == -1)
+	bRandomizeTime := flags.randomizeTime != ""
 
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
 	newsPostQuery := fmt.Sprintf(
