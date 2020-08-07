@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+    "github.com/golang-collections/go-datastructures/bitarray"
+
 	"log"
 	"net/http"
 	"os"
@@ -11,136 +13,123 @@ import (
     "net"
 )
 
+// ref: https://www.ip2location.com/free/robot-whitelist
+
+type IPs bitarray.BitArray
+
 var (
-	blacklist 		map[string]bool
-	whitelist 		map[string]bool
-
-	blacklistArray	[]string
-	whitelistArray	[]string
-/*
-	blackNetCount8	map[string]int
-	blackNetCount16	map[string]int
-
-	whiteNetCount8	map[string]int
-	whiteNetCount16	map[string]int
-*/
+	blacklist		*IPs
+	whitelist		*IPs
 )
 
-func readItemListFile(fileName string) (items map[string]bool, itemArray []string) {
+func ip_to_int(ip string) int {
+	val := 0
+
+	//prVal("ip_to_int ip", ip)
+
+	parts := strings.Split(ip, ".")
+	assert(len(parts) == 4)
+	for i := 0; i < 4; i++ {
+		val *= 256
+
+		iVal := str_to_int(parts[i])
+
+		val += iVal
+	}
+
+	return val
+}
+
+func int_to_ip(ip int) string {
+	parts := make([]string, 4)
+
+	//prVal("int_to_ip ip", ip)
+
+	pos := 3
+	for ip > 0 {
+		parts[pos] = int_to_str(ip % 256)
+
+		ip >>= 8
+		//prVal("  ip", ip)
+
+		pos--
+	}
+
+	//prVal("  parts", parts)
+
+	return strings.Join(parts, ".")
+}
+
+func registerIPSubnet(ips *IPs, ip, subnetBits int) {
+	//prf("registerIPSubnet %s/%d", ip, subnetBits)
+	assert(0 <= subnetBits && subnetBits <= 32)
+	rangeBits := 32 - subnetBits
+
+	numIPs := 1 << rangeBits
+	for i := 0; i < numIPs; i++ {
+		(*ips).SetBit(uint64(ip + i))
+
+		//prVal("  registering IP", int_to_ip(ip + i))
+	}
+}
+
+func checkIP(ips *IPs, ip int) bool {
+	prVal("checkIP", ip)
+
+	bit, err := (*ips).GetBit(uint64(ip))
+	check(err)
+	return bit
+}
+
+
+func readIPsFile(fileName string) *IPs {
+	prVal("readIPsFile", fileName)
+
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 
-	items = map[string]bool{}
-	itemArray = []string{}
+	//ips := IPs(bitarray.NewBitArray(1 << 32))
+	ips := IPs(bitarray.NewSparseBitArray())
+
+	//prVal("ips.Capacity()", ips.Capacity())
+	//prVal("size = ", ips.Capacity() / 8)
+
+	lineNum := 0
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		items[scanner.Text()] = true
-		itemArray = append(itemArray, scanner.Text())
-	}
-	return
-}
+		text := scanner.Text()
 
-func dumpVal(label string, m map[string]int) {
-	pr(label)
-	for k, v := range m {
-		prf("  %3s: %3d", k, v)
-	}
-}
+		//prf("line %d text %s", lineNum, text)
 
-/*
-func analyzeNetCount(ipListArray []string) (map[string]int, map[string]int) {
-	netCount8	:= map[string]int{}
-	netCount16	:= map[string]int{}
-
-	for _, ip := range ipListArray {
-		//prVal("ip", ip)
-
-		bytes := strings.Split(ip, ".")
-		net8 := bytes[0]
-		netCount8[net8]++
-
-		if len(bytes) >= 2 {
-			net16 := strings.Join(bytes[0:2], ".")
-			netCount16[net16]++
+		tokens 		:= strings.Split(text, "/")
+		//prVal("tokens", tokens)
+		ip 			:= ip_to_int(tokens[0])
+		subnetBits 	:= 32
+		if len(tokens) == 2 {
+			subnetBits = str_to_int(tokens[1])
 		}
+
+		//prf("tokens[0] %s ip %d subnetBits %d", tokens[0], ip, subnetBits)
+
+//		ips = append(ips, createSubnetList(ip, subnetBits))
+
+		registerIPSubnet(&ips, ip, subnetBits)
+
+		lineNum++
 	}
 
-	return netCount8, netCount16
-}
+	//prVal("sizeof(ips)", unsafe.Sizeof(ips))
 
-func analyzeIPs() {
-	blackNetCount8, blackNetCount16 = analyzeNetCount(blacklistArray)
-	whiteNetCount8, whiteNetCount16 = analyzeNetCount(whitelistArray)
-
-	//dumpVal("blackNetCount8",  blackNetCount8)
-	//dumpVal("blackNetCount16", blackNetCount16)
-	//dumpVal("whiteNetCount8",  whiteNetCount8)
-	//dumpVal("whiteNetCount16", whiteNetCount16)
-}
-*/
-
-// Returns true if it's a safe IP, false if it's an evil IP.
-func checkBlacklist(ip string) bool {
-	pr("checkIP: " + ip)
-
-//	// Since we're only blocking individual IP's, don't need to check whitelist currently.
-//	if _, found := whitelist[ip]; found {
-//		return true
-//	}
-
-	if _, found := blacklist[ip]; found {
-		pr("Blocking IP: " + ip + " due to blacklist!")
-		return false
-	}
-/*
-	bytes := strings.Split(ip, ".")
-
-	prVal("bytes", bytes)
-
-	net8 := bytes[0]
-	if whiteNetCount8[net8] > 0 {
-		return true
-	}
-	if blackNetCount8[net8] >= 5 {
-		prf("Blocking IP: %s due to net8 count of %d!", ip, blackNetCount8[net8])
-		return false
-	}
-
-	if len(bytes) >= 2 {
-		net16 := strings.Join(bytes[0:2], ".")
-
-		if whiteNetCount16[net16] > 0 {
-			return true
-		}
-		if blackNetCount16[net16] >= 2 {
-			prf("Blocking IP: %s due to net16 count of %d!", ip, blackNetCount16[net16])
-			return false
-		}
-	}
-*/
-	return true
+	return &ips
 }
 
 func recordBadIP(ip string) {
 	prVal("recordBadIP", ip)
 
-	blacklist[ip] = true
-
-/*	// Keep track of bad ip in the runtime.
-	bytes := strings.Split(ip, ".")
-
-	net8 := bytes[0]
-	blackNetCount8[net8]++
-
-	if len(bytes) >= 2 {
-		net16 := strings.Join(bytes[0:2], ".")
-		blackNetCount16[net16]++
-	}
-*/
 	// Write new bad ip to file.
 	f, err := os.OpenFile("blacklist.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -192,28 +181,37 @@ func CheckAndLogIP(r *http.Request) error {
 	var errorMsg, path, query string
 
 	ip, port, err := net.SplitHostPort(r.RemoteAddr)
+
 	if err != nil {
 		errorMsg = fmt.Sprintf("RemoteAddr: %q is not IP:port.  ", r.RemoteAddr)
-	} else if !checkBlacklist(ip) {
-		errorMsg = "Blocking bad ip: " + ip
+	} else if ip == "::1" {
+		// localhost - ok
 	} else {
-		path  = r.URL.Path
-		query = r.URL.RawQuery
+		ipVal := ip_to_int(ip)
 
-		// Block method=POST and path="/"
-		if r.Method == "POST" && path == "/" {
-			errorMsg = "Blocking non-logged-in post from " + ip
-			//recordBadIP(ip) // This check seem legit, but it ends up blocking me somehow, so don't add to blacklist.
+		if checkIP(whitelist, ipVal) {
+			// ok
+		} else if checkIP(blacklist, ipVal) {
+			errorMsg = "Blocking blacklisted ip: " + ip
 		} else {
-			// Ban an IP if any request ends in .php, .cgi, .cmd.  Just search for ".???".
-			length := len(path)
-			if length >= 4 {
-				//prVal("len(path)", length)
-				fourthFromLastChar := path[length-4: length-3]
-				//prVal("fourthFromLastChar", fourthFromLastChar)
-				if fourthFromLastChar == "." {
-					recordBadIP(ip)
-					errorMsg = "Blocking script attack from " + ip + " for path " + path
+			path  = r.URL.Path
+			query = r.URL.RawQuery
+
+			// Block method=POST and path="/"
+			if r.Method == "POST" && path == "/" {
+				errorMsg = "Blocking non-logged-in post from " + ip
+				//recordBadIP(ip) // This check seem legit, but it ends up blocking me somehow, so don't add to blacklist.
+			} else {
+				// Ban an IP if any request ends in .php, .cgi, .cmd.  Just search for ".???".
+				length := len(path)
+				if length >= 4 {
+					//prVal("len(path)", length)
+					fourthFromLastChar := path[length-4: length-3]
+					//prVal("fourthFromLastChar", fourthFromLastChar)
+					if fourthFromLastChar == "." {
+						recordBadIP(ip)
+						errorMsg = "Blocking script attack from " + ip + " for path " + path
+					}
 				}
 			}
 		}
@@ -229,10 +227,10 @@ func CheckAndLogIP(r *http.Request) error {
 }
 
 func init() {
-	blacklist, blacklistArray = readItemListFile("blacklist.txt")
-	whitelist, whitelistArray = readItemListFile("whitelist.txt")
+	blacklist = readIPsFile("blacklist.txt")
+	whitelist = readIPsFile("whitelist.txt")
 
-//	analyzeIPs() // Not blocking subnets to be safe, just individual IP's, so we'll skip this for now.
+//	analyzeIPs() // Not blocking ips to be safe, just individual IP's, so we'll skip this for now.
 }
 
 
