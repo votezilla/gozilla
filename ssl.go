@@ -1,3 +1,5 @@
+// HTTPS SSL.  Sample ref: https://marcofranssen.nl/build-a-go-webserver-on-http-2-using-letsencrypt/
+
 package main
 
 import (
@@ -5,8 +7,8 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
-
 	"golang.org/x/crypto/acme/autocert"
+	"time"
 )
 
 var (
@@ -53,6 +55,9 @@ func InitWebServer2() {
 		Addr:      ":443",
 		Handler:   mux,
 		TLSConfig: tlsConfig,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	go http.ListenAndServe(":80", certManager.HTTPHandler(nil))
