@@ -35,13 +35,16 @@ func getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) func(hello *t
 }
 
 func InitWebServer2() {
-	mux := http.NewServeMux()
+	mux := SetupWebHandlers()
+
+/*	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Hello HTTP/2")
 	})
+*/
 
 	server := http.Server {
-		Handler:   mux,
+		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 		IdleTimeout:  120 * time.Second,
@@ -68,7 +71,7 @@ func InitWebServer2() {
 	} else {
 		// Running on localhost
 		server.Addr		= ":" + flags.port
-	
+
 		fmt.Println("Server listening on", server.Addr)
 		check(server.ListenAndServe())
 	}
