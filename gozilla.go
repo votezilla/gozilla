@@ -261,7 +261,7 @@ func WebServer() {
 	InitSecurity()
 	InitNewsSources()
 	InitFirewall()
-	InitWebServer()
+	InitWebServer2()
 
 /*
 	httpSrv.HandleFunc("/",                		hwrap(newsHandler))

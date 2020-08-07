@@ -3,9 +3,13 @@ gozilla
 *.exe
 *.exe~
 *.tws
+*.swp
 demos/*
 static/downloads/*
 static/thumbnails/*
 .vscode/
 customTests.go
-
+certs/*
+.gozilla.go.swp
+acme_account+key
+votezilla.io+token

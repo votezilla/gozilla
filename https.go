@@ -13,7 +13,7 @@ import (
 	//"flag"
 	"fmt"
 	//"io"
-	//"log"
+	"log"
 	"net/http"
 	"time"
 
@@ -88,7 +88,10 @@ func InitWebServer() {
 
 		go func() {
 			fmt.Printf("Starting HTTPS server on %s\n", httpsSrv.Addr)
-			check(httpsSrv.ListenAndServeTLS("", ""))
+			err := httpsSrv.ListenAndServeTLS("", "")
+			if err != nil {
+				log.Fatalf("httpsSrv.ListendAndServeTLS() failed with %s", err)
+			}
 		}()
 	}
 
@@ -106,5 +109,28 @@ func InitWebServer() {
 	httpSrv.Addr = httpPort
 	fmt.Printf("Starting HTTP server on %s\n", httpPort)
 
-	check(httpSrv.ListenAndServe())
+	err := httpSrv.ListenAndServe()
+	if err != nil {
+		log.Fatalf("httpSrv.ListenAndServe() failed with %s", err)
+	}
+}
+
+func InitWebServer2() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	    fmt.Fprint(w, "Hello HTTP/2")
+	})
+
+	server := http.Server{
+	    Addr:    ":443",
+	    Handler: mux,
+	    TLSConfig: &tls.Config{
+	      NextProtos: []string{"h2", "http/1.1"},
+	    },
+	}
+
+	fmt.Printf("Server listening on %s", server.Addr)
+	if err := server.ListenAndServeTLS("certs/localhost.crt", "certs/localhost.key"); err != nil {
+	    fmt.Println(err)
+	}
 }
