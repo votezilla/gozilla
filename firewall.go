@@ -14,6 +14,7 @@ import (
 )
 
 // ref: https://www.ip2location.com/free/robot-whitelist
+// could add these results to the whitelist:  select email, ip, userid from vz.request r join vz.user u on r.userid=u.id where userid >= 0 group by 1, 2, 3 order by 2, 1;
 
 type IPs bitarray.BitArray
 
@@ -76,7 +77,7 @@ func registerIPSubnet(ips *IPs, ip, subnetBits int) {
 }
 
 func checkIP(ips *IPs, ip int) bool {
-	prVal("checkIP", ip)
+	//prVal("checkIP", ip)
 
 	bit, err := (*ips).GetBit(uint64(ip))
 	check(err)
@@ -259,6 +260,9 @@ func CheckAndLogIP(r *http.Request) error {
 func init() {
 	blacklist = readIPsFile("blacklist.txt")
 	whitelist = readIPsFile("whitelist.txt")
+
+	// custom tests
+	//testIPs()
 
 	go resetDOSCounters()
 }

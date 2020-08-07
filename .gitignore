@@ -7,4 +7,5 @@ demos/*
 static/downloads/*
 static/thumbnails/*
 .vscode/
+customTests.go
 
