@@ -10,9 +10,8 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	//"flag"
+	"path/filepath"
 	"fmt"
-	//"io"
 	"log"
 	"net"
 	"net/http"
@@ -135,18 +134,49 @@ func stripPort(hostport string) string {
   return net.JoinHostPort(host, "443")
 }
 
+func getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+	return func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+	    dirCache, ok := certManager.Cache.(autocert.DirCache)
+	    if !ok {
+	      dirCache = "certs"
+	    }
+
+	    keyFile := filepath.Join(string(dirCache), hello.ServerName+".key")
+	    crtFile := filepath.Join(string(dirCache), hello.ServerName+".crt")
+	    certificate, err := tls.LoadX509KeyPair(crtFile, keyFile)
+	    if err != nil {
+	      fmt.Printf("%s\nFalling back to Letsencrypt\n", err)
+	      return certManager.GetCertificate(hello)
+	    }
+	    fmt.Println("Loaded selfsigned certificate.")
+	    return &certificate, err
+	}
+}
+
 func InitWebServer2() {
+	domain := "votezilla.io"
+
+	certManager := autocert.Manager{
+	  Prompt:     autocert.AcceptTOS,
+	  HostPolicy: autocert.HostWhitelist(domain),
+	  Cache:      autocert.DirCache("certs"),
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 	    fmt.Fprint(w, "Hello HTTP/2")
 	})
 
+	tlsConfig := certManager.TLSConfig()
+	tlsConfig.GetCertificate = getSelfSignedOrLetsEncryptCert(&certManager)
+	
 	server := http.Server{
 	    Addr:    ":443",
 	    Handler: mux,
-	    TLSConfig: &tls.Config{
-	      NextProtos: []string{"h2", "http/1.1"},
-	    },
+	    TLSConfig: tlsConfig, 
+	    	//&tls.Config{
+	    	//  NextProtos: []string{"h2", "http/1.1"},
+	    	//},
 	}
 
 	fmt.Printf("Server listening on %s", server.Addr)
