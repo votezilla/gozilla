@@ -4,13 +4,13 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-    "github.com/golang-collections/go-datastructures/bitarray"
-
+	"github.com/golang-collections/go-datastructures/bitarray"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strings"
-    "net"
+	"time"
 )
 
 // ref: https://www.ip2location.com/free/robot-whitelist
@@ -20,6 +20,8 @@ type IPs bitarray.BitArray
 var (
 	blacklist		*IPs
 	whitelist		*IPs
+
+	dosCounter map[int]int = make(map[int]int, 0)
 )
 
 func ip_to_int(ip string) int {
@@ -176,6 +178,31 @@ func logRequest(r *http.Request, ip, port, path, query, errorMsg string) {
 	// TODO: Inc DOS Attack counter here
 }
 
+// Returns true if this is a DOS attack - 100 requests in a minute.
+func checkDOSAttack(ip int) bool {
+	count, _ := dosCounter[ip]
+	count++
+
+	if count == 100 {
+		return true
+	}
+
+	dosCounter[ip] = count
+
+	prf("Current dos count for ip %s: %d", int_to_ip(ip), count)
+
+	return false
+}
+func resetDOSCounters() {
+	for {
+		time.Sleep(1 * time.Minute)
+
+		dosCounter = make(map[int]int, 0)
+
+		pr("Resetting dos counter")
+	}
+}
+
 // If this is an evil request, return false.  Otherwise, return true and log the request.
 func CheckAndLogIP(r *http.Request) error {
 	var errorMsg, path, query string
@@ -193,6 +220,9 @@ func CheckAndLogIP(r *http.Request) error {
 			// ok
 		} else if checkIP(blacklist, ipVal) {
 			errorMsg = "Blocking blacklisted ip: " + ip
+		} else if checkDOSAttack(ipVal) {
+			errorMsg = "Preventing DOS Attack"
+			recordBadIP(ip)
 		} else {
 			path  = r.URL.Path
 			query = r.URL.RawQuery
@@ -230,7 +260,7 @@ func init() {
 	blacklist = readIPsFile("blacklist.txt")
 	whitelist = readIPsFile("whitelist.txt")
 
-//	analyzeIPs() // Not blocking ips to be safe, just individual IP's, so we'll skip this for now.
+	go resetDOSCounters()
 }
 
 

@@ -257,3 +257,5 @@ B 2 - history - add header or splashscreen explaing what it is (TOM)
 B 2 - on sidebar, more ____ (i.e. polls) should be clickable (TOM)
 
 A 3 - fixed a voting bug that revealed another voter's vote in /history
+
+displaying just 4 polls on /news, so news can be discovered easier.
