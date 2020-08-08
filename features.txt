@@ -259,3 +259,8 @@ B 2 - on sidebar, more ____ (i.e. polls) should be clickable (TOM)
 A 3 - fixed a voting bug that revealed another voter's vote in /history
 
 displaying just 4 polls on /news, so news can be discovered easier.
+
+- Enable DDOS prevention somehow
+
+B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
+

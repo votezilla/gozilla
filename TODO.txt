@@ -1,7 +1,5 @@
 
 JUST FIXED:
-  - Enable DDOS prevention somehow
-  B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with-little-help-of-lets-encrypt.html
 
 
 WORKING ON:
@@ -12,6 +10,7 @@ Backup letsencrypt files.  (***See below)
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 A 3 - deduce title for link sharing (via button)
 
+A - 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
@@ -23,8 +22,6 @@ Importance
 v
   Difficulty
   v
-
-A - 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
 A - . - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
 

@@ -200,7 +200,7 @@ func resetDOSCounters() {
 
 		dosCounter = make(map[int]int, 0)
 
-		pr("Resetting dos counter")
+		//pr("Resetting dos counter")
 	}
 }
 

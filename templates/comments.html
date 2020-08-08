@@ -163,15 +163,16 @@
 
 	// Reply to the comment with this id.
 	function ReplyToComment(postId, parentId) {
-		parent = document.getElementById(`comment_${parentId}`);
+		parent = document.getElementById(`comment_${parentId}`).parentElement.parentElement;
 
 		console.log(parentId);
 		console.log(parent);
 
 		// PARALLEL_CODE(ADD_COMMENT_WIDGET)
 		// Insert create comment button.
-		var html = `<p>
-				<div class="comment" id="comment_${parentId}">
+		var html =
+			`<p>
+				<div class="comment" id="newComment_${parentId}">
 					<table>
 						<tr>
 							<td valign=top>
@@ -184,7 +185,8 @@
 						<tr>
 							<td></td>
 							<td align=right>
-								<button type="submit" onclick="onReplyToCommentClicked(${parentId})" class="btn btn-vote" style="margin: .5rem 0;">
+								<button type="submit" onclick="onReplyToCommentClicked(${parentId})" class="btn btn-vote" style="margin: .5rem 0;"
+								        id="reply_button_${parentId}">
 									Comment
 								</button>
 							</td>
@@ -193,9 +195,12 @@
 				</div>
 			</p>`;
 
-		console.log(html);
-
 		parent.insertAdjacentHTML('afterend', html);
+
+		// TODO eventually: instead of removing stuff, hide and unhide, perhaps.  Really not a big deal though, this is like a D priority.
+		var str = `<i class="fa fa-times close-button" aria-hidden="true" style="font-size:24px; vertical-align:middle; cursor:pointer;"
+		              onClick="$('#newComment_${parentId}').remove(); $('.close-button').remove();"></i>`;
+		$(`#expand_${parentId}`).replaceWith(str);
 
 		$(`#reply_button_${parentId}`).focus();  // Focus on the new comment.
 	}
