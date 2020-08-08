@@ -1,14 +1,16 @@
 
 JUST FIXED:
 
+A 3 - deduce title for link sharing (via button)
+
 
 WORKING ON:
 
 
 Backup letsencrypt files.  (***See below)
 
-B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
-A 3 - deduce title for link sharing (via button)
+
+A - 3 - sharing articles nees better thumbnail - use og:image, og:Title
 
 A - 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
@@ -24,8 +26,6 @@ v
   v
 
 A - . - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
-
-A - 3 - sharing articles nees better thumbnail - use og:image, og:Title
 
 A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
 	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
@@ -48,7 +48,12 @@ B 5 - Add more news API's (hopefully some incl. Fox News)
 
 B 8 - privacy alias'
 
+B 3 - OPT: Set content expiration time, so client can static content.
+
 B 8 - ability to delete posts, comments
+
+B 8 - newlines are getting stripped from comments, and markdown would be nice.
+    - It would be nice if urls in comments became links. also basic html tags.
 
 B 8 - implement really simple blogging, using markup (no quill)
 
@@ -59,10 +64,6 @@ B 8 - ability to update posts, comments
 B 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
 
 B 8 - Add "About" section - or implement simple blog first?
-
-B 13 - display the results of polls you've voted on, on /news.  May require a pollTallyService to count results ahead of time and store them in a json column in the poll.
-
-B 8 - newlines are getting stripped from comments, and markdown would be nice.
 
 B   - disallow multiple poll items with the same name
 
@@ -91,8 +92,6 @@ NEW STUFF:
 - 8 dino colors would be really cool. For user portrait, but that also becomes the color of the default image.  Use userId % 8. (If user later updates their profile pic, it will down sample to make their avatar.  Or they could just change their color too.)
 
 
-
-- A- - It would be nice if urls in comments became links. also basic html tags.
 
 - refresh icon on top to load more news
 

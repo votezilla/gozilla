@@ -10,7 +10,7 @@
 {{end}}
 
 {{define "inputField"}}
-	<input type="{{.Type}}" name="{{.Name}}" value="{{.Value}}" placeholder="{{.Placeholder}}" length="{{.Length}}"
+	<input type="{{.Type}}" name="{{.Name}}" value="{{.Value}}" placeholder="{{.Placeholder}}" length="{{.Length}}" maxlength="{{.MaxLength}}"
 		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
 		{{- if .Id }} id="{{.Id}}"{{ end }}
 		{{- template "attributes" .Attributes }}

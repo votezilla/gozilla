@@ -278,13 +278,13 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 
 	pPrevComment := &headComment
 
-	prVal("pPrevComment.Children", pPrevComment.Children)
+	//prVal("pPrevComment.Children", pPrevComment.Children)
 
 
 	prevPathDepth := int64(0)
 	var pathLengthDiff int64
 
-	pr("ReadCommentsFromDB:")
+	//pr("ReadCommentsFromDB:")
 
 	// The simpler way for now:
 	rows := DbQuery(
@@ -361,7 +361,7 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 			length := len(textLine)
 			numLinesApprox += ceil_div(length, 60) // Ceiling divide by 60 for mobile. (TODO: add 80 for desktop?)
 
-			pr("length: " + string(length) + " numLinesApprox: " + string(numLinesApprox))
+			//pr("length: " + string(length) + " numLinesApprox: " + string(numLinesApprox))
 
 			if numLinesApprox > kMaxCommentLines {
 
@@ -385,13 +385,13 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 
 		// Compare current path to previous path.
 		pathLengthDiff = pathLen - prevPathDepth
-		prVal("pathLen", pathLen)
-		prVal("pathLengthDiff", pathLengthDiff)
+		//prVal("pathLen", pathLen)
+		//prVal("pathLengthDiff", pathLengthDiff)
 
 		// Assign pPrevComment to the be the parent of the new node.
 		if pathLengthDiff <= 0 { // we're a sibling of the previous comment, or its parent, grandparent, etc.
 			for i := int64(0); i < 1-pathLengthDiff; i++ {
-				pr("  pPrevComment = pPrevComment.Parent")
+				//pr("  pPrevComment = pPrevComment.Parent")
 				pPrevComment = pPrevComment.Parent
 
 				assertMsg(pPrevComment != nil, "We are now pointing to the nil parent, so we went up too many levels!")
@@ -401,7 +401,7 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 		}
 
 		// Add newComment as a child of pPrevComment.
-		prVal("pPrevComment.Children", pPrevComment.Children)
+		//prVal("pPrevComment.Children", pPrevComment.Children)
 		pPrevComment.Children = append(pPrevComment.Children, &newComment)
 		newComment.Parent = pPrevComment
 
@@ -409,19 +409,19 @@ func ReadCommentsFromDB(postId, userId int64) (headComment Comment, upCommentVot
 		prevPathDepth = pathLen
 		pPrevComment = &newComment
 
-		prVal("pPrevComment.Children", pPrevComment.Children)
+		//prVal("pPrevComment.Children", pPrevComment.Children)
 	}
 	check(rows.Err())
 
 	calcCommentQuality(&headComment)
 
-	pr("Unsorted comments")
-	prComments(&headComment, 0)
+	//pr("Unsorted comments")
+	//prComments(&headComment, 0)
 
 	sortComments(&headComment)
 
-	pr("Sorted comments")
-	prComments(&headComment, 0)
+	//pr("Sorted comments")
+	//prComments(&headComment, 0)
 
 	// TODO: sort the comments here, by quality.
 

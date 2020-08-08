@@ -22,8 +22,8 @@ type VoteData []string
 // ajax poll vote
 //
 //////////////////////////////////////////////////////////////////////////////
-func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
-	pr("ajaxPollVoteHandler")
+func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
+	pr("ajaxPollVote")
 	prVal("r.Method", r.Method)
 
 	if r.Method != "POST" {
@@ -157,8 +157,7 @@ func ajaxPollVoteHandler(w http.ResponseWriter, r *http.Request) {
     a, err := json.Marshal(vote)
 
     if err != nil {
-        //http.Error(w, err.Error(), http.StatusInternalServerError)
-        serveError(w, err.Error())
+        serveError(w, err)
         return
     }
     w.Write(a)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/puerkitobio/goquery"
 	_ "image/gif"
@@ -60,8 +61,8 @@ func voteUpDown(postId, userId int64, add, up, comment bool) {
 // AJAX Handlers
 //
 ///////////////////////////////////////////////////////////////////////////////
-func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
-	pr("ajaxVoteHandler")
+func ajaxVote(w http.ResponseWriter, r *http.Request) {
+	pr("ajaxVote")
 	prVal("r.Method", r.Method)
 
 	if r.Method != "POST" {
@@ -105,13 +106,98 @@ func ajaxVoteHandler(w http.ResponseWriter, r *http.Request) {
     w.Write(a)
 }
 
+// Scrape a webapge for content.
+func fetchUrlDoc(url string) (*goquery.Document, error) {
+	pr("fetchUrlDoc")
+
+	prVal("linkUrl", url)
+
+	// Fix the URL scheme
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+	   url = "http://" + url
+
+	   prVal("fixed linkUrl", url)
+	}
+
+	// Make HTTP request.
+	response, err := httpGet(url, 4.5)  // It will time out at 5 seconds anyways.
+	if err != nil {
+		return nil, errors.New("HTTP request failed. " + err.Error())
+	}
+	defer response.Body.Close()
+
+	prVal("response", response)
+
+	// Create a goquery document from the HTTP response
+	document, err := goquery.NewDocumentFromReader(response.Body)
+	if err != nil {
+		return nil, errors.New("Error loading LinkUrl body. " + err.Error())
+    }
+
+    return document, nil
+}
+
+
+func ajaxScrapeTitle(w http.ResponseWriter, r *http.Request) {
+	pr("ajaxScrapeTitle")
+
+	prVal("r", r)
+	if r.Method != "POST" {
+		prVal("r.Method is not POST", r.Method)
+		return
+	}
+
+    // Parse request.
+    var linkUrl struct {
+		Url		string
+	}
+	prVal("r.Body", r.Body)
+    err := json.NewDecoder(r.Body).Decode(&linkUrl)
+    if err != nil {
+		prVal("Failed to decode json body", r.Body)
+        return
+    }
+
+	// Fetch document.
+	prVal("linkUrl.Url", linkUrl.Url)
+	document, err := fetchUrlDoc(linkUrl.Url)
+	check(err)
+	prVal("document", document)
+
+	// Scan for the og:Title.
+	title := ""
+	document.Find("meta").Each(func(i int, s *goquery.Selection) {
+	    property, _ := s.Attr("property");
+
+	    if property == "og:title" {
+	        title, _ = s.Attr("content")
+
+	        prVal("ogTitle Found!", title)
+	    }
+	})
+
+	// Create json response from struct.
+	response := struct {
+		Title string
+	} {
+		Title: title,
+	}
+	prVal("response", response)
+    a, err := json.Marshal(response)
+    if err != nil {
+		serveError(w, err)
+		return
+    }
+    w.Write(a)
+}
+
 // Figure out which thumbnail to use based on the Url of the link created.
 func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 	pr("ajaxScrapeImageURLs")
-	prVal("r.Method", r.Method)
+
 	prVal("r", r)
 	if r.Method != "POST" {
-		prVal("r.Method must is not POST", r.Method)
+		prVal("r.Method is not POST", r.Method)
 		return
 	}
 
@@ -128,33 +214,7 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    prVal("linkUrl", linkUrl)
-    prVal("linkUrl", linkUrl.Url)
-
-    // Fix the URL scheme
-    if !strings.HasPrefix(linkUrl.Url, "http://") && !strings.HasPrefix(linkUrl.Url, "https://") {
-       linkUrl.Url = "http://" + linkUrl.Url
-
-       prVal("fixed linkUrl", linkUrl.Url)
-	}
-
-    // Make HTTP request
-    //response, err := httpGet_Old(linkUrl.Url, 60.0)
-    response, err := httpGet_Old(linkUrl.Url, 60.0)
-    if err != nil {
-        prVal("HTTP request failed", err)
-        return
-    }
-    defer response.Body.Close()
-
-    prVal("response", response)
-
-    // Create a goquery document from the HTTP response
-    document, err := goquery.NewDocumentFromReader(response.Body)
-    if err != nil {
-        prVal("Error loading LinkUrl body. ", err)
-        return
-    }
+    document, err := fetchUrlDoc(linkUrl.Url)
 
     prVal("document", document)
 
@@ -301,7 +361,7 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
     a, err := json.Marshal(parsedImages)
     if err != nil {
 		prVal("Unable to marshall images for ", parsedImages)
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        serveError(w, err)
         return
     }
     w.Write(a)

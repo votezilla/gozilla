@@ -121,7 +121,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		// Suggested articles for further reading - on the sidebar.
 		moreArticles = fetchSuggestedPolls(userId, postId)
 	} else {
-		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId, userId, postId)
+		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId, userId, postId, 10)
 	}
 
 	prVal("len(moreArticles)", len(moreArticles))

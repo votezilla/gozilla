@@ -4,6 +4,14 @@
 	{{ $f := .Form.FieldMap }}
 	{{ template "field" $f.link -}}
 	{{ template "field" $f.title -}}
+	<button type="submit"
+			id="deduceTitle"
+			class="btn btn-vote"
+			onclick="deduceTitleClicked(); return false;"
+			style="display: none; margin-top: 8px; font-size; 1rem; padding: .4rem .8rem;
+				   background-color: rgb(239,239,239); border-color: rgb(32, 146, 255); color: black;">
+		Guess Title
+	</button>
 	{{ template "field" $f.category -}}
 	{{ template "field" $f.thumbnail -}}
 	<p>
@@ -17,6 +25,9 @@
 {{template "endForm"}}
 
 <script>
+var link;
+var title;
+var deduceTitle;
 var urls;
 
 function selectThumbnail(idx) {
@@ -38,7 +49,7 @@ function findImagesFromLink(linkUrl) {
 		contentType: 'application/json; charset=utf-8',
 		data: JSON.stringify({ Url: linkUrl }), // Hmmm <-- should be UserId not Username
 		dataType: 'json',
-		success: function(r) { // TODO: Need to also call this on init.
+		success: function(r) {
 
 			if (!r.Images) {
 				r.Images = [];
@@ -112,16 +123,62 @@ function findImagesFromLink(linkUrl) {
 	});
 }
 
+function deduceTitleClicked(linkUrl) {
+	console.log("deduceTitle: " + linkUrl);
+
+	// AJAX - database state
+	$.ajax({
+		url: '/ajaxScrapeTitle/',
+		type: "post",
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify({ Url: linkUrl }), // Hmmm <-- should be UserId not Username
+		dataType: 'json',
+		success: function(r) { // TODO: Need to also call this on init.
+			var deducedTitle = r.Title;
+
+			console.log("Deduced title: " + deducedTitle);
+
+			title.val(deducedTitle);
+		},
+		error: function(r) { console.log("AJAX - error"); }
+	});
+
+
+	return false;
+}
+
+function onLinkChange() {
+	var linkVal = link.val();
+
+	if (!!linkVal) {
+		findImagesFromLink(linkVal);
+		deduceTitle.css('display', 'block');
+	} else {
+		deduceTitle.css('display', 'none');
+	}
+
+	console.log("linkVal: " + linkVal);
+	console.log("CSS value is now: " + deduceTitle.css('display'));
+}
+
 $(document).ready(function() {
 	$('#thumbnail row').hide(); // TODO: can probably comment this out.
 
-	var $link = $('input[name="link"]');
-	$link.change( function() {
-		findImagesFromLink($link.val());
+	link		= $('input[name="link"]');
+	title		= $('input[name="title"]');
+	deduceTitle	= $('#deduceTitle');
+
+	link.change( function() {
+		onLinkChange();
 	});
 
-	findImagesFromLink($link.val());
+	deduceTitle.click( function() {
+		deduceTitleClicked(link.val());
+	});
+
+	onLinkChange();
 });
+
 </script>
 {{- end}}
 

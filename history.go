@@ -65,7 +65,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 			prVal("viewUserId", viewUserId)
 			if viewUserId == -1 {
-				serveError(w, "User not found")
+				serveErrorMsg(w, "User not found")
 				return
 			}
 
@@ -105,7 +105,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 
 
 	if newsSource != "" {
-		allArticles = fetchArticlesFromThisNewsSource(newsSource, userId, -1)
+		allArticles = fetchArticlesFromThisNewsSource(newsSource, userId, -1, 24)
 
 		prVal("len(allArticles)", len(allArticles))
 		//for a := range allArticles {

@@ -148,7 +148,7 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 
 		err := CheckAndLogIP(r)
 		if err != nil {
-			serveError(w, err.Error())
+			serveError(w, err)
 			return
 		}
 
@@ -227,9 +227,10 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/",                		hwrap(newsHandler))
 	mux.HandleFunc("/ajaxCreateComment/",	hwrap(ajaxCreateComment))
 	mux.HandleFunc("/ajaxExpandComment/",	hwrap(ajaxExpandComment))
-	mux.HandleFunc("/ajaxPollVote/",		hwrap(ajaxPollVoteHandler))
+	mux.HandleFunc("/ajaxPollVote/",		hwrap(ajaxPollVote))
+	mux.HandleFunc("/ajaxScrapeTitle/",		hwrap(ajaxScrapeTitle))
 	mux.HandleFunc("/ajaxScrapeImageURLs/",	hwrap(ajaxScrapeImageURLs))
-	mux.HandleFunc("/ajaxVote/",			hwrap(ajaxVoteHandler))
+	mux.HandleFunc("/ajaxVote/",			hwrap(ajaxVote))
 	mux.HandleFunc("/article/",       		hwrap(articleHandler))
 	mux.HandleFunc("/activity/",       		hwrap(activityHandler))
 	mux.HandleFunc("/create/",   			hwrap(createHandler))

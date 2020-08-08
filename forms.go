@@ -136,6 +136,7 @@ type Field struct {
 	Subtext			string
 	Style			string
 	Length			int
+	MaxLength		int
 
 	Html			func() string // Closure that outputs the html of this field
 	HtmlRow			func() string // Closure that outputs the html of this field's entire table row
@@ -359,7 +360,7 @@ func (f *Form) addField(field *Field) {
 //
 // ================================================================================
 func makeTextField(name, label, placeholder string, inputLength, minLength, maxLength int, fieldNameForErrors string) *Field {
-	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, Length: inputLength}
+	f := Field{Name: name, Type: "text", Label: label, Placeholder: placeholder, Length: inputLength, MaxLength: maxLength}
 
 	if minLength > 0 {
 		f.Validators = append(f.Validators, requiredValidator(fieldNameForErrors))

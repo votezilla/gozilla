@@ -689,7 +689,8 @@ func fetchArticlesNotPostedByUser(userId int64, maxArticles int) ([]Article) {
 // fetch articles from a news source
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesFromThisNewsSource(newsSourceId string, userId, skipArticleId int64) (articles []Article) {
+func fetchArticlesFromThisNewsSource(newsSourceId string, userId, skipArticleId int64,
+									 maxArticles int) (articles []Article) {
 	// TODO_SECURITY: add additional check for newsSourceId within known news sources.
 
 	return _queryArticles(
@@ -700,7 +701,7 @@ func fetchArticlesFromThisNewsSource(newsSourceId string, userId, skipArticleId 
 		"IS NOT NULL",   			                 // categoryCondition 	    string
 		"= '" + sqlEscapeString(newsSourceId) + "'", // newsSourceIdCondition	string
 		-1,              			                 // articlesPerCategory 	int
-		10,     					                 // maxArticles 			int
+		maxArticles, 				                 // maxArticles 			int
 		userId,            			                 // fetchVotesForUserId 	int64
 		false)										 // onlyPolls				bool
 }

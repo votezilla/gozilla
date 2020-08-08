@@ -40,19 +40,13 @@ func nyi() { panic("Not yet implemented!") }
 // HTML-spewing assertion functions:
 func assertHtml(w http.ResponseWriter, ok bool) {
     if !ok {
-        serveError(w, "Assert failed!")
+        serveErrorMsg(w, "Assert failed!")
     }
 }
 
 func assertMsgHtml(w http.ResponseWriter, ok bool, errorMsg string) {
     if !ok {
-        serveError(w, errorMsg)
-    }
-}
-
-func checkw(w http.ResponseWriter, err error) {
-    if err != nil {
-        serveError(w, err.Error())
+        serveErrorMsg(w, errorMsg)
     }
 }
 
@@ -239,25 +233,21 @@ func serveHTML(w http.ResponseWriter, html string) {
 	fmt.Fprintf(w, html)
 }
 
-func serveError(w http.ResponseWriter, errorMsg string) {
+func serveErrorMsg(w http.ResponseWriter, errorMsg string) {
+	prVal("Error: ", errorMsg)
 	http.Error(w, errorMsg, http.StatusInternalServerError)
-	//w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	//w.WriteHeader(http.StatusInternalServerError)
-	//fmt.Fprintf(w, error)
+}
+
+func serveError(w http.ResponseWriter, err error) {
+	serveErrorMsg(w, err.Error())
 }
 
 // http.Get with a 'timeout'-second timeout.
-func httpGet_Old(url string, timeout float32) (*http.Response, error){
+func httpGet(url string, timeout float32) (*http.Response, error){
 	var netClient = &http.Client{
 	  Timeout: time.Duration(timeout) * time.Second,
 	}
 	return netClient.Get(url)
-}
-
-
-// http.Get with a 'timeout'-second timeout.
-func httpGet(url string, timeout float32) (*http.Response, error){
-	return httpGet_Old(url, timeout)
 }
 
 // formatRequest generates ascii representation of a request
