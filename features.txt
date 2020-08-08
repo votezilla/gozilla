@@ -266,3 +266,5 @@ B 13 - https: https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go-with
 
 B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (instead of b4)
 
+A 3 - deduce title for link sharing (via button)
+

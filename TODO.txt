@@ -1,16 +1,19 @@
 
 JUST FIXED:
 
-A 3 - deduce title for link sharing (via button)
-
+Activity - fixed how Activity is worded, so 'your' is displayed appropriately.
 
 WORKING ON:
 
 
 Backup letsencrypt files.  (***See below)
 
+A - 13 - start implementing demographic breakdown (available when 5+ or 10+ votes)
+         (view # votes for each poll:
+         	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;
+         )
 
-A - 3 - sharing articles nees better thumbnail - use og:image, og:Title
+A - 3 - sharing articles nees better thumbnail - use og:image, og:Title - https://ogp.me/
 
 A - 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
 
@@ -25,24 +28,27 @@ v
   Difficulty
   v
 
+- make bus cards
+
+- simple FB campaign - presidential poll, create FB group, IM some ppl.
+- email friends & family.
+
 A - . - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
 
 A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
 	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
 
-- make bus cards
+B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
 B 8 - seeing mostly liberal news sources (I need to add Fox News) (TOM) (or see if other news apis would have fox, then that would be better to do first.)
 
-A 8 - upgrade DigitalOcean instance $5 -> $10
-
-B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
-
 B - security - password timeout
 
-B 2 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
+B 1 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
 
 B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
+
+B 2 - Let user specify "Other" field that appears when other is selected, just group all the other stuff there for now.
 
 B 5 - Add more news API's (hopefully some incl. Fox News)
 
@@ -60,6 +66,8 @@ B 8 - implement really simple blogging, using markup (no quill)
 B 8 - create - add Create Discussion (requires image upload, or use Mozilla for now) (TOM)
 
 B 8 - ability to update posts, comments
+
+A 8 - upgrade DigitalOcean instance $5 -> $10
 
 B 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
 

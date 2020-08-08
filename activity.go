@@ -66,7 +66,7 @@ func fetchRecentComments(notUserId int64, numComments int) (articles []Article, 
 		SELECT
 			c.Id,
 			c.Text,
-			c.UserId,
+			p.UserId,
 			u.Username,
 			c.PostId,
 			c.Created,
@@ -97,6 +97,7 @@ func fetchRecentComments(notUserId int64, numComments int) (articles []Article, 
 			AuthorIconUrl: 	"/static/mozilla dinosaur head.png",  // TODO: we need real dinosaur icon art for users.
 			Author: 		username,
 			Id: 			postId,
+			UserId:			userId,	// For the activity "your" nomenclature, this has to be the UserId of the article poster, not the commenter.
 			PublishedAtUnix: created,
 			TimeSince: 		getTimeSinceString(created, true),
 			Title: 			title,
@@ -128,14 +129,20 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 	messages    := []string{}
 	links       := []string{}
 
+	//prVal("userId", userId)
+
 	pr("Get articles shared by user")
 	{
 		articles := fetchArticlesNotPostedByUser(userId, 50)
 
 		for a, article := range articles {
+			//prVal("article.UserId", article.UserId)
 			messages = append(messages, fmt.Sprintf(
-				"  shared %s article: '%s'",
-				ternary_str(article.UserId == userId, "your", "an"),
+				"  shared %s %s: '%s'",
+				ternary_str(article.UserId == userId,
+					"your",
+					ternary_str(article.IsPoll, "a", "an")),
+				ternary_str(article.IsPoll, "poll", "article"),
 				article.Title))
 
 			links = append(links, fmt.Sprintf("/article/?postId=%d", article.Id))
@@ -151,10 +158,12 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 		articles, comments := fetchRecentComments(userId, 50)
 
 		for a, article := range articles {
+			//prVal("article.UserId", article.UserId)
 			comment := comments[a]
 			messages = append(messages, fmt.Sprintf(
-				"  commented on %s article '%s': '%s'",
+				"  commented on %s %s '%s': '%s'",
 				ternary_str(article.UserId == userId, "your", "the"),
+				ternary_str(article.IsPoll, "poll", "article"),
 				article.Title,
 				ellipsify(comment.Comment, 42)))
 
