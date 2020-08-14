@@ -56,6 +56,8 @@ B 1 - Poll options need a "Poll options:" label for the group, possibly the char
 
 B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
 
+B 3 - votezilla.news
+
 B 2 - Let user specify "Other" field that appears when other is selected, just group all the other stuff there for now.
 
 B 5 - Add more news API's (hopefully some incl. Fox News)
