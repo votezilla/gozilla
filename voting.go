@@ -386,7 +386,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Render the news articles.
 
-	fa := makePageArgs("View Poll Results", article.UrlToImage, article.Description)
+	fa := makePageArgs("View Poll Results", "", article.Description)
 
 	viewPollArgs := struct {
 		PageArgs

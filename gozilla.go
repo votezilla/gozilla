@@ -65,7 +65,7 @@ func makePageArgs(title, oImage, oDescription string) (pa PageArgs) {
 	// Test: https://developers.facebook.com/tools/debug/?q=votezilla.io
 	pa.Metadata = make(map[string]string)
 	pa.Metadata["og:title"]			= title
-	pa.Metadata["og:image"]		 	= ternary_str(oImage != "", oImage, "/static/votezilla logo/votezilla 6.jpg")
+	pa.Metadata["og:image"]		 	= ternary_str(oImage != "", oImage, "https://votezilla.io/static/votezilla logo/votezilla 6.jpg")
 	pa.Metadata["og:description"] 	= ternary_str(oDescription != "", oDescription, `[Article Title] or: Welcome to
 Votezilla: a censorship-free social network based on creating polls, voting, sharing news, and fostering positive
 political discussion. (Or nerd out on other topics you love.)`)
