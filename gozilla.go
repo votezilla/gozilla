@@ -73,6 +73,7 @@ political discussion. (Or nerd out on other topics you love.)`)
 	pa.Metadata["og:site_name"] 	= "Votezilla"
 	pa.Metadata["og:image:type"] 	= "image/jpeg"
 	pa.Metadata["og:locale"] 		= "en_US"
+	pa.Metadata["fb:app_id"]	= "759729064806025"
 
 	return pa
 }
