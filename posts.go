@@ -398,6 +398,11 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 
 				//prVal("newArticle.PollTallyResults", newArticle.PollTallyResults)
 
+				// vv Keep this code here!!! It must always be called, particularly when user is logged out, or there'll be a crash
+				// in /viewPollResults.
+				numOptions := len(newArticle.PollOptionData.Options)
+				newArticle.VoteData = make([]bool, numOptions)
+
 				if len(voteOptionIds) > 0 {
 					newArticle.WeVoted = true
 
@@ -408,10 +413,6 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 					//}
 					//prVal("voteOptionIds", voteOptionIds)
 
-					numOptions := len(newArticle.PollOptionData.Options)
-
-
-					newArticle.VoteData = make([]bool, numOptions)
 					for _, optionId := range voteOptionIds {
 						//prVal("optionId", optionId)
 						newArticle.VoteData[optionId] = true
