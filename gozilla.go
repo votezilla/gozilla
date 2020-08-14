@@ -58,7 +58,7 @@ type PageArgs struct {
 // title - page title
 // oImage - optional image ("" = use default votezilla image)
 // oDescription - optional description ("" = use default description)
-func makePageArgs(title, oImage, oDescription string) (pa PageArgs) {
+func makePageArgs(r *http.Request, title, oImage, oDescription string) (pa PageArgs) {
 	pa.Title = title
 
 	// Source: https://ogp.me/#types
@@ -73,7 +73,8 @@ political discussion. (Or nerd out on other topics you love.)`)
 	pa.Metadata["og:site_name"] 	= "Votezilla"
 	pa.Metadata["og:image:type"] 	= "image/jpeg"
 	pa.Metadata["og:locale"] 		= "en_US"
-	pa.Metadata["fb:app_id"]	= "759729064806025"
+	pa.Metadata["og:url"]			= r.Host + r.URL.Path + "?" + r.URL.RawQuery
+	pa.Metadata["fb:app_id"]		= "759729064806025"
 
 	return pa
 }
@@ -83,9 +84,9 @@ type FormFrameArgs struct {
 	PageArgs
 	Form			Form
 }
-func makeFormFrameArgs(form *Form, title string) FormFrameArgs {
+func makeFormFrameArgs(r *http.Request, form *Form, title string) FormFrameArgs {
 	return FormFrameArgs {
-		PageArgs: 		makePageArgs(title, "", ""),
+		PageArgs: 		makePageArgs(r, title, "", ""),
 		Form: 			*form,
 	}
 }
@@ -100,8 +101,8 @@ type FrameArgs struct {
 	UpVotes			[]int64
 	DownVotes		[]int64
 }
-func makeFrameArgs(title, script, urlPath string, userId int64, username string) FrameArgs {
-	pa := makePageArgs(title, "", "")
+func makeFrameArgs(r *http.Request, title, script, urlPath string, userId int64, username string) FrameArgs {
+	pa := makePageArgs(r, title, "", "")
 	pa.Script = script
 
 	return FrameArgs {
@@ -112,8 +113,8 @@ func makeFrameArgs(title, script, urlPath string, userId int64, username string)
 		Username:		username,
 	}
 }
-func makeFrameArgs2(title, script, urlPath string, userId int64, username string, upVotes, downVotes []int64) FrameArgs {
-	pa := makePageArgs(title, "", "")
+func makeFrameArgs2(r *http.Request, title, script, urlPath string, userId int64, username string, upVotes, downVotes []int64) FrameArgs {
+	pa := makePageArgs(r, title, "", "")
 	pa.Script = script
 
 	return FrameArgs {

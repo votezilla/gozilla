@@ -28,7 +28,7 @@ const (
 //
 ///////////////////////////////////////////////////////////////////////////////
 func createHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, kCreate, makeFormFrameArgs(makeForm(), "Create"))
+	executeTemplate(w, kCreate, makeFormFrameArgs(r, makeForm(), "Create"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	executeTemplate(w, kCreateLink, makeFormFrameArgs(form, "Create Link Post"))
+	executeTemplate(w, kCreateLink, makeFormFrameArgs(r, form, "Create Link Post"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -215,7 +215,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		Form			Form
 		PollOptions		[]*Field
 	} {
-		PageArgs: 		makePageArgs("votezilla - Create Poll", "", ""),
+		PageArgs: 		makePageArgs(r, "votezilla - Create Poll", "", ""),
 		Form: 			*form,
 		PollOptions:	pollOptions,
 	}
@@ -275,5 +275,5 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 		prVal("Invalid form!!", form)
 	}
 
-	executeTemplate(w, kCreateBlog, makeFormFrameArgs(form, "Create Blog Post"))
+	executeTemplate(w, kCreateBlog, makeFormFrameArgs(r, form, "Create Blog Post"))
 }

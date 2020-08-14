@@ -232,7 +232,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 		Links		[]string
 		Unvisited	[]bool
 	}{
-		FrameArgs:	makeFrameArgs("votezilla - Activity", "", kActivity, userId, username),
+		FrameArgs:	makeFrameArgs(r, "votezilla - Activity", "", kActivity, userId, username),
 		Messages:	messages,
 		Articles:	allArticles,
 		ListOrder:	listOrder,

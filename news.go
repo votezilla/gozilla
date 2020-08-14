@@ -336,6 +336,7 @@ func deduceVotingArrows(articles []Article) (upvotes []int64, downvotes []int64)
 //
 //////////////////////////////////////////////////////////////////////////////
 func renderNews(w http.ResponseWriter,
+				r *http.Request,
 				title,
 				username string,
 				userId int64,
@@ -371,7 +372,7 @@ func renderNews(w http.ResponseWriter,
 		Category		string
 		ViewUsername	string
 	}{
-		FrameArgs:		makeFrameArgs2(title, script, urlPath, userId, username, upvotes, downvotes),
+		FrameArgs:		makeFrameArgs2(r, title, script, urlPath, userId, username, upvotes, downvotes),
 		ArticleGroups:	articleGroups,
 		Category:		category,
 		ViewUsername:	viewUsername,
@@ -433,7 +434,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		articleGroups[0].More = "polls"
 	}
 
-	renderNews(w, "News", username, userId, "", articleGroups, "news", kNews, upvotes, downvotes, reqCategory, reqAlert)
+	renderNews(w, r, "News", username, userId, "", articleGroups, "news", kNews, upvotes, downvotes, reqCategory, reqAlert)
 }
 
 
@@ -466,7 +467,7 @@ func newsSourcesHandler(w http.ResponseWriter, r *http.Request) {
 		PageArgs
 		NewsSources NewsSources
 	}{
-		PageArgs: makePageArgs("News Sources", "", ""),
+		PageArgs: makePageArgs(r, "News Sources", "", ""),
 		NewsSources: newsSources,
 	}
 	fmt.Println("newsSourcesArgs: %#v\n", newsSourcesArgs)

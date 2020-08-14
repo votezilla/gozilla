@@ -92,7 +92,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// handle GET, or invalid form data from POST...
-	executeTemplate(w, kLogin, makeFormFrameArgs(form, "Log In"))
+	executeTemplate(w, kLogin, makeFormFrameArgs(r, form, "Log In"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// handle GET, or invalid form data from POST...
-	executeTemplate(w, kRegister, makeFormFrameArgs(form, "Sign Up"))
+	executeTemplate(w, kRegister, makeFormFrameArgs(r, form, "Sign Up"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		return
 	}
 
-	executeTemplate(w, kRegisterDetails, makeFormFrameArgs(form, "Voter Info"))
+	executeTemplate(w, kRegisterDetails, makeFormFrameArgs(r, form, "Voter Info"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////

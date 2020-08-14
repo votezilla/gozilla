@@ -135,7 +135,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	//prVal("downcommentvotes", downcommentvotes)
 
 	// Render the news articles.
-	fa := makeFrameArgs2(article.Title, "", "news", userId, username, upvotes, downvotes)
+	fa := makeFrameArgs2(r, article.Title, "", "news", userId, username, upvotes, downvotes)
 	fa.Metadata["og:image"] = article.UrlToImage
 	fa.Metadata["og:description"] = article.Description
 

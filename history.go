@@ -236,7 +236,7 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	upvotes, downvotes := deduceVotingArrows(allArticles)
 
 	// Render the history just like we render the news.
-	renderNews(w, "History", username, userId, viewUsername, articleGroups, "history", kNews, upvotes, downvotes, "", reqAlert)
+	renderNews(w, r, "History", username, userId, viewUsername, articleGroups, "history", kNews, upvotes, downvotes, "", reqAlert)
 }
 
 

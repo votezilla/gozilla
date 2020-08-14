@@ -293,7 +293,7 @@ func testPopupHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId, username := GetSessionInfo(w, r)
 
-	executeTemplate(w, kTestPopup, makeFrameArgs("Test popup", "", "testPopup", userId, username))
+	executeTemplate(w, kTestPopup, makeFrameArgs(r, "Test popup", "", "testPopup", userId, username))
 }
 
 // Tutorial popup
@@ -304,6 +304,6 @@ func tutorialHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId, username := GetSessionInfo(w, r)
 
-	executeTemplate(w, kTutorial, makeFrameArgs("Tutorial", "", "tutorial", userId, username))
+	executeTemplate(w, kTutorial, makeFrameArgs(r, "Tutorial", "", "tutorial", userId, username))
 }
 
