@@ -1,6 +1,5 @@
 
 JUST FIXED:
-A - 5 - sharing articles nees better thumbnail - use og:image, og:Title, possibly others too - https://ogp.me/
 
 
 

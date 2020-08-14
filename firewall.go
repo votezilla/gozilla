@@ -265,8 +265,11 @@ func InitFirewall() {
 		emptyList := IPs(bitarray.NewSparseBitArray())
 		whitelist = &emptyList
 	} else {
-		pr("reading whitelist")
-		whitelist = readIPsFile("whitelist.txt")
+		pr("reading whitelist in background")
+		readWhitelist := func() {
+			whitelist = readIPsFile("whitelist.txt")
+		}
+		go readWhitelist()
 	}
 
 	// custom tests
