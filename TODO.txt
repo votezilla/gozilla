@@ -1,21 +1,19 @@
 
 JUST FIXED:
+A - 5 - sharing articles nees better thumbnail - use og:image, og:Title, possibly others too - https://ogp.me/
 
-Activity - fixed how Activity is worded, so 'your' is displayed appropriately.
+
 
 WORKING ON:
 
 
-Backup letsencrypt files.  (***See below)
+A - 8 - Fix poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
 
-A - 13 - start implementing demographic breakdown (available when 5+ or 10+ votes)
-         (view # votes for each poll:
-         	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;
-         )
+A - 13 - JEFF: www.votezilla.io doesn't work  (Ask namecheap if they can do this.  Otherwise, will have to do it with letsencrypt.)
 
-A - 3 - sharing articles nees better thumbnail - use og:image, og:Title - https://ogp.me/
+A - 8 - make large_thumbnails, erase them 1 month later
 
-A - 8 - make large_thumbnails (otherwise, a cat takes too long to load... or reduce kMaxArticles to 100?) - but could this get costly?
+A - 8 - JEFF: top menu items should have correct icons (see phone notes) (as well as notification #'s! :) )
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
@@ -32,17 +30,27 @@ v
 
 - simple FB campaign - presidential poll, create FB group, IM some ppl.
 - email friends & family.
+- create some good polls first
 
-A - . - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, )
+A - 13 - start implementing demographic breakdown (available when 5+ or 10+ votes)
+         (view # votes for each poll:
+         	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;
+         )
 
 A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
 	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
+	Also, add more notifications
+"	___ shared an article" - when they really shared a poll
+
+A - . - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
 B 8 - seeing mostly liberal news sources (I need to add Fox News) (TOM) (or see if other news apis would have fox, then that would be better to do first.)
 
 B - security - password timeout
+
+- should I make polls be FB-style?
 
 B 1 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
 
@@ -77,9 +85,20 @@ B   - disallow multiple poll items with the same name
 
 B - "You must be logged in to do that!" - should be popup with kind, pretty prompt
 
-B - load comments AFTER article - could use an iframe.  this will speed up in-site article load time.
+B 5  =   Fix email - Emailed DO tech support.
 
-B - great 10-step guide to optimization!!! - https://www.eurovps.com/blog/reasons-for-slow-website-loading/#:~:text=A%20large%20volume%20of%20unoptimized,your%20website%20to%20load%20slowly.
+  -   Implement Email verification.
+
+  -   Implement Forgot password.
+
+  -   Remember previous page or close form upon success, and/or back tri buttons.
+
+  -   Send verification email... user doesn't get created until email gets verified.
+      Verify email and set emailVerified=True when email is verified
+
+C - load comments AFTER article - could use an iframe.  this will speed up in-site article load time.
+
+C - great 10-step guide to optimization!!! - https://www.eurovps.com/blog/reasons-for-slow-website-loading/#:~:text=A%20large%20volume%20of%20unoptimized,your%20website%20to%20load%20slowly.
 
 C 3 - list news sources and ppl
 
@@ -88,6 +107,7 @@ C 3 - In history, display comments overview with the article.  Hmm.. realizing t
 C 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
+C 8 - fill in Polls category - to remove white space
 
 NEW STUFF:
 
@@ -112,8 +132,6 @@ NEW STUFF:
 - page never loads, probably crashes: http://votezilla.io/viewPollResults/?postId=3589#commentsTarget
   BUT then it started working.  Maybe server was chugging?
 
-- B - n 2 add demographic breakdown to polls because it's cool.
-
 - C - vote timeline - looks cool and doesn't require much data.  Need to add time to table.
 
  - cacheService for unloggedIn users?  w h SEO?
@@ -124,11 +142,11 @@ NEW STUFF:
 
 - D 21 - the bottom of each cat c have carousel / next / prev buttons to dynamically load and pan to more articles in an ArticleGroup
 
-- B 3 - add og:image to Votezilla pages
-
 - add notif if some1 liked ur comment?
 
 - Google Analytics
+
+- D - Create db flag to mark test accounts I've created.
 
 FEEDBACK:
 C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
@@ -163,8 +181,6 @@ C 5 - prompt to log in makes you forget your place.  It should open in new windo
 
 C 5 - why you voted comment
 
-C 8 - Need to scan page for og:image and use that as a backup.
-
 C 8 - Change between alias and real name depending on a post's (or comment's) privacy settings.
 
 C 8 + ability to message other users or write on a news source' wall
@@ -179,17 +195,6 @@ C 13 - notifications
   -   Alert-for-needing-to-log-in pages should use the modal windows, like viewVoteResults does.  Can prompt for logging in as well.
 
   - Email system.  Needs to:
-
-B 5  =   Fix email - Emailed DO tech support.
-
-  -   Implement Email verification.
-
-  -   Implement Forgot password.
-
-  -   Remember previous page or close form upon success, and/or back tri buttons.
-
-  -   Send verification email... user doesn't get created until email gets verified.
-      Verify email and set emailVerified=True when email is verified
 
 C   - c Univ' - prog intern' + phys' prof'
 
@@ -255,6 +260,21 @@ D - votezilla.io/static folder is viewable to the public.
 
 D - Create a robots.txt file: https://moz.com/learn/seo/robotstxt
 			      https://neilpatel.com/blog/robots-txt/
+
+D - Implement more META tags
+		<!-- Note: these could be fed in with an associative array :) -->
+		<!-- Source: https://ogp.me/#types -->
+		<!-- Test: https://developers.facebook.com/tools/debug/?q=votezilla.io -->
+		<meta property="og:url" content="https://votezilla.io/" />
+		<meta property="og:image:width" content="400" />
+		<meta property="og:image:height" content="300" />
+		<meta property="article:published_time" content="- datetime - When the article was first published." />
+		<meta property="article:modified_time" content="- datetime - When the article was last changed." />
+		<meta property="article:expiration_time" content="- datetime - When the article is out of date after." />
+		<meta property="article:author" content="- profile array - Writers of the article." />
+		<meta property="article:section" content="- string - A high-level section name. E.g. Technology" /><!-- cat -->
+		<meta property="article:tag" content="- string array - Tag words associated with this article." /> <!-- NYI -->
+		<meta property="profile:username" content="- string - A short unique string to identify them." />
 
 
 - Implement limitation to downvoting.
@@ -359,43 +379,6 @@ POSTPONED FEATURES:
 - Separate count for up / down votes?
 
 
-
-
-*** root@ubuntu-20:~/work/src/github.com/votezilla/gozilla# sudo certbot renew --dry-run
-Saving debug log to /var/log/letsencrypt/letsencrypt.log
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Processing /etc/letsencrypt/renewal/votezilla.io.conf
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Cert not due for renewal, but simulating renewal for dry run
-Plugins selected: Authenticator standalone, Installer None
-Renewing an existing certificate
-Performing the following challenges:
-http-01 challenge for votezilla.io
-Waiting for verification...
-Cleaning up challenges
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-new certificate deployed without reload, fullchain is
-/etc/letsencrypt/live/votezilla.io/fullchain.pem
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-** DRY RUN: simulating 'certbot renew' close to cert expiry
-**          (The test certificates below have not been saved.)
-
-Congratulations, all renewals succeeded. The following certs have been renewed:
-  /etc/letsencrypt/live/votezilla.io/fullchain.pem (success)
-** DRY RUN: simulating 'certbot renew' close to cert expiry
-**          (The test certificates above have not been saved.)
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-IMPORTANT NOTES:
- - Your account credentials have been saved in your Certbot
-   configuration directory at /etc/letsencrypt. You should make a
-   secure backup of this folder now. This configuration directory will
-   also contain certificates and private keys obtained by Certbot so
-   making regular backups of this folder is ideal.
 
 
 

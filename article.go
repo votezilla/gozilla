@@ -72,9 +72,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
 	pr("articleHandler")
-
 	prVal("r.URL.Query()", r.URL.Query())
-
 	prVal("r.URL", r.URL)
 	prVal("r.URL.Path", r.URL.Path)
 
@@ -124,36 +122,40 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		moreArticles = fetchArticlesFromThisNewsSource(article.NewsSourceId, userId, postId, 10)
 	}
 
-	prVal("len(moreArticles)", len(moreArticles))
-
-	prVal("len(concated articles)", len(append(moreArticles, article)))
+	//prVal("len(moreArticles)", len(moreArticles))
+	//prVal("len(concated articles)", len(append(moreArticles, article)))
 
 	upvotes, downvotes := deduceVotingArrows(append(moreArticles, article))
 
 	headComment, upcommentvotes, downcommentvotes := ReadCommentsFromDB(article.Id, userId)
 
-	prVal("upvotes", upvotes)
-	prVal("downvotes", downvotes)
-	prVal("upcommentvotes", upcommentvotes)
-	prVal("downcommentvotes", downcommentvotes)
+	//prVal("upvotes", upvotes)
+	//prVal("downvotes", downvotes)
+	//prVal("upcommentvotes", upcommentvotes)
+	//prVal("downcommentvotes", downcommentvotes)
 
 	// Render the news articles.
+	fa := makeFrameArgs2(article.Title, "", "news", userId, username, upvotes, downvotes)
+	fa.Metadata["og:image"] = article.UrlToImage
+	fa.Metadata["og:description"] = article.Description
+
+	prVal("fa.Metadata", fa.Metadata)
+
 	articleArgs := struct {
 		FrameArgs
-		Article			Article
-		UpCommentVotes	[]int64
-		DownCommentVotes []int64
-		HeadComment		Comment
-		ArticleGroups	[]ArticleGroup
+		Article						Article
+		UpCommentVotes				[]int64
+		DownCommentVotes			[]int64
+		HeadComment					Comment
+		ArticleGroups				[]ArticleGroup
 		MoreArticlesFromThisSource	[]Article
 	}{
-		FrameArgs:		makeFrameArgs2("votezilla - Article", "", "news", userId, username, upvotes, downvotes),
-
-		Article:		article,
-		UpCommentVotes:	upcommentvotes,
-		DownCommentVotes: downcommentvotes,
-		HeadComment:	headComment,
-		ArticleGroups:	articleGroups,
+		FrameArgs:					fa,
+		Article:					article,
+		UpCommentVotes:				upcommentvotes,
+		DownCommentVotes: 			downcommentvotes,
+		HeadComment:				headComment,
+		ArticleGroups:				articleGroups,
 		MoreArticlesFromThisSource:	moreArticles,
 	}
 

@@ -215,7 +215,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		Form			Form
 		PollOptions		[]*Field
 	} {
-		PageArgs: 		PageArgs{Title: "Create Poll"},
+		PageArgs: 		makePageArgs("votezilla - Create Poll", "", ""),
 		Form: 			*form,
 		PollOptions:	pollOptions,
 	}

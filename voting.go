@@ -385,6 +385,9 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	headComment, upcommentvotes, downcommentvotes := ReadCommentsFromDB(article.Id, userId)
 
 	// Render the news articles.
+
+	fa := makePageArgs("View Poll Results", article.UrlToImage, article.Description)
+
 	viewPollArgs := struct {
 		PageArgs
 		Username					string
@@ -402,7 +405,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		HeadComment					Comment
 		MoreArticlesFromThisSource	[]Article
 	}{
-		PageArgs:					PageArgs{Title: "View Poll Results"},
+		PageArgs:					fa,
 		Username:					username,
 		UserId:						userId,
 		NavMenu:					navMenu,

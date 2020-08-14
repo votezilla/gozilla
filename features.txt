@@ -268,3 +268,5 @@ B 3 - comments reply - textarea s b cr.d below Reply button w Reply ch.d to X (i
 
 A 3 - deduce title for link sharing (via button)
 
+Activity - fixed how Activity is worded, so 'your' is displayed appropriately.
+

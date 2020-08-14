@@ -233,7 +233,6 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 		Unvisited	[]bool
 	}{
 		FrameArgs:	makeFrameArgs("votezilla - Activity", "", kActivity, userId, username),
-		//FrameArgs:	makeFrameArgs2("votezilla - Activity", "", kActivity, userId, username, upvotes, downvotes),
 		Messages:	messages,
 		Articles:	allArticles,
 		ListOrder:	listOrder,

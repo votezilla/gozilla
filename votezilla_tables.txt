@@ -3,31 +3,32 @@ CREATE DATABASE vz ENCODING 'UTF8';
 
 \connect vz
 SET client_encoding = 'UTF8';
+SET timezone TO 'US/Pacific';
 
 
 CREATE SCHEMA vz;
 
 
 CREATE TABLE vz.User (
-    Id              BIGSERIAL   PRIMARY KEY,   
+    Id              BIGSERIAL   PRIMARY KEY,
     Email           TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
     Username        TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
-    PasswordHash    BIGINT[4]   NOT NULL,        -- Store a 256-byte hash of the password  
-    
+    PasswordHash    BIGINT[4]   NOT NULL,        -- Store a 256-byte hash of the password
+
     Name            TEXT,
-    
+
     -- Details
     Country         TEXT,
     Location        TEXT,
     -- TODO: ++ Language    TEXT.  Will default to "English (US)" if Country is "US".  Otherwise, will unhide a request for language, which was previously hidden by JQuery
-    
+
     BirthYear       INT,
     Gender          TEXT,
     Party           TEXT,
     Race            TEXT,
     Marital         TEXT,
     Schooling       TEXT,
-    
+
     -- Details - other fields
     OtherGender              TEXT,
     OtherParty               TEXT,
@@ -35,7 +36,7 @@ CREATE TABLE vz.User (
     OtherCountry         TEXT,
     OtherMaritalStatus         TEXT,
     OtherSchoolCompleted TEXT,
-    
+
     -- Verification status
     VerifiedEmail   BOOL DEFAULT False
 );
@@ -50,10 +51,10 @@ CREATE TABLE vz.Post (
 
     Description     TEXT,            -- NewsPosts currently have this.  Also includes user's description of a link or poll, below the headline title.  Could appear in a zoomed in view.
     Category        TEXT,
-    Language        TEXT,            
-    Country         TEXT,   
-    
-    UrlToImage         TEXT,            
+    Language        TEXT,
+    Country         TEXT,
+
+    UrlToImage         TEXT,
     ThumbnailStatus    INT DEFAULT 0,
 
     PRIMARY KEY (UserId, Id)
@@ -65,7 +66,7 @@ CREATE TABLE vz.LinkPost (
 
 CREATE TABLE vz.NewsPost (
     PublishedAt        TIMESTAMPTZ,      -- TODO?: can we get this from the article, for user-submitted posts, and then move this to Post?
-    NewsSourceId    TEXT    NOT NULL,                  
+    NewsSourceId    TEXT    NOT NULL,
 
     UNIQUE(PublishedAt, Title)           -- This constraint prevents duplicate articles News API updates.
 ) INHERITS (vz.LinkPost);
@@ -80,18 +81,18 @@ CREATE TABLE vz.BlogPost (
 ) INHERITS (vz.Post);
 
 CREATE TABLE vz.PollPost (
-    PollOptionData  TEXT        -- JSON  
+    PollOptionData  TEXT        -- JSON
     PollTallyResults TEXT        -- JSON
 ) INHERITS (vz.Post);
 
 
 CREATE TABLE vz.PollVote (
     PollId          BIGINT          NOT NULL,
-    UserId          BIGINT          NOT NULL,    
+    UserId          BIGINT          NOT NULL,
     Vote            TEXT,            -- JSON     -- TODO: remove this
     VoteOptionIds   INT[],        -- TODO: make this NOT NULL eventually
     VoteAmounts     INT[],
-    
+
     PRIMARY KEY (PollId, UserId)
 );
 CREATE INDEX poll_index ON vz.PollVote (PollId);
@@ -114,35 +115,35 @@ CREATE TABLE vz.CommentVote (
 );
 
 CREATE TABLE vz.Comment (
-    Id                  BIGSERIAL   PRIMARY KEY,   
-    
+    Id                  BIGSERIAL   PRIMARY KEY,
+
     PostId              BIGINT NOT NULL, -- Which post this is a comment on.
-    UserId              BIGINT NOT NULL, -- The user who left this comment.        
-    ParentId            BIGINT,          -- The parent comment, hierarchially.         
+    UserId              BIGINT NOT NULL, -- The user who left this comment.
+    ParentId            BIGINT,          -- The parent comment, hierarchially.
 
     VoteTally               INT              NOT NULL DEFAULT 0,  -- Up/down votes
-    
+
     Text                TEXT NOT NULL,         -- Max length is 40000, but TEXT type is easier to deal with in Golang.
     PrevRevisions       VARCHAR(40000)[],
-    
-    -- Materialized path - this sorts it into a tree hierarchy for us, though 
-    --                     we'll still need to sort by aye/nay vote later... 
+
+    -- Materialized path - this sorts it into a tree hierarchy for us, though
+    --                     we'll still need to sort by aye/nay vote later...
     --                     think if this is the right algorithm.
     -- MaterializedPath    BIGINT NOT NULL, -- int64, bits used as follows:
     --                                      --    16b, 16b, 8b, 8b, 4b, 4b, 4b, 4b
     --                                      --     L0   L1  L2  L3  L4  L5  L6, L7
-  
+
     -- The simpler way: vvv
     Path                BIGINT[] NOT NULL,
-    
+
     NumChildren         BIGINT DEFAULT 0,
-                                         
+
     -- Note: for now we'll fetch all comments for a post,
     --       then SORT BY MaterializedPath.
     --       in Go, we'll parse these into a hierarchy, will need pointers.
     --              Then sort each list by aye/nay vote.
     --       Eventually... we'll need to optimize this.
-    
+
     Created             TIMESTAMPTZ  NOT NULL DEFAULT now(),
     Deleted             BOOL DEFAULT false
 );
@@ -157,9 +158,9 @@ CREATE TABLE vz.Request (
     RawQuery            TEXT NOT NULL,    -- e.g. "" or "?x=5"
     Language            TEXT NOT NULL,    -- e.g. "en-US,en;q=0.9"
     Referer             TEXT NOT NULL,    -- e.g. full ip address of the previous website
-    
+
     UserId              BIGINT,           -- userId if user is logged in; -1 otherwise
-    
+
     Created             TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
@@ -175,7 +176,7 @@ CREATE UNIQUE INDEX user_path_query_index ON vz.HasVisited (UserId, PathQuery);
 -- Gets the category based on the category and user's country of origin.
 -- Note: Using lower because users use uppercase countries while posts use lowercase.  Fix someday?
 CREATE OR REPLACE FUNCTION vz.GetCategory(category TEXT, country TEXT) RETURNS TEXT
-    AS $$SELECT CASE 
+    AS $$SELECT CASE
         WHEN $1 <> 'news' THEN $1
         WHEN lower(COALESCE($2, 'us')) <> 'us' THEN 'world news'
         ELSE 'news'

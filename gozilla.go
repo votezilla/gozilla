@@ -24,9 +24,6 @@ var (
 	navMenu		= []string{"news", "create", "activity" }
 )
 
-
-
-
 const (
 	kActivity = "activity"
 	kArticle = "article"
@@ -46,6 +43,7 @@ const (
 	kViewPollResults = "viewPollResults"
 )
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // HTML Template Args
@@ -55,6 +53,28 @@ const (
 type PageArgs struct {
 	Title			string
 	Script			string
+	Metadata		map[string]string
+}
+// title - page title
+// oImage - optional image ("" = use default votezilla image)
+// oDescription - optional description ("" = use default description)
+func makePageArgs(title, oImage, oDescription string) (pa PageArgs) {
+	pa.Title = title
+
+	// Source: https://ogp.me/#types
+	// Test: https://developers.facebook.com/tools/debug/?q=votezilla.io
+	pa.Metadata = make(map[string]string)
+	pa.Metadata["og:title"]			= title
+	pa.Metadata["og:image"]		 	= ternary_str(oImage != "", oImage, "/static/votezilla logo/votezilla 6.jpg")
+	pa.Metadata["og:description"] 	= ternary_str(oDescription != "", oDescription, `[Article Title] or: Welcome to
+Votezilla: a censorship-free social network based on creating polls, voting, sharing news, and fostering positive
+political discussion. (Or nerd out on other topics you love.)`)
+	pa.Metadata["og:type"] 		 	= "website"
+	pa.Metadata["og:site_name"] 	= "Votezilla"
+	pa.Metadata["og:image:type"] 	= "image/jpeg"
+	pa.Metadata["og:locale"] 		= "en_US"
+
+	return pa
 }
 
 // Form Frame Args
@@ -64,7 +84,7 @@ type FormFrameArgs struct {
 }
 func makeFormFrameArgs(form *Form, title string) FormFrameArgs {
 	return FormFrameArgs {
-		PageArgs: 		PageArgs{Title: title},
+		PageArgs: 		makePageArgs(title, "", ""),
 		Form: 			*form,
 	}
 }
@@ -80,8 +100,11 @@ type FrameArgs struct {
 	DownVotes		[]int64
 }
 func makeFrameArgs(title, script, urlPath string, userId int64, username string) FrameArgs {
+	pa := makePageArgs(title, "", "")
+	pa.Script = script
+
 	return FrameArgs {
-		PageArgs: 		PageArgs{Title: title, Script: script},
+		PageArgs: 		pa,
 		NavMenu:		navMenu,
 		UrlPath:		urlPath,
 		UserId:			userId,
@@ -89,8 +112,11 @@ func makeFrameArgs(title, script, urlPath string, userId int64, username string)
 	}
 }
 func makeFrameArgs2(title, script, urlPath string, userId int64, username string, upVotes, downVotes []int64) FrameArgs {
+	pa := makePageArgs(title, "", "")
+	pa.Script = script
+
 	return FrameArgs {
-		PageArgs: 		PageArgs{Title: title, Script: script},
+		PageArgs: 		pa,
 		NavMenu:		navMenu,
 		UrlPath:		urlPath,
 		UserId:			userId,

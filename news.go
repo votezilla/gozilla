@@ -466,7 +466,7 @@ func newsSourcesHandler(w http.ResponseWriter, r *http.Request) {
 		PageArgs
 		NewsSources NewsSources
 	}{
-		PageArgs: PageArgs{Title: "News Sources"},
+		PageArgs: makePageArgs("News Sources", "", ""),
 		NewsSources: newsSources,
 	}
 	fmt.Println("newsSourcesArgs: %#v\n", newsSourcesArgs)
