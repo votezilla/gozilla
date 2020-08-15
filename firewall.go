@@ -260,14 +260,16 @@ func CheckAndLogIP(r *http.Request) error {
 func InitFirewall() {
 	pr("reading blacklist")
 	blacklist = readIPsFile("blacklist.txt")
+	emptyList := IPs(bitarray.NewSparseBitArray())
+	whitelist = &emptyList
 	if flags.skipWhitelist {
 		pr("skipping whitelist")
-		emptyList := IPs(bitarray.NewSparseBitArray())
-		whitelist = &emptyList
 	} else {
 		pr("reading whitelist in background")
 		readWhitelist := func() {
+			pr("  started reading whitelist...")
 			whitelist = readIPsFile("whitelist.txt")
+			pr("  finished reading whitelist!!!")
 		}
 		go readWhitelist()
 	}
