@@ -1,4 +1,7 @@
 // HTTPS SSL.  Sample ref: https://marcofranssen.nl/build-a-go-webserver-on-http-2-using-letsencrypt/
+//
+//  TODO: see also: https://gist.github.com/samthor/5ff8cfac1f80b03dfe5a9be62b29d7f2
+//                  https://goenning.net/2017/11/08/free-and-automated-ssl-certificates-with-go/
 
 package main
 

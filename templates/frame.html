@@ -368,10 +368,11 @@ function validateVoteData(pollType, voteData, newVoteData, newOptions) {
 	switch(pollType) {
 		case "radio":
 		case "checkbox": // Multiple choices valid
-			console.log(voteData);
+			console.log("voteData = " + voteData);
+			console.log("newVoteData = " + newVoteData);
 
-			valid = voteData.reduce((a, b) => a || b) ||   // OR all the choices together.
-				 newVoteData.reduce((a, b) => a || b)
+			valid = voteData.reduce((a, b) => a || b, false) ||   // OR all the choices together.
+				 newVoteData.reduce((a, b) => a || b, false)
 			console.log("valid = " + valid);
 
 			if (!valid) {

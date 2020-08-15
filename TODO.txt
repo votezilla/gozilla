@@ -1,18 +1,14 @@
 
 JUST FIXED:
 
-
-
 WORKING ON:
 
 
-A - 8 - Fix poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
+A 8 - Fix poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
 
-A - 13 - JEFF: www.votezilla.io doesn't work  (Ask namecheap if they can do this.  Otherwise, will have to do it with letsencrypt.)
+A 8 - JEFF: top menu items should have correct icons (see phone notes) (as well as notification #'s! :) )
 
 A - 8 - make large_thumbnails, erase them 1 month later
-
-A - 8 - JEFF: top menu items should have correct icons (see phone notes) (as well as notification #'s! :) )
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
@@ -24,6 +20,16 @@ Importance
 v
   Difficulty
   v
+
+B 21  =   Fix email - Emailed DO tech support.
+
+  -   Implement Email verification.  (set emailVerified=True when email is verified.)
+
+  -   Implement Forgot password.
+
+  -   Remember previous page or close form upon success, and/or back tri buttons.
+
+A - 8 - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
 - make bus cards
 
@@ -41,11 +47,7 @@ A - 8 - Add num notifications javascript on 1 minute timer that asks how many no
 	Also, add more notifications
 "	___ shared an article" - when they really shared a poll
 
-A - . - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
-
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
-
-B 8 - seeing mostly liberal news sources (I need to add Fox News) (TOM) (or see if other news apis would have fox, then that would be better to do first.)
 
 B - security - password timeout
 
@@ -53,13 +55,13 @@ B - security - password timeout
 
 B 1 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
 
+B 1 - Delete ugly, old polls.
+
+B 3 - RYAN: The alert after logging in should be removed.
+
 B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
 
-B 3 - votezilla.news
-
 B 2 - Let user specify "Other" field that appears when other is selected, just group all the other stuff there for now.
-
-B 5 - Add more news API's (hopefully some incl. Fox News)
 
 B 8 - privacy alias'
 
@@ -69,6 +71,7 @@ B 8 - ability to delete posts, comments
 
 B 8 - newlines are getting stripped from comments, and markdown would be nice.
     - It would be nice if urls in comments became links. also basic html tags.
+    - Also, article titles and desciptions need to respect \n -> <br>, <br>, <b>, <i>, <ol>, <li> :)
 
 B 8 - implement really simple blogging, using markup (no quill)
 
@@ -86,18 +89,12 @@ B   - disallow multiple poll items with the same name
 
 B - "You must be logged in to do that!" - should be popup with kind, pretty prompt
 
-B 5  =   Fix email - Emailed DO tech support.
+B 13 - Add more news API's (hopefully some incl. Fox News).  (TOM: seeing mostly liberal news sources.)
 
-  -   Implement Email verification.
+B 8 - I need to add some suggestions about poll wording when creating polls, as I don't think this will be obvious to most ppl.
+      Also, dump in other notes with written stuff, from my notebook.
 
-  -   Implement Forgot password.
-
-  -   Remember previous page or close form upon success, and/or back tri buttons.
-
-  -   Send verification email... user doesn't get created until email gets verified.
-      Verify email and set emailVerified=True when email is verified
-
-C - load comments AFTER article - could use an iframe.  this will speed up in-site article load time.
+C 5 - article poll voting - image too large; but viewPollResults has no image at all.  Fix?
 
 C - great 10-step guide to optimization!!! - https://www.eurovps.com/blog/reasons-for-slow-website-loading/#:~:text=A%20large%20volume%20of%20unoptimized,your%20website%20to%20load%20slowly.
 
@@ -105,10 +102,14 @@ C 3 - list news sources and ppl
 
 C 3 - In history, display comments overview with the article.  Hmm.. realizing this may need to become an Activity-style list, sorted by time
 
+C 21 - More topics!!!  Use keyword-AI to do this.  Also for searching.
+
 C 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
    - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
 
 C 8 - fill in Polls category - to remove white space
+
+C 8 - load comments AFTER article - could use an iframe.  this will speed up in-site article load time.
 
 NEW STUFF:
 
@@ -126,28 +127,25 @@ NEW STUFF:
 
 - I need to create interesting polls
 
-- B - default user-created posts to US (?)
+B - default user-created posts to US (?)
 
-- C - ChicaWhisperer article sidebar says more from [blank]:
+C - ChicaWhisperer article sidebar says more from [blank]:
 
-- page never loads, probably crashes: http://votezilla.io/viewPollResults/?postId=3589#commentsTarget
-  BUT then it started working.  Maybe server was chugging?
+C - vote timeline - looks cool and doesn't require much data.  Need to add time to table.
 
-- C - vote timeline - looks cool and doesn't require much data.  Need to add time to table.
+- cacheService for unloggedIn users?  w h SEO?
 
- - cacheService for unloggedIn users?  w h SEO?
+D - write go script (via flag) to clear test votes.
 
- - D - write go script (via flag) to clear test votes.
+C 21 - infinite scroll I'd you keep scrolling down
 
- - C 21 - infinite scroll I'd you keep scrolling down
-
-- D 21 - the bottom of each cat c have carousel / next / prev buttons to dynamically load and pan to more articles in an ArticleGroup
+D 21 - the bottom of each cat c have carousel / next / prev buttons to dynamically load and pan to more articles in an ArticleGroup
 
 - add notif if some1 liked ur comment?
 
-- Google Analytics
+C - Google Analytics
 
-- D - Create db flag to mark test accounts I've created.
+D - Create db flag to mark test accounts I've created.
 
 FEEDBACK:
 C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2

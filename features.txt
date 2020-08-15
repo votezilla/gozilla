@@ -272,3 +272,5 @@ Activity - fixed how Activity is worded, so 'your' is displayed appropriately.
 
 A - 5 - sharing articles nees better thumbnail - use og:image, og:Title, possibly others too - https://ogp.me/
 
+A - 13 - JEFF: www.votezilla.io doesn't work  (Ask namecheap if they can do this.  Otherwise, will have to do it with letsencrypt.)
+	also implemented votezilla.news and www.votezilla.news
