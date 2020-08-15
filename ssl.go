@@ -44,11 +44,13 @@ func InitWebServer2() {
 		IdleTimeout:  120 * time.Second,
 	}
 
+	domains := []string{"votezilla.io", "www.votezilla.io", "votezilla.news", "www.votezilla.news"}
+
 	if flags.domain != "" {
 		// Running SSL in production - votezilla.io
 		certManager := autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist(flags.domain),
+			HostPolicy: autocert.HostWhitelist(domains...),
 			Cache:      autocert.DirCache("certs"),
 		}
 
