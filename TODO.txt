@@ -1,6 +1,5 @@
 
 JUST FIXED:
-A 8 - Fixed poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
 
 
 WORKING ON:

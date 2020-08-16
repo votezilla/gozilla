@@ -241,11 +241,7 @@ A 40% x 13 - Tutorial - got the pop-up working, and basic carousel working!!!
 
  B 3 - made all links better and more blue
 
- B 1 - fixed up/down icon positioning
-
  B 1 - made user link point to history
-
- B 3 - fixed nonheadline articles being too many lines;
 
 ~ - made everything looks more awesome!!!"
 
@@ -255,8 +251,6 @@ A 8 - click on news source / user icon to see their news articles / posts
 B 2 - history - add header or splashscreen explaing what it is (TOM)
 
 B 2 - on sidebar, more ____ (i.e. polls) should be clickable (TOM)
-
-A 3 - fixed a voting bug that revealed another voter's vote in /history
 
 displaying just 4 polls on /news, so news can be discovered easier.
 
@@ -274,3 +268,12 @@ A - 5 - sharing articles nees better thumbnail - use og:image, og:Title, possibl
 
 A - 13 - JEFF: www.votezilla.io doesn't work  (Ask namecheap if they can do this.  Otherwise, will have to do it with letsencrypt.)
 	also implemented votezilla.news and www.votezilla.news
+
+FIXES:
+B 1 - fixed up/down icon positioning
+
+B 3 - fixed nonheadline articles being too many lines;
+
+A 3 - fixed a voting bug that revealed another voter's vote in /history
+
+A 8 - Fixed poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
