@@ -177,6 +177,19 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 					pollOptionData.Options = append(pollOptionData.Options, value)
 				}
 			}
+			// Delete redundant poll options with the same name.
+			optionMap := map[string]bool{}
+			for o := 0; o < len(pollOptionData.Options); o++ {
+				optionName := pollOptionData.Options[o]
+				_, found := optionMap[optionName]
+				// If a redundant option is found, delete it.
+				if found {
+					pollOptionData.Options = append(pollOptionData.Options[:o],
+													pollOptionData.Options[o+1:]...) // Delete this option.
+				}
+				optionMap[optionName] = true
+			}
+
 			pollOptionData.AnyoneCanAddOptions      = form.boolVal(kAnyoneCanAddOptions)
 			pollOptionData.CanSelectMultipleOptions = form.boolVal(kCanSelectMultipleOptions)
 			pollOptionData.RankedChoiceVoting       = form.boolVal(kRankedChoiceVoting)
