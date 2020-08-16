@@ -185,7 +185,8 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 				// If a redundant option is found, delete it.
 				if found {
 					pollOptionData.Options = append(pollOptionData.Options[:o],
-													pollOptionData.Options[o+1:]...) // Delete this option.
+													pollOptionData.Options[o+1:]...)
+					o--
 				}
 				optionMap[optionName] = true
 			}

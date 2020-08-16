@@ -354,18 +354,39 @@ function getVoteData(pollId, numOptions, pollType) {
 	return [voteData, newVoteData, newOptions];
 }
 
-function validateVoteData(pollType, voteData, newVoteData, newOptions) {
-	console.log("validataVoteData newOptions: " + newOptions);
-	console.log("voteData = " + voteData);
-	console.log("newVoteData = " + newVoteData);
+function validateVoteData(pollType, voteData, newVoteData, newOptions, pollOptions) {
+	console.log("validataVoteData pollType: " + pollType);
+	console.log("                 voteData: " + voteData);
+	console.log("                 newVoteData: " + newVoteData);
+	console.log("                 newOptions:" + newOptions);
+	console.log("                 pollOptions:" + pollOptions);
 
 	for (var i = 0; i < newOptions.length; i++) {
+		var newOption = newOptions[i];
+
 		// Because we will filter out options that have empty text, we must make sure those options do not have votes.
-		if (newOptions[i] == "" && newVoteData[i] != "") {
+		if (newOption == "" && newVoteData[i] != "") {
 			alert('You must specify the name of your new option, if you wish to vote on it.');
 			return false;
 		}
+
+		// Complain if there are new option names that match existing names.
+		if (pollOptions.indexOf(newOption) > -1) {
+			alert(`The new option you added, "${newOption}," already exists as a poll option.`);
+			return false;
+		}
 	}
+
+	// Complain if there are duplicate new option names.
+	for (var i = 0; i < newOptions.length; i++) {
+		for (var j = i + 1; j < newOptions.length; j++) {
+			if (newOptions[i] == newOptions[j]) {
+				alert(`Two of the new options you added have the same name: "${newOptions[i]}."`);
+				return false;
+			}
+		}
+	}
+
 
 	var joinedData = voteData.concat(newVoteData);
 
@@ -406,7 +427,9 @@ function validateVoteData(pollType, voteData, newVoteData, newOptions) {
 	}
 }
 
-function VoteOnPoll(pollId, numOptions, pollType, windowTarget) {
+function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
+	var numOptions = pollOptions.length
+
 	if ({{.UserId}} == -1) {
 		alert("You must be logged in to do that!");  // TODO: make this a modal that prompts for login / register
 
@@ -422,20 +445,27 @@ function VoteOnPoll(pollId, numOptions, pollType, windowTarget) {
 
 	console.log({PollId: pollId, VoteData: voteData, NewVoteData: newVoteData, NewOptions: newOptions, NumOriginalOptions: numOptions});
 
-	if (validateVoteData(pollType, voteData, newVoteData, newOptions)) { // Check if voting data is valid.
+	console.log("<< newOptions", newOptions)
+
+	if (validateVoteData(pollType, voteData, newVoteData, newOptions, pollOptions)) { // Check if voting data is valid.
 		console.log("valid vote data");
+		console.log(">> newOptions", newOptions)
+
+		var jsonData = JSON.stringify({
+			PollId: pollId,
+			VoteData: voteData,
+			NewVoteData: newVoteData,
+			NewOptions: newOptions,
+			NumOriginalOptions: numOptions});
+
+		console.log('jsonData', jsonData);
 
 		// Place poll vote
 		$.ajax({
 			url: '/ajaxPollVote/',
 			type: "post",
 			contentType: 'application/json; charset=utf-8',
-			data: JSON.stringify({
-				PollId: pollId,
-				VoteData: voteData,
-				NewVoteData: newVoteData,
-				NewOptions: newOptions,
-				NumOriginalOptions: numOptions}),
+			data: jsonData,
 			dataType: 'json',
 			success: function(r) {
 				console.log("AJAX Poll Vote - success");
@@ -579,7 +609,7 @@ $(function () {
 	{{- $poll := $article.PollOptionData -}}
 	onClick="VoteOnPoll(
 		{{- $article.Id }},
-		{{- len $poll.Options }},
+		{{- $poll.Options }},
 		{{- if $poll.RankedChoiceVoting }}
 			{{- "text" }},
 		{{- else if $poll.CanSelectMultipleOptions }}

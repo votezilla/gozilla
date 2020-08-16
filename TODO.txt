@@ -1,6 +1,9 @@
 
 JUST FIXED:
+B - 8 - fixed issues with poll options - both when creating poll, and when a new option is being added
 * fixed poll options with duplicate options - when poll is being created.
+* fixed poll options with duplicate options - when new poll option is being added by a voter.
+
 
 WORKING ON:
 
@@ -8,9 +11,6 @@ A 8 - JEFF: top menu items should have correct icons (see phone notes) (as well 
 
 A - 8 - make large_thumbnails, erase them 1 month later
 
-B - 8 - fix issue with poll options getting duplicated when there is an ajax bug
-*
-[] need to fix issue with duplicate options when ajax voting
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
 
