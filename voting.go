@@ -99,32 +99,32 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 
 	pollId := int64(vote.PollId)
 
-	// If the user has added new options...
-	if len(newOptions) > 0 {
-		// For each valid new option, add it to the poll.
-		rows := DbQuery("SELECT PollOptionData FROM $$PollPost WHERE Id = $1::bigint", pollId)
-		for rows.Next() {
-			var pollOptionJson	string
-			err := rows.Scan(&pollOptionJson)
-			check(err)
+	// Fetch the pollOptionData for the poll.
+	var pollOptionData PollOptionData
+	rows := DbQuery("SELECT PollOptionData FROM $$PollPost WHERE Id = $1::bigint", pollId)
+	for rows.Next() {
+		var pollOptionJson	string
+		err := rows.Scan(&pollOptionJson)
+		check(err)
 
-			var pollOptionData PollOptionData
-			assert(len(pollOptionJson) > 0)
-			check(json.Unmarshal([]byte(pollOptionJson), &pollOptionData))
+		assert(len(pollOptionJson) > 0)
+		check(json.Unmarshal([]byte(pollOptionJson), &pollOptionData))
 
-			// Add the new option.
+		// If the user has added new options, add them to pollOptionData and the database.
+		if len(newOptions) > 0 {
 			pollOptionData.Options = append(pollOptionData.Options, newOptions...)
 
 			a, err := json.Marshal(pollOptionData)
 			check(err)
 
+			// TODO: Fetching & updating PollOptionsData should be protected by a db transaction.
 			DbExec("UPDATE $$PollPost SET PollOptionData = $1 WHERE Id = $2::bigint", a, pollId)
 		}
-		check(rows.Err())
 	}
-
+	check(rows.Err())
 
 	// Send poll vote to the database, removing any prior vote.
+	// TODO: make the database protect against duplicate names.
 	DbExec(
 		`INSERT INTO $$PollVote(PollId, UserId, VoteOptionIds, VoteAmounts)
 		 VALUES ($1::bigint, $2::bigint, $3::int[], $4::int[])
@@ -136,15 +136,12 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 		pq.Array(voteAmounts))
 
 	// Tally the poll tally results, and cache them in the db.
-	article, err := fetchArticle(pollId, userId)
-	check(err)
-
-	pollTallyResults := calcPollTally(pollId, article.PollOptionData)
-	prVal("pollTallyResults", pollTallyResults)
+	pollTallyResults := calcPollTally(pollId, pollOptionData)
+	//prVal("pollTallyResults", pollTallyResults)
 
 	pollTallyResultsJson, err := json.Marshal(pollTallyResults)
    	check(err)
-   	prVal("pollTallyResultsJson", pollTallyResultsJson)
+   	//prVal("pollTallyResultsJson", pollTallyResultsJson)
 
 	DbExec(
 		`UPDATE $$PollPost
@@ -196,19 +193,13 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 		prVal(">>1 pollTallyResults", pollTallyResults)
 
 		dividend := 0
-		if true { // Always divide by the total, even for multi-select, since that makes everything add up to 100%.  //!pollOptionData.CanSelectMultipleOptions { // Single select - basic survey - get the sum.
-			sum := 0
-			for i := range pollTallyResults {
-				sum += pollTallyResults[i].Count
-			}
-			dividend = sum
-		} else {                                      // Multi-select survey - get the greatest value.
-			greatest := 0
-			for i := range pollTallyResults {
-				greatest = max_int(greatest, pollTallyResults[i].Count)
-			}
-			dividend = greatest
+		sum := 0
+		for i := range pollTallyResults {
+			sum += pollTallyResults[i].Count
 		}
+		dividend = sum
+
+		assert(len(pollOptionData.Options) == len(pollTallyResults))
 
 		prVal("dividend", dividend)
 
@@ -218,8 +209,6 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 		}
 
 		prVal(">>2 pollTallyResults", pollTallyResults)
-
-		return pollTallyResults
 	} else { // RankedChoiceVoting
 
 		type UserRankedVotes struct {
@@ -281,8 +270,11 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 
 			// Tally the votes.
 			for _, userRankedVote := range(userRankedVotes) {
-				pollTallyResults[userRankedVote.BestOption].Count++
-				sum++
+				// If the user's best option is valid (i.e. all their candidates weren't eliminated), add it to the tally.
+				if userRankedVote.BestOption >= 0 {
+					pollTallyResults[userRankedVote.BestOption].Count++
+					sum++
+				}
 			}
 
 			prVal("sum", sum)
@@ -303,11 +295,11 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 			}
 
 			// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
-			//for i := range pollTallyResults {
-			//	if pollTallyResults[i].Percentage > 50.0 {
-			//		break rankedVotingLoop
-			//	}
-			//}
+			for i := range pollTallyResults {
+				if pollTallyResults[i].Percentage > 50.0 {
+					break rankedVotingLoop
+				}
+			}
 
 			// Otherwise, eliminate the remaining vote option with the fewest votes and recount the votes.
 			leastVotes  := MaxInt
@@ -323,6 +315,7 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 					worstOption = option
 				}
 			}
+			// Eliminate the worst option... without deleting anything :)
 			eliminatedVoteOptions = append(eliminatedVoteOptions, int64(worstOption))
 
 			prf("Eliminated vote option %d, it had the lowest vote count: %d", worstOption, leastVotes)
@@ -336,8 +329,6 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 
 			round++
 		}
-
-		return pollTallyResults
 	}
 
 	return pollTallyResults
@@ -374,8 +365,11 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Tally the votes
+	// Tally the votes, save it in the article so the html template can read it.
 	pollTallyResults := calcPollTally(postId, article.PollOptionData)
+	article.PollTallyResults = pollTallyResults
+	assert(len(article.PollOptionData.Options) == len(pollTallyResults))
+
 
 	// Suggested polls for further voting - on the sidebar.
 	polls := fetchSuggestedPolls(userId, postId)

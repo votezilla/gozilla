@@ -1,10 +1,9 @@
 
 JUST FIXED:
+A 8 - Fixed poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
+
 
 WORKING ON:
-
-
-A 8 - Fix poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
 
 A 8 - JEFF: top menu items should have correct icons (see phone notes) (as well as notification #'s! :) )
 
@@ -48,6 +47,10 @@ A - 8 - Add num notifications javascript on 1 minute timer that asks how many no
 "	___ shared an article" - when they really shared a poll
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
+
+B - FB signup
+
+B - poll bug produces duplicate entries
 
 B - security - password timeout
 
@@ -95,6 +98,8 @@ B 8 - I need to add some suggestions about poll wording when creating polls, as 
       Also, dump in other notes with written stuff, from my notebook.
 
 C 5 - article poll voting - image too large; but viewPollResults has no image at all.  Fix?
+
+C 21 - show how ranked voting runoff works
 
 C - great 10-step guide to optimization!!! - https://www.eurovps.com/blog/reasons-for-slow-website-loading/#:~:text=A%20large%20volume%20of%20unoptimized,your%20website%20to%20load%20slowly.
 
@@ -213,7 +218,7 @@ C 2 - Ryan: "The ellipsis for long comments should be more obvious >> blue and t
 
 C 2 - history tab should be hidden when user is not logged in
 
-D 2 - ranked vote checkbox should list the rank.
+C 2 - ranked vote checkbox should list the rank.
 
 D 3 - sort history just by time posted desc
 

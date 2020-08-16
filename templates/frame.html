@@ -356,6 +356,8 @@ function getVoteData(pollId, numOptions, pollType) {
 
 function validateVoteData(pollType, voteData, newVoteData, newOptions) {
 	console.log("validataVoteData newOptions: " + newOptions);
+	console.log("voteData = " + voteData);
+	console.log("newVoteData = " + newVoteData);
 
 	for (var i = 0; i < newOptions.length; i++) {
 		// Because we will filter out options that have empty text, we must make sure those options do not have votes.
@@ -365,14 +367,12 @@ function validateVoteData(pollType, voteData, newVoteData, newOptions) {
 		}
 	}
 
+	var joinedData = voteData.concat(newVoteData);
+
 	switch(pollType) {
 		case "radio":
 		case "checkbox": // Multiple choices valid
-			console.log("voteData = " + voteData);
-			console.log("newVoteData = " + newVoteData);
-
-			valid = voteData.reduce((a, b) => a || b, false) ||   // OR all the choices together.
-				 newVoteData.reduce((a, b) => a || b, false)
+			valid = joinedData.reduce((a, b) => a || b, false)  // OR all the choices together.
 			console.log("valid = " + valid);
 
 			if (!valid) {
@@ -382,12 +382,7 @@ function validateVoteData(pollType, voteData, newVoteData, newOptions) {
 
 			return true;
 		case "text": // Ranked voting
-			joinedData = voteData.concat(newVoteData);
-			sorted = joinedData.filter(x => x != "").sort(); // creates a copy of voteData, then sorts it
-
-			console.log(voteData);
-			console.log(newVoteData);
-			console.log(sorted);
+			var sorted = joinedData.filter(x => x != "").sort(); // Sort the non-empty elements
 
 			// Check for valid ranked voting, i.e. "1", "2", ...
 			if (sorted[0] != "1") {
@@ -492,7 +487,7 @@ $('#myModal').on('hidden.bs.modal', function (e) {
 // TOOLTIP
 
 $(function () {
-//  $('[data-toggle="tooltip"]').tooltip()  // Causes a JS error and doesn't seem necessary for tooltips to work.
+//  $('[data-toggle="tooltip"]').tooltip()  // Causes a JS error and does not seem necessary for tooltips to work.
 })
 
 </script>
@@ -616,6 +611,12 @@ $(function () {
 		{{- $maxOptions = 999999 }}
 	{{ end }}
 
+	<!--<ul>
+		<li> len $poll.Options = {{ len $poll.Options }}
+		<li> len $article.PollTallyResults = {{ len $article.PollTallyResults }}
+		<li> $poll.Options = {{ $poll.Options }}
+		<li> $pollTallyResults = {{ $pollTallyResults }}
+	</ul>-->
 	{{ range $o, $option := $poll.Options }}
 		{{ if lt $o $maxOptions }}
 			{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
