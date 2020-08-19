@@ -7,7 +7,8 @@
 		{{ $f := .Form.FieldMap }}
 		{{ template "field" $f.email -}}
 		{{ template "field" $f.username -}}
-		<p class="nuFieldSubtext" style="margin: 0px;">Pick a Username - i.e. RedHerring65.  This is how you other community members will see you.  What shall we call you?</p>
+		<p class="nuFieldSubtext" style="margin: 0px;">
+			Pick a Username - i.e. RedHerring65.  Pick something cool and anonymous.</p>
 
 		{{ template "toggleablePassword" $f.password -}}
 

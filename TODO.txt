@@ -13,6 +13,7 @@ x Will need to handle logged out case: log in / sign up, somehow.
 x "create" could say "create / share".
 x jeff likes the FB pencil for create
 
+[] - get susan's login experience with new stuff.
 
 A - 8 - make large_thumbnails, erase them 1 month later
 
