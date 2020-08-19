@@ -124,7 +124,7 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 	check(rows.Err())
 
 	// Send poll vote to the database, removing any prior vote.
-	// TODO: make the database protect against duplicate names.
+	// TODO: make the code and database protect against duplicate names.
 	DbExec(
 		`INSERT INTO $$PollVote(PollId, UserId, VoteOptionIds, VoteAmounts)
 		 VALUES ($1::bigint, $2::bigint, $3::int[], $4::int[])

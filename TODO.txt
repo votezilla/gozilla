@@ -1,13 +1,18 @@
 
 JUST FIXED:
-B - 8 - fixed issues with poll options - both when creating poll, and when a new option is being added
-* fixed poll options with duplicate options - when poll is being created.
-* fixed poll options with duplicate options - when new poll option is being added by a voter.
 
 
 WORKING ON:
 
-A 8 - JEFF: top menu items should have correct icons (see phone notes) (as well as notification #'s! :) )
+>> - A 13 - cool header icon idea for mobile:
+x square large icon with text underneath.
+* vz, which links to about Votezilla stuff, and c h subtext "about".
+* profile (username) on right, logout is within here so not cluttering main menu.
+* Then play with the order of these, leftmost = news, "updates" (instead of activity) 2nd from right so easy to click on.
+* Will need to handle logged out case: log in / sign up, somehow.
+x "create" could say "create / share".
+x jeff likes the FB pencil for create
+
 
 A - 8 - make large_thumbnails, erase them 1 month later
 
@@ -21,14 +26,6 @@ Importance
 v
   Difficulty
   v
-
-B 21  =   Fix email - Emailed DO tech support.
-
-  -   Implement Email verification.  (set emailVerified=True when email is verified.)
-
-  -   Implement Forgot password.
-
-  -   Remember previous page or close form upon success, and/or back tri buttons.
 
 A - 8 - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
@@ -48,13 +45,21 @@ A - 8 - Add num notifications javascript on 1 minute timer that asks how many no
 	Also, add more notifications
 "	___ shared an article" - when they really shared a poll
 
+A - 8 - browser notifications: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
+
 
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
 B - FB signup
 
-B - poll bug produces duplicate entries
+B 21  =   Fix email - Emailed DO tech support.
+
+  -   Implement Email verification.  (set emailVerified=True when email is verified.)
+
+  -   Implement Forgot password.
+
+  -   Remember previous page or close form upon success, and/or back tri buttons.
 
 B - security - password timeout
 
@@ -100,6 +105,23 @@ B 13 - Add more news API's (hopefully some incl. Fox News).  (TOM: seeing mostly
 
 B 8 - I need to add some suggestions about poll wording when creating polls, as I don't think this will be obvious to most ppl.
       Also, dump in other notes with written stuff, from my notebook.
+
+- when signing up, store referrer in server side cookie, to return signed in person to that page.  Instead of javascript alert, popup with Welcome to Votezilla.  Store in cookie so this does not reactivate, somehow.
+
+- C - when they're going to post to news but registerdetails country isn't set yet, warn (via popup) and offer link to registerDetails to complete registration to fix this.
+
+- SSL - should be able tp comment out the loadkeypair stuff, it's not letsencrypt but is a separate way to create your own key pair that is separate.
+
+- jeff, dad - forgotaccount not set up yet
+
+- cat highlight when u move mouse over
+
+- bug - visited links f Activity are remaining blue
+
+- OPT: materialize recent news every 5 minutes(if there is a new post), also for more news, more more news.  5 variations for reload variation, so do one request / minute with a modular cycle i.e. a circular Q.  Could prerender the news HTML even, if user upvote and poll vote data is sent to the JS to be added!!!
+
+- at bottom of news add more cats links as rounded flat rectangular buttons, with infinite scroll that displays more /news (each news cat plus other categories), fetches against materialized tables joined with user upvotes
+
 
 C 5 - article poll voting - image too large; but viewPollResults has no image at all.  Fix?
 

@@ -21,7 +21,7 @@ var (
 	err		 	error
 
 	// NavMenu (constant)
-	navMenu		= []string{"news", "create", "activity" }
+	navMenu		= []string{"news", "create", "activity", "about", "history" }
 )
 
 const (
@@ -106,7 +106,6 @@ type FrameArgs struct {
 func makeFrameArgs(r *http.Request, title, script, urlPath string, userId int64, username string) FrameArgs {
 	pa := makePageArgs(r, title, "", "")
 	pa.Script = script
-
 	return FrameArgs {
 		PageArgs: 		pa,
 		NavMenu:		navMenu,
@@ -116,18 +115,10 @@ func makeFrameArgs(r *http.Request, title, script, urlPath string, userId int64,
 	}
 }
 func makeFrameArgs2(r *http.Request, title, script, urlPath string, userId int64, username string, upVotes, downVotes []int64) FrameArgs {
-	pa := makePageArgs(r, title, "", "")
-	pa.Script = script
-
-	return FrameArgs {
-		PageArgs: 		pa,
-		NavMenu:		navMenu,
-		UrlPath:		urlPath,
-		UserId:			userId,
-		Username:		username,
-		UpVotes:		upVotes,
-		DownVotes:		downVotes,
-	}
+	pa := makeFrameArgs(r, title, script, urlPath, userId, username)
+	pa.UpVotes   = upVotes
+	pa.DownVotes = downVotes
+	return pa
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,6 +156,16 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "<p>IP: %s</p>", ip)
     fmt.Fprintf(w, "<p>Port: %s</p>", port)
     fmt.Fprintf(w, "<p>Forwarded for: %s</p>", forward)
+}
+
+
+func widthHandler(w http.ResponseWriter, r *http.Request) {
+	serveHTML(w, `
+		<script>
+			alert('Your device inner width: ' + window.innerWidth +
+				  '; screen width: ' + screen.width);
+		</script>
+	`)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -278,6 +279,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/tutorial/"	,   		hwrap(tutorialHandler))
 	mux.HandleFunc("/updatePassword/", 		hwrap(updatePasswordHandler))
 	mux.HandleFunc("/viewPollResults/",		hwrap(viewPollResultsHandler))
+	mux.HandleFunc("/width/",				hwrap(widthHandler))
 
 	// Serve static files.
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))

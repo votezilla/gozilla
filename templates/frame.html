@@ -1,4 +1,275 @@
 {{define "body"}}
+
+<style>
+
+
+@media screen and (min-width:460px) { /* wide screens - desktop */
+	.vz-nav-icon{
+		font-size: 48px;
+		min-height: 54px;
+		vertical-align: middle;
+	}
+	.vz-nav-table{
+		font-size: 20px;
+	}
+	.vz-nav-span{
+		line-height:20px;
+		float:left;
+		padding: 5px 10px;
+	}
+	.vz-logo-circle{
+		width:       46px;
+		height:      46px;
+		line-height: 46px;
+	}
+	.vz-logo-circle span{
+		font-size: 28px;
+	}
+	.vz-nav-dino-head{
+		width:		 48px;
+		height:		 48px;
+	}
+}
+@media screen and (max-width:460px) { /* narrow screens - mobile */
+	.vz-nav-icon{
+		font-size: 		13.5vw;
+		min-height: 	15.3vw;
+		vertical-align: middle;
+	}
+	.vz-nav-table{
+		font-size: 		4.6vw;
+		text-overflow:	ellipsis;
+	}
+	.vz-nav-span{
+		line-height:	21px;
+		float:			left;
+		padding: 		1.2vw 1.8vw;
+	}
+	.vz-logo-circle{
+		width:       	13.5vw;
+		height:      	13.5vw;
+		line-height: 	13.5vw;
+	}
+	.vz-logo-circle span{
+		font-size:	 	6vw;
+	}
+	.vz-nav-dino-head{
+		width:			13.5vw;
+		height:			13.5vw;
+	}
+	.vz-nav-dino-text{
+		max-width:		78px;
+		word-break: 	break-all;
+		-ms-word-break: break-all;
+		vertical-align: top;
+		display:		block;
+/*
+		-webkit-hyphens: auto;
+		   -moz-hyphens: auto;
+				hyphens: auto;
+
+		overflow-wrap: break-word;
+*/	}
+}
+
+figcaption {
+    vertical-align: top;
+}
+
+/*style="font-size: 48px; max-width: 60px; min-height: 54px; vertical-align: middle;"*/
+
+
+
+.vz-logo-circle{
+	border-radius:50%;
+	box-sizing:border-box;
+	text-align:center;
+	display:inline-block;
+	/*background-color:#000;*/
+	position: relative;
+
+	font-family:Verdana, Geneva, sans-serif;
+	background-color:#222222;
+}
+.vz-logo-circle:hover, .circle:focus {
+	background-color:#0072ff;
+}
+
+.vz-logo-circle span{
+	text-decoration:none;
+	color:#fff;
+	position: absolute;
+	text-align: center;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+
+.serif {
+	font-family: "Times New Roman", Times, serif;
+}
+.vz_test {
+	background-color:rgb(255, 37, 58);
+	border-bottom-left-radius:70px;
+	border-bottom-right-radius:70px;
+	border-top-left-radius:70px;
+	border-top-right-radius:70px;
+	box-sizing:border-box;
+	color:rgb(255, 255, 255);
+	display:block;
+	font-family:-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	font-size:70px;
+	font-weight:400;
+	height:105px;
+	line-height:70px;
+	max-width:350px;
+	min-width:105px;
+	overflow-x:hidden;
+	overflow-y:hidden;
+	padding-bottom:17.5px;
+	padding-left:17.5px;
+	padding-right:17.5px;
+	padding-top:17.5px;
+	position:absolute;
+	right:0px;
+	text-align:center;
+	text-overflow:ellipsis;
+	text-size-adjust:100%;
+	top:0px;
+}
+</style>
+
+<!--
+<div class="circle">
+	<a href="#">vz</a>
+</div>
+<div class="circle">
+	<span style="color:white; font-size:36px">vz</font>
+</div>
+<div class="circle">
+	<span class="serif">100</a>
+</div>
+<div class="circle">
+	<span class="serif">1000</a>
+</div>
+
+<span class="fa-layers-counter" class="vz_test">vz</span>vz_test
+
+
+<span class="fa-layers fa-fw" style="background:MistyRose">
+    <svg class="svg-inline--fa fa-envelope fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="envelope" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path></svg><!-- <i class="fas fa-envelope"></i>
+    <span class="fa-layers-counter" style="background:Tomato">1,419</span>
+  </span>
+
+		<span class="fa-layers fa-fw" style="background:MistyRose">
+			<i class="fas fa-envelope"></i>
+			<span class="fa-layers-counter" style="background:Tomato">1,419</span>
+		</span>
+
+		<div class="fa-64x">
+		  <span class="fa-layers fa-fw" style="background:MistyRose">
+			<i class="fas fa-circle" style="color:Tomato"></i>
+			<i class="fa-inverse fas fa-times" data-fa-transform="shrink-6"></i>
+		  </span>
+
+		  <span class="fa-layers fa-fw" style="background:MistyRose">
+			<i class="fas fa-circle"></i>
+			<span class="fa-layers-text" style="font-weight:900">VZ</span>
+		  </span>
+
+		  <span class="fa-layers fa-fw" style="background:MistyRose">
+			<i class="fas fa-bookmark"></i>
+			<i class="fa-inverse fas fa-heart" data-fa-transform="shrink-10 up-2" style="color:Tomato"></i>
+		  </span>
+
+		  <span class="fa-layers fa-fw" style="background:MistyRose">
+			<i class="fas fa-play" data-fa-transform="rotate--90 grow-2"></i>
+			<i class="fas fa-sun fa-inverse" data-fa-transform="shrink-10 up-2"></i>
+			<i class="fas fa-moon fa-inverse" data-fa-transform="shrink-11 down-4.2 left-4"></i>
+			<i class="fas fa-star fa-inverse" data-fa-transform="shrink-11 down-4.2 right-4"></i>
+		  </span>
+
+		  <span class="fa-layers fa-fw" style="background:MistyRose">
+			<i class="fas fa-calendar"></i>
+			<span class="fa-layers-text fa-inverse" data-fa-transform="shrink-8 down-3" style="font-weight:900">27</span>
+		  </span>
+
+		  <span class="fa-layers fa-fw" style="background:MistyRose">
+			<i class="fas fa-certificate"></i>
+			<span class="fa-layers-text fa-inverse" data-fa-transform="shrink-11.5 rotate--30" style="font-weight:900">NEW</span>
+		  </span>
+
+		  <span class="fa-layers fa-fw" style="background:MistyRose">
+			<i class="fas fa-envelope"></i>
+			<span class="fa-layers-counter" style="background:Tomato">1,419</span>
+		  </span>
+		</div>
+
+		<span class="fa-stack fa-lg">
+		  <i class="fa fa-square-o fa-stack-2x"></i>
+		  <i class="fa fa-twitter fa-stack-1x"></i>
+		</span>
+		fa-twitter on fa-square-o<br>
+		<span class="fa-stack fa-lg">
+		  <i class="fa fa-circle fa-stack-2x"></i>
+		  <i class="fa fa-flag fa-stack-1x fa-inverse"></i>
+		</span>
+		fa-flag on fa-circle<br>
+		<span class="fa-stack fa-lg">
+		  <i class="fa fa-square fa-stack-2x"></i>
+		  <i class="fa fa-terminal fa-stack-1x fa-inverse"></i>
+		  <span class="fa-layers-counter">vz</span>
+		</span>
+		fa-terminal on fa-square<br>
+		<span class="fa-stack fa-lg">
+		  <i class="fa fa-camera fa-stack-1x"></i>
+		  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+		</span>
+		fa-ban on fa-camera
+
+
+	<style>
+		.icon-notanicon {
+				font-family: Arial, Helvetica, Geneva, SansSerif;
+				font-weight: bold;
+		}
+	</style>
+
+	  <span class="icon-stack">
+				<i class="icon-check-empty icon-stack-base"></i>
+				<i class="icon-notanicon">12</i>
+		</span>
+		<span class="icon-stack">
+				<i class="icon-comment-alt icon-stack-base"></i>
+				<i class="icon-notanicon">34</i>
+		</span>
+		<span class="icon-stack">
+				<i class="icon-circle icon-stack-base"></i>
+				<i class="icon-notanicon icon-light">56</i>
+		</span>
+		<span class="icon-stack">
+				<i class="icon-desktop icon-stack-base"></i>
+				<i class="icon-notanicon">10</i>
+		</span>
+		<span class="icon-stack">
+				<i class="icon-calendar-empty icon-stack-base"></i>
+				<i class="icon-notanicon">29</i>
+		</span>
+		<span class="icon-stack">
+				<i class="icon-circle-blank icon-stack-base"></i>
+				<i class="icon-notanicon">R</i>
+		</span>
+		<span class="icon-stack">
+				<i class="icon-sign-blank icon-stack-base"></i>
+				<i class="icon-notanicon icon-light">Aw</i>
+		</span>
+		<span class="icon-stack">
+				<i class="icon-comment icon-stack-base"></i>
+				<i class="icon-notanicon icon-light">&ocirc;&ocirc;</i>
+    </span>
+-->
+
+
 <script>
 // Global variables:
 var numNewOptions = 0; // Also used by addOption() in article.html
@@ -15,30 +286,38 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 				</a>
 			</div>
 		</td></tr>
-
+<!--
 		<tr><td bgcolor=white>
 			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:4px; font-size: 20px;">
 				<tr>
 					<td style="width:18px; padding:1px">
-						<div style="border: 1px solid black; color: black; text-align:center;"><span style="color:#ff009c">v</span><span style="color:#0072ff">z</span></div>
+						<div style="border: 1px solid black; color: black; text-align:center;">
+							<span style="color:#ff009c">v</span>
+							<span style="color:#0072ff">z</span>
+						</div>
 					</td>
 					<td style="line-height:20px; height:10px; padding: 0px 5px; color:white !important;">
 						<span class="pagetop">
-							<!-- votezilla logo -->
 							<b class="desktop_only">
 								<a href="/news" style="color:#ff009c">vote<span style="color:black">zilla</span></a>
 							</b>
-						<!-- nav menu -->
 						{{- range $i, $navItem := .NavMenu}}
 							{{- if ne $i 0 }} | {{end -}}
 							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
+								{{- if eq $navItem "news" }}
+									<i class="far fa-newspaper"></i>
+								{{- else if eq $navItem "create" }}
+									<i class="fas fa-pencil-alt"></i>
+								{{- else if eq $navItem "activity" }}
+									<i class='fas fa-bell'></i>
+								{{- end }}
+
 								{{$navItem}}
 							</a>
 						{{end -}}
 						</span>
 					</td>
-					<td style="line-height:20px; text-align:right; padding-right:4px;">
-						<!-- login / register / logout -->
+					<td style="line-height:20px; text-align:right; padding-right:4px;" align=right>
 						<span class="pagetop">
 							{{- if .Username }}
 								{{- if eq "history" $.UrlPath}}
@@ -51,16 +330,108 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 								<a href="/login">log in</a> |
 								<a href="/register">sign up</a>
 							{{end -}}
-						<!-- TUTORIAL POP-UP WINDOW:
 							<a data-target="#myModal" data-toggle="modal" data-path="tutorial" data-title="Log In" style="cursor:pointer">
 								tutorial
-							</a>-->
+							</a>
 						</span>
 					</td>
 				</tr>
 			</table>
 		</td></tr>
+		<!----------------------------- vvvvvvvvvvvvvv -------------------->
+		<tr><td bgcolor=white>
+			<table class='vz-nav-table' border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:4px;">
+				<tr>
+
+					<td style="line-height:20px; height:10px; padding: 0px 5px; color:white !important;">
+						<span class="pagetop">
+
+						<!-- nav menu -->
+						{{- range $i, $navItem := .NavMenu}}
+							{{- if ne $i 0 }}<!-- | -->{{end -}}
+							<span class='vz-nav-span'>
+								<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
+									<figure style="text-align: center;">
+										{{- if eq $navItem "news" }}
+											<i class="far fa-newspaper vz-nav-icon"></i>
+										{{- else if eq $navItem "create" }}
+											<i class="fas fa-pencil-alt vz-nav-icon"></i>
+										{{- else if eq $navItem "activity" }}
+											<i class='fas fa-bell vz-nav-icon'></i>
+
+
+										{{- else if eq $navItem "about" }}
+										  <div style="min-height: 54px; vertical-align:center; padding-top: 3px">
+											<div class="vz-logo-circle pagetop">
+												<span>
+													vz
+												</span>
+											</div>
+										  </div>
+										{{- else if eq $navItem "history" }}
+											{{- if $.Username }}
+												<div style="min-height: 54px; vertical-align:center;">
+													<img src="/static/mozilla dinosaur head.png" class='vz-nav-dino-head'>
+												</div>
+										  	{{- else }}
+										  		<i class="fas fa-sign-in-alt vz-nav-icon"></i>
+											{{- end -}}
+										{{- end }}
+										<figcaption style="size: 4vw;">
+											{{- if eq $navItem "activity" }}
+												updates
+											{{- else if eq $navItem "history" }}
+												{{- if $.Username }}
+													<span class='vz-nav-dino-text'>
+														{{ $.Username }}
+													</span>
+												{{- else }}
+													<a href='/loginRegister'>
+														log in /<br> sign up
+													</a>
+												{{- end -}}
+											{{- else }}
+												{{ $navItem }}
+											{{- end }}
+										</figcaption>
+									</figure>
+								</a>
+							</span>
+						{{end -}}
+						</span>
+					</td>
+<!--
+					<td style="line-height:20px; height:10px; padding: 0px 5px; text-align:center; padding-right:4px; width: 60px;">
+						<span class="pagetop" style="line-height:20px; padding: 5px 15px;">
+							{{- if .Username }}
+								<a href="/history" style="color:{{if eq "history" $.UrlPath}}#0072ff{{else}}black{{end}};">
+									<img src="/static/mozilla dinosaur head.png" width="54" height="54">
+									{{.Username}}
+								</a>
+							{{- else -}}
+								<a href="/login">log in</a> |
+								<a href="/register">sign up</a>
+							{{end -}}
+
+						</span>
+					</td>
+-->
+				</tr>
+			</table>
+		</td></tr>
 	</table>
+
+						<!-- TUTORIAL POP-UP WINDOW:
+							<a data-target="#myModal" data-toggle="modal" data-path="tutorial" data-title="Log In" style="cursor:pointer">
+								tutorial
+							</a>
+<div style=" display: table; width: 100%; table-layout: fixed;">
+  <div style="display:table-cell; width: 20%; background-color: red">B</div>
+  <div style="display:table-cell; width: 20%; background-color: yellow">B</div>
+  <div style="display:table-cell; width: 20%; background-color: red">B</div>
+  <div style="display:table-cell; width: 20%; background-color: yellow">B</div>
+  <div style="display:table-cell; width: 20%; background-color: red">B</div>
+</div>-->
 
 	{{ template "content" . }}
 {{ template "endFrame" . }}

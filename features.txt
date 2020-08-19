@@ -277,3 +277,5 @@ B 3 - fixed nonheadline articles being too many lines;
 A 3 - fixed a voting bug that revealed another voter's vote in /history
 
 A 8 - Fixed poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
+
+B 8 - Fixed issues with poll options - both when creating poll, and when a new option is being added.

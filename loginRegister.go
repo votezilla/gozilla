@@ -126,7 +126,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	form := makeForm(
 		nuTextField(kEmail, "Email", 50, 6, 345, "email").noSpellCheckOrCaps().addFnValidator(emailValidator()),
-		nuTextField(kUsername, "Pick a Username", 50, 4, 345, "username").noSpellCheckOrCapsOrAutocomplete(),
+		nuTextField(kUsername, "Pick a Username", 50, 4, 25, "username").noSpellCheckOrCapsOrAutocomplete(),
 		nuPasswordField(kPassword, "Create Password", 40, 8, 40),
 		nuPasswordField(kConfirmPassword, "Confirm Password", 40, 8, 40).noDefaultValidators(),
 	)
