@@ -1,0 +1,50 @@
+{{define "content"}}
+	{{ template "formHeader" "Log In for" }}
+	<div><form method="POST">
+	{{ template "beginForm" .LoginForm }}
+		{{ $f := .LoginForm.FieldMap }}
+		{{ template "field" $f.emailOrUsername -}}
+
+		{{ template "toggleablePassword" $f.password }}
+
+		<p class="nuFieldSubtext">
+			<a href="onClick_OpenModalLink('forgotAccountTarget')" style="color:#0072ff">
+				Forgot Account?
+				<a id="forgotAccountTarget" data-target="#myModal" data-toggle="modal" data-path="forgotAccount" data-title="Forgot Account"></a>
+			</a>
+		</p>
+		<p>
+		{{ template "button" "Log In" }}
+	</form></div>
+
+	<br>
+
+	{{ template "formHeader" "Sign Up for" }}
+
+	<div class="nuIntro" style="font-size: 17px">By having a Votezilla account, you can vote, discuss, and change the world!</div>
+
+	{{ template "beginForm" .RegisterForm }}
+		{{ $f := .RegisterForm.FieldMap }}
+		{{ template "field" $f.email -}}
+		{{ template "field" $f.username -}}
+		<p class="nuFieldSubtext" style="margin: 0px;">Pick a Username - i.e. RedHerring65.  This is how you other community members will see you.  What shall we call you?</p>
+
+		{{ template "toggleablePassword" $f.password -}}
+
+		{{ template "field" $f.confirmPassword -}}
+
+		<p>
+
+		{{template "button" "Sign Up"}}
+
+		<p class="nuFieldSubtext" style="margin: 8px;">By clicking Sign Up, you agree to our Terms and that
+		you have read our Data Policy, including our Cookie Use.</p>
+
+		<div class="nuFooter" style="font-size: 17px;">
+			Already a Votezilla member?
+			<a href="/login" class="storylink" rel="nofollow" style="color:blue;">LOG IN</a>
+		</div>
+	{{ template "endForm" }}
+
+	{{ template "toggleablePasswordScript" }}
+{{end}}
