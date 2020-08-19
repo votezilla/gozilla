@@ -1,6 +1,6 @@
 
 JUST FIXED:
-
+A - 1 - /create isn't telling ppl to log in first
 
 WORKING ON:
 
@@ -13,9 +13,15 @@ x Will need to handle logged out case: log in / sign up, somehow.
 x "create" could say "create / share".
 x jeff likes the FB pencil for create
 
-[] - get susan's login experience with new stuff.
+[] (fix * above then...) PUSH to server
+
+[] - get Susan's login experience with new stuff.
+
+[] - get Jeff's fdbk.
 
 A - 8 - make large_thumbnails, erase them 1 month later
+
+
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):

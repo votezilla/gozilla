@@ -353,6 +353,8 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 								<a href=
 									{{- if and (eq $navItem "history") (not $.Username) }}
 										"/login"
+									{{- else if and (eq $navItem "create") (not $.Username) }}
+										"javascript:alert('You must be logged in to do that!')"
 									{{- else }}
 										"/{{$navItem}}"
 									{{- end }}
