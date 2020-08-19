@@ -223,6 +223,7 @@ func parseTemplateFiles() {
 	hDefineTemplate(kActivity, 		"base", "wide", "frame", "activity")
 
 	hDefineTemplate(kCreate, 		"base", "narrow", "minFrame", "nuField", "create")
+	//hDefineTemplate(kCreate, 		"base", "wide", "frame", "nuField", "create")
 	hDefineTemplate(kCreateBlog, 	"base", "narrow", "minFrame", "nuField", "createBlog")
 	hDefineTemplate(kCreateLink, 	"base", "narrow", "minFrame", "nuField", "createLink")
 	hDefineTemplate(kCreatePoll, 	"base", "narrow", "minFrame", "nuField", "createPoll")

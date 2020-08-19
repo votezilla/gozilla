@@ -44,7 +44,10 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	viewUserId		 := userId
 	viewUsername	 := ""  // "" if viewing ourselves, and if we are viewing someone else it is their username.
 
-	//TODO: do something appropriate if user is not logged in
+	// Do something appropriate if user is not logged in
+	if userId < 0 {
+		http.Redirect(w, r, "/news", http.StatusSeeOther)
+	}
 
 	// If we request a different user, query the userId we are viewing
 	reqUsername := parseUrlParam(r, "username")

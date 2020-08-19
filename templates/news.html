@@ -2,8 +2,17 @@
            But wait, does this work on mobile?  Have to get another phone to find out.. :?  */}}
 {{define "content"}}
 	{{- if eq $.FrameArgs.UrlPath "history"}}
-		<br>
 
+		{{if not .ViewUsername}}
+			<div class="btn-group full">
+				<div class="right">
+					<input type="submit" onclick="location.href='/registerDetails';" value="Update Voter Info" class="btn btn-primary btn-vote" style="font-family: Verdana; background-color: white; color: #0275d8; border-width: thin;">
+					<input type="submit" onclick="location.href='/logout';" value="Log Out" class="btn btn-default btn-vote" style="font-family: Verdana; background-color: white; color: #0275d8; border-width: thin;/*font-family: Verdana; margin-left: 20px;*/">
+				</div>
+			</div>
+			<br>
+		{{end}}
+		<br>
 		<center>
 			<table style="border: black 1px solid; border-spacing: 20px; border-collapse: separate;">
 				<tr>
