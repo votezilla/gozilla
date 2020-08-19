@@ -350,7 +350,13 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						{{- range $i, $navItem := .NavMenu}}
 							{{- if ne $i 0 }}<!-- | -->{{end -}}
 							<span class='vz-nav-span'>
-								<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
+								<a href=
+									{{- if and (eq $navItem "history") (not $.Username) }}
+										"/login"
+									{{- else }}
+										"/{{$navItem}}"
+									{{- end }}
+									style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
 									<figure style="text-align: center;">
 										{{- if eq $navItem "news" }}
 											<i class="far fa-newspaper vz-nav-icon"></i>
@@ -358,8 +364,6 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 											<i class="fas fa-pencil-alt vz-nav-icon"></i>
 										{{- else if eq $navItem "activity" }}
 											<i class='fas fa-bell vz-nav-icon'></i>
-
-
 										{{- else if eq $navItem "about" }}
 										  <div style="min-height: 54px; vertical-align:center; padding-top: 3px">
 											<div class="vz-logo-circle pagetop">
@@ -386,9 +390,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 														{{ $.Username }}
 													</span>
 												{{- else }}
-													<a href='/loginRegister'>
-														log in /<br> sign up
-													</a>
+													log in /<br> sign up
 												{{- end -}}
 											{{- else }}
 												{{ $navItem }}

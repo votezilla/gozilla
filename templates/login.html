@@ -6,21 +6,42 @@
 
 		{{ template "toggleablePassword" $f.password }}
 
+<!--
 		<p class="nuFieldSubtext">
 			<a href="onClick_OpenModalLink('forgotAccountTarget')" style="color:#0072ff">
 				Forgot Account?
 				<a id="forgotAccountTarget" data-target="#myModal" data-toggle="modal" data-path="forgotAccount" data-title="Forgot Account"></a>
 			</a>
 		</p>
+-->
 		<p>
-		{{ template "button" "Log In" }}
-
-		<div class="nuFooter">
-			New to Votezilla?
-			<a href="/register" style="color:#0072ff">SIGN UP</a>
+		<div>
+			<button type="submit" class="nuBtn btn btn-vote center full">
+				Log In
+			</button>
 		</div>
 		<br>
 	{{ template "endForm" }}
+
+	<div class="full">
+		<center style="font-size: 18px; font-weight: bold;">OR</center>
+	</div>
+	<br>
+	<div>
+		<button type="submit" onclick="window.location.href='/register';" class="nuBtn btn btn-vote center" style="background-color: #37cb24; border-color: #68f833; /*text-shadow: 0px -1px black;*/">
+			Create New Account
+		</button>
+	</div>
+	<br>
+
+<!--	TODO: add 'Forgot Password?' here.
+	<div class="nuFooter">
+		New to Votezilla?
+		<a href="/register" style="color:#0072ff">SIGN UP</a>
+	</div>
+-->
+	<br>
+
 
 	{{ template "toggleablePasswordScript" }}
 {{end}}

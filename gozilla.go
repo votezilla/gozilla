@@ -32,6 +32,7 @@ const (
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
 	kLogin = "login"
+	kLoginRegister = "loginRegister"
 	kNews = "news"
 	kNewsSources = "newsSources"
 	kNuForm = "nuForm"
@@ -210,7 +211,7 @@ func parseTemplateFiles() {
 	//}
 	hDefineTemplate := func(handle string, filenames ...string) {
 		_, found := htemplates[handle]
-		assertMsg(!found, "Conflicting hDefineTemplate definition!!!")
+		assertMsg(!found, fmt.Sprintf("Conflicting hDefineTemplate definition for %s!", handle))
 
 		htemplates[handle] = htemplate.Must(htemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
 	}
@@ -229,6 +230,7 @@ func parseTemplateFiles() {
 	hDefineTemplate(kCreatePoll, 	"base", "narrow", "minFrame", "nuField", "createPoll")
 
 	hDefineTemplate(kLogin,			  "base", "narrow", "minFrame", "nuField", "login")
+	hDefineTemplate(kLoginRegister,	  "base", "narrow", "minFrame", "nuField", "loginRegister")
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
 
@@ -272,6 +274,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/history/",        		hwrap(historyHandler))
 	mux.HandleFunc("/ip/",             		hwrap(ipHandler))
 	mux.HandleFunc("/login/",          		hwrap(loginHandler))
+	mux.HandleFunc("/loginRegister/",       hwrap(loginRegisterHandler))
 	mux.HandleFunc("/logout/",         		hwrap(logoutHandler))
 	mux.HandleFunc("/news/",           		hwrap(newsHandler))
 	mux.HandleFunc("/register/",       		hwrap(registerHandler))

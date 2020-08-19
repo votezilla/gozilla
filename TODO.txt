@@ -9,7 +9,7 @@ x square large icon with text underneath.
 * vz, which links to about Votezilla stuff, and c h subtext "about".
 x profile (username) on right, logout is within here so not cluttering main menu.
 x Then play with the order of these, leftmost = news, "updates" (instead of activity) 2nd from right so easy to click on.
-* Will need to handle logged out case: log in / sign up, somehow.
+x Will need to handle logged out case: log in / sign up, somehow.
 x "create" could say "create / share".
 x jeff likes the FB pencil for create
 

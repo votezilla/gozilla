@@ -19,13 +19,48 @@ const (
 	kConfirmPassword = "confirmPassword"
 )
 
+func makeLoginForm() *Form {
+	return makeForm(
+		nuTextField(kEmailOrUsername, "Email / Username", 50, 6, 345, "email / username").noSpellCheckOrCaps(),
+		nuPasswordField(kPassword, "Password", 50, 8, 40),
+	)
+}
+
+func makeRegisterForm() *Form {
+	return makeForm(
+		nuTextField(kEmail, "Email", 50, 6, 345, "email").noSpellCheckOrCaps().addFnValidator(emailValidator()),
+		nuTextField(kUsername, "Pick a Username", 50, 4, 25, "username").noSpellCheckOrCapsOrAutocomplete(),
+		nuPasswordField(kPassword, "Create Password", 40, 8, 40),
+		nuPasswordField(kConfirmPassword, "Confirm Password", 40, 8, 40).noDefaultValidators(),
+	)
+}
+
+func loginRegisterHandler(w http.ResponseWriter, r *http.Request) {
+	pr("loginRegisterHandler")
+
+	loginForm := makeLoginForm()
+	registerForm := makeRegisterForm()
+
+	executeTemplate(
+		w,
+		kLoginRegister,
+		struct {
+			PageArgs
+			LoginForm		Form
+			RegisterForm	Form
+		} {
+			PageArgs: 		makePageArgs(r, "Log In / Sign Up", "", ""),
+			LoginForm:		*loginForm,
+			RegisterForm:	*registerForm,
+		},
+	)
+}
 ///////////////////////////////////////////////////////////////////////////////
 //
 // login
 //
 ///////////////////////////////////////////////////////////////////////////////
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-
 	pr("loginHandler")
 
 	prVal("r.Method", r.Method)
@@ -33,10 +68,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	userId := GetSession(r)
 	assert(userId == -1) // User must not be already logged in!  TODO: handle this case gracefully instead of crashing here!
 
-	form := makeForm(
-		nuTextField(kEmailOrUsername, "Email / Username", 50, 6, 345, "email / username").noSpellCheckOrCaps(),
-		nuPasswordField(kPassword, "Password", 50, 8, 40),
-	)
+	form := makeLoginForm()
 
 	prVal("form", form)
 
@@ -124,12 +156,7 @@ func forgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: check that the user is not already logged in, do something appropriate.
 
-	form := makeForm(
-		nuTextField(kEmail, "Email", 50, 6, 345, "email").noSpellCheckOrCaps().addFnValidator(emailValidator()),
-		nuTextField(kUsername, "Pick a Username", 50, 4, 25, "username").noSpellCheckOrCapsOrAutocomplete(),
-		nuPasswordField(kPassword, "Create Password", 40, 8, 40),
-		nuPasswordField(kConfirmPassword, "Confirm Password", 40, 8, 40).noDefaultValidators(),
-	)
+	form := makeRegisterForm()
 
 	// Username cannot contain ' '.
 	form.field(kUsername).addFnValidator(
