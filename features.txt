@@ -292,3 +292,5 @@ A 13 - cool header icon idea for mobile:
 	x "create" could say "create / share".
 	x jeff likes the FB pencil for create
 
+8/20
+A - 8 - make large_thumbnails

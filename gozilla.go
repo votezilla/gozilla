@@ -3,15 +3,15 @@ package main
 
 import (
 	"fmt"
+    "net"
 	"net/http"
+    "time"
 
 	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
 	//       ttemplate does not, is not currently used and should not be used, but could be used for rendering HTML if absolutely necessary.
 	//       To re-enable ttemplate, be sure to enable it everywhere, including in utils.go.
 	htemplate "html/template"
 	//ttemplate "text/template"
-
-    "net"
 )
 
 var (
@@ -255,6 +255,27 @@ func init() {
 	parseTemplateFiles()
 }
 
+///
+type fileServer_Cached struct {
+	fileServer	http.Handler
+}
+func FileServer_Cached(root http.FileSystem) http.Handler {
+	return &fileServer_Cached{
+		fileServer: http.FileServer(root),
+	}
+}
+func (f *fileServer_Cached) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	cacheSince := time.Now().Format(http.TimeFormat)
+	cacheUntil := time.Now().AddDate(0, 0, 1).Format(http.TimeFormat)
+
+	w.Header().Set("Cache-Control", "max-age:31536000, public")
+	w.Header().Set("Last-Modified", cacheSince)
+	w.Header().Set("Expires", cacheUntil)
+
+	f.fileServer.ServeHTTP(w, r)
+}
+///
+
 func SetupWebHandlers() *http.ServeMux {
 	mux := &http.ServeMux{}
 
@@ -286,10 +307,10 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/width/",				hwrap(widthHandler))
 
 	// Serve static files.
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	mux.Handle("/static/", http.StripPrefix("/static/", FileServer_Cached(http.Dir("./static"))))
 
 	// Special handling for favicon.ico.
-	mux.Handle("/favicon.ico", http.FileServer(http.Dir("./static")))
+	mux.Handle("/favicon.ico", FileServer_Cached(http.Dir("./static")))
 
 	return mux
 }
