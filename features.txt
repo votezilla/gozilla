@@ -279,3 +279,16 @@ A 3 - fixed a voting bug that revealed another voter's vote in /history
 A 8 - Fixed poll bug!!! (voting with no options selected produces both JS and/or voting.go bugs.)
 
 B 8 - Fixed issues with poll options - both when creating poll, and when a new option is being added.
+
+A - 1 - /create isn't telling ppl to log in first
+
+8/19
+A 13 - cool header icon idea for mobile:
+	x square large icon with text underneath.
+	x vz, which links to about Votezilla stuff, and c h subtext "about".
+	x profile (username) on right, logout is within here so not cluttering main menu.
+	x Then play with the order of these, leftmost = news, "updates" (instead of activity) 2nd from right so easy to click on.
+	x Will need to handle logged out case: log in / sign up, somehow.
+	x "create" could say "create / share".
+	x jeff likes the FB pencil for create
+

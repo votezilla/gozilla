@@ -178,7 +178,7 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	}
 
-	// Add vote tally per article.
+	// Add vote tally and sort quality per article.
 	query = fmt.Sprintf(`
 		WITH posts AS (%s),
 	  		 votes AS (
@@ -470,11 +470,18 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 			} else if thumbnailStatus == image_Unprocessed {
 				// Uses full-size image as backup if thumbnail isn't processed yet, or default thumbnail (tiny mozilla head) as backup if image is missing.
 				newArticle.UrlToThumbnail = urlToImage
-			} else if thumbnailStatus == image_DownsampledV2 {
-				// Downsamples into two version of the thumbnail, different heights depending on the height of the article.  (New version 2 of the thumbnail.)  TODO: maybe we can pick a or b ahead of time?
+			} else if thumbnailStatus >= image_DownsampledV2 {
+				thumbnailBasePath := "/static/thumbnails/" + strconv.FormatInt(id, 10)
+
+				// v2+ - Downsamples into two version of the thumbnail, different heights depending on the height of the article.  (New version 2 of the thumbnail.)  TODO: maybe we can pick a or b ahead of time?
 				newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 2,
-					"/static/thumbnails/" + strconv.FormatInt(id, 10) + "a.jpeg", // a - 160 x 116 - thumbnail
-					"/static/thumbnails/" + strconv.FormatInt(id, 10) + "b.jpeg") // b - 160 x 150
+					thumbnailBasePath + "a.jpeg", // a - 160 x 116 - thumbnail
+					thumbnailBasePath + "b.jpeg") // b - 160 x 150
+
+				// v3  - Point full-size image to large thumbnail.
+				if thumbnailStatus >= image_DownsampledV3 {
+					newArticle.UrlToImage = thumbnailBasePath + "c.jpeg" // c - 570 x _ [large thumbnail]
+				}
 			} else if thumbnailStatus == image_Downsampled {
 				// Old version of the thumbnail.
 				newArticle.UrlToThumbnail =

@@ -54,7 +54,7 @@ func CloseDatabase() {
 
 func DbTrackOpenConnections() {
 	// This could also modify the return code...
-	//prVal("Open connections", db.Stats().OpenConnections)
+	prVal("Open connections", db.Stats().OpenConnections)
 }
 
 // Replace all instances of "$$" with "votezilla." or whatever the schema is, in the query.

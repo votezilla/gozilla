@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 //	"sort"
 	"strconv"
-//	"strings"
+	"strings"
 	"time"
 	"willnorris.com/go/imageproxy"
 	_ "image/gif"
@@ -107,6 +107,10 @@ const (
 	image_Downsampled		= 1 // 125 x 75
 	image_DownsampledV2     = 2 // NOTE: THIS SHOULD BE THE NEW SIZE! a - 160 x 116 - thumbnail
 	                            //       AND                          b - 160 x 150
+	image_DownsampledV3     = 3 // V3 += LARGE THUMBNAIL              c - 570 x [preserve aspect ratio]
+
+	image_DownsampleVersionTarget = image_DownsampledV3
+
 	image_DownsampleError	= -1
 
 	//genThumbPass_PollPost	= 0 // Don't need, because all polls right now use the default dino jpg.
@@ -116,6 +120,11 @@ const (
 
 	kImageBatchSize = 5		// Number of images to convert to thumbnails per batch
 )
+
+type UrlStatus struct {
+	url		string
+	status	int
+}
 
 type DownsampleResult struct {
 	postId		int
@@ -174,30 +183,40 @@ func downloadImageSize(imageUrl string) (int, int, error) {
 func downsampleImage(imageUrl string, directory string, outputName string, extension string, width int, height int) error {
 	prf("downsampleImage %s -> %s.%s", imageUrl, outputName, extension)
 
-	resp, err := httpGet(imageUrl, 10.0)
+	// Fix weird URLs.
+	imageUrl = strings.Replace(imageUrl, "////", "//", 1)
+
+	resp, err := httpGet(imageUrl, 14.0) // timeout in main loop is 15 seconds
     if err != nil {
-		prVal("  ERR 1", err)
+		prVal("  ERR 1", err.Error())
 		return err
 	}
     defer resp.Body.Close()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
     if err != nil {
-		prVal("  ERR 2", err)
+		prVal("  ERR 2", err.Error())
 		return err
 	}
 
-	downsampledImg, err := imageproxy.Transform(
-		bytes,
-		imageproxy.Options{
+	options := imageproxy.Options{}
+	if width > 0 && height > 0 { // Smart cropping option
+		options = imageproxy.Options{
 			Width:		float64(width),
 			Height:		float64(height),
 			Format:		extension,
 			SmartCrop:	true,
-		},
-	)
+		}
+	} else {                    // Scaled option - only one dimension is specified
+		assert(width > 0 && height <= 0 || height > 0 && width <= 0)
+		if width > 0	{ options.Width  = float64(width); }
+		if height > 0	{ options.Height = float64(height); }
+		options.Format = extension
+	}
+	prVal("  options", options)
+	downsampledImg, err := imageproxy.Transform(bytes, options)
     if err != nil {
-		prVal("  ERR 3", err)
+		prVal("  ERR 3", err.Error())
 		return err
 	}
 
@@ -208,7 +227,7 @@ func downsampleImage(imageUrl string, directory string, outputName string, exten
 	)
 
 	if err != nil {
-		prVal("  ERR 4", err)
+		prVal("  ERR 4", err.Error())
 	} else {
 		pr("Success downsampling image!")
 	}
@@ -264,7 +283,259 @@ func makeUrlAbsolute(imgSrc, baseUrl string) (string, error) {
 	return imgSrc, nil
 }
 
-/*
+
+// Downsample an image asynchronously, return infomation about id and error status to the channel after.
+func downsamplePostImage(url string, currentStatus, id int, c chan DownsampleResult) {
+	prf("Downsampling image #%d status %d urls %s\n", id, currentStatus, url)
+
+	assert(image_DownsampleError <= currentStatus && currentStatus <= image_DownsampleVersionTarget)
+
+	//image_Unprocessed		= 0
+	//image_Downsampled		= 1 // 125 x 75
+	//image_DownsampledV2     = 2 // NOTE: THIS SHOULD BE THE NEW SIZE! a - 160 x 116 - thumbnail
+	//                            //       AND                          b - 160 x 150
+	//image_DownsampledV3         // V3 += LARGE THUMBNAIL              c - 570 x [preserve aspect ratio]
+	//image_DownsampleError	= -1
+
+	var err error
+	if currentStatus < image_DownsampledV2 {
+		// Small thumbnail - a
+		err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "a", "jpeg", 160, 116)
+		if err != nil {
+			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
+			c <- DownsampleResult{id, url, err}
+			return
+		}
+		// Small thumbnail - b
+		err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "b", "jpeg", 160, 150)
+		if err != nil {
+			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
+			c <- DownsampleResult{id, url, err}
+			return
+		}
+	}
+	if currentStatus < image_DownsampledV3 {
+		// Large Thumbnail - c
+		err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "c", "jpeg", 570, -1)
+		if err != nil {
+			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
+			c <- DownsampleResult{id, url, err}
+			return
+		}
+	}
+	prf("Result for #%d image %s: Success\n", id, url)
+	c <- DownsampleResult{id, url, err}
+	return
+}
+
+// Remove an item from a list of ints.
+func removeItem(s []int, item int) []int {
+	for i, x := range s {
+		if x == item {
+			s[i] = s[len(s)-1]
+			return s[:len(s)-1]
+		}
+	}
+	return s
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fetch post urls ids - Given a query, fetch the database for posts' urls and ids.
+//
+//////////////////////////////////////////////////////////////////////////////
+func fetchPostIds2Urls(query string) (ids2urls map[int]UrlStatus) { //(urls []string, ids []int){
+	pr("fetchPostUrlIds")
+
+	ids2urls = make(map[int]UrlStatus)
+
+	rows := DbQuery(query)
+
+	defer rows.Close()
+	for rows.Next() {
+		id        := -1
+		urlStatus := UrlStatus{}
+
+		err := rows.Scan(&id, &urlStatus.url, &urlStatus.status)
+		check(err)
+
+		ids2urls[id] = urlStatus
+	}
+	check(rows.Err())
+
+	prVal("ids2urls", ids2urls)
+	prVal("Num Post Urls Fetched", len(ids2urls))
+	return
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// image service - Continually checks for new images to shrink.  Images must be shrunk
+//				  to thumbnail size for faster webpage loads.
+//
+//////////////////////////////////////////////////////////////////////////////
+func ImageService() {
+	if flags.mode == "fetchNewsSourceIcons" {
+		for newsSource, imageUrl := range newsSourceIcons {
+			check(downsampleImage(imageUrl, "newsSourceIcons", newsSource, "png", 16, 16))
+		}
+		return
+	}
+
+	// TODO!: Process image thumbnail UrlToImage from LinkUrl submission.
+	//		  Require the input not blank and database not blank, so the thumbnail link is always good.
+	//		  Give user option to use Mozilla Head.
+	//        If there's a problem with the UrlToImage or it's NULL, or the image doesn't downsample
+	//		  for some reason, falls back on scraping the page.
+
+	fetchImagesToDownsampleQuery := [NUM_GEN_THUMBS_PASSES]string {
+		`SELECT Id, UrlToImage, ThumbnailStatus
+		 FROM $$LinkPost
+		 WHERE ThumbnailStatus < %d
+		   AND UrlToImage <> ''
+		   AND Created > now() - interval '2 weeks'
+		 ORDER BY Created DESC
+		 LIMIT %d;`,
+
+		`SELECT Id, UrlToImage, ThumbnailStatus
+		 FROM $$NewsPost
+		 WHERE ThumbnailStatus < %d
+		   AND UrlToImage <> ''
+		   AND Created > now() - interval '2 weeks'
+		 ORDER BY COALESCE(PublishedAt, Created) DESC
+		 LIMIT %d;`,
+	}
+	for i := 0; i < NUM_GEN_THUMBS_PASSES; i++ {
+		fetchImagesToDownsampleQuery[i] = fmt.Sprintf(
+			fetchImagesToDownsampleQuery[i],
+			image_DownsampleVersionTarget,
+			kImageBatchSize)
+	}
+	prVal("fetchImagesToDownsampleQuery[0]", fetchImagesToDownsampleQuery[0])
+	prVal("fetchImagesToDownsampleQuery[1]", fetchImagesToDownsampleQuery[1])
+
+
+	pr("========================================")
+	pr("======== STARTING IMAGE SERVICE ========")
+	pr("========================================\n")
+
+	for { // Infinite loop
+		numImageProcessAttempts := 0
+
+		// Downsample news images
+		for pass := 0; pass < NUM_GEN_THUMBS_PASSES; pass++ {
+			pr("========================================")
+			prf("======= FETCHING IMAGES PASS: %d =======", pass)
+			pr("========================================\n")
+
+
+			// Grab a batch of images to downsample from new news posts.
+			ids2urls := fetchPostIds2Urls(fetchImagesToDownsampleQuery[pass])
+
+			// Download and downsample the images in parallel.
+			c := make(chan DownsampleResult)
+			timeout := time.After(15 * time.Second) // was 30 seconds before; timeout for downloading image is 14 seconds.
+
+			for id, urlStatus := range ids2urls {
+				numImageProcessAttempts++
+
+				prf("trying to create channel to downsample id %d url %s status %d", id, urlStatus.url, urlStatus.status)
+				go downsamplePostImage(urlStatus.url, urlStatus.status, id, c)
+			}
+
+			// TODO: Generalize this code.  Can use fn callbacks for the main and timeout cases.
+			downsampleImagesLoop: for {
+				select {
+					case downsampleResult := <-c:
+						newThumbnailStatus := ternary_int(
+							downsampleResult.err == nil,
+							image_DownsampleVersionTarget,
+							image_DownsampleError)
+
+						switch pass {
+							//case genThumbPass_PollPost:
+							//	DbExec(
+							//		`UPDATE $$PollPost
+							//		 SET ThumbnailStatus = $1
+							//		 WHERE Id = $2::bigint`,
+							//		newThumbnailStatus,
+							//		downsampleResult.postId)
+							case genThumbPass_LinkPost:
+								DbExec(
+									`UPDATE $$LinkPost
+									 SET ThumbnailStatus = $1
+									 WHERE Id = $2::bigint`,
+									newThumbnailStatus,
+									downsampleResult.postId)
+							case genThumbPass_NewsPost:
+								DbExec(
+									`UPDATE $$NewsPost
+									 SET ThumbnailStatus = $1
+									 WHERE Id = $2::bigint`,
+									newThumbnailStatus,
+									downsampleResult.postId)
+							default:
+								assert(false)
+						}
+
+						// Remove this from the list of ids, so we can tell which ids were never processed.
+						delete(ids2urls, downsampleResult.postId)
+
+						if len(ids2urls) == 0 {
+							pr("Processed all images!")
+							break downsampleImagesLoop
+						}
+					case <- timeout:
+						pr("Timeout!")
+
+						// Set status to -1 for any images that timed out.
+						for id, urlStatus := range ids2urls {
+							prf("Removing timed out id %d url %s prevStatus %d", id, urlStatus.url, urlStatus.status)
+
+							switch pass {
+								//case genThumbPass_PollPost:
+								//	DbExec(
+								//		`UPDATE $$PollPost
+								//		 SET ThumbnailStatus = -1
+								//		 WHERE Id = $1::bigint`,
+								//		id)
+								case genThumbPass_LinkPost:
+									DbExec(
+										`UPDATE $$LinkPost
+										 SET ThumbnailStatus = -1
+										 WHERE Id = $1::bigint`,
+										id)
+								case genThumbPass_NewsPost:
+									DbExec(
+										`UPDATE $$NewsPost
+										 SET ThumbnailStatus = -1
+										 WHERE Id = $1::bigint`,
+										id)
+								default:
+									assert(false)
+							}
+						}
+
+						break downsampleImagesLoop
+				}
+			}
+
+			DbTrackOpenConnections()
+		}
+
+		// Sleep when there are no records to process.
+		if numImageProcessAttempts == 0 {
+			time.Sleep(10 * time.Second)
+		}
+	}
+}
+
+
+
+
+
+/* DEAD SCRATCH CODE:
 
 // Figure out which thumbnail to use based on the Url of the link submitted.
 // Return the string of the image url if it exists, or "" if there is an error.
@@ -393,216 +664,3 @@ func scrapeWebpageForBestImage(pageUrl string) ([]ImageSizeResult, error) {
 
 	return imageSortResults, nil
 }*/
-
-// Downsample an image asynchronously, return infomation about id and error status to the channel after.
-func downsamplePostImage(url string, id int, pass int, c chan DownsampleResult) {
-	prf("Downsampling image #%d pass %d urls %s\n", id, pass, url)
-
-	//image_Unprocessed		= 0
-	//image_Downsampled		= 1 // 125 x 75
-	//image_DownsampledV2     = 2 // NOTE: THIS SHOULD BE THE NEW SIZE! a - 160 x 116 - thumbnail
-	//                            //       AND                          b - 160 x 150
-	//image_DownsampleError	= -1
-
-	var err error
-	err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "a", "jpeg", 160, 116)
-	if err != nil {
-		// TODO: Downsample the Mozilla dinosaur head in this case.
-		prVal("downsamplePostImage called downsampleImage and then encountered some error", err)
-	}
-	err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "b", "jpeg", 160, 150)
-	if err != nil {
-		// TODO: Downsample the Mozilla dinosaur head in this case.
-		prVal("downsamplePostImage called downsampleImage and then encountered some error", err)
-	}
-	prf("Result for #%d image %s: %v\n", id, url, err)
-	c <- DownsampleResult{id, url, err}
-}
-
-// Remove an item from a list of ints.
-func removeItem(s []int, item int) []int {
-	for i, x := range s {
-		if x == item {
-			s[i] = s[len(s)-1]
-			return s[:len(s)-1]
-		}
-	}
-	return s
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// fetch post urls ids - Given a query, fetch the database for posts' urls and ids.
-//
-//////////////////////////////////////////////////////////////////////////////
-func fetchPostIds2Urls(query string) (ids2urls map[int]string) { //(urls []string, ids []int){
-	pr("fetchPostUrlIds")
-
-	ids2urls = make(map[int]string)
-
-	rows := DbQuery(query)
-
-	defer rows.Close()
-	for rows.Next() {
-		var url string
-		var id int
-
-		err := rows.Scan(&url, &id)
-		check(err)
-
-		ids2urls[id] = url
-	}
-	check(rows.Err())
-
-	prVal("ids2urls", ids2urls)
-	prVal("Num Post Urls Fetched", len(ids2urls))
-	return
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// image service - Continually checks for new images to shrink.  Images must be shrunk
-//				  to thumbnail size for faster webpage loads.
-//
-//////////////////////////////////////////////////////////////////////////////
-func ImageService() {
-	if flags.mode == "fetchNewsSourceIcons" {
-		for newsSource, imageUrl := range newsSourceIcons {
-			check(downsampleImage(imageUrl, "newsSourceIcons", newsSource, "png", 16, 16))
-		}
-		return
-	}
-
-	// TODO!: Process image thumbnail UrlToImage from LinkUrl submission.
-	//		  Require the input not blank and database not blank, so the thumbnail link is always good.
-	//		  Give user option to use Mozilla Head.
-	//        If there's a problem with the UrlToImage or it's NULL, or the image doesn't downsample
-	//		  for some reason, falls back on scraping the page.
-
-	queries := [NUM_GEN_THUMBS_PASSES]string {
-
-	//	`SELECT UrlToImage, Id
-	//	 FROM $$PollPost
-	//	 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
-	//	 ORDER BY Created DESC
-	//	 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
-
-		`SELECT UrlToImage, Id
-		 FROM $$LinkPost
-		 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
-		 ORDER BY Created DESC
-		 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
-
-		`SELECT UrlToImage, Id
-		 FROM $$NewsPost
-		 WHERE ThumbnailStatus = 0 AND UrlToImage <> ''
-		 ORDER BY COALESCE(PublishedAt, Created) DESC
-		 LIMIT ` + strconv.Itoa(kImageBatchSize) + ";",
-	}
-
-	pr("========================================")
-	pr("======== STARTING IMAGE SERVICE ========")
-	pr("========================================\n")
-
-	for {
-		// Downsample news images
-		for pass := 0; pass < NUM_GEN_THUMBS_PASSES; pass++ {
-			pr("========================================")
-			prf("======= FETCHING IMAGES PASS: %d =======", pass)
-			pr("========================================\n")
-
-
-			// Grab a batch of images to downsample from new news posts.
-			ids2urls := fetchPostIds2Urls(queries[pass])
-
-			if len(ids2urls) == 0 { // If no URLS, wait 10 seconds and continue checking queries.
-				time.Sleep(10 * time.Second)
-				continue
-			}
-
-			// Download and downsample the images in parallel.
-			c := make(chan DownsampleResult)
-			timeout := time.After(10 * time.Second) // was 30 seconds before
-
-			for id, url := range ids2urls {
-				prf("trying to create channel to downsample id %d url %s", id, url)
-				go downsamplePostImage(url, id, pass, c)
-			}
-
-			// TODO: Generalize this code.  Can use fn callbacks for the main and timeout cases.
-			downsampleImagesLoop: for {
-				select {
-					case downsampleResult := <-c: // TODO: this code can be moved to downsamplePostImage(), which then all collectively can become the callback function.
-						switch pass {
-							//case genThumbPass_PollPost:
-							//	DbExec(
-							//		`UPDATE $$PollPost
-							//		 SET ThumbnailStatus = $1
-							//		 WHERE Id = $2::bigint`,
-							//		ternary_int(downsampleResult.err == nil, image_DownsampledV2, image_DownsampleError),
-							//		downsampleResult.postId)
-							case genThumbPass_LinkPost:
-								DbExec(
-									`UPDATE $$LinkPost
-									 SET ThumbnailStatus = $1
-									 WHERE Id = $2::bigint`,
-									ternary_int(downsampleResult.err == nil, image_DownsampledV2, image_DownsampleError),
-									downsampleResult.postId)
-							case genThumbPass_NewsPost:
-								DbExec(
-									`UPDATE $$NewsPost
-									 SET ThumbnailStatus = $1
-									 WHERE Id = $2::bigint`,
-									ternary_int(downsampleResult.err == nil, image_DownsampledV2, image_DownsampleError),
-									downsampleResult.postId)
-							default:
-								assert(false)
-						}
-
-						// Remove this from the list of ids, so we can tell which ids were never processed.
-						delete(ids2urls, downsampleResult.postId)
-
-						if len(ids2urls) == 0 {
-							pr("Processed all images!")
-							break downsampleImagesLoop
-						}
-					case <- timeout:
-						pr("Timeout!")
-
-						// Set status to -1 for any images that timed out.
-						for id, url := range ids2urls {
-							prf("Removing timed out id %d url %s", id, url)
-
-							switch pass {
-								//case genThumbPass_PollPost:
-								//	DbExec(
-								//		`UPDATE $$PollPost
-								//		 SET ThumbnailStatus = -1
-								//		 WHERE Id = $1::bigint`,
-								//		id)
-								case genThumbPass_LinkPost:
-									DbExec(
-										`UPDATE $$LinkPost
-										 SET ThumbnailStatus = -1
-										 WHERE Id = $1::bigint`,
-										id)
-								case genThumbPass_NewsPost:
-									DbExec(
-										`UPDATE $$NewsPost
-										 SET ThumbnailStatus = -1
-										 WHERE Id = $1::bigint`,
-										id)
-								default:
-									assert(false)
-							}
-						}
-
-						break downsampleImagesLoop
-				}
-			}
-
-			DbTrackOpenConnections()
-		}
-	}
-}

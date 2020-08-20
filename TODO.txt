@@ -1,29 +1,21 @@
 
 JUST FIXED:
-A - 1 - /create isn't telling ppl to log in first
 
->> - A 13 - cool header icon idea for mobile:
-x square large icon with text underneath.
-x vz, which links to about Votezilla stuff, and c h subtext "about".
-x profile (username) on right, logout is within here so not cluttering main menu.
-x Then play with the order of these, leftmost = news, "updates" (instead of activity) 2nd from right so easy to click on.
-x Will need to handle logged out case: log in / sign up, somehow.
-x "create" could say "create / share".
-x jeff likes the FB pencil for create
+A - 8 - make large_thumbnails
 
 
 
 WORKING ON:
 
 
+A - add expires headers
+	https://play.golang.org/p/fpETA9_1oo
+	https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers
+
 
 [] (fix * above then...) PUSH to server
 
 [] - get Susan's login experience with new stuff.
-
-[] - get Jeff's fdbk.
-
-A - 8 - make large_thumbnails, erase them 1 month later
 
 
 
@@ -60,7 +52,7 @@ A - 8 - Add num notifications javascript on 1 minute timer that asks how many no
 
 A - 8 - browser notifications: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
 
-
+A 5 - prompt user to leave comment or up/down vote after viewing an article.
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
@@ -75,6 +67,8 @@ B 21  =   Fix email - Emailed DO tech support.
   -   Remember previous page or close form upon success, and/or back tri buttons.
 
 B - security - password timeout
+
+B - let ppl know they can vote in their own poll
 
 - should I make polls be FB-style?
 
@@ -135,6 +129,8 @@ B 8 - I need to add some suggestions about poll wording when creating polls, as 
 
 - at bottom of news add more cats links as rounded flat rectangular buttons, with infinite scroll that displays more /news (each news cat plus other categories), fetches against materialized tables joined with user upvotes
 
+
+C 3 - erase old large thumbnails.  (eventually, small thumbnails?)
 
 C 5 - article poll voting - image too large; but viewPollResults has no image at all.  Fix?
 
