@@ -50,6 +50,7 @@ var (
 			"entertainment",
 			"technology",
 			"science",
+			"votezilla",
 			"other",
 		},
 		HeaderColors : map[string]string{
@@ -61,6 +62,7 @@ var (
 			"entertainment" 	: "#e85be4",
 			"technology" 		: "#aaa",    //"#ccc",
 			"science"			: "#8cf",
+			"votezilla"			: "#fa2",
 			"other"				: "#4af392",
 		},
 		CategorySelect : [][2]string{
@@ -72,6 +74,7 @@ var (
 			{"entertainment",	"entertainment"},
 			{"technology",		"technology"},
 			{"science",			"science"},
+			{"votezilla",		"votezilla"},
 			{"other",			"other"},
 		},
 	}
@@ -352,18 +355,15 @@ func renderNews(w http.ResponseWriter,
 	pr("renderNews")
 	prVal("  username", username)
 	prVal("  userId", userId)
+	prVal("  category", category)
+	prVal("  alertMessage", alertMessage)
 
 	title = "votezilla - " + title
 
 	// TODO: use a cookie to only alert about being logged in once?  Also, make this into a pop-up.
-	script := ""
-	switch(alertMessage) {
-		case "LoggedIn": 		script = "alert('You are now logged in :)')"
-		case "LoggedOut": 		script = "alert('You are now logged out :)')"
-		case "AccountCreated": 	script = "alert('Your account has been created, good work!')"
-		case "SubmittedLink": 	script = "alert('Your link has been created, and will appear shortly')"
-		case "SubmittedPoll": 	script = "alert('Your poll has been created, and will appear shortly')"
-	}
+	script := alertMessage
+
+	_, isNewsSource := newsSourceList[viewUsername]
 
 	// Render the news articles.
 	newsArgs := struct {
@@ -371,11 +371,13 @@ func renderNews(w http.ResponseWriter,
 		ArticleGroups	[]ArticleGroup
 		Category		string
 		ViewUsername	string
+		IsNewsSource	bool
 	}{
 		FrameArgs:		makeFrameArgs2(r, title, script, urlPath, userId, username, upvotes, downvotes),
 		ArticleGroups:	articleGroups,
 		Category:		category,
 		ViewUsername:	viewUsername,
+		IsNewsSource:	isNewsSource,
 	}
 
 	//prVal("UpVotes", upvotes)
@@ -397,10 +399,15 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	reqCategory		:= parseUrlParam(r, "category")
 	reqAlert		:= parseUrlParam(r, "alert")
 
-	_, foundCategory := newsCategoryInfo.HeaderColors[reqCategory]  // Ensure we have a valid category (to prevent SQL injection).
-	if !foundCategory {
-		reqAlert = "Invalid category; displaying all news posts"
-		reqCategory = ""
+	prVal("reqCategory", reqCategory)
+	prVal("newsCategoryInfo.HeaderColors", newsCategoryInfo.HeaderColors)
+
+	if reqCategory != "" {
+		_, foundCategory := newsCategoryInfo.HeaderColors[reqCategory]  // Ensure we have a valid category (to prevent SQL injection).
+		if !foundCategory {
+			reqAlert = "InvalidCategory"
+			reqCategory = ""
+		}
 	}
 
 	userId, username := GetSessionInfo(w, r)

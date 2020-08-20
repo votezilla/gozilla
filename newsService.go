@@ -72,6 +72,7 @@ var (
 		"entertainment"		: "entertainment",
 		"technology"		: "technology",
 		"gaming"			: "gaming",
+		"votezilla"			: "votezilla",
 	}
 
 	pNewsErrorReportedTime	*time.Time

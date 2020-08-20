@@ -15,6 +15,11 @@ import (
 const BUSINESS_EMAIL = "vtzilla@gmail.com"
 const BUSINESS_PASS = "vote22zilla"  //TODO TSecurity issue of including password in this code.
 
+/* possible emails to use:
+vzilla@gmail.com
+votezilla.io@gmail.com
+*/
+
 /*
 func main() {
 

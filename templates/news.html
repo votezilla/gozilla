@@ -19,7 +19,9 @@
 					<td><img src="/static/mozilla%20dinosaur%20head.png" width=256></td>
 					<td>
 						<h5 class="desktop_only">
-							{{if .ViewUsername}}
+							{{if .IsNewsSource}}
+								<b>NEWS:</b> View recent articles from {{.ViewUsername}}.
+							{{else if .ViewUsername}}
 								<b>PROFILE:</b> Check out what {{.ViewUsername}} has been up to.
 							{{else}}
 								<b>HISTORY:</b> Find all the polls and articles you've created, voted on, or commented on.

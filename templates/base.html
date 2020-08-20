@@ -47,7 +47,17 @@
 				otherField.css('display', isOther ? 'block' : 'none');
 			}
 
-		 	{{.PageArgs.Script}}
+			$(document).ready(function() {
+			 	{{ if      eq .PageArgs.Script "LoggedIn"}}		 		alert('You are now logged in :)');
+			 	{{ else if eq .PageArgs.Script "LoggedOut"}}			alert('You are now logged out.');
+			 	{{ else if eq .PageArgs.Script "AccountCreated"}}		alert('Your account has been created, good work!');
+				{{ else if eq .PageArgs.Script "WelcomeToVotezilla"}}	alert('Welcome to Votezilla!!!');
+				{{ else if eq .PageArgs.Script "SubmittedLink"}}		alert('Your link has been created, and will appear shortly.');
+				{{ else if eq .PageArgs.Script "SubmittedPoll"}}		alert('Your poll has been created, and will appear shortly.');
+				{{ else if eq .PageArgs.Script "InvalidCategory"}}		alert('Invalid category; displaying all news posts.');
+				{{ else if    .PageArgs.Script }}				    	alert('Error: {{.PageArgs.Script}}');
+				{{ end }}
+			});
 		</script>
 
 		<!-- Load the JS here so the page can become responsive faster -->

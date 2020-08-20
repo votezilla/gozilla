@@ -337,7 +337,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		//serveHTML(w, `<h2>Congrats, you just registered</h2>
 		//			  <script>alert('Congrats, you just registered')</script>`)
 		// TODO: do registration as a pop-up.  Commenting out this for now, as it breaks the UserId cookie:
-		http.Redirect(w, r, "/news?alert=Welcome to Votezilla!!!", http.StatusSeeOther)
+		http.Redirect(w, r, "/news?alert=WelcomeToVotezilla", http.StatusSeeOther)
 		return
 	}
 
