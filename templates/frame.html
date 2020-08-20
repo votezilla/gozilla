@@ -3,7 +3,7 @@
 <style>
 
 
-@media screen and (min-width:460px) { /* wide screens - desktop */
+@media screen and (min-width:525px) { /* wide screens - desktop */
 	.vz-nav-icon{
 		font-size: 48px;
 		min-height: 54px;
@@ -12,10 +12,16 @@
 	.vz-nav-table{
 		font-size: 20px;
 	}
+	.vz-nav-td{
+		line-height:20px;
+		height:		10px;
+		padding: 	0px 5px;
+		color:		white !important;
+	}
 	.vz-nav-span{
 		line-height:20px;
-		float:left;
-		padding: 5px 10px;
+		float:		left;
+		padding: 	5px 10px;
 	}
 	.vz-logo-circle{
 		width:       46px;
@@ -30,15 +36,21 @@
 		height:		 48px;
 	}
 }
-@media screen and (max-width:460px) { /* narrow screens - mobile */
+@media screen and (max-width:525px) { /* narrow screens - mobile */
 	.vz-nav-icon{
 		font-size: 		13.5vw;
-		min-height: 	15.3vw;
+		min-height: 	54px;/*15.3vw;*/
 		vertical-align: middle;
 	}
 	.vz-nav-table{
-		font-size: 		4.6vw;
+		font-size: 		min(20px, 4.4vw);
 		text-overflow:	ellipsis;
+	}
+	.vz-nav-td{
+		line-height:	20px;
+		height:			10px;
+		padding: 		0px;/*0 .15vw;*/
+		color:			white !important;
 	}
 	.vz-nav-span{
 		line-height:	21px;
@@ -58,7 +70,7 @@
 		height:			13.5vw;
 	}
 	.vz-nav-dino-text{
-		max-width:		78px;
+		max-width:		max(70.2px, 15.4vw);
 		word-break: 	break-all;
 		-ms-word-break: break-all;
 		vertical-align: top;
@@ -342,8 +354,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 		<tr><td bgcolor=white>
 			<table class='vz-nav-table' border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:4px;">
 				<tr>
-
-					<td style="line-height:20px; height:10px; padding: 0px 5px; color:white !important;">
+					<td class='vz-nav-td'>
 						<span class="pagetop">
 
 						<!-- nav menu -->
