@@ -1,13 +1,22 @@
 {{define "body"}}
 
 <style>
-
+figure {
+	position: relative;
+}
 
 @media screen and (min-width:525px) { /* wide screens - desktop */
 	.vz-nav-icon{
 		font-size: 48px;
 		min-height: 54px;
 		vertical-align: middle;
+	}
+	.vz-in-circle {
+		position: absolute;
+		top: 11.5px;
+		left: 16.5px;
+		color: white;
+		font-size: 24px;
 	}
 	.vz-nav-table{
 		font-size: 20px;
@@ -35,12 +44,26 @@
 		width:		 48px;
 		height:		 48px;
 	}
+	.vz-nav-dino-text{
+		max-width:		20vw;
+		word-break: 	break-all;
+		-ms-word-break: break-all;
+		vertical-align: top;
+		display:		block;
+	}
 }
 @media screen and (max-width:525px) { /* narrow screens - mobile */
 	.vz-nav-icon{
 		font-size: 		13.5vw;
 		min-height: 	54px;/*15.3vw;*/
 		vertical-align: middle;
+	}
+	.vz-in-circle {
+		position: absolute;
+		top: 3.8vw;
+		left: 3.4vw;
+		color: white;
+		font-size: 6.6vw;
 	}
 	.vz-nav-table{
 		font-size: 		min(20px, 4.4vw);
@@ -57,10 +80,15 @@
 		float:			left;
 		padding: 		1.2vw 1.8vw;
 	}
+	.vz-circle-container{
+		min-height: 	54px;
+		vertical-align:	center;
+		padding-top: 	3px;
+	}
 	.vz-logo-circle{
-		width:       	13.5vw;
-		height:      	13.5vw;
-		line-height: 	13.5vw;
+		width:       	12.5vw;
+		height:      	12.5vw;
+		line-height: 	12.5vw;
 	}
 	.vz-logo-circle span{
 		font-size:	 	6vw;
@@ -70,18 +98,12 @@
 		height:			13.5vw;
 	}
 	.vz-nav-dino-text{
-		max-width:		max(70.2px, 15.4vw);
+		max-width:		max(60.2px, 15.4vw);
 		word-break: 	break-all;
 		-ms-word-break: break-all;
 		vertical-align: top;
 		display:		block;
-/*
-		-webkit-hyphens: auto;
-		   -moz-hyphens: auto;
-				hyphens: auto;
-
-		overflow-wrap: break-word;
-*/	}
+	}
 }
 
 figcaption {
@@ -380,13 +402,8 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 										{{- else if eq $navItem "activity" }}
 											<i class='fas fa-bell vz-nav-icon'></i>
 										{{- else if eq $navItem "about" }}
-										  <div style="min-height: 54px; vertical-align:center; padding-top: 3px">
-											<div class="vz-logo-circle pagetop">
-												<span>
-													vz
-												</span>
-											</div>
-										  </div>
+											<i class='fa fa-circle vz-nav-icon' aria-hidden="true"></i>
+												<span class='vz-in-circle'>vz</span>
 										{{- else if eq $navItem "history" }}
 											{{- if $.Username }}
 												<div style="min-height: 54px; vertical-align:center;">
@@ -397,8 +414,12 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 											{{- end -}}
 										{{- end }}
 										<figcaption style="size: 4vw;">
-											{{- if eq $navItem "activity" }}
+											{{- if eq $navItem "news" }}
+												news /<br>polls
+											{{- else if eq $navItem "activity" }}
 												updates
+											{{- else if eq $navItem "create" }}
+												share /<br>create
 											{{- else if eq $navItem "history" }}
 												{{- if $.Username }}
 													<span class='vz-nav-dino-text'>

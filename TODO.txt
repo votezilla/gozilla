@@ -46,6 +46,8 @@ A - 8 - Continue getting feedback from close peeps!!  (Start with Susan, Steve D
 - email friends & family.
 - create some good polls first
 
+A - start optimizing a little, or just shrink the icons and upgrade the droplet.
+
 A - 13 - start implementing demographic breakdown (available when 5+ or 10+ votes)
          (view # votes for each poll:
          	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;

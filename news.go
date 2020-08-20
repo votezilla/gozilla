@@ -351,6 +351,8 @@ func renderNews(w http.ResponseWriter,
 				downvotes []int64,
 				category,
 				alertMessage string) {
+	// REVERT!!!
+	//username = "AVeryLongUsername5526dks3232W"
 
 	pr("renderNews")
 	prVal("  username", username)
