@@ -1,5 +1,5 @@
 {{define "content"}}
-{{template "formHeader" "Create link post for"}}
+{{template "formHeader" "Share link for"}}
 {{ template "beginForm" .Form }}
 	{{ $f := .Form.FieldMap }}
 	{{ template "field" $f.link -}}
@@ -20,7 +20,7 @@
 		<div id="image_container"></div>
 	</div>
 	<p>
-	{{ template "button" "Create Link Post" }}
+	{{ template "button" "Share Link" }}
 	<br>
 {{template "endForm"}}
 
