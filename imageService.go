@@ -186,16 +186,16 @@ func downsampleImage(imageUrl string, directory string, outputName string, exten
 	// Fix weird URLs.
 	imageUrl = strings.Replace(imageUrl, "////", "//", 1)
 
-	resp, err := httpGet(imageUrl, 14.0) // timeout in main loop is 15 seconds
+	resp, err := httpGet(imageUrl, 25.0) 
     if err != nil {
-		prVal("  ERR 1", err.Error())
+		prf("  ERR 1 %s %s", err.Error(), imageUrl)
 		return err
 	}
     defer resp.Body.Close()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
     if err != nil {
-		prVal("  ERR 2", err.Error())
+		prf("  ERR 2 %s %s", err.Error(), imageUrl)
 		return err
 	}
 
@@ -216,7 +216,7 @@ func downsampleImage(imageUrl string, directory string, outputName string, exten
 	prVal("  options", options)
 	downsampledImg, err := imageproxy.Transform(bytes, options)
     if err != nil {
-		prVal("  ERR 3", err.Error())
+		prf("  ERR 3 %s %s", err.Error(), imageUrl)
 		return err
 	}
 
@@ -227,7 +227,7 @@ func downsampleImage(imageUrl string, directory string, outputName string, exten
 	)
 
 	if err != nil {
-		prVal("  ERR 4", err.Error())
+		prf("  ERR 4 %s %s", err.Error(), imageUrl)
 	} else {
 		pr("Success downsampling image!")
 	}
@@ -435,7 +435,7 @@ func ImageService() {
 
 			// Download and downsample the images in parallel.
 			c := make(chan DownsampleResult)
-			timeout := time.After(15 * time.Second) // was 30 seconds before; timeout for downloading image is 14 seconds.
+			timeout := time.After(30 * time.Second)
 
 			for id, urlStatus := range ids2urls {
 				numImageProcessAttempts++
