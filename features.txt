@@ -294,3 +294,12 @@ A 13 - cool header icon idea for mobile:
 
 8/20
 A - 8 - make large_thumbnails
+
+A - add expires headers - Implemented... at least according to Chrome and Firefox, it's cached.  pingdom.com only looks for the Expires tag so doesn't recognize it.  But it seems to work in Chrome.
+	https://play.golang.org/p/fpETA9_1oo
+	https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers
+
+Notes:
+	Cache-Control:public
+	max-age=31536000	// one year (cache time in seconds)
+	Last-Modified:          // conditional
