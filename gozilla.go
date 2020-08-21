@@ -5,7 +5,7 @@ import (
 	"fmt"
     "net"
 	"net/http"
-    "time"
+    //"time"
 
 	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
 	//       ttemplate does not, is not currently used and should not be used, but could be used for rendering HTML if absolutely necessary.
@@ -177,7 +177,7 @@ func widthHandler(w http.ResponseWriter, r *http.Request) {
 func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		prf("\n Handling request from: %s\n", formatRequest(r))
-		start := time.Now()
+		startTimer("hwrap")
 
 		err := CheckAndLogIP(r)
 		if err != nil {
@@ -187,8 +187,7 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 
 		handler(w, r)  // Handle the request.
 
-		timeElapsed := time.Since(start)
-		prVal("timeElapsed: ", timeElapsed.Seconds())
+		endTimer("hwrap")
 	}
 }
 

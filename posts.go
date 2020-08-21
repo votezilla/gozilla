@@ -79,6 +79,9 @@ func getTimeSinceString(publishedAt time.Time, longform bool) string {
 //////////////////////////////////////////////////////////////////////////////
 func _queryArticles(idCondition string, userIdCondition string, categoryCondition string, newsSourceIdCondition string,
 					articlesPerCategory int, maxArticles int, fetchVotesForUserId int64, onlyPolls bool) (articles []Article) {
+	startTimer("_queryArticles")
+	startTimer("doQuery")
+
 	//pr("_queryArticles")
 	//prVal("idCondition", idCondition)
 	//prVal("userIdCondition", userIdCondition)
@@ -273,6 +276,10 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	checkForDupId := map[int64]bool{}
 
 	rows := DbQuery(query)
+
+	endTimer("doQuery")
+
+	startTimer("scanRows")
 	for rows.Next() {
 		var id				int64
 		var author			string
@@ -505,8 +512,8 @@ func _queryArticles(idCondition string, userIdCondition string, categoryConditio
 	check(rows.Err())
 	rows.Close()
 
-	//prVal("checkForDupId", checkForDupId)
-	//prVal("len(articles)", len(articles))
+	endTimer("scanRows")
+	endTimer("_queryArticles")
 
 	return articles
 }

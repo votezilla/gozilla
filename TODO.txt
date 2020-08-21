@@ -1,14 +1,6 @@
 
 JUST FIXED:
 
-A - add expires headers
-	https://play.golang.org/p/fpETA9_1oo
-	https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers
-
-Notes:
-	Cache-Control:public
-	max-age=31536000	// one year (cache time in seconds)
-	Last-Modified:          // conditional
 
 
 WORKING ON:

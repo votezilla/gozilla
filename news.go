@@ -394,6 +394,9 @@ func renderNews(w http.ResponseWriter,
 //
 //////////////////////////////////////////////////////////////////////////////
 func newsHandler(w http.ResponseWriter, r *http.Request) {
+	startTimer("newsHandler")
+
+	startTimer("A")
 	RefreshSession(w, r)
 
 	pr("newsHandler")
@@ -411,29 +414,43 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 			reqCategory = ""
 		}
 	}
+	endTimer("A")
 
+	startTimer("B")
 	userId, username := GetSessionInfo(w, r)
+	endTimer("B")
 
+	startTimer("fetchArticles")
 	var articles []Article
 	if reqCategory == "" { // /news
+		pr("  a")
 		// Fetch 5 articles from each category
 		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
 	} else if reqCategory == "polls" {
+		pr("  b")
 		// Fetch only polls.
 		articles = fetchPolls(userId, kMaxArticles)
 		prVal("len(articles)", len(articles))
 	} else {
+		pr("  c")
 		// Fetch articles in requested category
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
+	endTimer("fetchArticles")
 
+	startTimer("deduceVotingArrows")
 	upvotes, downvotes := deduceVotingArrows(articles)
+	endTimer("deduceVotingArrows")
 
+	startTimer("formatArticleGroups")
 	articleGroups := formatArticleGroups(articles, newsCategoryInfo, reqCategory, kAlternateHeadlines)
+	endTimer("formatArticleGroups")
 
 	// vv WORKS! - TODO_OPT: fix so poll don't require an extra db query
 
 	if reqCategory == "" { // /news
+		startTimer("formatPolls")
+
 		// Reformat the polls to have 6 visible, with no headlines.  (Polls with headlines waste a lot of space.)
 		pollArticleGroups := formatArticleGroups(articles, newsCategoryInfo, "polls", kNoHeadlines)
 
@@ -441,9 +458,15 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		//prVal("pollArticleGroups[0]", pollArticleGroups[0])
 		articleGroups[0] = pollArticleGroups[0]  // Try copying the polls, as a test
 		articleGroups[0].More = "polls"
+
+		endTimer("formatPolls")
 	}
 
+	startTimer("renderNews")
 	renderNews(w, r, "News", username, userId, "", articleGroups, "news", kNews, upvotes, downvotes, reqCategory, reqAlert)
+	endTimer("renderNews")
+
+	endTimer("newsHandler")
 }
 
 

@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+var (
+	timers = make(map[string]time.Time)
+)
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -307,3 +311,18 @@ func tutorialHandler(w http.ResponseWriter, r *http.Request) {
 	executeTemplate(w, kTutorial, makeFrameArgs(r, "Tutorial", "", "tutorial", userId, username))
 }
 
+/////////////////////////////////////////////////////////////////////////
+//
+// timing / profiling
+//
+///////////////////////////////////////////////////////////////////////////////
+func startTimer(name string) {
+	timers[name] = time.Now()
+}
+func endTimer(name string) {
+	start, found := timers[name]
+	assert(found)
+	timeElapsed := time.Since(start)
+
+	prf("timeElapsed(%s): %2.3f", name, timeElapsed.Seconds())
+}
