@@ -261,14 +261,14 @@ func downsamplePostImage(url string, currentStatus, id int, c chan DownsampleRes
 		// Small thumbnail - a
 		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "a", "jpeg", 160, 116)
 		if err != nil {
-			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
+			prVal("# A downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
 			return
 		}
 		// Small thumbnail - b
 		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "b", "jpeg", 160, 150)
 		if err != nil {
-			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
+			prVal("# B downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
 			return
 		}
@@ -277,7 +277,7 @@ func downsamplePostImage(url string, currentStatus, id int, c chan DownsampleRes
 		// Large Thumbnail - c
 		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "c", "jpeg", 570, -1)
 		if err != nil {
-			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
+			prVal("# C downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
 			return
 		}
@@ -344,7 +344,7 @@ func ImageService() {
 	fetchImagesToDownsampleQuery := [NUM_GEN_THUMBS_PASSES]string {
 		`SELECT Id, UrlToImage, ThumbnailStatus
 		 FROM $$LinkPost
-		 WHERE ThumbnailStatus < %d
+		 WHERE 0 <= ThumbnailStatus AND ThumbnailStatus < %d
 		   AND UrlToImage <> ''
 		   AND Created > now() - interval '2 weeks'
 		 ORDER BY Created DESC
@@ -352,7 +352,7 @@ func ImageService() {
 
 		`SELECT Id, UrlToImage, ThumbnailStatus
 		 FROM $$NewsPost
-		 WHERE ThumbnailStatus < %d
+		 WHERE 0 <= ThumbnailStatus AND ThumbnailStatus < %d
 		   AND UrlToImage <> ''
 		   AND Created > now() - interval '2 weeks'
 		 ORDER BY COALESCE(PublishedAt, Created) DESC
@@ -409,6 +409,9 @@ func ImageService() {
 							downsampleResult.err == nil,
 							image_DownsampleVersionTarget,
 							image_DownsampleError)
+
+						prVal("downsampleResult", downsampleResult)
+						prVal("  newThumbnailStatus", newThumbnailStatus)
 
 						switch pass {
 							//case genThumbPass_PollPost:
