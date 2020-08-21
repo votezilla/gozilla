@@ -9,15 +9,15 @@
 package main
 
 import (
-	"errors"
+//	"errors"
 	"fmt"
 //	"github.com/puerkitobio/goquery"
-	"github.com/rubenfonseca/fastimage"
-	"io"
+//	"github.com/rubenfonseca/fastimage"
+//	"io"
 	"io/ioutil"
 	"net/url"
-	"os"
-	"path/filepath"
+//	"os"
+//	"path/filepath"
 //	"sort"
 	"strconv"
 	"strings"
@@ -140,64 +140,32 @@ type ImageSizeResult struct {
 	err				error
 }
 
-// Download image from imageUrl, use outputNameId to form name before extension, extension stays the same.
-func downloadImage(imageUrl string, outputNameId string) error {
-    resp, err := httpGet(imageUrl, 10.0)
-    if err != nil {
-		return err
-	}
-    defer resp.Body.Close()
 
-    //open a file for writing
-    file, err := os.Create("./static/downloads/" + outputNameId + filepath.Ext(imageUrl))
-    if err != nil {
-		return err
-	}
-    defer file.Close()
-
-    _, err = io.Copy(file, resp.Body)
-    if err != nil {
-		return err
-	}
-
-    fmt.Println("Success!")
-    return nil
-}
-
-// Downloads just enough of the image (from the web) to determine its width and height.
-func downloadImageSize(imageUrl string) (int, int, error) {
-	prVal("downloadImageSize", imageUrl)
-	_, size, err := fastimage.DetectImageType(imageUrl)
-	prVal("  size", size)
-	if err != nil {
-		return -1, -1, err
-	}
-	if size == nil {
-		pr("  size is nil")
-		return -1, -1, errors.New("downloadImageSize gets nil size and must abort")
-	}
-	return int(size.Width), int(size.Height), nil
-}
-
-// Download image from imageUrl, use outputName to form name before extension, extension stays the same.
-func downsampleImage(imageUrl string, directory string, outputName string, extension string, width int, height int) error {
-	prf("downsampleImage %s -> %s.%s", imageUrl, outputName, extension)
+func downloadImage(imageUrl string) ([]byte, error) {
+	prf("  downloadImage %s", imageUrl)
 
 	// Fix weird URLs.
 	imageUrl = strings.Replace(imageUrl, "////", "//", 1)
 
-	resp, err := httpGet(imageUrl, 25.0) 
+	resp, err := httpGet(imageUrl, 25.0)
     if err != nil {
 		prf("  ERR 1 %s %s", err.Error(), imageUrl)
-		return err
+		return nil, err
 	}
     defer resp.Body.Close()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
     if err != nil {
 		prf("  ERR 2 %s %s", err.Error(), imageUrl)
-		return err
+		return bytes, err
 	}
+
+	return bytes, err
+}
+
+// Download image from imageUrl, use outputName to form name before extension, extension stays the same.
+func downsampleImage(bytes []byte, imageUrl, directory, outputName, extension string, width, height int) error {
+	prf("downsampleImage %s -> %s.%s", imageUrl, outputName, extension)
 
 	options := imageproxy.Options{}
 	if width > 0 && height > 0 { // Smart cropping option
@@ -234,22 +202,7 @@ func downsampleImage(imageUrl string, directory string, outputName string, exten
 	return nil
 }
 
-func goDownloadImageSize(imgSrc string, c chan ImageSizeResult) {
-	prf("calling gorouting downloadImageSize(%s)", imgSrc)
 
-	width, height, err := downloadImageSize(imgSrc)
-
-	//prf("   the result is %d, %d, %s", width, height, err)
-
-	minDim := min_int(width, height)
-	maxDim := max_int(width, height)
-	imageQuality := minDim * minDim * maxDim // Rewards both the minimum dimension (to discourage banners) while also encouraging a larger area
-
-	prf("minDim: %d maxDim: %d imageQuality %d imgSrc: %s",
-			minDim, maxDim, imageQuality, imgSrc)
-
-	c <- ImageSizeResult{imgSrc, width, height, imageQuality, err}
-}
 
 
 // If imgSrc is a relative URL, converts it to an absolute URL (using baseUrl).  Returns the result, or an error if unsuccessful.
@@ -297,17 +250,23 @@ func downsamplePostImage(url string, currentStatus, id int, c chan DownsampleRes
 	//image_DownsampledV3         // V3 += LARGE THUMBNAIL              c - 570 x [preserve aspect ratio]
 	//image_DownsampleError	= -1
 
-	var err error
+	bytes, err := downloadImage(url)
+	if err != nil {
+		prf("  ERR downsampleImage - could not download image because: %s", err.Error())
+		c <- DownsampleResult{id, url, err}
+		return
+	}
+
 	if currentStatus < image_DownsampledV2 {
 		// Small thumbnail - a
-		err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "a", "jpeg", 160, 116)
+		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "a", "jpeg", 160, 116)
 		if err != nil {
 			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
 			return
 		}
 		// Small thumbnail - b
-		err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "b", "jpeg", 160, 150)
+		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "b", "jpeg", 160, 150)
 		if err != nil {
 			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
@@ -316,7 +275,7 @@ func downsamplePostImage(url string, currentStatus, id int, c chan DownsampleRes
 	}
 	if currentStatus < image_DownsampledV3 {
 		// Large Thumbnail - c
-		err = downsampleImage(url, "thumbnails", strconv.Itoa(id) + "c", "jpeg", 570, -1)
+		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "c", "jpeg", 570, -1)
 		if err != nil {
 			prVal("downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
@@ -376,19 +335,12 @@ func fetchPostIds2Urls(query string) (ids2urls map[int]UrlStatus) { //(urls []st
 //
 //////////////////////////////////////////////////////////////////////////////
 func ImageService() {
-	if flags.mode == "fetchNewsSourceIcons" {
+/*	if flags.mode == "fetchNewsSourceIcons" {
 		for newsSource, imageUrl := range newsSourceIcons {
 			check(downsampleImage(imageUrl, "newsSourceIcons", newsSource, "png", 16, 16))
 		}
 		return
-	}
-
-	// TODO!: Process image thumbnail UrlToImage from LinkUrl submission.
-	//		  Require the input not blank and database not blank, so the thumbnail link is always good.
-	//		  Give user option to use Mozilla Head.
-	//        If there's a problem with the UrlToImage or it's NULL, or the image doesn't downsample
-	//		  for some reason, falls back on scraping the page.
-
+	}*/
 	fetchImagesToDownsampleQuery := [NUM_GEN_THUMBS_PASSES]string {
 		`SELECT Id, UrlToImage, ThumbnailStatus
 		 FROM $$LinkPost
@@ -432,6 +384,11 @@ func ImageService() {
 
 			// Grab a batch of images to downsample from new news posts.
 			ids2urls := fetchPostIds2Urls(fetchImagesToDownsampleQuery[pass])
+			prVal("len(ids2urls)", len(ids2urls))
+
+			if len(ids2urls) == 0 {
+				continue
+			}
 
 			// Download and downsample the images in parallel.
 			c := make(chan DownsampleResult)
@@ -536,6 +493,23 @@ func ImageService() {
 
 
 /* DEAD SCRATCH CODE:
+
+func goDownloadImageSize(imgSrc string, c chan ImageSizeResult) {
+	prf("calling gorouting downloadImageSize(%s)", imgSrc)
+
+	width, height, err := downloadImageSize(imgSrc)
+
+	//prf("   the result is %d, %d, %s", width, height, err)
+
+	minDim := min_int(width, height)
+	maxDim := max_int(width, height)
+	imageQuality := minDim * minDim * maxDim // Rewards both the minimum dimension (to discourage banners) while also encouraging a larger area
+
+	prf("minDim: %d maxDim: %d imageQuality %d imgSrc: %s",
+			minDim, maxDim, imageQuality, imgSrc)
+
+	c <- ImageSizeResult{imgSrc, width, height, imageQuality, err}
+}
 
 // Figure out which thumbnail to use based on the Url of the link submitted.
 // Return the string of the image url if it exists, or "" if there is an error.

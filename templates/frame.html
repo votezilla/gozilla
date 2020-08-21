@@ -570,9 +570,6 @@ $('#myModal').on('show.bs.modal', function(e) {
 // POST VOTING
 //
 ///////////////////////////////////////////////////////////////////////////////
-
-loggedIn = {{ if .Username }} true {{ else }} false {{ end }} ;
-
 var votedPosts = [[[], []], [[], []]];
 
 function removeItem(arr, item) {
@@ -684,7 +681,7 @@ function toggleVote(id, up, bcomment) {
 // id: postId
 // up: true for up, false for down
 function Vote(id, up, bcomment) {
-	if (loggedIn) {
+	if ({{ template "LoggedIn" . }}) {
 		cancelVote(id, !up, bcomment) // cancel opposite type of vote
 		toggleVote(id, up, bcomment)  // toggle this type of vote
 	} else {
@@ -943,6 +940,14 @@ $(function () {
 // UTILITY TEMPLATE FUNCTIONS
 //
 ///////////////////////////////////////////////////////////////////////////////
+{{ define "LoggedIn" }}
+	{{- if $.Username -}}
+		true
+	{{- else -}}
+		false
+	{{- end -}}
+{{ end }}
+
 
 {{ define "PostVoteWidget" }}
 	{{ $article := . }}

@@ -208,7 +208,7 @@
 	function onReplyToCommentClicked(parentId) {
 		console.log(`#text_${parentId}`);
 
-		if (!loggedIn) {
+		if (!({{template "LoggedIn" .}})) {
 			alert("You must be logged in to do that!") // TODO: this should be a modal dialog that gives them the option to log in.
 			return;
 		}
