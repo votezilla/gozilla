@@ -5,7 +5,7 @@ import (
 	"fmt"
     "net"
 	"net/http"
-    "time"
+    //"time"
 
 	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
 	//       ttemplate does not, is not currently used and should not be used, but could be used for rendering HTML if absolutely necessary.
@@ -265,14 +265,17 @@ func FileServer_Cached(root http.FileSystem) http.Handler {
 	}
 }
 func (f *fileServer_Cached) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	cacheSince := time.Now().Format(http.TimeFormat)
-	cacheUntil := time.Now().AddDate(0, 0, 1).Format(http.TimeFormat)
-
 	w.Header().Set("Cache-Control", "max-age:31536000, public")
-	w.Header().Set("Last-Modified", cacheSince)
-	w.Header().Set("Expires", cacheUntil)
+	//cacheSince := time.Now().Format(http.TimeFormat)
+	//cacheUntil := time.Now().AddDate(0, 0, 1).Format(http.TimeFormat)
+	//w.Header().Set("Last-Modified", cacheSince)
+	//w.Header().Set("Expires", cacheUntil)
+	//prVal("<<w.Header()", w.Header())
 
 	f.fileServer.ServeHTTP(w, r)
+
+	//prVal(">>w.Header()", w.Header())
+	//pr("")
 }
 ///
 

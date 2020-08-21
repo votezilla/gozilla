@@ -114,6 +114,8 @@ B 8 - I need to add some suggestions about poll wording when creating polls, as 
 
 - when signing up, store referrer in server side cookie, to return signed in person to that page.  Instead of javascript alert, popup with Welcome to Votezilla.  Store in cookie so this does not reactivate, somehow.
 
+- C - OPT: webp - https://godoc.org/github.com/harukasan/go-libwebp/webp#EncodeRGBA
+
 - C - when they're going to post to news but registerdetails country isn't set yet, warn (via popup) and offer link to registerDetails to complete registration to fix this.
 
 - SSL - should be able tp comment out the loadkeypair stuff, it's not letsencrypt but is a separate way to create your own key pair that is separate.
