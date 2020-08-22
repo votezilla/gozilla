@@ -35,9 +35,10 @@ type ArticleQueryParams struct {
 }
 
 const (
-	kDefaultImage       = "/static/mozilla dinosaur head.png"
-	kDefaultThumbnail   = "/static/mozilla dinosaur thumbnail.png"
-	kApproxCharsPerLine = 30
+	kMaterializedNewsView 	= "materializednewsview"  // Must be lowercase!
+	kDefaultImage       	= "/static/mozilla dinosaur head.png"
+	kDefaultThumbnail   	= "/static/mozilla dinosaur thumbnail.png"
+	kApproxCharsPerLine 	= 30
 )
 
 
@@ -72,7 +73,7 @@ func (qp ArticleQueryParams) Validate() {
 	assertMsg(!(qp.createMaterializedView && qp.useMaterializedView),
 		"Cannot create and user the materialized view at the same time.")
 
-	assertMsg(!(qp.createMaterializedView && qp.fetchVotesForUserId >= 0),
+	assertMsg(ifthen(qp.createMaterializedView, qp.fetchVotesForUserId == -1),
 		"Cannot materialize a table with anything tied to a specific user.")
 
 	// Check we're creating and using the materialized queries with the same values.
@@ -83,9 +84,8 @@ func (qp ArticleQueryParams) Validate() {
 	   qp.newsSourceIdCondition == "IS NOT NULL" &&
 	   qp.articlesPerCategory   == (kRowsPerCategory + 1) &&
 	   qp.maxArticles 			== kMaxArticles &&
-	   qp.fetchVotesForUserId   == -1 &&
 	   qp.onlyPolls			    == false
-	assertMsg(ifthen(qp.createMaterializedView || qp.useMaterializedView, bMaterializable),
+	assertMsg(iff(qp.createMaterializedView || qp.useMaterializedView, bMaterializable),
 		`Can only create or user a materialized query if settings are correct,
 		 and if settings are correct, the query should be materialized.`)
 }
@@ -262,7 +262,7 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 // data, the non-materialized way.
 //
 //////////////////////////////////////////////////////////////////////////////
-func createArticleQuery(qp ArticleQueryParams) string {
+func (qp ArticleQueryParams) createArticleQuery() string {
 
 	startTimer("createArticleQuery")
 
@@ -273,10 +273,10 @@ func createArticleQuery(qp ArticleQueryParams) string {
 	query := ""
 	if qp.createMaterializedView {
 		// Create materialized view
-		query = "CREATE MATERIALIZED VIEW MaterializedNewsQuery AS " + qp.createBaseQuery()
+		query = "CREATE MATERIALIZED VIEW " + kMaterializedNewsView + " AS " + qp.createBaseQuery()
 	} else if qp.useMaterializedView {
 		// Use materialized view in query
-		query = "MaterializedNewsQuery"
+		query = kMaterializedNewsView
 	} else {
 		// Oldschool, unoptimized query - not materialized view.
 		query = qp.createBaseQuery()
@@ -292,11 +292,11 @@ func createArticleQuery(qp ArticleQueryParams) string {
 					ELSE -1
 			   END AS Upvoted,
 			   w.VoteOptionIds
-			FROM (%s) x
+			FROM %s x
 			LEFT JOIN $$PostVote v ON x.Id = v.PostId AND (v.UserId = %d)
 			LEFT JOIN $$PollVote w ON x.Id = w.PollId AND (w.UserId = %d)
 			ORDER BY x.OrderBy DESC`,
-			query,
+			ternary_str(qp.useMaterializedView, query, "(\n" + query + "\n)"),
 			qp.fetchVotesForUserId,
 			qp.fetchVotesForUserId)
 	}
@@ -323,7 +323,7 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 
 	pr("queryArticles")
 
-	query := createArticleQuery(qp)
+	query := qp.createArticleQuery()
 
 	rows := DbQuery(query)
 
@@ -616,6 +616,7 @@ func fetchArticles(articlesPerCategory int, userId int64, maxArticles int) ([]Ar
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesPartitionedByCategory(articlesPerCategory int, userId int64, maxArticles int) ([]Article) {
 	qp := defaultArticleQueryParams()
+	qp.useMaterializedView = true
 	qp.articlesPerCategory = articlesPerCategory
 	qp.maxArticles		   = maxArticles
 	qp.fetchVotesForUserId = userId

@@ -24,11 +24,11 @@ var (
 		test					string		// Whether to run a simple test, instead of the actual service.
 		mode					string		// A special mode to run a service in.
 		testUserId				string		// UserId to test being loggin in as.
-		isNewsAccelerated		string		// Whether News API queries should be accelerated
+		isNewsAccelerated		string		// Whether News API queries should be accelerated.
 		randomizeTime			string
 		skipWhitelist			bool
-		domain				string
-		dbCacheService			string		// Whether to be the db cache service.
+		domain					string
+		cachingService			string		// Whether to be the caching service.
 	}
 )
 
@@ -57,7 +57,7 @@ func parseCommandLineFlags() {
 	fg := flag.String("testUserId",			"",				"UserId to test being loggin in as")
 	fh := flag.String("isNewsAccelerated",	"",				"Whether News API queries should be accelerated")
 	fi := flag.String("randomizeTime", 		"true",			"True to randomize article order a little, in /news.")
-	fj := flag.String("dbCacheService",		"",				"whether to be the db cache service")
+	fj := flag.String("cachingService",		"",				"whether to be the caching service")
 
 	flag.BoolVar(&flags.skipWhitelist, 		 "skipWhitelist", false, "skip reading the whitelist, which is slow")
 	flag.StringVar(&flags.domain, "domain", "", "domain name to request your certificate")
@@ -91,7 +91,7 @@ func parseCommandLineFlags() {
 	flags.testUserId			= *fg
 	flags.isNewsAccelerated		= *fh
 	flags.randomizeTime			= *fi
-	flags.dbCacheService		= *fj
+	flags.cachingService		= *fj
 
 	prf("flags: %#v\n", flags)
 }

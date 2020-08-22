@@ -37,7 +37,7 @@ func getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) func(hello *t
 	}
 }
 
-func InitWebServer2() {
+func InitWebServer() {
 	mux := SetupWebHandlers()
 
 	server := http.Server {

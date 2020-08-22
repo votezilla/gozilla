@@ -2,6 +2,8 @@
 //
 // Currently just materializing the expensive (and non-user) part of the posts / articles query, to hopefully
 // speed up the main query by 500ms.  Just an optimization for /news.
+//
+// To view materialized views: SELECT relname, relkind FROM pg_class WHERE relkind = 'm';
 package main
 
 import (
@@ -12,20 +14,44 @@ import (
 	"time"
 )
 
+func materializeNewsView() {
+	pr("Materializing News Query")
 
+	qp := defaultArticleQueryParams()
+	qp.createMaterializedView 	= true
+	qp.articlesPerCategory 		= kRowsPerCategory + 1
+	qp.maxArticles		   		= kMaxArticles
+	qp.addSemicolon				= true
 
+	DbExec(qp.createArticleQuery())
+}
 
+func refreshNewsView() {
+	viewExists := DbExists(
+	   `SELECT relname, relkind
+		FROM pg_class
+		WHERE relname = '` + kMaterializedNewsView + `'
+		AND relkind = 'm';`,
+		)
 
+	if viewExists {
+		pr("AAAAAA")
+		DbExec("REFRESH MATERIALIZED VIEW " + kMaterializedNewsView)
+	} else {
+		pr("BBBBBB")
+		materializeNewsView()
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// news service - On startup, and every 1 minute, materializes the expensive
+// caching service - On startup, and every 1 minute, materializes the expensive
 //                (and non-user) part of the posts / articles query, and stores
 //                it in one of 3 rotating slots, so users can have randomness
 //                when reading /news.
 //
 //////////////////////////////////////////////////////////////////////////////
-func DbCacheService() {
+func CachingService() {
 	pr("========================================")
 	pr("====== STARTING DB CACHE SERVICE =======")
 	pr("========================================\n")
@@ -35,7 +61,9 @@ func DbCacheService() {
 	for {
 		slot = 0 // GET IT WORKING WITHOUT THE SLOT LOGIC FIRST!
 
-		//query :=
+
+		refreshNewsView()
+
 
 		// Rotate the slot
 		slot = (slot + 1) / 3

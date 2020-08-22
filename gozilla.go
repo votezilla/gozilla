@@ -325,7 +325,7 @@ func WebServer() {
 	InitSecurity()
 	InitNewsSources()
 	InitFirewall()
-	InitWebServer2()
+	InitWebServer()
 }
 
 func main() {
@@ -340,8 +340,8 @@ func main() {
 		ImageService()
 	} else if flags.newsService != "" {
 		NewsService()
-	} else if flags.dbCacheService != "" {
-		DbCacheService()
+	} else if flags.cachingService != "" {
+		CachingService()
 	} else {
 		WebServer()
 	}
