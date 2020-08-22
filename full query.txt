@@ -1,0 +1,388 @@
+EXPLAIN
+		SELECT x.*,
+		   CASE WHEN v.Up IS NULL THEN 0
+				WHEN v.Up THEN 1
+				ELSE -1
+		   END AS Upvoted,
+		   w.VoteOptionIds
+		FROM (
+			SELECT Id,
+				Author,
+				UserId,
+				Title,
+				Description,
+				LinkUrl,
+				UrlToImage,
+				PublishedAt,
+				NewsSourceId,
+				Category,
+				Language,
+				Country,
+				PollOptionData,
+				PollTallyResults,
+				NumComments,
+				ThumbnailStatus,
+				Source,
+				VoteTally,
+				OrderBy
+			FROM (
+                                SELECT
+					*,
+					ROW_NUMBER() OVER (
+						PARTITION BY Category
+						ORDER BY OrderBy DESC) AS r
+                                FROM (
+                			WITH posts AS (
+						SELECT Id,
+						   NewsSourceId AS Author,
+						   -1::bigint AS UserId,
+						   Title,
+						   COALESCE(Description, '') AS Description,
+						   LinkUrl,
+						   COALESCE(UrlToImage, '') AS UrlToImage,
+						   COALESCE(PublishedAt, Created) AS PublishedAt,
+						   NewsSourceId,
+						   vz.GetCategory(Category, Country) AS Category,
+						   Language,
+						   Country,
+						   '' AS PollOptionData,
+						   '' AS PollTallyResults,
+						   NumComments,
+						   ThumbnailStatus,
+						   'N' AS Source
+						FROM vz.NewsPost
+						WHERE ThumbnailStatus <> -1 AND (Id IS NOT NULL) AND (NewsSourceId IS NOT NULL) AND (vz.GetCategory(Category, Country) IS NOT NULL)
+						      AND UrlToImage != ''
+						UNION ALL
+						SELECT P.Id,
+						       U.Username AS Author,
+							   UserId,
+						       P.Title,
+						       '' AS Description,
+						       P.LinkUrl,
+							   COALESCE(P.UrlToImage, '') AS UrlToImage,
+							   P.Created AS PublishedAt,
+							   '' AS NewsSourceId,
+							   vz.GetCategory(Category, U.Country) AS Category,
+							   'EN' AS Language,
+							   COALESCE(U.Country, ''),
+							   '' AS PollOptionData,
+							   '' AS PollTallyResults,
+							   NumComments,
+							   ThumbnailStatus,
+							   'L' AS Source
+						FROM vz.LinkPost P
+						JOIN vz.User U ON P.UserId = U.Id
+						WHERE ThumbnailStatus <> -1 AND (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)
+					UNION ALL
+						SELECT P.Id,
+							   U.Username AS Author,
+							   UserId,
+							   P.Title,
+							   '' AS Description,
+							   FORMAT('/poll/?postId=%s', P.Id) AS LinkUrl,
+							   COALESCE(P.UrlToImage, '') AS UrlToImage,
+							   P.Created AS PublishedAt,
+							   '' AS NewsSourceId,
+							   vz.GetCategory(Category, U.Country) AS Category,
+							   'EN' AS Language,
+							   COALESCE(U.Country, ''),
+							   PollOptionData,
+							   COALESCE(PollTallyResults, ''),
+							   NumComments,
+							   ThumbnailStatus,
+							   'P' AS Source
+						FROM vz.PollPost P
+					JOIN vz.User U ON P.UserId = U.Id
+                				WHERE (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)
+					),
+					 votes AS (
+						SELECT PostId,
+							   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+						FROM vz.PostVote
+						WHERE PostId IN (SELECT Id FROM posts)
+						GROUP BY PostId
+					 )
+                SELECT posts.*,
+                        COALESCE(votes.VoteTally, 0) AS VoteTally,
+                        posts.PublishedAt +
+                                interval '24 hours' *
+                                (
+                                        3 * COALESCE(votes.VoteTally, 0) +
+                                        0.5 * posts.NumComments +
+                                        5 * (RANDOM())
+                                ) AS OrderBy
+                FROM posts
+                LEFT JOIN votes ON posts.Id = votes.PostId
+                ORDER BY OrderBy DESC
+
+                ) x
+                        ) x
+                        WHERE x.r <= 4 OR (x.Category = 'polls' AND x.r <= 4)) x
+
+
+                        LEFT JOIN vz.PostVote v ON x.Id = v.PostId AND (v.UserId = 14)
+                        LEFT JOIN vz.PollVote w ON x.Id = w.PollId AND (w.UserId = 14)
+                        ORDER BY x.OrderBy DESC
+LIMIT 100;
+
+66.2ms
+
+
+
+
+
+
+Query B:
+			SELECT Id,
+				Author,
+				UserId,
+				Title,
+				Description,
+				LinkUrl,
+				UrlToImage,
+				PublishedAt,
+				NewsSourceId,
+				Category,
+				Language,
+				Country,
+				PollOptionData,
+				PollTallyResults,
+				NumComments,
+				ThumbnailStatus,
+				Source,
+				VoteTally,
+				OrderBy
+			FROM (
+                                SELECT
+					*,
+					ROW_NUMBER() OVER (
+						PARTITION BY Category
+						ORDER BY OrderBy DESC) AS r
+                                FROM (
+                			WITH posts AS (
+						SELECT Id,
+						   NewsSourceId AS Author,
+						   -1::bigint AS UserId,
+						   Title,
+						   COALESCE(Description, '') AS Description,
+						   LinkUrl,
+						   COALESCE(UrlToImage, '') AS UrlToImage,
+						   COALESCE(PublishedAt, Created) AS PublishedAt,
+						   NewsSourceId,
+						   vz.GetCategory(Category, Country) AS Category,
+						   Language,
+						   Country,
+						   '' AS PollOptionData,
+						   '' AS PollTallyResults,
+						   NumComments,
+						   ThumbnailStatus,
+						   'N' AS Source
+						FROM vz.NewsPost
+						WHERE ThumbnailStatus <> -1 AND (Id IS NOT NULL) AND (NewsSourceId IS NOT NULL) AND (vz.GetCategory(Category, Country) IS NOT NULL)
+						      AND UrlToImage != ''
+						UNION ALL
+						SELECT P.Id,
+						       U.Username AS Author,
+							   UserId,
+						       P.Title,
+						       '' AS Description,
+						       P.LinkUrl,
+							   COALESCE(P.UrlToImage, '') AS UrlToImage,
+							   P.Created AS PublishedAt,
+							   '' AS NewsSourceId,
+							   vz.GetCategory(Category, U.Country) AS Category,
+							   'EN' AS Language,
+							   COALESCE(U.Country, ''),
+							   '' AS PollOptionData,
+							   '' AS PollTallyResults,
+							   NumComments,
+							   ThumbnailStatus,
+							   'L' AS Source
+						FROM vz.LinkPost P
+						JOIN vz.User U ON P.UserId = U.Id
+						WHERE ThumbnailStatus <> -1 AND (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)
+					UNION ALL
+						SELECT P.Id,
+							   U.Username AS Author,
+							   UserId,
+							   P.Title,
+							   '' AS Description,
+							   FORMAT('/poll/?postId=%s', P.Id) AS LinkUrl,
+							   COALESCE(P.UrlToImage, '') AS UrlToImage,
+							   P.Created AS PublishedAt,
+							   '' AS NewsSourceId,
+							   vz.GetCategory(Category, U.Country) AS Category,
+							   'EN' AS Language,
+							   COALESCE(U.Country, ''),
+							   PollOptionData,
+							   COALESCE(PollTallyResults, ''),
+							   NumComments,
+							   ThumbnailStatus,
+							   'P' AS Source
+						FROM vz.PollPost P
+					JOIN vz.User U ON P.UserId = U.Id
+                				WHERE (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)
+					),
+					 votes AS (
+						SELECT PostId,
+							   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+						FROM vz.PostVote
+						WHERE PostId IN (SELECT Id FROM posts)
+						GROUP BY PostId
+					 )
+                SELECT posts.*,
+                        COALESCE(votes.VoteTally, 0) AS VoteTally,
+                        posts.PublishedAt +
+                                interval '24 hours' *
+                                (
+                                        3 * COALESCE(votes.VoteTally, 0) +
+                                        0.5 * posts.NumComments +
+                                        5 * (RANDOM())
+                                ) AS OrderBy
+                FROM posts
+                LEFT JOIN votes ON posts.Id = votes.PostId
+                ORDER BY OrderBy DESC
+
+                ) x
+                        ) x
+                        WHERE x.r <= 4 OR (x.Category = 'polls' AND x.r <= 4)
+;
+
+530, 549, 524
+
+
+Query C - limited to 100 and :
+
+CREATE MATERIALIZED VIEW post_fetch AS
+	SELECT Id,
+		Author,
+		UserId,
+		Title,
+		Description,
+		LinkUrl,
+		UrlToImage,
+		PublishedAt,
+		NewsSourceId,
+		Category,
+		Language,
+		Country,
+		PollOptionData,
+		PollTallyResults,
+		NumComments,
+		ThumbnailStatus,
+		Source,
+		VoteTally,
+		OrderBy
+	FROM (
+		SELECT
+			*,
+			ROW_NUMBER() OVER (
+				PARTITION BY Category
+				ORDER BY OrderBy DESC) AS r
+		FROM (
+			WITH posts AS (
+				SELECT Id,
+				   NewsSourceId AS Author,
+				   -1::bigint AS UserId,
+				   Title,
+				   COALESCE(Description, '') AS Description,
+				   LinkUrl,
+				   COALESCE(UrlToImage, '') AS UrlToImage,
+				   COALESCE(PublishedAt, Created) AS PublishedAt,
+				   NewsSourceId,
+				   vz.GetCategory(Category, Country) AS Category,
+				   Language,
+				   Country,
+				   '' AS PollOptionData,
+				   '' AS PollTallyResults,
+				   NumComments,
+				   ThumbnailStatus,
+				   'N' AS Source
+				FROM vz.NewsPost
+				WHERE ThumbnailStatus <> -1 AND (Id IS NOT NULL) AND (NewsSourceId IS NOT NULL) AND (vz.GetCategory(Category, Country) IS NOT NULL)
+				      AND UrlToImage != ''
+				UNION ALL
+				SELECT P.Id,
+				       U.Username AS Author,
+					   UserId,
+				       P.Title,
+				       '' AS Description,
+				       P.LinkUrl,
+					   COALESCE(P.UrlToImage, '') AS UrlToImage,
+					   P.Created AS PublishedAt,
+					   '' AS NewsSourceId,
+					   vz.GetCategory(Category, U.Country) AS Category,
+					   'EN' AS Language,
+					   COALESCE(U.Country, ''),
+					   '' AS PollOptionData,
+					   '' AS PollTallyResults,
+					   NumComments,
+					   ThumbnailStatus,
+					   'L' AS Source
+				FROM vz.LinkPost P
+				JOIN vz.User U ON P.UserId = U.Id
+				WHERE ThumbnailStatus <> -1 AND (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)
+			UNION ALL
+				SELECT P.Id,
+					   U.Username AS Author,
+					   UserId,
+					   P.Title,
+					   '' AS Description,
+					   FORMAT('/poll/?postId=%s', P.Id) AS LinkUrl,
+					   COALESCE(P.UrlToImage, '') AS UrlToImage,
+					   P.Created AS PublishedAt,
+					   '' AS NewsSourceId,
+					   vz.GetCategory(Category, U.Country) AS Category,
+					   'EN' AS Language,
+					   COALESCE(U.Country, ''),
+					   PollOptionData,
+					   COALESCE(PollTallyResults, ''),
+					   NumComments,
+					   ThumbnailStatus,
+					   'P' AS Source
+				FROM vz.PollPost P
+			JOIN vz.User U ON P.UserId = U.Id
+				WHERE (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)
+			),
+			 votes AS (
+				SELECT PostId,
+					   SUM(CASE WHEN Up THEN 1 ELSE -1 END) AS VoteTally
+				FROM vz.PostVote
+				WHERE PostId IN (SELECT Id FROM posts)
+				GROUP BY PostId
+			 )
+			SELECT posts.*,
+				COALESCE(votes.VoteTally, 0) AS VoteTally,
+				posts.PublishedAt +
+					interval '24 hours' *
+					(
+						3 * COALESCE(votes.VoteTally, 0) +
+						0.5 * posts.NumComments +
+						5 * (RANDOM())
+					) AS OrderBy
+			FROM posts
+			LEFT JOIN votes ON posts.Id = votes.PostId
+			ORDER BY OrderBy DESC
+
+			) x
+		) x
+	WHERE x.r <= 4 OR (x.Category = 'polls' AND x.r <= 4)
+LIMIT 100
+;
+
+509, 509, 528, 542, 524, 527 (avg: 523.17)
+
+
+SELECT x.*,
+   CASE WHEN v.Up IS NULL THEN 0
+	WHEN v.Up THEN 1
+	ELSE -1
+   END AS Upvoted,
+   w.VoteOptionIds
+FROM post_fetch x
+LEFT JOIN vz.PostVote v ON x.Id = v.PostId AND (v.UserId = 14)
+LEFT JOIN vz.PollVote w ON x.Id = w.PollId AND (w.UserId = 14)
+ORDER BY x.OrderBy DESC;
+
+1ms !!! :D

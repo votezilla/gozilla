@@ -1,6 +1,5 @@
 CREATE DATABASE vz ENCODING 'UTF8';
 
-
 \connect vz
 SET client_encoding = 'UTF8';
 SET timezone TO 'US/Pacific';
@@ -57,7 +56,7 @@ CREATE TABLE vz.Post (
     UrlToImage         TEXT,
     ThumbnailStatus    INT DEFAULT 0,
 
-    PRIMARY KEY (UserId, Id)
+    PRIMARY KEY (Id)
 );
 
 CREATE TABLE vz.LinkPost (

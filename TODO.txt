@@ -6,6 +6,18 @@ JUST FIXED:
 WORKING ON:
 
 
+profiling
+  page load - chrome  .692
+                  ff  .866
+
+   total server time  .54
+            db query  .5
+
+zipping would optimize 50% * (.692 - .5) ~ (.1)
+
+db opt of 50% would be 50% * .5  = .25
+
+
 [] - get Susan's login experience with new stuff.
 
 
@@ -20,6 +32,11 @@ Importance
 v
   Difficulty
   v
+
+
+OPT:
+? -
+? - stitch together news source icons: http://draeton.github.io/stitches/
 
 A - 8 - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
@@ -44,6 +61,10 @@ A - 8 - Add num notifications javascript on 1 minute timer that asks how many no
 A - 8 - browser notifications: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
 
 A 5 - prompt user to leave comment or up/down vote after viewing an article.
+
+A 2 - OPT - shrink mozilla dino head pic
+
+A 2 - OPT - lower jpg quality, or convert to webp
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 

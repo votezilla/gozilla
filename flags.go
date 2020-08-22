@@ -28,6 +28,7 @@ var (
 		randomizeTime			string
 		skipWhitelist			bool
 		domain				string
+		dbCacheService			string		// Whether to be the db cache service.
 	}
 )
 
@@ -56,6 +57,7 @@ func parseCommandLineFlags() {
 	fg := flag.String("testUserId",			"",				"UserId to test being loggin in as")
 	fh := flag.String("isNewsAccelerated",	"",				"Whether News API queries should be accelerated")
 	fi := flag.String("randomizeTime", 		"true",			"True to randomize article order a little, in /news.")
+	fj := flag.String("dbCacheService",		"",				"whether to be the db cache service")
 
 	flag.BoolVar(&flags.skipWhitelist, 		 "skipWhitelist", false, "skip reading the whitelist, which is slow")
 	flag.StringVar(&flags.domain, "domain", "", "domain name to request your certificate")
@@ -89,6 +91,7 @@ func parseCommandLineFlags() {
 	flags.testUserId			= *fg
 	flags.isNewsAccelerated		= *fh
 	flags.randomizeTime			= *fi
+	flags.dbCacheService		= *fj
 
 	prf("flags: %#v\n", flags)
 }

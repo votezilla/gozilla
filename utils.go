@@ -147,6 +147,15 @@ func sqlEscapeString(value string) string {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// bool functions
+//
+///////////////////////////////////////////////////////////////////////////////
+func ifthen(a, b bool) bool	{ return !a || (a && b) 	  }  // if then (math)
+func iff(a, b bool)	   bool	{ return a && b || (!a && !b) }  // if and only if
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // array functions
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,6 +168,58 @@ func contains_int64(array []int64, item int64) bool {
 		}
 	}
 	return false
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// time
+//
+///////////////////////////////////////////////////////////////////////////////
+func getTimeSinceString(publishedAt time.Time, longform bool) string {
+	timeSince 	:= time.Since(publishedAt)
+	seconds 	:= timeSince.Seconds()
+	minutes 	:= timeSince.Minutes()
+	hours 		:= timeSince.Hours()
+	days 		:= hours / 24.0
+	weeks 		:= days / 7.0
+	years 		:= days / 365.0
+
+	if longform {
+		s := ""
+		if years > 20.0 {
+			s = "a long time"
+		} else if years >= 1.0 {
+			s = strconv.FormatFloat(years, 'f', 0, 32) + " year" + ternary_str(years >= 2.0, "s", "")
+		} else if weeks >= 1.0 {
+			s = strconv.FormatFloat(weeks, 'f', 0, 32) + " week" + ternary_str(weeks >= 2.0, "s", "")
+		} else if days >= 1.0 {
+			s = strconv.FormatFloat(days, 'f', 0, 32) + " day" + ternary_str(days >= 2.0, "s", "")
+		} else if hours >= 1.0 {
+			s = strconv.FormatFloat(hours, 'f', 0, 32) + " hour" + ternary_str(hours >= 2.0, "s", "")
+		} else if minutes >= 1.0 {
+			s = strconv.FormatFloat(minutes, 'f', 0, 32) + " minute" + ternary_str(minutes >= 2.0, "s", "")
+		} else {
+			s = strconv.FormatFloat(seconds, 'f', 0, 32) + " second" + ternary_str(seconds >= 2.0, "s", "")
+		}
+		s += " ago"
+		return s
+	} else {  // Short form
+		if years > 20.0 {
+			return "old"
+		} else if years >= 1.0 {
+			return strconv.FormatFloat(years, 'f', 0, 32) + "y"
+		} else if weeks >= 1.0 {
+			return strconv.FormatFloat(weeks, 'f', 0, 32) + "w"
+		} else if days >= 1.0 {
+			return strconv.FormatFloat(days, 'f', 0, 32) + "d"
+		} else if hours >= 1.0 {
+			return strconv.FormatFloat(hours, 'f', 0, 32) + "h"
+		} else if minutes >= 1.0 {
+			return strconv.FormatFloat(minutes, 'f', 0, 32) + "m"
+		} else {
+			return strconv.FormatFloat(seconds, 'f', 0, 32) + "s"
+		}
+	}
 }
 
 

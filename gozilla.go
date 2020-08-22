@@ -340,6 +340,8 @@ func main() {
 		ImageService()
 	} else if flags.newsService != "" {
 		NewsService()
+	} else if flags.dbCacheService != "" {
+		DbCacheService()
 	} else {
 		WebServer()
 	}

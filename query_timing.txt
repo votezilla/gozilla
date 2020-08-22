@@ -1,0 +1,109 @@
+EXPLAIN
+
+		SELECT Id,
+                           NewsSourceId AS Author,
+                           -1::bigint AS UserId,
+                           Title,
+                           COALESCE(Description, '') AS Description,
+                           LinkUrl,
+                           COALESCE(UrlToImage, '') AS UrlToImage,
+                           COALESCE(PublishedAt, Created) AS PublishedAt,
+                           NewsSourceId,
+                           vz.GetCategory(Category, Country) AS Category,
+                           Language,
+                           Country,
+                           '' AS PollOptionData,
+                           '' AS PollTallyResults,
+                           NumComments,
+                           ThumbnailStatus,
+                           'N' AS Source
+                FROM vz.NewsPost
+                WHERE ThumbnailStatus <> -1 AND (Id IS NOT NULL) AND (NewsSourceId IS NOT NULL) AND (vz.GetCategory(Category, Country) IS NOT NULL)
+                      AND UrlToImage != ''
+UNION ALL
+		SELECT P.Id,
+                       U.Username AS Author,
+                           UserId,
+                       P.Title,
+                       '' AS Description,
+                       P.LinkUrl,
+                           COALESCE(P.UrlToImage, '') AS UrlToImage,
+                           P.Created AS PublishedAt,
+                           '' AS NewsSourceId,
+                           vz.GetCategory(Category, U.Country) AS Category,
+                           'EN' AS Language,
+                           COALESCE(U.Country, ''),
+                           '' AS PollOptionData,
+                           '' AS PollTallyResults,
+                           NumComments,
+                           ThumbnailStatus,
+                           'L' AS Source
+                FROM vz.LinkPost P
+                JOIN vz.User U ON P.UserId = U.Id
+                WHERE ThumbnailStatus <> -1 AND (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL)
+UNION ALL
+		SELECT P.Id,
+                           U.Username AS Author,
+                           UserId,
+                           P.Title,
+                           '' AS Description,
+                           FORMAT('/poll/?postId=%s', P.Id) AS LinkUrl,
+                           COALESCE(P.UrlToImage, '') AS UrlToImage,
+                           P.Created AS PublishedAt,
+                           '' AS NewsSourceId,
+                           vz.GetCategory(Category, U.Country) AS Category,
+                           'EN' AS Language,
+                           COALESCE(U.Country, ''),
+                           PollOptionData,
+                           COALESCE(PollTallyResults, ''),
+                           NumComments,
+                           ThumbnailStatus,
+                           'P' AS Source
+                FROM vz.PollPost P
+
+
+                JOIN vz.User U ON P.UserId = U.Id
+                WHERE (P.Id IS NOT NULL) AND (U.Id IS NOT NULL) AND (vz.GetCategory(Category, U.Country) IS NOT NULL);
+
+28-29ms
+
+
+\timing
+
+
+
+posts query on server (ms):
+150.785, 152.175, 129.053
+(avg 140)
+
+posts query on server, part
+I: 	164.86, 111.59, 156.53 (avg 140)
+II:	17, 16.4
+III:	.8, .9
+
+WITH posts AS ( ... ) posts.PublishedAt +
+                                interval '24 hours' *
+                                (
+                                        3 * COALESCE(votes.VoteTally, 0) +
+                                        0.5 * posts.NumComments +
+                                        5 * (RANDOM())
+                                ) AS OrderBy
+                FROM posts
+                LEFT JOIN votes ON posts.Id = votes.PostId
+                ORDER BY OrderBy DESC
+
+                )
+403.8, 397, 406 (avg 403)
+
+SELECT Id,\nAuthor\n, UserId... WHERE x.r <= 4 OR (x.Category = 'polls' AND x.r <= 4)
+
+510, 511.47, 506 (avg 509)
+
+
+full query on server (ms):
+531.26, 541.059, 507.269
+(avg 526ms)
+
+
+
+
