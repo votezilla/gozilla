@@ -1,7 +1,6 @@
 
 JUST FIXED:
 
-db opt!  723ms - 258ms = 465ms saved!!!  (Chrome dev tools, network tab, caching enabled.)
 
 
 WORKING ON:

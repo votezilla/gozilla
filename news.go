@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	//"math/rand"
+	"math/rand"
 	"sort"
 )
 
@@ -429,13 +429,13 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		// If logged in, cycle between 3 materialized tables; if not logged in, pick one at random.
 		var newsCycle int
 		//if userId >= 0 {
-			switch GetCookie(r, "newsCycle", "0") {
-				case "0": newsCycle = 1; SetCookie(w, r, "newsCycle", "1"); break
-				case "1": newsCycle = 2; SetCookie(w, r, "newsCycle", "2"); break
-				default : newsCycle = 0; SetCookie(w, r, "newsCycle", "0"); break
-			}
+		//	switch GetCookie(r, "newsCycle", "0") {
+		//		case "0": newsCycle = 1; SetCookie(w, r, "newsCycle", "1"); break
+		//		case "1": newsCycle = 2; SetCookie(w, r, "newsCycle", "2"); break
+		//		default : newsCycle = 0; SetCookie(w, r, "newsCycle", "0"); break
+		//	}
 		//} else {
-		//	newsCycle = rand.Int31n(3)
+			newsCycle = rand.Intn(3)
 		//}
 		prVal("newsCycle", newsCycle)
 

@@ -303,3 +303,5 @@ Notes:
 	Cache-Control:public
 	max-age=31536000	// one year (cache time in seconds)
 	Last-Modified:          // conditional
+
+db opt!  723ms - 258ms = 465ms saved!!!  (Chrome dev tools, network tab, caching enabled.)
