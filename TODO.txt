@@ -1,6 +1,7 @@
 
 JUST FIXED:
 
+db opt!!!
 
 
 WORKING ON:
@@ -15,7 +16,7 @@ profiling
 
 zipping would optimize 50% * (.692 - .5) ~ (.1)
 
-db opt of 50% would be 50% * .5  = .25
+
 
 
 [] - get Susan's login experience with new stuff.
@@ -24,6 +25,7 @@ db opt of 50% would be 50% * .5  = .25
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
+
 
 
 POLLS:

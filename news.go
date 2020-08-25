@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	//"math/rand"
 	"sort"
 )
 
@@ -424,8 +425,22 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	var articles []Article
 	if reqCategory == "" { // /news
 		pr("  a")
+
+		// If logged in, cycle between 3 materialized tables; if not logged in, pick one at random.
+		var newsCycle int
+		//if userId >= 0 {
+			switch GetCookie(r, "newsCycle", "0") {
+				case "0": newsCycle = 1; SetCookie(w, r, "newsCycle", "1"); break
+				case "1": newsCycle = 2; SetCookie(w, r, "newsCycle", "2"); break
+				default : newsCycle = 0; SetCookie(w, r, "newsCycle", "0"); break
+			}
+		//} else {
+		//	newsCycle = rand.Int31n(3)
+		//}
+		prVal("newsCycle", newsCycle)
+
 		// Fetch 5 articles from each category
-		articles = fetchArticlesPartitionedByCategory(kRowsPerCategory + 1, userId, kMaxArticles) // kRowsPerCategory on one side, and 1 headline on the other.
+		articles = fetchNews(kRowsPerCategory + 1, userId, kMaxArticles, newsCycle) // kRowsPerCategory on one side, and 1 headline on the other.
 	} else if reqCategory == "polls" {
 		pr("  b")
 		// Fetch only polls.

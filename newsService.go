@@ -248,7 +248,7 @@ func fetchNewsSources() bool {
 // fetches news articles from a single source
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchNews(newsSource string) []Article {
+func fetchNewsSource(newsSource string) []Article {
 	pr("fetchNews")
 
 	// Site: https://newsapi.org/
@@ -383,7 +383,7 @@ func NewsService() {
 				prf("Fetching article #%d from", i, newsSource.Id)
 				i++
 
-				newArticles = fetchNews(newsSource.Id)
+				newArticles = fetchNewsSource(newsSource.Id)
 
 				prVal("len(newArticles)", len(newArticles))
 

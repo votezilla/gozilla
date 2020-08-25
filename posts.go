@@ -30,8 +30,10 @@ type ArticleQueryParams struct {
 	bRandomizeTime			bool
 	addSemicolon			bool
 
+	// Materialized view for /news.
 	createMaterializedView	bool
 	useMaterializedView		bool
+	newsCycle				int		// Which materialized view to read
 }
 
 const (
@@ -273,10 +275,10 @@ func (qp ArticleQueryParams) createArticleQuery() string {
 	query := ""
 	if qp.createMaterializedView {
 		// Create materialized view
-		query = "CREATE MATERIALIZED VIEW " + kMaterializedNewsView + " AS " + qp.createBaseQuery()
+		query = "CREATE MATERIALIZED VIEW " + kMaterializedNewsView + int_to_str(qp.newsCycle) + " AS " + qp.createBaseQuery()
 	} else if qp.useMaterializedView {
 		// Use materialized view in query
-		query = kMaterializedNewsView
+		query = kMaterializedNewsView + int_to_str(qp.newsCycle)
 	} else {
 		// Oldschool, unoptimized query - not materialized view.
 		query = qp.createBaseQuery()
@@ -610,16 +612,17 @@ func fetchArticles(articlesPerCategory int, userId int64, maxArticles int) ([]Ar
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// fetch news articles partitioned by category, up to articlesPerCategory
-// articles per category, up to maxArticles total.
+// fetch news articles for /news -
+//   partitioned by category, up to articlesPerCategory articles per category, up to maxArticles total.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesPartitionedByCategory(articlesPerCategory int, userId int64, maxArticles int) ([]Article) {
+func fetchNews(articlesPerCategory int, userId int64, maxArticles, newsCycle int) ([]Article) {
 	qp := defaultArticleQueryParams()
 	qp.useMaterializedView = true
 	qp.articlesPerCategory = articlesPerCategory
 	qp.maxArticles		   = maxArticles
 	qp.fetchVotesForUserId = userId
+	qp.newsCycle		   = newsCycle
 	return queryArticles(qp)
 }
 

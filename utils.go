@@ -376,14 +376,15 @@ func tutorialHandler(w http.ResponseWriter, r *http.Request) {
 //
 // timing / profiling
 //
+// This code works great!  Remember to comment out when not using to save performance.
+//
 ///////////////////////////////////////////////////////////////////////////////
 func startTimer(name string) {
-	timers[name] = time.Now()
+//	timers[name] = time.Now()
 }
 func endTimer(name string) {
-	start, found := timers[name]
-	assert(found)
-	timeElapsed := time.Since(start)
-
-	prf("timeElapsed(%s): %2.3f", name, timeElapsed.Seconds())
+//	start, found := timers[name]
+//	assert(found)
+//	timeElapsed := time.Since(start)
+//	prf("timeElapsed(%s): %2.3f", name, timeElapsed.Seconds())
 }

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func materializeNewsView() {
+func materializeNewsView(newsCycle int) {
 	pr("Materializing News Query")
 
 	qp := defaultArticleQueryParams()
@@ -22,24 +22,32 @@ func materializeNewsView() {
 	qp.articlesPerCategory 		= kRowsPerCategory + 1
 	qp.maxArticles		   		= kMaxArticles
 	qp.addSemicolon				= true
+	qp.newsCycle				= newsCycle
 
 	DbExec(qp.createArticleQuery())
 }
 
-func refreshNewsView() {
-	viewExists := DbExists(
+func viewExists(viewName string) bool {
+	return DbExists(
 	   `SELECT relname, relkind
 		FROM pg_class
-		WHERE relname = '` + kMaterializedNewsView + `'
+		WHERE relname = '` + viewName + `'
 		AND relkind = 'm';`,
 		)
+}
+
+func refreshNewsView(newsCycle int) {
+	viewExists := viewExists(kMaterializedNewsView + int_to_str(newsCycle))
 
 	if viewExists {
-		pr("AAAAAA")
-		DbExec("REFRESH MATERIALIZED VIEW " + kMaterializedNewsView)
+		query := "REFRESH MATERIALIZED VIEW " + kMaterializedNewsView + int_to_str(newsCycle)
+		pr(query)
+
+		DbExec(query)
 	} else {
-		pr("BBBBBB")
-		materializeNewsView()
+		prVal("Materialize news cycle", newsCycle)
+
+		materializeNewsView(newsCycle)
 	}
 }
 
@@ -56,19 +64,20 @@ func CachingService() {
 	pr("====== STARTING DB CACHE SERVICE =======")
 	pr("========================================\n")
 
-	slot := 0
+	newsCycle := 0
 
+	numRepetitions := 0
 	for {
-		slot = 0 // GET IT WORKING WITHOUT THE SLOT LOGIC FIRST!
-
-
-		refreshNewsView()
-
+		refreshNewsView(newsCycle)
 
 		// Rotate the slot
-		slot = (slot + 1) / 3
+		newsCycle = (newsCycle + 1) % 3
 
-		pr("Sleeping 1 minute...")
-		time.Sleep(1 * time.Minute)
+		if numRepetitions >= 3 {
+			pr("Sleeping 1 minute...")
+			time.Sleep(1 * time.Minute)
+		}
+
+		numRepetitions++
 	}
 }
