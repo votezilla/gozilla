@@ -301,6 +301,8 @@ func (qp ArticleQueryParams) createArticleQuery() string {
 			ternary_str(qp.useMaterializedView, query, "(\n" + query + "\n)"),
 			qp.fetchVotesForUserId,
 			qp.fetchVotesForUserId)
+	} else if qp.useMaterializedView {
+		query = fmt.Sprintf("SELECT * FROM %s ORDER BY OrderBy DESC", query)
 	}
 
 	if qp.addSemicolon {
