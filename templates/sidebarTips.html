@@ -1,0 +1,14 @@
+{{ define "content" }}
+	<div class="row vz-row">
+		<div class="col-md-9 vz-col-md9-left">
+
+			{{ template "mainContent" . }}
+
+		</div> {{/*col-md-9*/}}
+		<div class="col-md-3 vz-col-md-3-right">
+
+			{{ template "sidebarTips" }}
+
+		</div> {{/*col-md-3*/}}
+	</div> {{/*row*/}}
+{{ end }}

@@ -1,17 +1,18 @@
-
-JUST FIXED:
+PUSH & TEST ON SERVER:
 
 A 5 - OPT - shrink mozilla dino head pic
      prev OPT test: https://tools.pingdom.com/#5d08fdfa8b400000
 
 
+JUST FIXED:
+
+A - 5 - Poll options need better written directions.
+A - 3 - ability for ppl to add new options should be checked by default
+B - 1 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
+
+
+
 WORKING ON:
-
-
-A - 8 - Continue getting feedback from close peeps!!
-	(Start with SUSAN!!!,
-		Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
-
 
 
 
@@ -26,12 +27,9 @@ v
   Difficulty
   v
 
-
-- make bus cards
-
-- simple FB campaign - presidential poll, create FB group, IM some ppl.
-- email friends & family.
-- create some good polls first
+A - 8 - Continue getting feedback from close peeps!!
+	(Start with SUSAN!!!,
+		Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
 
 A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
@@ -48,11 +46,21 @@ A - 13 - start implementing demographic breakdown (available when 5+ or 10+ vote
 
 A 5 - prompt user to leave comment or up/down vote after viewing an article.
 
-A 2 - OPT - lower jpg quality, or convert to webp
-
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
-B - FB signup
+B - 13 - FB signup
+
+B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.
+
+
+
+- make bus cards
+
+- simple FB campaign - presidential poll, create FB group, IM some ppl.
+- email friends & family.
+- create some good polls first
+- social idea: $100 to whichever presidential candidate wins the poll
+
 
 B 21  =   Fix email - Emailed DO tech support.
 
@@ -68,8 +76,6 @@ B - let ppl know they can vote in their own poll
 
 - should I make polls be FB-style?
 
-B 1 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
-
 B 1 - Delete ugly, old polls.
 
 B 3 - RYAN: The alert after logging in should be removed.
@@ -79,8 +85,6 @@ B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "
 B 2 - Let user specify "Other" field that appears when other is selected, just group all the other stuff there for now.
 
 B 8 - privacy alias'
-
-B 3 - OPT: Set content expiration time, so client can static content.
 
 B 8 - ability to delete posts, comments
 
@@ -109,13 +113,21 @@ B 13 - Add more news API's (hopefully some incl. Fox News).  (TOM: seeing mostly
 B 8 - I need to add some suggestions about poll wording when creating polls, as I don't think this will be obvious to most ppl.
       Also, dump in other notes with written stuff, from my notebook.
 
+B - "contentScript" etc
+
+- renderTempleateZipped for /news, /article, /viewPollResults,
+
+B - DO Spaces
+
+C also zipping for  static/ any mime type text
+
+
+C - use font awesome icons for polls checkboxes?
+
 - when signing up, store referrer in server side cookie, to return signed in person to that page.  Instead of javascript alert, popup with Welcome to Votezilla.  Store in cookie so this does not reactivate, somehow.
 
+
 C - split polls vs news into two tabs?
-
-- C - OPT: stitch together news source icons: http://draeton.github.io/stitches/
-
-- C - OPT: webp - https://godoc.org/github.com/harukasan/go-libwebp/webp#EncodeRGBA
 
 - C - when they're going to post to news but registerdetails country isn't set yet, warn (via popup) and offer link to registerDetails to complete registration to fix this.
 
@@ -126,8 +138,6 @@ C - split polls vs news into two tabs?
 - cat highlight when u move mouse over
 
 - bug - visited links f Activity are remaining blue
-
-- OPT: materialize recent news every 5 minutes(if there is a new post), also for more news, more more news.  5 variations for reload variation, so do one request / minute with a modular cycle i.e. a circular Q.  Could prerender the news HTML even, if user upvote and poll vote data is sent to the JS to be added!!!
 
 - at bottom of news add more cats links as rounded flat rectangular buttons, with infinite scroll that displays more /news (each news cat plus other categories), fetches against materialized tables joined with user upvotes
 
@@ -155,11 +165,6 @@ C 8 - load comments AFTER article - could use an iframe.  this will speed up in-
 
 C 8 - for user-uploaded article, the sidebar should have more polls / article uploaded from that user.
 
-C 13 - OPT: Avoiding https redirect would save 146ms https://tools.pingdom.com/#5d08fdfa8b400000
-
-C 13 - OPT: zipping would optimize 50% * (.692 - .5) ~ (.1)
-	    https://stackoverflow.com/questions/39844866/how-to-gzip-a-template-in-golang-web
-
 NEW STUFF:
 
 //[] Scroll keeps bringing up new topics.  When you reach bottom, infinite scroll has MORE NEWS, MORE WORLD NEWS, etc.
@@ -170,6 +175,7 @@ NEW STUFF:
 
 - 8 dino colors would be really cool. For user portrait, but that also becomes the color of the default image.  Use userId % 8. (If user later updates their profile pic, it will down sample to make their avatar.  Or they could just change their color too.)
 
+D - push favicon.ico if not logged in
 
 
 - refresh icon on top to load more news
@@ -297,7 +303,22 @@ D ? - When calculating if some text is too long, counts the number of bytes, not
 
 B ? - Ryan: "Lookin better duder!  I still think the polls / articles need better separation.  Maybe a border?  For me this is a big deal."
 
+D - Create forms should kp the main menu, just a narrow one (?)
+
+OPT:
+
 D - OPT: Use CDN for images -> DigitalOcean Spaces: https://cloud.digitalocean.com/spaces?i=5344af
+
+C 3 - OPT - lower jpg quality, or convert to webp
+
+C - OPT: stitch together news source icons: http://draeton.github.io/stitches/
+
+C - OPT: webp - https://godoc.org/github.com/harukasan/go-libwebp/webp#EncodeRGBA
+
+C 13 - OPT: Avoiding https redirect would save 146ms https://tools.pingdom.com/#5d08fdfa8b400000
+
+C 13 - OPT: zipping would optimize 50% * (.692 - .5) ~ (.1)
+	    https://stackoverflow.com/questions/39844866/how-to-gzip-a-template-in-golang-web
 
 D - OPT: Profile Go code: https://flaviocopes.com/golang-profiling/
 

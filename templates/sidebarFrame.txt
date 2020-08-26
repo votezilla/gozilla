@@ -1,0 +1,43 @@
+{{ define "content" }}
+	<div class="row vz-row">
+		<div class="col-md-9 vz-col-md9-left">
+
+			{{ template "mainContent" . }}
+
+		</div> {{/*col-md-9*/}}
+		<div class="col-md-3 vz-col-md-3-right">
+
+			{{ template "sidebarTips" }}
+
+		</div> {{/*col-md-3*/}}
+	</div> {{/*row*/}}
+{{ end }}
+
+// wide
+{{define "beginFrame"}}
+	<div class="container vz-container">
+		<div class="row vz-row">
+			<div class="col-md-12 vz-col-md-12">
+{{end}}
+
+{{define "endFrame"}}
+			</div> {{/*col-md-12*/}}
+		</div> {{/*row vz-row*/}}
+	</div> {{/*container vz-container*/}}
+{{end}}
+
+
+// narrow
+{{define "beginFrame"}}
+	<div class="container vz-container">
+		<div class="row vz-row">
+			<div class="col-md-3 vz-col-md-3"></div>
+			<div class="col-md-6 vz-col-md-6" style="max-width: 500px;">  {{/* Center the frame with 50% width. */}}
+{{end}}
+
+{{define "endFrame"}}
+			</div> {{/*col-md-6*/}}
+			<div class="col-md-3 vz-col-md-3"></div>
+		</div>  {{/*row vz-row*/}}
+	</div>  {{/*container vz-container*/}}
+{{end}}

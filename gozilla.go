@@ -230,7 +230,7 @@ func parseTemplateFiles() {
 	//hDefineTemplate(kCreate, 		"base", "wide", "frame", "nuField", "create")
 	hDefineTemplate(kCreateBlog, 	"base", "narrow", "minFrame", "nuField", "createBlog")
 	hDefineTemplate(kCreateLink, 	"base", "narrow", "minFrame", "nuField", "createLink")
-	hDefineTemplate(kCreatePoll, 	"base", "narrow", "minFrame", "nuField", "createPoll")
+	hDefineTemplate(kCreatePoll, 	"base", "narrowWithSidebar", "minFrame", "nuField", "createPoll")
 
 	hDefineTemplate(kLogin,			  "base", "narrow", "minFrame", "nuField", "login")
 	hDefineTemplate(kLoginRegister,	  "base", "narrow", "minFrame", "nuField", "loginRegister")

@@ -1,44 +1,82 @@
 {{define "content"}}
-{{ template "formHeader" "Create poll for" }}
-{{ template "beginForm" .Form }}
-	{{ $f := .Form.FieldMap }}
+	{{ template "formHeader" "Create poll for" }}
+	{{ template "beginForm" .Form }}
+		{{ $f := .Form.FieldMap }}
 
-	{{ template "field" $f.title -}}
+		{{ template "field" $f.title -}}
 
-	{{- range $i, $option := .PollOptions -}}
-		{{- template "field" $option -}}
-	{{- end -}}
+		<br><br><i>Poll Options:</i>
+		{{- range $i, $option := .PollOptions -}}
+			{{- template "field" $option -}}
+		{{- end -}}
 
-	<p><a href="javascript:addOption()" style="color:blue; font-size: 20px;">+ Add option...</a></p>
+		<p><a href="javascript:addOption()" style="color:blue; font-size: 20px;">+ Add option...</a></p>
 
-	<p>
-	{{ template "field" $f.bAnyoneCanAddOptions -}}
-	<p class="nuFieldSubtext" style="margin-left: 50px;">Enables users to add their own options to the poll. Good for open-ended polls.</p>
-	{{ template "field" $f.bCanSelectMultipleOptions -}}
-	<p class="nuFieldSubtext" style="margin-left: 50px;">Enables users to selection multiple options.</p>
-	{{ template "field" $f.bRankedChoiceVoting -}}
-	<p class="nuFieldSubtext" style="margin-left: 50px;">Enables ranked choice voting.  Users can pick their 1st, 2nd, 3rd choices.  Gives third parties a fair chance.</p>
-	{{ template "field" $f.category -}}
+		<p>
+		{{/* template "field" $f.bAnyoneCanAddOptions */}}
 
-	<p>
-	{{ template "button" "Create Poll" }}
-	<br>
-{{template "endForm"}}
+		{{ template "field" $f.bCanSelectMultipleOptions -}}
+		<p class="nuFieldSubtext" style="margin-left: 50px;">
+			Enables users to selection multiple options.
+		</p>
 
-<script>
-	var numOptions = {{ len .PollOptions }};
+		{{ template "field" $f.bRankedChoiceVoting -}}
+		<p class="nuFieldSubtext" style="margin-left: 50px;">
+			Enables ranked choice voting.  Users can pick their 1st, 2nd, 3rd choices.  Gives third parties a fair chance.  Important for choosing elected officials fairly!
+		</p>
 
-	function addOption() {
-		numOptions++;
+		{{ template "field" $f.category -}}
 
-		if (numOptions > 1024) // Max number of options allowed
-			return;
+		<br><br>
+		<span style="color: red">Please read the Poll creation tips before creating your poll!</span>
 
-		// Add a new option, after all the other options.
-		$(`input[name ="option${numOptions-1}"]`).after(
-			`<input type="text" name="option${numOptions}" value="" placeholder="add option..." length="50" class="nuField">`
-		);
-	}
-</script>
+		<p>
+		{{ template "button" "Create Poll" }}
+		<br>
+	{{template "endForm"}}
+
+
+	<script>
+		var numOptions = {{ len .PollOptions }};
+
+		function addOption() {
+			numOptions++;
+
+			if (numOptions > 1024) // Max number of options allowed
+				return;
+
+			// Add a new option, after all the other options.
+			$(`input[name ="option${numOptions-1}"]`).after(
+				`<input type="text" name="option${numOptions}" value="" placeholder="add option..." length="50" class="nuField">`
+			);
+		}
+	</script>
 {{end}}
 
+
+{{define "sidebar"}}
+<br>
+<p class="nuFieldSubtext">
+	<b style="color: red">Poll creation tips:</b>
+	<ul>
+		<li>Try to use neutral, unbiased language when creating polls, which does not favor one side or the other.</li>
+		<li>Try to add options for all potential viewpoints.</li>
+		<li>Users are allowed to add their own options to the poll, when voting. This creates a good environment for open-ended polls, so all viewpoints can be expressed.</li>
+		<li>Enable ranked-choice voting when creating polls for elected officials.
+		<li>For agree/disagree or yes/no type polls, try to create an odd number of options, so that neutral viewpoints can also be expressed.  Examples:
+			<ol>
+				<li>Agree
+				<li>Neutral
+				<li>Disagree
+			</ol>
+			OR:
+			<ol>
+				<li>Strongly Agree
+				<li>Agree
+				<li>Neutral
+				<li>Disagree
+				<li>Strongly Disagree
+			</ol>
+	</ul>
+</p>
+{{ end }}

@@ -1,0 +1,14 @@
+{{ define "beginFrame" }}
+	<div class="container vz-container">
+		<div class="row vz-row">
+			<div class="col-md-9 vz-col-md-9-left">
+{{ end }}
+
+{{define "endFrame"}}
+			</div> {{/*col-md-9*/}}
+			<div class="col-md-3 vz-col-md-3">
+				{{ template "sidebar" }}
+			</div>
+		</div> {{/*row vz-row*/}}
+	</div> {{/*container vz-container*/}}
+{{end}}

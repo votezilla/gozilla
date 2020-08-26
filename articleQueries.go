@@ -463,6 +463,9 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 			if len(pollTallyResultsJson) > 0 {
 				check(json.Unmarshal([]byte(pollTallyResultsJson), &newArticle.PollTallyResults))
 
+				// Force AnyoneCanAddOptions to be true, otherwise ppl make closed polls that don't get everyone's opinion.
+				newArticle.PollOptionData.AnyoneCanAddOptions = true
+
 				//prVal("newArticle.PollTallyResults", newArticle.PollTallyResults)
 
 				// vv Keep this code here!!! It must always be called, particularly when user is logged out, or there'll be a crash
