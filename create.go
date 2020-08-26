@@ -68,7 +68,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 		prVal("<<thumbnail", thumbnail)
 
 		// Check for default thumbnail (from createLink.html:47), replace with '' which is clear for detecting default image.
-		if strings.Contains(thumbnail, "mozilla%20dinosaur%20thumbnail.png") {
+		if strings.Contains(thumbnail, "dino-head") {
 			thumbnail = ""
 		}
 

@@ -220,7 +220,6 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 
     // Find and return all image URLs
     parsedImages := struct {
-		OGImages	[]string
 		Images		[]string
 	}{}
 
@@ -249,7 +248,6 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 
 	        prVal("ogImage Found!", ogImage)
 
-	        parsedImages.OGImages = append(parsedImages.Images, ogImage)
 	        prVal("parsedImages.Images scanned", parsedImages.Images)
 
 	        addImageNoDups(ogImage)
@@ -275,8 +273,6 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 		})
 
 		prVal("parsedImages.Images scanned", parsedImages.Images)
-
-
 
 		// Sort in descending order by image quality (based on size of the image)
 		//sort.Slice(parsedImages.Images, func(i, j int) bool { return parsedImages.Images[i] > parsedImages.Images[j] })
@@ -356,6 +352,10 @@ func ajaxScrapeImageURLs(w http.ResponseWriter, r *http.Request) {
 		prVal("parsedImages.Images", parsedImages.Images)
 */
 	}
+
+	// Default image
+	addImageNoDups(kDefaultImage)
+
 
     // create json response from struct
     a, err := json.Marshal(parsedImages)

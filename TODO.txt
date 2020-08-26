@@ -1,24 +1,16 @@
 
 JUST FIXED:
 
+A 5 - OPT - shrink mozilla dino head pic
+     prev OPT test: https://tools.pingdom.com/#5d08fdfa8b400000
 
 
 WORKING ON:
 
 
-profiling
-  page load - chrome  .692
-                  ff  .866
-
-   total server time  .54
-            db query  .5
-
-zipping would optimize 50% * (.692 - .5) ~ (.1)
-
-
-
-
-[] - get Susan's login experience with new stuff.
+A - 8 - Continue getting feedback from close peeps!!
+	(Start with SUSAN!!!,
+		Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
 
 
@@ -35,24 +27,12 @@ v
   v
 
 
-OPT:
-? -
-? - stitch together news source icons: http://draeton.github.io/stitches/
-
-A - 8 - Continue getting feedback from close peeps!!  (Start with Susan, Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
-
 - make bus cards
 
 - simple FB campaign - presidential poll, create FB group, IM some ppl.
 - email friends & family.
 - create some good polls first
 
-A - start optimizing a little, or just shrink the icons and upgrade the droplet.
-
-A - 13 - start implementing demographic breakdown (available when 5+ or 10+ votes)
-         (view # votes for each poll:
-         	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;
-         )
 
 A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
 	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
@@ -61,9 +41,12 @@ A - 8 - Add num notifications javascript on 1 minute timer that asks how many no
 
 A - 8 - browser notifications: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
 
-A 5 - prompt user to leave comment or up/down vote after viewing an article.
+A - 13 - start implementing demographic breakdown (available when 5+ or 10+ votes)
+         (view # votes for each poll:
+         	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;
+         )
 
-A 2 - OPT - shrink mozilla dino head pic
+A 5 - prompt user to leave comment or up/down vote after viewing an article.
 
 A 2 - OPT - lower jpg quality, or convert to webp
 
@@ -128,6 +111,10 @@ B 8 - I need to add some suggestions about poll wording when creating polls, as 
 
 - when signing up, store referrer in server side cookie, to return signed in person to that page.  Instead of javascript alert, popup with Welcome to Votezilla.  Store in cookie so this does not reactivate, somehow.
 
+C - split polls vs news into two tabs?
+
+- C - OPT: stitch together news source icons: http://draeton.github.io/stitches/
+
 - C - OPT: webp - https://godoc.org/github.com/harukasan/go-libwebp/webp#EncodeRGBA
 
 - C - when they're going to post to news but registerdetails country isn't set yet, warn (via popup) and offer link to registerDetails to complete registration to fix this.
@@ -167,6 +154,11 @@ C 8 - fill in Polls category - to remove white space
 C 8 - load comments AFTER article - could use an iframe.  this will speed up in-site article load time.
 
 C 8 - for user-uploaded article, the sidebar should have more polls / article uploaded from that user.
+
+C 13 - OPT: Avoiding https redirect would save 146ms https://tools.pingdom.com/#5d08fdfa8b400000
+
+C 13 - OPT: zipping would optimize 50% * (.692 - .5) ~ (.1)
+	    https://stackoverflow.com/questions/39844866/how-to-gzip-a-template-in-golang-web
 
 NEW STUFF:
 

@@ -94,7 +94,7 @@ func fetchRecentComments(notUserId int64, numComments int) (articles []Article, 
 		//	commentId, comment, userId, postId, created, title)
 
 		articles = append(articles, Article {
-			AuthorIconUrl: 	"/static/mozilla dinosaur head.png",  // TODO: we need real dinosaur icon art for users.
+			AuthorIconUrl: 	kDefaultAuthorIcon,  // TODO: we need real dinosaur icon art for users.
 			Author: 		username,
 			Id: 			postId,
 			UserId:			userId,	// For the activity "your" nomenclature, this has to be the UserId of the article poster, not the commenter.

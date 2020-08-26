@@ -304,4 +304,8 @@ Notes:
 	max-age=31536000	// one year (cache time in seconds)
 	Last-Modified:          // conditional
 
+8/22
+upgraded the droplet
+
+8/24
 db opt!  723ms - 258ms = 465ms saved!!!  (Chrome dev tools, network tab, caching enabled.)

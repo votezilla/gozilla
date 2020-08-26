@@ -407,7 +407,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 										{{- else if eq $navItem "history" }}
 											{{- if $.Username }}
 												<div style="min-height: 54px; vertical-align:center;">
-													<img src="/static/mozilla dinosaur head.png" class='vz-nav-dino-head'>
+													<img src="/static/dino-head-160x96.png" class='vz-nav-dino-head'>
 												</div>
 										  	{{- else }}
 										  		<i class="fas fa-sign-in-alt vz-nav-icon"></i>
@@ -443,7 +443,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						<span class="pagetop" style="line-height:20px; padding: 5px 15px;">
 							{{- if .Username }}
 								<a href="/history" style="color:{{if eq "history" $.UrlPath}}#0072ff{{else}}black{{end}};">
-									<img src="/static/mozilla dinosaur head.png" width="54" height="54">
+									<img src="/static/dino-head-48x48.png" width="54" height="54">
 									{{.Username}}
 								</a>
 							{{- else -}}
@@ -1330,14 +1330,14 @@ $(function () {
 {{ define "CommentUserTag" }}
 	{{ $comment := . }}
 	<a href="/history?username={{$comment.Username}}" class="userTag">
-		<span><img src="/static/mozilla%20dinosaur%20head.png" width=16 height=16></span>
+		<span><img src="/static/dino-head-24x24.png" width=16 height=16></span>
 		<span style="color: #88f;">{{$comment.Username}}</span></a>
 {{ end }}
 
 {{ define "UserTagMainMenu" }}
 	<a href="/history">
 		<span class="desktop_only">
-			<img src="/static/mozilla dinosaur head.png" width=24 height=24>
+			<img src="/static/dino-head-48x48.png" width=24 height=24>
 		</span>
 		{{.}}</a>
 {{ end }}
@@ -1345,7 +1345,7 @@ $(function () {
 {{ define "UserTagMainMenuSel" }}
 	<a href="/history">
 		<span class="desktop_only">
-			<img src="/static/mozilla dinosaur head.png" width=24 height=24>
+			<img src="/static/dino-head-48x48.png" width=24 height=24>
 		</span>
 		<span style="color: #0072ff;">
 			{{.}}

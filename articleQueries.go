@@ -38,8 +38,13 @@ type ArticleQueryParams struct {
 
 const (
 	kMaterializedNewsView 	= "materializednewsview"  // Must be lowercase!
-	kDefaultImage       	= "/static/mozilla dinosaur head.png"
-	kDefaultThumbnail   	= "/static/mozilla dinosaur thumbnail.png"
+
+	// TODO: we need real dino art.
+	// Leave most of these as PNG, as PNG can be smaller than JPG!  (And should be lossless.)
+	kDefaultAuthorIcon		= "/static/dino-head-24x24.png"
+	kDefaultThumbnail   	= "/static/dino-head-160x96.png"
+	kDefaultImage       	= "/static/dino-head-546x386.png"
+
 	kApproxCharsPerLine 	= 30
 )
 
@@ -438,7 +443,7 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 			AuthorIconUrl:
 				ternary_str(newsSourceId != "",
 					"/static/newsSourceIcons/" + newsSourceId + ".png",  // News source icon.
-					"/static/mozilla dinosaur head.png"),                // TODO: we need real dinosaur icon art for users.
+					kDefaultAuthorIcon),
 			Upvoted:		upvoted,
 			VoteOptionIds:	voteOptionIds,
 			VoteTally:		voteTally,
@@ -523,14 +528,14 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 
 			newArticle.NumLines = numLinesApprox
 
-			newArticle.UrlToImage = coalesce_str(urlToImage, kDefaultImage)		  // Full-size image.  Uses a default image (mozilla head) as backup.
+			newArticle.UrlToImage = coalesce_str(urlToImage, kDefaultImage)  // Full-size image.
 
 			if urlToImage == ""	{
 				// Dropback if no image.  (TODO: replace licensed art.)
 				newArticle.UrlToThumbnail = kDefaultThumbnail
 				newArticle.IsThumbnail = true
 			} else if thumbnailStatus == image_Unprocessed {
-				// Uses full-size image as backup if thumbnail isn't processed yet, or default thumbnail (tiny mozilla head) as backup if image is missing.
+				// Uses full-size image as backup if thumbnail isn't processed yet.
 				newArticle.UrlToThumbnail = urlToImage
 			} else if thumbnailStatus >= image_DownsampledV2 {
 				thumbnailBasePath := "/static/thumbnails/" + strconv.FormatInt(id, 10)
