@@ -103,8 +103,6 @@ type FrameArgs struct {
 	Username			string
 	UpVotes				[]int64
 	DownVotes			[]int64
-	NumNewsUpdates		int
-	NumActivityUpdates	int
 }
 func makeFrameArgs(r *http.Request, title, script, urlPath string, userId int64, username string) FrameArgs {
 	pa := makePageArgs(r, title, "", "")

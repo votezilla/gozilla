@@ -390,8 +390,6 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UrlPath						string
 		UpVotes						[]int64
 		DownVotes					[]int64
-		NumNewsUpdates				int
-		NumActivityUpdates			int
 
 		Article						Article
 		UpCommentVotes				[]int64
@@ -410,8 +408,6 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		Article:					article,
 		UpVotes:					upvotes,
 		DownVotes:					downvotes,
-		NumNewsUpdates:				0,
-		NumActivityUpdates:			0,
 
 		UpCommentVotes:				upcommentvotes,
 		DownCommentVotes: 			downcommentvotes,

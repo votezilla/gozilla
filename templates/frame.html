@@ -243,17 +243,13 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 									<figure style="text-align: center;">
 										{{- if eq $navItem "news" }}
 											<i class="far fa-newspaper vz-nav-icon">
-												{{ if gt $.NumNewsUpdates 0 }}
-													<span class='update update-news'>{{ $.NumNewsUpdates }}</span>
-												{{ end }}
+												<span class='update update-news' style='display: none'>0</span>
 											</i>
 										{{- else if eq $navItem "create" }}
 											<i class="fas fa-pencil-alt vz-nav-icon"></i>
 										{{- else if eq $navItem "activity" }}
 											<i class='fas fa-bell vz-nav-icon'>
-												{{ if gt $.NumActivityUpdates 0 }}
-													<span class='update update-activity'>{{ $.NumActivityUpdates }}</span>
-												{{ end }}
+												<span class='update update-activity' style='display: none'>0</span>
 											</i>
 										{{- else if eq $navItem "about" }}
 											<i class='fa fa-circle vz-nav-icon' aria-hidden="true"></i>
@@ -742,6 +738,28 @@ function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 		console.log("invalid vote data");
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// NOTIFICATION TIMERS
+//
+///////////////////////////////////////////////////////////////////////////////
+function checkForNewsUpdates() {
+	var child = $('.update-news');
+	child.text("2");
+	child.show();
+}
+
+function checkForActivityUpdates() {
+	var child = $('.update-activity');
+	child.text("3");
+	child.show();
+}
+
+(function(){
+    setTimeout(checkForNewsUpdates, 1000);//60000);
+    setTimeout(checkForActivityUpdates, 5000);//60000);
+})();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
