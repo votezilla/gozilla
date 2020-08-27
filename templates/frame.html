@@ -5,6 +5,18 @@ figure {
 	position: relative;
 }
 
+.update {
+	position: absolute;
+	color: white;
+	background-color: red;
+	font-size: 18px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	font-weight: 900;
+	vertical-align:	center;
+}
+
 @media screen and (min-width:525px) { /* wide screens - desktop */
 	.vz-nav-icon{
 		font-size: 48px;
@@ -50,6 +62,14 @@ figure {
 		-ms-word-break: break-all;
 		vertical-align: top;
 		display:		block;
+	}
+	.update-news {
+		top: 			0.5px;
+		right: 			0.5px;
+	}
+	.update-activity {
+		top: 			0.5px;
+		right: 			16.5px;
 	}
 }
 @media screen and (max-width:525px) { /* narrow screens - mobile */
@@ -104,15 +124,24 @@ figure {
 		vertical-align: top;
 		display:		block;
 	}
+	.update {
+		font-size: 		4vw;
+		width: 			5.5vw;
+		height: 		5.5vw;
+	}
+	.update-news {
+		top: 			0.14vw;
+		right: 			-1.0vw;
+	}
+	.update-activity {
+		top: 			0.14vw;
+		right: 			1.6vw;
+	}
 }
 
 figcaption {
     vertical-align: top;
 }
-
-/*style="font-size: 48px; max-width: 60px; min-height: 54px; vertical-align: middle;"*/
-
-
 
 .vz-logo-circle{
 	border-radius:50%;
@@ -173,137 +202,6 @@ figcaption {
 }
 </style>
 
-<!--
-<div class="circle">
-	<a href="#">vz</a>
-</div>
-<div class="circle">
-	<span style="color:white; font-size:36px">vz</font>
-</div>
-<div class="circle">
-	<span class="serif">100</a>
-</div>
-<div class="circle">
-	<span class="serif">1000</a>
-</div>
-
-<span class="fa-layers-counter" class="vz_test">vz</span>vz_test
-
-
-<span class="fa-layers fa-fw" style="background:MistyRose">
-    <svg class="svg-inline--fa fa-envelope fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="envelope" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path></svg><!-- <i class="fas fa-envelope"></i>
-    <span class="fa-layers-counter" style="background:Tomato">1,419</span>
-  </span>
-
-		<span class="fa-layers fa-fw" style="background:MistyRose">
-			<i class="fas fa-envelope"></i>
-			<span class="fa-layers-counter" style="background:Tomato">1,419</span>
-		</span>
-
-		<div class="fa-64x">
-		  <span class="fa-layers fa-fw" style="background:MistyRose">
-			<i class="fas fa-circle" style="color:Tomato"></i>
-			<i class="fa-inverse fas fa-times" data-fa-transform="shrink-6"></i>
-		  </span>
-
-		  <span class="fa-layers fa-fw" style="background:MistyRose">
-			<i class="fas fa-circle"></i>
-			<span class="fa-layers-text" style="font-weight:900">VZ</span>
-		  </span>
-
-		  <span class="fa-layers fa-fw" style="background:MistyRose">
-			<i class="fas fa-bookmark"></i>
-			<i class="fa-inverse fas fa-heart" data-fa-transform="shrink-10 up-2" style="color:Tomato"></i>
-		  </span>
-
-		  <span class="fa-layers fa-fw" style="background:MistyRose">
-			<i class="fas fa-play" data-fa-transform="rotate--90 grow-2"></i>
-			<i class="fas fa-sun fa-inverse" data-fa-transform="shrink-10 up-2"></i>
-			<i class="fas fa-moon fa-inverse" data-fa-transform="shrink-11 down-4.2 left-4"></i>
-			<i class="fas fa-star fa-inverse" data-fa-transform="shrink-11 down-4.2 right-4"></i>
-		  </span>
-
-		  <span class="fa-layers fa-fw" style="background:MistyRose">
-			<i class="fas fa-calendar"></i>
-			<span class="fa-layers-text fa-inverse" data-fa-transform="shrink-8 down-3" style="font-weight:900">27</span>
-		  </span>
-
-		  <span class="fa-layers fa-fw" style="background:MistyRose">
-			<i class="fas fa-certificate"></i>
-			<span class="fa-layers-text fa-inverse" data-fa-transform="shrink-11.5 rotate--30" style="font-weight:900">NEW</span>
-		  </span>
-
-		  <span class="fa-layers fa-fw" style="background:MistyRose">
-			<i class="fas fa-envelope"></i>
-			<span class="fa-layers-counter" style="background:Tomato">1,419</span>
-		  </span>
-		</div>
-
-		<span class="fa-stack fa-lg">
-		  <i class="fa fa-square-o fa-stack-2x"></i>
-		  <i class="fa fa-twitter fa-stack-1x"></i>
-		</span>
-		fa-twitter on fa-square-o<br>
-		<span class="fa-stack fa-lg">
-		  <i class="fa fa-circle fa-stack-2x"></i>
-		  <i class="fa fa-flag fa-stack-1x fa-inverse"></i>
-		</span>
-		fa-flag on fa-circle<br>
-		<span class="fa-stack fa-lg">
-		  <i class="fa fa-square fa-stack-2x"></i>
-		  <i class="fa fa-terminal fa-stack-1x fa-inverse"></i>
-		  <span class="fa-layers-counter">vz</span>
-		</span>
-		fa-terminal on fa-square<br>
-		<span class="fa-stack fa-lg">
-		  <i class="fa fa-camera fa-stack-1x"></i>
-		  <i class="fa fa-ban fa-stack-2x text-danger"></i>
-		</span>
-		fa-ban on fa-camera
-
-
-	<style>
-		.icon-notanicon {
-				font-family: Arial, Helvetica, Geneva, SansSerif;
-				font-weight: bold;
-		}
-	</style>
-
-	  <span class="icon-stack">
-				<i class="icon-check-empty icon-stack-base"></i>
-				<i class="icon-notanicon">12</i>
-		</span>
-		<span class="icon-stack">
-				<i class="icon-comment-alt icon-stack-base"></i>
-				<i class="icon-notanicon">34</i>
-		</span>
-		<span class="icon-stack">
-				<i class="icon-circle icon-stack-base"></i>
-				<i class="icon-notanicon icon-light">56</i>
-		</span>
-		<span class="icon-stack">
-				<i class="icon-desktop icon-stack-base"></i>
-				<i class="icon-notanicon">10</i>
-		</span>
-		<span class="icon-stack">
-				<i class="icon-calendar-empty icon-stack-base"></i>
-				<i class="icon-notanicon">29</i>
-		</span>
-		<span class="icon-stack">
-				<i class="icon-circle-blank icon-stack-base"></i>
-				<i class="icon-notanicon">R</i>
-		</span>
-		<span class="icon-stack">
-				<i class="icon-sign-blank icon-stack-base"></i>
-				<i class="icon-notanicon icon-light">Aw</i>
-		</span>
-		<span class="icon-stack">
-				<i class="icon-comment icon-stack-base"></i>
-				<i class="icon-notanicon icon-light">&ocirc;&ocirc;</i>
-    </span>
--->
-
-
 <script>
 // Global variables:
 var numNewOptions = 0; // Also used by addOption() in article.html
@@ -320,59 +218,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 				</a>
 			</div>
 		</td></tr>
-<!--
-		<tr><td bgcolor=white>
-			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:4px; font-size: 20px;">
-				<tr>
-					<td style="width:18px; padding:1px">
-						<div style="border: 1px solid black; color: black; text-align:center;">
-							<span style="color:#ff009c">v</span>
-							<span style="color:#0072ff">z</span>
-						</div>
-					</td>
-					<td style="line-height:20px; height:10px; padding: 0px 5px; color:white !important;">
-						<span class="pagetop">
-							<b class="desktop_only">
-								<a href="/news" style="color:#ff009c">vote<span style="color:black">zilla</span></a>
-							</b>
-						{{- range $i, $navItem := .NavMenu}}
-							{{- if ne $i 0 }} | {{end -}}
-							<a href="/{{$navItem}}" style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
-								{{- if eq $navItem "news" }}
-									<i class="far fa-newspaper"></i>
-								{{- else if eq $navItem "create" }}
-									<i class="fas fa-pencil-alt"></i>
-								{{- else if eq $navItem "activity" }}
-									<i class='fas fa-bell'></i>
-								{{- end }}
 
-								{{$navItem}}
-							</a>
-						{{end -}}
-						</span>
-					</td>
-					<td style="line-height:20px; text-align:right; padding-right:4px;" align=right>
-						<span class="pagetop">
-							{{- if .Username }}
-								{{- if eq "history" $.UrlPath}}
-									{{ template "UserTagMainMenuSel" .Username }} |
-								{{- else }}
-									{{ template "UserTagMainMenu" .Username }} |
-								{{- end }}
-								<a href="/logout">logout</a>
-							{{- else -}}
-								<a href="/login">log in</a> |
-								<a href="/register">sign up</a>
-							{{end -}}
-							<a data-target="#myModal" data-toggle="modal" data-path="tutorial" data-title="Log In" style="cursor:pointer">
-								tutorial
-							</a>
-						</span>
-					</td>
-				</tr>
-			</table>
-		</td></tr>
-		<!----------------------------- vvvvvvvvvvvvvv -------------------->
 		<tr><td bgcolor=white>
 			<table class='vz-nav-table' border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:4px;">
 				<tr>
@@ -396,11 +242,19 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 									style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
 									<figure style="text-align: center;">
 										{{- if eq $navItem "news" }}
-											<i class="far fa-newspaper vz-nav-icon"></i>
+											<i class="far fa-newspaper vz-nav-icon">
+												{{ if gt $.NumNewsUpdates 0 }}
+													<span class='update update-news'>{{ $.NumNewsUpdates }}</span>
+												{{ end }}
+											</i>
 										{{- else if eq $navItem "create" }}
 											<i class="fas fa-pencil-alt vz-nav-icon"></i>
 										{{- else if eq $navItem "activity" }}
-											<i class='fas fa-bell vz-nav-icon'></i>
+											<i class='fas fa-bell vz-nav-icon'>
+												{{ if gt $.NumActivityUpdates 0 }}
+													<span class='update update-activity'>{{ $.NumActivityUpdates }}</span>
+												{{ end }}
+											</i>
 										{{- else if eq $navItem "about" }}
 											<i class='fa fa-circle vz-nav-icon' aria-hidden="true"></i>
 												<span class='vz-in-circle'>vz</span>
@@ -438,31 +292,15 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 						{{end -}}
 						</span>
 					</td>
-<!--
-					<td style="line-height:20px; height:10px; padding: 0px 5px; text-align:center; padding-right:4px; width: 60px;">
-						<span class="pagetop" style="line-height:20px; padding: 5px 15px;">
-							{{- if .Username }}
-								<a href="/history" style="color:{{if eq "history" $.UrlPath}}#0072ff{{else}}black{{end}};">
-									<img src="/static/dino-head-48x48.png" width="54" height="54">
-									{{.Username}}
-								</a>
-							{{- else -}}
-								<a href="/login">log in</a> |
-								<a href="/register">sign up</a>
-							{{end -}}
-
-						</span>
-					</td>
--->
 				</tr>
 			</table>
 		</td></tr>
 	</table>
 
-						<!-- TUTORIAL POP-UP WINDOW:
-							<a data-target="#myModal" data-toggle="modal" data-path="tutorial" data-title="Log In" style="cursor:pointer">
-								tutorial
-							</a>
+<!-- TUTORIAL POP-UP WINDOW:
+	<a data-target="#myModal" data-toggle="modal" data-path="tutorial" data-title="Log In" style="cursor:pointer">
+		tutorial
+	</a>
 <div style=" display: table; width: 100%; table-layout: fixed;">
   <div style="display:table-cell; width: 20%; background-color: red">B</div>
   <div style="display:table-cell; width: 20%; background-color: yellow">B</div>
@@ -884,6 +722,14 @@ function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 
 				// Open the View Poll Results in a new tab.
 				window.open(`/viewPollResults/?postId=${pollId}`, windowTarget);
+
+				//var windowReference = window.open();
+
+				//myService.getUrl().then(function(url) {
+				//     windowReference.location = `/viewPollResults/?postId=${pollId}`;
+				//});
+
+				//TODO: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
 			},
 			error: function(r) {
 				console.log("AJAX Poll Vote - error");

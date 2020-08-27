@@ -97,12 +97,14 @@ func makeFormFrameArgs(r *http.Request, form *Form, title string) FormFrameArgs 
 // Frame Args
 type FrameArgs struct {
 	PageArgs
-	NavMenu			[]string
-	UrlPath			string
-	UserId			int64
-	Username		string
-	UpVotes			[]int64
-	DownVotes		[]int64
+	NavMenu				[]string
+	UrlPath				string
+	UserId				int64
+	Username			string
+	UpVotes				[]int64
+	DownVotes			[]int64
+	NumNewsUpdates		int
+	NumActivityUpdates	int
 }
 func makeFrameArgs(r *http.Request, title, script, urlPath string, userId int64, username string) FrameArgs {
 	pa := makePageArgs(r, title, "", "")

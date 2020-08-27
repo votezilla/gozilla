@@ -1,18 +1,18 @@
 PUSH & TEST ON SERVER:
 
-A 5 - OPT - shrink mozilla dino head pic
-     prev OPT test: https://tools.pingdom.com/#5d08fdfa8b400000
 
 
 JUST FIXED:
-
-A - 5 - Poll options need better written directions.
-A - 3 - ability for ppl to add new options should be checked by default
-B - 1 - Poll options need a "Poll options:" label for the group, possibly the character o or [] in front.
-
-
+Fixed bug
+Implemented notifictions HTML and CSS
 
 WORKING ON:
+A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
+	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
+	Also, add more notifications
+"	___ shared an article" - when they really shared a poll
+A - 8 - browser notifications: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
+
 
 
 
@@ -27,22 +27,17 @@ v
   Difficulty
   v
 
-A - 8 - Continue getting feedback from close peeps!!
-	(Start with SUSAN!!!,
-		Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
-
-A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
-	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
-	Also, add more notifications
-"	___ shared an article" - when they really shared a poll
-
-A - 8 - browser notifications: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
 
 A - 13 - start implementing demographic breakdown (available when 5+ or 10+ votes)
          (view # votes for each poll:
          	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;
          )
+
+
+A - 8 - Continue getting feedback from close peeps!!
+	(Start with SUSAN!!!,
+		Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
 A 5 - prompt user to leave comment or up/down vote after viewing an article.
 
@@ -52,7 +47,7 @@ B - 13 - FB signup
 
 B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.
 
-
+B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
 
 - make bus cards
 
@@ -118,6 +113,11 @@ B - "contentScript" etc
 - renderTempleateZipped for /news, /article, /viewPollResults,
 
 B - DO Spaces
+
+POSSIBLE MACOS - ROB - BUG:
+	"I'm registered at least. Not sure anything is happening when clicking the vote nbutton"
+	"As I go back to the individual poll, I can see the check circle on the vote chosen, however no feedback when the vote is made. Safari MacOS with Pop-ups turned off."
+	https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
 
 C also zipping for  static/ any mime type text
 

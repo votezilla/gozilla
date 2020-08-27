@@ -484,8 +484,10 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 					//prVal("voteOptionIds", voteOptionIds)
 
 					for _, optionId := range voteOptionIds {
-						//prVal("optionId", optionId)
-						newArticle.VoteData[optionId] = true
+						// Since /news it cached and could be 3 mins old, we have to do this check.
+						if optionId < int64(len(newArticle.VoteData)) {
+							newArticle.VoteData[optionId] = true
+						}
 					}
 				}
 			}

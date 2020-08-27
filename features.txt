@@ -309,3 +309,12 @@ upgraded the droplet
 
 8/24
 db opt!  723ms - 258ms = 465ms saved!!!  (Chrome dev tools, network tab, caching enabled.)
+
+8/25
+A 5 - OPT - shrink mozilla dino head pic
+     prev OPT test: https://tools.pingdom.com/#5d08fdfa8b400000
+
+8/26
+A - 5 - Poll options need better written directions.
+A - 3 - The ability for ppl to add new options is now checked by default.
+B - 1 - Poll options now have a "Poll options:" label for the group.

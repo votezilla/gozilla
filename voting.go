@@ -380,7 +380,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Render the news articles.
 
-	fa := makePageArgs(r, "View Poll Results", "", article.Description)
+	pa := makePageArgs(r, "View Poll Results", "", article.Description)
 
 	viewPollArgs := struct {
 		PageArgs
@@ -388,9 +388,12 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UserId						int64
 		NavMenu						[]string
 		UrlPath						string
-		Article						Article
 		UpVotes						[]int64
 		DownVotes					[]int64
+		NumNewsUpdates				int
+		NumActivityUpdates			int
+
+		Article						Article
 		UpCommentVotes				[]int64
 		DownCommentVotes 			[]int64
 		VoteData					[]string
@@ -399,7 +402,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		HeadComment					Comment
 		MoreArticlesFromThisSource	[]Article
 	}{
-		PageArgs:					fa,
+		PageArgs:					pa,
 		Username:					username,
 		UserId:						userId,
 		NavMenu:					navMenu,
@@ -407,6 +410,9 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		Article:					article,
 		UpVotes:					upvotes,
 		DownVotes:					downvotes,
+		NumNewsUpdates:				0,
+		NumActivityUpdates:			0,
+
 		UpCommentVotes:				upcommentvotes,
 		DownCommentVotes: 			downcommentvotes,
 		PollTallyResults:			pollTallyResults,

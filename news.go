@@ -368,6 +368,10 @@ func renderNews(w http.ResponseWriter,
 
 	_, isNewsSource := newsSourceList[viewUsername]
 
+	fa := makeFrameArgs2(r, title, script, urlPath, userId, username, upvotes, downvotes)
+	fa.NumNewsUpdates		= 0
+	fa.NumActivityUpdates	= 0
+
 	// Render the news articles.
 	newsArgs := struct {
 		FrameArgs
@@ -376,7 +380,7 @@ func renderNews(w http.ResponseWriter,
 		ViewUsername	string
 		IsNewsSource	bool
 	}{
-		FrameArgs:		makeFrameArgs2(r, title, script, urlPath, userId, username, upvotes, downvotes),
+		FrameArgs:		fa,
 		ArticleGroups:	articleGroups,
 		Category:		category,
 		ViewUsername:	viewUsername,
