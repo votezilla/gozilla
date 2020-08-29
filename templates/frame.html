@@ -716,16 +716,9 @@ function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 
 				console.log(r);
 
-				// Open the View Poll Results in a new tab.
-				window.open(`/viewPollResults/?postId=${pollId}`, windowTarget);
+				// Fix for iOS & pop-up blockers, hopefully!
+				window.location.assign(`/viewPollResults/?postId=${pollId}`);
 
-				//var windowReference = window.open();
-
-				//myService.getUrl().then(function(url) {
-				//     windowReference.location = `/viewPollResults/?postId=${pollId}`;
-				//});
-
-				//TODO: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
 			},
 			error: function(r) {
 				console.log("AJAX Poll Vote - error");
@@ -744,21 +737,73 @@ function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 // NOTIFICATION TIMERS
 //
 ///////////////////////////////////////////////////////////////////////////////
+var gLandingTime;
+var gDelay = 60000; // 1 minute (60,000 ms)
+
+function checkForNotifications(notificationType) {
+	var jsonData = JSON.stringify({
+		NotificationType: notificationType,
+		ElapsedMilliseconds: (new Date()) - gLandingTime,
+	});
+
+	console.log("checkForNotifications jsonData = " + jsonData)
+
+	$.ajax({
+		url: '/ajaxCheckForNotifications/',
+		type: 'post',
+		contentType: 'application/json; charset=utf-8',
+		data: jsonData,
+		dataType: 'json',
+		error:   function(r) { console.log("checkForNotifications - AJAX - error: " + r); },
+		success: function(r) {
+			console.log("checkForNotifications - AJAX - success: " + r);
+
+			var numNotifications = r.NumNotifications;
+			var notificationWidget = $(`.update-${notificationType}`);
+
+			if (numNotifications > 0) {
+				notificationWidget.text(numNotifications);
+				notificationWidget.show();
+			} else {
+				notificationWidget.hide();
+			}
+		}
+	});
+
+	// TODO: increase timeout and call setTimeout
+}
+
+/*
 function checkForNewsUpdates() {
-	var child = $('.update-news');
-	child.text("2");
-	child.show();
+	checkForNotifications('news');
+
+	setTimeout(checkForNewsUpdates, 60000);		// Check again in one minute.
 }
 
 function checkForActivityUpdates() {
-	var child = $('.update-activity');
-	child.text("3");
-	child.show();
+	checkForNotifications('activity');
+
+	setTimeout(checkForActivityUpdates, 60000); // Check again in one minute.
+}
+*/
+
+function checkForUpdates() {
+	console.log('checkForUpdates');
+
+	checkForNotifications('news');
+	checkForNotifications('activity');
+
+	setTimeout(checkForUpdates, gDelay);
+	gDelay *= 3;
 }
 
 (function(){
-    setTimeout(checkForNewsUpdates, 1000);//60000);
-    setTimeout(checkForActivityUpdates, 5000);//60000);
+	gLandingTime = new Date();
+
+	setTimeout(checkForUpdates, 5000);
+
+//    setTimeout(checkForNewsUpdates, 1000);  // TODO: make this 10 seconds?
+//    setTimeout(checkForActivityUpdates, 5000);
 })();
 
 ///////////////////////////////////////////////////////////////////////////////

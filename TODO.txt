@@ -11,9 +11,9 @@ A - 8 - Add num notifications javascript on 1 minute timer that asks how many no
 	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
 	Also, add more notifications
 "	___ shared an article" - when they really shared a poll
-A - 8 - browser notifications: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
 
-
+B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
+C 5 - why you voted comment
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
@@ -41,13 +41,15 @@ A - 8 - Continue getting feedback from close peeps!!
 
 A 5 - prompt user to leave comment or up/down vote after viewing an article.
 
+B - 8 - ++ popup lower left for notifications
+
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
-B - 13 - FB signup
+B - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
 
 B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.
 
-B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
+
 
 - make bus cards
 
@@ -64,6 +66,9 @@ B 21  =   Fix email - Emailed DO tech support.
   -   Implement Forgot password.
 
   -   Remember previous page or close form upon success, and/or back tri buttons.
+
+B - 8 - browser notifications (requires user permission): https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
+
 
 B - security - password timeout
 
@@ -236,8 +241,6 @@ C 3 - max username length is 345 - this is too long!
 C 3 - voting from history doesn't work when there are duplicates.  Could just manually remove duplicates in Go after the query.
 
 C 5 - prompt to log in makes you forget your place.  It should open in new window / close window, or remember from location and restore it later.
-
-C 5 - why you voted comment
 
 C 8 - Change between alias and real name depending on a post's (or comment's) privacy settings.
 

@@ -1,12 +1,92 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
 	"strings"
 	"time"
 )
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// AJAX - Check for notifications
+//
+///////////////////////////////////////////////////////////////////////////////
+func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
+	pr("ajaxCheckForNotifications")
+	prVal("r.Method", r.Method)
+
+	if r.Method != "POST" {
+		http.NotFound(w, r)
+		return
+	}
+
+	userId := GetSession(r);
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		pr("Must be logged in to get notifications.")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+    //parse request to struct
+    var request struct {
+		NotificationType		string
+		ElapsedMilliseconds		int
+	}
+
+    err := json.NewDecoder(r.Body).Decode(&request)
+    if err != nil {
+		prVal("Failed to decode json body", r.Body)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+	var response struct {
+		NumNotifications	int
+	}
+
+	switch request.NotificationType[0] {
+		case 'n': // "news"
+			elapsedSeconds := request.ElapsedMilliseconds / 1000
+			withinTimeInterval := "now() - " + int_to_str(elapsedSeconds) + " * (interval '1 second')"
+
+			response.NumNotifications = DbQueryCount(
+			   `SELECT COUNT(*) FROM $$Post
+				WHERE Created > `+ withinTimeInterval + ";")
+
+			break;
+		case 'a': // "activity"
+
+			_, _, _, unvisited := fetchActivity(userId, request.ElapsedMilliseconds) // CHECKIN_TODO: only fetch activity within the last ___ seconds!
+
+			// Add up the unvisited notifications - this is the update number.
+			response.NumNotifications = 0
+			for _, b := range unvisited {
+				if b {
+					response.NumNotifications++
+				}
+			}
+
+			break;
+		default:
+			assert(false)
+	}
+
+
+    prVal("response", response)
+
+    // create json response from struct
+    a, err := json.Marshal(response)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    w.Write(a)
+}
 
 /* POSSIBLE ACTIVITY OUTPUT:
    Get polls voted on by user
@@ -60,7 +140,10 @@ type CommentResult struct {
 	Id		int64
 }
 
-func fetchRecentComments(notUserId int64, numComments int) (articles []Article, comments []CommentResult) {
+func fetchRecentComments(notUserId int64, numComments int, withinElapsedMilliseconds int) (articles []Article, comments []CommentResult) {
+
+	elapsedSeconds := withinElapsedMilliseconds / 1000
+	withinTimeInterval := "now() - " + int_to_str(elapsedSeconds) + " * (interval '1 second')"
 
 	rows := DbQuery(`
 		SELECT
@@ -75,6 +158,7 @@ func fetchRecentComments(notUserId int64, numComments int) (articles []Article, 
 		JOIN $$User u ON c.UserId = u.Id
 		JOIN $$Post p ON c.PostId = p.Id
 		WHERE c.UserId <> $1
+		  AND c.Created > ` + withinTimeInterval + `
 		ORDER BY c.Created DESC
 		LIMIT $2;`,
 		notUserId,
@@ -115,25 +199,14 @@ func fetchRecentComments(notUserId int64, numComments int) (articles []Article, 
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Activity handler - notifications about your stuff that was replied to, or all content at the moment.
+// Fetch latest activity
 //
 ///////////////////////////////////////////////////////////////////////////////
-func activityHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
-
-	pr("historyHandler")
-
-	userId, username := GetSessionInfo(w, r)
-
-	allArticles := []Article{}
-	messages    := []string{}
-	links       := []string{}
-
-	//prVal("userId", userId)
+func fetchActivity(userId int64, withinElapsedMilliseconds int) (allArticles []Article, messages []string, links []string, unvisited []bool) {
 
 	pr("Get articles shared by user")
 	{
-		articles := fetchArticlesNotPostedByUser(userId, 50)
+		articles := fetchArticlesNotPostedByUser(userId, 50, withinElapsedMilliseconds)
 
 		for a, article := range articles {
 			//prVal("article.UserId", article.UserId)
@@ -155,7 +228,7 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 
 	pr("Get articles commented on by user")
 	{
-		articles, comments := fetchRecentComments(userId, 50)
+		articles, comments := fetchRecentComments(userId, 50, withinElapsedMilliseconds)
 
 		for a, article := range articles {
 			//prVal("article.UserId", article.UserId)
@@ -175,6 +248,55 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: add replied to your comment
 	//       add when poll gets more votes
 
+	// Look up which links have been visited
+	unvisited = make([]bool, len(allArticles))
+	{
+		// Copy this user's visited links for from database to a hash.
+		visitedLinks := map[string]bool{}
+		rows := DbQuery(`SELECT PathQuery FROM $$HasVisited WHERE UserId=$1::bigint`, userId)
+		for	rows.Next() {
+			pathQuery := ""
+			rows.Scan(&pathQuery)
+
+			visitedLinks[pathQuery] = true
+		}
+		check(rows.Err())
+		rows.Close()
+
+		//prVal("visitedLinks", visitedLinks)
+
+		// Look up whether each link is in the hash, copy results to unvisited.
+		for a, link := range links {
+			// Strip off the hash for comparison, because the hash can never reach a server.
+			cleanLink := strings.Split(link, "#")[0]
+
+			//prVal("cleanLink", cleanLink)
+
+			_, found := visitedLinks[cleanLink]
+			unvisited[a] = !found
+
+			//prf("  link %s %s found", cleanLink, ternary_str(found, "is", "is not"))
+		}
+	}
+
+	return
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Activity handler - notifications about your stuff that was replied to, or all content at the moment.
+//
+///////////////////////////////////////////////////////////////////////////////
+func activityHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
+
+	pr("historyHandler")
+
+	userId, username := GetSessionInfo(w, r)
+
+	const oneMonth = 1000 * 60 * 60 * 24 * 30  // Calc milliseconds per month
+
+	allArticles, messages, links, unvisited := fetchActivity(userId, oneMonth)
 
 	// Create a list order, and sort the activities by date, indirectly, via the list order.
 	assert(len(allArticles) == len(messages))
@@ -192,36 +314,6 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 
 	prVal("links", links)
 
-	// Look up which links have been visited
-	unvisited := make([]bool, len(allArticles))
-	{
-		// Copy this user's visited links for from database to a hash.
-		visitedLinks := map[string]bool{}
-		rows := DbQuery(`SELECT PathQuery FROM $$HasVisited WHERE UserId=$1::bigint`, userId)
-		for	rows.Next() {
-			pathQuery := ""
-			rows.Scan(&pathQuery)
-
-			visitedLinks[pathQuery] = true
-		}
-		check(rows.Err())
-		rows.Close()
-
-		prVal("visitedLinks", visitedLinks)
-
-		// Look up whether each link is in the hash, copy results to unvisited.
-		for a, link := range links {
-			// Strip off the hash for comparison, because the hash can never reach a server.
-			cleanLink := strings.Split(link, "#")[0]
-
-			//prVal("cleanLink", cleanLink)
-
-			_, found := visitedLinks[cleanLink]
-			unvisited[a] = !found
-
-			//prf("  link %s %s found", cleanLink, ternary_str(found, "is", "is not"))
-		}
-	}
 
 	// Render the news articles.
 	args := struct {

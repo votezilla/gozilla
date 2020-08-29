@@ -5,6 +5,7 @@ import (
 	"github.com/lib/pq"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type PollTallyResult struct {
@@ -353,7 +354,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	postId, err := strconv.ParseInt(reqPostId, 10, 64) // Convert from string to int64.
 	if err != nil {
 		pr("error 1")
-		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -361,7 +362,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	article, err := fetchArticle(postId, userId)
 	if err != nil {
 		pr("error 2")
-		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: prettify error displaying - use dinosaurs.
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -370,6 +371,19 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	article.PollTallyResults = pollTallyResults
 	assert(len(article.PollOptionData.Options) == len(pollTallyResults))
 
+	// Deduce userVoteString.
+	//{{ range $o, $option := $poll.Options }}
+	//	{{ if (index $article.VoteData $o) }}
+	userVoteString := ""
+	{
+		userVotedOptions := []string{}
+		for o, option := range article.PollOptionData.Options {
+			if o < len(article.VoteData) && article.VoteData[o] {
+				userVotedOptions = append(userVotedOptions, `"` + option + `"`)
+			}
+		}
+		userVoteString = strings.Join(userVotedOptions, ", ")
+	}
 
 	// Suggested polls for further voting - on the sidebar.
 	polls := fetchSuggestedPolls(userId, postId)
@@ -394,11 +408,11 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		Article						Article
 		UpCommentVotes				[]int64
 		DownCommentVotes 			[]int64
-		VoteData					[]string
 		UserVoteString				string
 		PollTallyResults			PollTallyResults
 		HeadComment					Comment
 		MoreArticlesFromThisSource	[]Article
+		CommentPrompt				string
 	}{
 		PageArgs:					pa,
 		Username:					username,
@@ -414,6 +428,8 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		PollTallyResults:			pollTallyResults,
 		HeadComment:				headComment,
 		MoreArticlesFromThisSource: polls,
+		UserVoteString:				userVoteString,
+		CommentPrompt:				"Explain why you vote for " + userVoteString,
 	}
 
 	executeTemplate(w, kViewPollResults, viewPollArgs)

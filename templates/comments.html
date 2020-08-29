@@ -51,32 +51,6 @@
 	</div>
 {{end}}
 
-{{/* PARALLEL_CODE(ADD_COMMENT_WIDGET) */}}
-{{define "AddCommentWidget"}}
-	<p>
-		<div class="comment" id="comment_{{ . }}">
-			<table>
-				<tr>
-					<td valign=top>
-						<img src="/static/dino comment.jpg" width=32 style="vertical-align: baseline;">
-					</td>
-					<td>
-						<textarea id="text_{{ . }}" value="" placeholder="Add a comment" maxlength="40000" class="nuTextarea" rows="4" cols="80"></textarea>
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td align=right>
-						<button type="submit" onclick="onReplyToCommentClicked({{ . }})" class="btn btn-vote" style="margin: .5rem 0;">
-							Comment
-						</button>
-					</td>
-				</tr>
-			</table>
-		</div>
-	</p>
-{{end}}
-
 {{/* TODO: try recursiveness - template "comments" .Comments */}}
 
 {{define "comments"}}
@@ -125,7 +99,28 @@
 
 		<a id="commentsTarget"></a>
 
-		{{ template "AddCommentWidget" -1 }}
+		<p>
+			<div class="comment" id="comment_-1">
+				<table>
+					<tr>
+						<td valign=top>
+							<img src="/static/dino comment.jpg" width=32 style="vertical-align: baseline;">
+						</td>
+						<td>
+							<textarea id="text_-1" value="" placeholder="{{ .CommentPrompt }}" maxlength="40000" class="nuTextarea" rows="4" cols="80"></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td align=right>
+							<button type="submit" onclick="onReplyToCommentClicked(-1)" class="btn btn-vote" style="margin: .5rem 0;">
+								Comment
+							</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</p>
 
 		{{ template "CommentTree" .HeadComment }}
 	</div>
@@ -245,19 +240,21 @@
 
 	// Workaround for a Chrome bug that does not goto the anchor upon a url redict.
 	// Source: https://stackoverflow.com/questions/38588346/anchor-a-tags-not-working-in-chrome-when-using
-	$(document).ready(function () {
+	$(function() {
+		// Set focus to leaving a top-level comment, for general articles or polls.
+		$('#text_-1').focus();
+
         var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
         if (window.location.hash && isChrome) {
+        	// Chrome workaround for setting focus to a comment.
             setTimeout(function () {
                 var hash = window.location.hash;
                 window.location.hash = "";
                 window.location.hash = hash;
             }, 300);
         }
-    });
 
-	// On load, set the style for the up/down comment votes that the user has already voted on.
-	$(function() {
+		// On load, set the style for the up/down comment votes that the user has already voted on.
 		{{ range $_, $id := $.UpCommentVotes}}
 			addOrRemoveVote({{$id}}, true, true, true, false, false)  // Add a upvote presentation, but do not update the database.
 		{{ end }}

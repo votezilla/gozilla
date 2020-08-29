@@ -29,6 +29,7 @@ type ArticleQueryParams struct {
 	onlyPolls				bool
 	bRandomizeTime			bool
 	addSemicolon			bool
+	withinElapsedMilliseconds	int
 
 	// Materialized view for /news.
 	createMaterializedView	bool
@@ -98,7 +99,9 @@ func (qp ArticleQueryParams) Validate() {
 }
 
 func (qp ArticleQueryParams) createBaseQuery() string {
+
 	// Union of NewsPosts (News API) and LinkPosts (user articles).
+	// OPT_TODO: don't test for all this NOT NULL stuff, suck that out of the query when building it.
 	newsPostQuery := fmt.Sprintf(
 	   `SELECT Id,
 			   NewsSourceId AS Author,
@@ -173,6 +176,15 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 		qp.idCondition,
 		qp.userIdCondition,
 		qp.categoryCondition)
+
+	if qp.withinElapsedMilliseconds > 0 {
+		elapsedSeconds := qp.withinElapsedMilliseconds / 1000
+		withinTimeInterval := "now() - " + int_to_str(elapsedSeconds) + " * (interval '1 second')"
+
+		newsPostQuery += " AND COALESCE(PublishedAt, Created) > " + withinTimeInterval
+		linkPostQuery += " AND P.Created > " + withinTimeInterval
+		pollPostQuery += " AND P.Created > " + withinTimeInterval
+	}
 
 	// TODO: Optimize queries so we only create strings that we will actually use.
 	query := ""
@@ -718,11 +730,12 @@ func fetchArticlesPostedByUser(creatorUserId, voterUserId int64, maxArticles int
 //   category - optional, can provide "" to skip.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchArticlesNotPostedByUser(userId int64, maxArticles int) ([]Article) {
+func fetchArticlesNotPostedByUser(userId int64, maxArticles, withinElapsedMilliseconds int) ([]Article) {
 	qp := defaultArticleQueryParams()
-	qp.userIdCondition		= "<> " + strconv.FormatInt(userId, 10)
-	qp.maxArticles			= maxArticles
-	qp.fetchVotesForUserId	= userId
+	qp.userIdCondition			 = "<> " + strconv.FormatInt(userId, 10)
+	qp.maxArticles				 = maxArticles
+	qp.fetchVotesForUserId		 = userId
+	qp.withinElapsedMilliseconds = withinElapsedMilliseconds
 	return queryArticles(qp)
 }
 

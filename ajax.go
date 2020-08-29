@@ -42,18 +42,6 @@ func voteUpDown(postId, userId int64, add, up, comment bool) {
 			postId,
 			userId)
 	}
-
-/*
-	DbExec(
-		fmt.Sprintf(
-		   `UPDATE %s
-			SET voteTally = voteTally + $1
-			WHERE %s = $2::bigint`,
-			voteTable,
-			voteIdColumn),
-		vote.Add
-		vote.PostId)
-*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////

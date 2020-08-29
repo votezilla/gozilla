@@ -149,6 +149,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		HeadComment					Comment
 		ArticleGroups				[]ArticleGroup
 		MoreArticlesFromThisSource	[]Article
+		CommentPrompt				string
 	}{
 		FrameArgs:					fa,
 		Article:					article,
@@ -157,6 +158,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		HeadComment:				headComment,
 		ArticleGroups:				articleGroups,
 		MoreArticlesFromThisSource:	moreArticles,
+		CommentPrompt:				"Add a comment to start a conversation!",
 	}
 
 	executeTemplate(w, kArticle, articleArgs)

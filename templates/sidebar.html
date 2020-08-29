@@ -7,7 +7,17 @@
 		</div> {{/*col-md-9*/}}
 		<div class="col-md-3 vz-col-md-3-right">
 			<span style="font-size: 18px;">
-				<br>Remember to be respectful to the community!
+				{{ if .Article.IsPoll }}
+					<br><b>COMING SOON:</b>
+					<br><br>&bull; Demographic breakdown for polls with 10 or more votes!  This provides political insight, while protecting anonymity.
+					<br><br>&bull; Poll runoff simulation data for ranked voting!  This gives 3rd party candidates a fair chance.
+					<br>
+					<hr>
+				{{ else }}
+					<br>
+				{{ end }}
+
+				Remember to be respectful to the community!
 
 				<br><br>Democracy only works if we can have a positive, logical discussion.
 

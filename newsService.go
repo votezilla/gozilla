@@ -319,14 +319,7 @@ func fetchNewsSource(newsSource string) []Article {
 //
 //////////////////////////////////////////////////////////////////////////////
 func reportNewsArticleStats() {
-	var numArticles int
-	rows := DbQuery("SELECT COUNT(*) FROM $$NewsPost")
-	if rows.Next() {
-		err := rows.Scan(&numArticles)
-		check(err)
-	}
-	check(rows.Err())
-	rows.Close()
+	numArticles := DbQueryCount("SELECT COUNT(*) FROM $$NewsPost")
 
 	prVal("NEWS_ARTICLE_STATS: NumArticles", numArticles)
 }
