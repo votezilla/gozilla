@@ -30,9 +30,9 @@ func OpenDatabase() {
 	check(err)
 
 	// Suggested defaults:
-	db.SetMaxOpenConns(20) // Sane default
-	db.SetMaxIdleConns(0)
-    db.SetConnMaxLifetime(time.Nanosecond)
+	db.SetMaxOpenConns(25) // Sane default
+	db.SetMaxIdleConns(25)
+    	db.SetConnMaxLifetime(1 * time.Minute)
 
 	prVal("db", db)
 }
