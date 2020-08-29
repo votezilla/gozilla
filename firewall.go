@@ -206,6 +206,8 @@ func resetDOSCounters() {
 
 // If this is an evil request, return false.  Otherwise, return true and log the request.
 func CheckAndLogIP(r *http.Request) error {
+	pr("CheckAndLogIP")
+
 	var errorMsg, path, query string
 
 	ip, port, err := net.SplitHostPort(r.RemoteAddr)
@@ -238,10 +240,18 @@ func CheckAndLogIP(r *http.Request) error {
 				if length >= 4 {
 					//prVal("len(path)", length)
 					fourthFromLastChar := path[length-4: length-3]
-					//prVal("fourthFromLastChar", fourthFromLastChar)
+					prVal("fourthFromLastChar", fourthFromLastChar)
+
 					if fourthFromLastChar == "." {
-						recordBadIP(ip)
-						errorMsg = "Blocking script attack from " + ip + " for path " + path
+						extension := path[length-3:]
+
+						prVal("extension", extension)
+
+						// Block .php, .cgi, .cmd.  Make sure we don't block robots.txt !!!
+						if extension == "php" || extension == "cgi" || extension == "cmd" {
+							recordBadIP(ip)
+							errorMsg = "Blocking script attack from " + ip + " for path " + path
+						}
 					}
 				}
 			}

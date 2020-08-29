@@ -10,7 +10,6 @@ WORKING ON:
 A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
 	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
 	Also, add more notifications
-"	___ shared an article" - when they really shared a poll
 
 B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
 C 5 - why you voted comment
@@ -28,7 +27,6 @@ v
   v
 
 
-
 A - 13 - start implementing demographic breakdown (available when 5+ or 10+ votes)
          (view # votes for each poll:
          	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;
@@ -41,6 +39,8 @@ A - 8 - Continue getting feedback from close peeps!!
 
 A 5 - prompt user to leave comment or up/down vote after viewing an article.
 
+"	___ shared an article" - when they really shared a poll
+
 B - 8 - ++ popup lower left for notifications
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
@@ -49,6 +49,11 @@ B - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manuall
 
 B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.
 
+Notifications:
+	B - 3 - change title dynamically like FB does, for alerts
+	https://stackoverflow.com/questions/7173596/changing-the-page-title-with-jquery
+
+	B - 3 - play alert sound for notification	https://stackoverflow.com/questions/21815323/have-sound-play-when-alert-is-triggered
 
 
 - make bus cards
@@ -66,8 +71,6 @@ B 21  =   Fix email - Emailed DO tech support.
   -   Implement Forgot password.
 
   -   Remember previous page or close form upon success, and/or back tri buttons.
-
-B - 8 - browser notifications (requires user permission): https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
 
 
 B - security - password timeout
@@ -130,6 +133,8 @@ C also zipping for  static/ any mime type text
 C - use font awesome icons for polls checkboxes?
 
 - when signing up, store referrer in server side cookie, to return signed in person to that page.  Instead of javascript alert, popup with Welcome to Votezilla.  Store in cookie so this does not reactivate, somehow.
+
+C - 8 -browser notifications API (requires user permission): https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
 
 
 C - split polls vs news into two tabs?
