@@ -30,9 +30,9 @@ func OpenDatabase() {
 	check(err)
 
 	// Suggested defaults:
-	db.SetMaxOpenConns(20) // Sane default
-	db.SetMaxIdleConns(0)
-    db.SetConnMaxLifetime(time.Nanosecond)
+	db.SetMaxOpenConns(25) // Sane default
+	db.SetMaxIdleConns(25)
+    	db.SetConnMaxLifetime(1 * time.Minute)
 
 	//prVal("db", db)
 }
@@ -54,7 +54,7 @@ func CloseDatabase() {
 
 func DbTrackOpenConnections() {
 	// This could also modify the return code...
-	//prVal("Open connections", db.Stats().OpenConnections)
+	prVal("Open connections", db.Stats().OpenConnections)
 }
 
 // Replace all instances of "$$" with "votezilla." or whatever the schema is, in the query.

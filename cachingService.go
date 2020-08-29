@@ -68,10 +68,12 @@ func CachingService() {
 
 	numRepetitions := 0
 	for {
-		refreshNewsView(newsCycle)
+		refreshNewsView(newsCycle)  // Trying this to fix the hanging issue we get sometimes.
 
 		// Rotate the slot
 		newsCycle = (newsCycle + 1) % 3
+
+		DbTrackOpenConnections()
 
 		if numRepetitions >= 3 {
 			pr("Sleeping 1 minute...")
