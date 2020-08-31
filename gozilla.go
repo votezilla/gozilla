@@ -33,6 +33,7 @@ const (
 	kCreatePoll = "createPoll"
 	kLogin = "login"
 	kLoginRegister = "loginRegister"
+	kLoginSignup = "loginSignup"
 	kNews = "news"
 	kNewsSources = "newsSources"
 	kNuForm = "nuForm"
@@ -234,6 +235,7 @@ func parseTemplateFiles() {
 
 	hDefineTemplate(kLogin,			  "base", "narrow", "minFrame", "nuField", "login")
 	hDefineTemplate(kLoginRegister,	  "base", "narrow", "minFrame", "nuField", "loginRegister")
+	hDefineTemplate(kLoginSignup,  	  "base", "narrow", "minFrame", "nuField", "loginSignup")
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
 
@@ -302,6 +304,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/history/",        			hwrap(historyHandler))
 	mux.HandleFunc("/ip/",             			hwrap(ipHandler))
 	mux.HandleFunc("/login/",          			hwrap(loginHandler))
+	mux.HandleFunc("/loginSignup/",          	hwrap(loginSignupHandler))
 	mux.HandleFunc("/loginRegister/",       	hwrap(loginRegisterHandler))
 	mux.HandleFunc("/logout/",         			hwrap(logoutHandler))
 	mux.HandleFunc("/news/",           			hwrap(newsHandler))

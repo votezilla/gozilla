@@ -28,7 +28,7 @@ func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in to get notifications.")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Must be logged in to get notifications.", http.StatusInternalServerError)
 		return
 	}
 

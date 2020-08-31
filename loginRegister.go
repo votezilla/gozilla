@@ -250,31 +250,34 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 		kSchoolCompleted = "schoolCompleted"
 	)
 
+	// Make sure all fields are skippable, since all this info is optional, and we don't want the login process to frustrate users.
 	form := makeForm(
 		nuTextField(kName, "Enter Full Name", 50, 0, 100, "full name").noSpellCheck(),
 		nuTextField(kZipCode, "Enter Zip Code", 5, 0, 10, "zip code"),
 		nuTextField(kBirthYear, "Enter Birth Year", 4, 0, 4, "birth year"),
-		nuSelectField(kCountry, "Select Country", countries, true, true, true, true, "Please select your country"),
-			nuOtherField(kCountry, "Enter Country", 50, 0, 100, "country"),
-		nuSelectField(kGender, "Select Gender", genders, true, true, true, true, "Please select your gender"),
-			nuOtherField(kGender, "Enter Gender", 50, 0, 100, "gender"),
-		nuSelectField(kParty, "Select Party", parties, true, true, true, true, "Please select your party"),
-			nuOtherField(kParty, "Enter Party", 50, 0, 100, "party"),
-		nuSelectField(kRace, "Select Race", races, true, true, true, true, "Please select your race"),
-			nuOtherField(kRace, "Enter Race", 50, 0, 100, "race"),
-		nuSelectField(kMaritalStatus, "Select Marital Status", maritalStatuses, true, true, true, true, "Please select your marital status"),
-			nuOtherField(kMaritalStatus, "Enter Marital Status", 50, 0, 100, "marital status"),
-		nuSelectField(kSchoolCompleted, "Select Furthest Schooling", schoolDegrees, true, true, true, true, "Please select your furthest schooling"),
-			nuOtherField(kSchoolCompleted, "Enter Furthest Schooling", 50, 0, 100, "furthest schooling"),
+		nuSelectField(kCountry, "Select Country", countries, true, false, true, true, "Please select your country"),
+		 nuOtherField(kCountry, "Enter Country", 50, 0, 100, "country"),
+		nuSelectField(kGender, "Select Gender", genders, true, false, true, true, "Please select your gender"),
+		 nuOtherField(kGender, "Enter Gender", 50, 0, 100, "gender"),
+		nuSelectField(kParty, "Select Party", parties, true, false, true, true, "Please select your party"),
+		 nuOtherField(kParty, "Enter Party", 50, 0, 100, "party"),
+		nuSelectField(kRace, "Select Race", races, true, false, true, true, "Please select your race"),
+		 nuOtherField(kRace, "Enter Race", 50, 0, 100, "race"),
+		nuSelectField(kMaritalStatus, "Select Marital Status", maritalStatuses, true, false, true, true, "Please select your marital status"),
+		 nuOtherField(kMaritalStatus, "Enter Marital Status", 50, 0, 100, "marital status"),
+		nuSelectField(kSchoolCompleted, "Select Furthest Schooling", schoolDegrees, true, false, true, true, "Please select your furthest schooling"),
+		 nuOtherField(kSchoolCompleted, "Enter Furthest Schooling", 50, 0, 100, "furthest schooling"),
 	)
 
-	form.field(kName).addRegexValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe').")
+	//form.field(kName).addRegexValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe').")  // No validation since we are letting them skip fields.
 	form.field(kZipCode).addRegexValidator(`^\d{5}(?:[-\s]\d{4})?$`, "Invalid zip code")  // TODO: different countries have different zip code formats.
 	form.field(kBirthYear).addFnValidator(
 		func(input string) (bool, string) {
 			year, err := strconv.Atoi(input)
 			if err != nil {
-				return false, "Please enter the year you were born."
+				return true, "" // If the input is blank, just let the user skip this.
+
+				//return false, "Please enter the year you were born."
 			}
 			currentYear := time.Now().Year()
 			age := currentYear - year // true age would be either this expression, or this minus 1
@@ -318,7 +321,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 				form.val(kName),
 				form.val(kCountry),
 				form.val(kZipCode),
-				form.val(kBirthYear),
+				form.intVal(kBirthYear, 0),
 				form.val(kGender),
 				form.val(kParty),
 				form.val(kRace),  // TODO: I think this should multi-select input, with a comma-delimited join of races here.
@@ -376,4 +379,13 @@ func updatePasswordHandler(w http.ResponseWriter, r *http.Request){
 	prf("Updated password for user %d", userId)
 
 	serveHTML(w, "<h2>You successfully updated your password!</h2>")
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// login / signup
+//
+///////////////////////////////////////////////////////////////////////////////
+func loginSignupHandler(w http.ResponseWriter, r *http.Request){
+	executeTemplate(w, kLoginSignup, makeFormFrameArgs(r, makeForm(), "Login / Signup"))
 }

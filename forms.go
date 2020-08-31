@@ -73,9 +73,16 @@ func minMaxLengthValidator(minLength, maxLength int, fieldNameForErrors string) 
 	}
 }
 
-func optionValidator(validOptions []string, invalidOptionMsg string) Validator {
+func optionValidator(validOptions []string, invalidOptionMsg string, required bool) Validator {
 
 	return func(value string)(bool, string) {
+		prf("optionValidator value=%s validOptions=%v", value, validOptions)
+
+		// It's okay to leave fields at invalid/default value, if they're not required.  e.g. /registerDetails optional fields.
+		if value == "-" && !required {
+			return true, ""
+		}
+
 		for _, validOption := range validOptions {
 	        if value == validOption {
 	            return true, ""
@@ -90,6 +97,10 @@ func optionValidator(validOptions []string, invalidOptionMsg string) Validator {
 // Returns error if regxp#MatchString is False.
 func regexValidator(regex, errorMsg string) Validator {
 	return func(value string)(bool, string) {
+		if value == "" {
+			return true, "" // If the input is blank, just let the user skip this.  We can catch this with minLength > 0 anyways.
+		}
+
 		rx, err := regexp.Compile(regex)
 		if err != nil {
 			return false, err.Error()
@@ -178,10 +189,9 @@ func (f Field) val() string {
 	return f.Value
 }
 
-func (f Field) intVal() int {
+func (f Field) intVal(defaultValue int) int {
 	val, err := strconv.Atoi(f.Value)
-	check(err)
-	return ternary_int(err != nil, 0, val)
+	return ternary_int(err != nil, defaultValue, val)
 }
 
 func (f Field) int64Val() int64 {
@@ -300,7 +310,7 @@ func (f *Form) processData(r *http.Request) {
 func (f Form) field(fieldName string) *Field	{ return f.FieldMap[fieldName] 		   }
 func (f Form) val(fieldName string) 	 string { return f.field(fieldName).val()	   }
 func (f Form) otherVal(fieldName string) string	{ return f.val(kOther + fieldName)	   }
-func (f Form) intVal(fieldName string) 	 int 	{ return f.field(fieldName).intVal()   }
+func (f Form) intVal(fieldName string, defaultValue int) int { return f.field(fieldName).intVal(defaultValue)   }
 func (f Form) int64Val(fieldName string) int64	{ return f.field(fieldName).int64Val() }
 func (f Form) boolVal(fieldName string)  bool 	{ return f.field(fieldName).boolVal()  }
 
@@ -438,7 +448,7 @@ func makeSelectField(name, label string, optionKeyValues OptionData, startAtNil,
 		validOptions = append(validOptions, optionKeyValue[0]) // add the key
 	}
 
-	f.Validators = append(f.Validators, optionValidator(validOptions, invalidOptionMsg))
+	f.Validators = append(f.Validators, optionValidator(validOptions, invalidOptionMsg, required))
 
 	return &f
 }

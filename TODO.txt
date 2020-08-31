@@ -3,16 +3,14 @@ PUSH & TEST ON SERVER:
 
 
 JUST FIXED:
-Fixed bug
-Implemented notifictions HTML and CSS
+ HAVE SUSAN TEST: 
+B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
+
 
 WORKING ON:
-A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
-	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
-	Also, add more notifications
+A - 5 - GORDON & SUSAN: switch Sign Up and Create New Account, move Sign Up, to make simpler for new users.
 
-B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
-C 5 - why you voted comment
+A - 5 - GORDON: don't make /registerDetails stuff mandatory
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
@@ -32,12 +30,16 @@ A - 13 - start implementing demographic breakdown (available when 5+ or 10+ vote
          	select pollid, p.Title, count(*) from vz.pollvote v join vz.pollpost p on v.pollid = p.Id group by 1, 2 order by 3 desc;
          )
 
+A - 8 - ranked vote - show runoff.
 
 A - 8 - Continue getting feedback from close peeps!!
 	(Start with SUSAN!!!,
 		Steve D., Jeff, Tom, Dad, 1 or 2 at a time until more bugs are fixed!)
 
 A 5 - prompt user to leave comment or up/down vote after viewing an article.
+
+
+B - 8 - Separate news from polls, news into its own tab, move /about into part of /history.
 
 "	___ shared an article" - when they really shared a poll
 
@@ -46,6 +48,7 @@ B - 8 - ++ popup lower left for notifications
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
 B - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
+			https://developers.facebook.com/docs/facebook-login/web
 
 B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.
 

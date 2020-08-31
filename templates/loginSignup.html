@@ -1,0 +1,23 @@
+{{define "content"}}
+	{{ template "formHeader" "Log In / Sign up for" }}
+	<br>
+	<div>
+		<button type="submit" onclick="window.location.href='/register';" class="nuBtn btn btn-vote center" style="background-color: #37cb24; border-color: #68f833; /*text-shadow: 0px -1px black;*/">
+			Create New Account
+		</button>
+	</div>
+
+	<p>
+	<div class="full">
+		<center style="font-size: 18px; font-weight: bold;">OR</center>
+	</div>
+	<br>
+
+	<div>
+		<button type="submit" onclick="window.location.href='/login';"  class="nuBtn btn btn-vote center full">
+			Log In
+		</button>
+	</div>
+
+	<br>
+{{end}}

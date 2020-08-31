@@ -233,7 +233,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 									{{- if eq $navItem "about" }}
 										"/news?category=votezilla"
 									{{- else if and (eq $navItem "history") (not $.Username) }}
-										"/login"
+										"/loginSignup"
 									{{- else if and (eq $navItem "create") (not $.Username) }}
 										"javascript:alert('You must be logged in to do that!')"
 									{{- else }}
@@ -520,6 +520,7 @@ function Vote(id, up, bcomment) {
 		toggleVote(id, up, bcomment)  // toggle this type of vote
 	} else {
 		alert("You must be logged in to do that!")
+		//TODO: onClick_OpenModalLink('youMustBeLoggedIn')
 	}
 }
 

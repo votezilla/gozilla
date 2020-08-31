@@ -318,3 +318,12 @@ A 5 - OPT - shrink mozilla dino head pic
 A - 5 - Poll options need better written directions.
 A - 3 - The ability for ppl to add new options is now checked by default.
 B - 1 - Poll options now have a "Poll options:" label for the group.
+
+8/28
+Fixed bug
+Implemented notifictions HTML and CSS
+A - 8 - Add num notifications javascript on 1 minute timer that asks how many notifications the person should have.. will need
+	will need service, JS timer and ajax call, plus table to keep track of notifications that have been clicked on.
+	Also, add more notifications
+
+C 5 - why you voted comment
