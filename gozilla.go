@@ -5,7 +5,6 @@ import (
 	"fmt"
     "net"
 	"net/http"
-    //"time"
 
 	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
 	//       ttemplate does not, is not currently used and should not be used, but could be used for rendering HTML if absolutely necessary.

@@ -15,6 +15,14 @@ type PollTallyResult struct {
 
 type PollTallyResults []PollTallyResult
 
+type PollTallyInfo struct {
+	Stats		PollTallyResults
+	Article		*Article
+
+	GetArticle	func() Article
+}
+
+
 type VoteData []string
 
 
@@ -349,7 +357,9 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 	prVal("r.URL.Query()", r.URL.Query())
 
-	reqPostId := parseUrlParam(r, "postId")
+	reqPostId 			:= parseUrlParam(r, "postId")
+	viewDemographics	:= str_to_bool(parseUrlParam(r, "viewDemographics"))
+	viewRankedVoteRunoff:= str_to_bool(parseUrlParam(r, "viewRankedVoteRunoff"))
 
 	postId, err := strconv.ParseInt(reqPostId, 10, 64) // Convert from string to int64.
 	if err != nil {
@@ -367,9 +377,11 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Tally the votes, save it in the article so the html template can read it.
-	pollTallyResults := calcPollTally(postId, article.PollOptionData)
-	article.PollTallyResults = pollTallyResults
-	assert(len(article.PollOptionData.Options) == len(pollTallyResults))
+	article.PollTallyInfo.Stats = calcPollTally(postId, article.PollOptionData)
+	article.PollTallyInfo.Article = &article  // So "PollTallyResults" can read in Article values.
+	article.PollTallyInfo.GetArticle = func() Article { return article }
+
+	assert(len(article.PollOptionData.Options) == len(article.PollTallyInfo.Stats))
 
 	// Deduce userVoteString.
 	//{{ range $o, $option := $poll.Options }}
@@ -409,10 +421,11 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UpCommentVotes				[]int64
 		DownCommentVotes 			[]int64
 		UserVoteString				string
-		PollTallyResults			PollTallyResults
 		HeadComment					Comment
 		MoreArticlesFromThisSource	[]Article
 		CommentPrompt				string
+		ViewDemographics			bool
+		ViewRankedVoteRunoff		bool
 	}{
 		PageArgs:					pa,
 		Username:					username,
@@ -425,11 +438,12 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 		UpCommentVotes:				upcommentvotes,
 		DownCommentVotes: 			downcommentvotes,
-		PollTallyResults:			pollTallyResults,
 		HeadComment:				headComment,
 		MoreArticlesFromThisSource: polls,
 		UserVoteString:				userVoteString,
 		CommentPrompt:				"Explain why you vote for " + userVoteString,
+		ViewDemographics:			viewDemographics,
+		ViewRankedVoteRunoff:		viewRankedVoteRunoff,
 	}
 
 	executeTemplate(w, kViewPollResults, viewPollArgs)

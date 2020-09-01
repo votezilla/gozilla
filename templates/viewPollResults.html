@@ -6,6 +6,9 @@
 			{{ $article := .Article }}
 			{{ $poll := $article.PollOptionData }}
 
+			ViewDemographics:		{{.ViewDemographics}}
+			ViewRankedVoteRunoff:	{{.ViewRankedVoteRunoff}}
+
 			{{ template "BackToCategory" $article.Category }}
 
 			<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
@@ -43,9 +46,17 @@
 							<tr>
 								<td colspan=3><h5><b>Results below:</b></h4></td>
 							</tr>
-							{{ template "PollTallyResults" $article }}
+							{{ template "PollTallyResults" $article.PollTallyInfo }}
 						</table>
 
+						<div>
+							<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewDemographics=true';" value="View Demographics" class="btn btn-primary btn-vote" style="font-family: Verdana; color: white; background-color: #37cb24; border-color: #68f833;">
+						</div>
+						<br>
+						<div>
+							<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="View Ranked Vote Runoff" class="btn btn-default btn-vote" style="font-family: Verdana;">
+						</div>
+						<br>
 						{{ if .UserVoteString }}
 							You voted {{.UserVoteString}}.
 						{{ end }}
