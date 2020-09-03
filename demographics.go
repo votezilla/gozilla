@@ -308,6 +308,10 @@ var (
 		{"6", "58-64"},
 		{"7", "65+"},
 	}
+	countryRanges = OptionData{
+		{"US", "United States"},
+		{"OUTSIDE", "Outside the United States"},
+	}
 	//noOptions = OptionData{}
 
 	demographicLabels = map[string]string{
@@ -326,7 +330,7 @@ var (
 		"schoolDegrees": schoolDegrees,
 		"races": races,
 		"maritalStatuses": maritalStatuses,
-		"country": countries,
+		"country": countryRanges,
 		"age": ageRanges,
 	}
 

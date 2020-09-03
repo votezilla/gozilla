@@ -437,17 +437,6 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 			var condition string
 
 			if splitByDemographic == "age" {
-/*				ageRanges = OptionData{
-					{"0", "Under 18"},
-					{"1", "18-25"},
-					{"2", "24-33"},
-					{"3", "34-41"},
-					{"4", "42-49"},
-					{"5", "50-57"},
-					{"6", "58-64"},
-					{"7", "65+"},
-				}*/
-
 				var minAge, maxAge int
 				otherCase := false
 
@@ -478,6 +467,10 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 					condition = " AND (" + int_to_str(minYear) + " <= u.BirthYear AND u.BirthYear <= " + int_to_str(maxYear) + ") "
 				}
+			} else if splitByDemographic == "country" && option[0] == "US" {
+				condition = " AND u.Country = 'US' "
+			} else if splitByDemographic == "country" && option[0] == "OUTSIDE" {
+				condition = " AND (u.Country NOT IN ('US', 'SKIP', 'OTHER') AND u.Country IS NOT NULL) "
 			} else if option[0] == "SKIP" {
 				condition = " AND (u." + column + " = '" + option[0] + "' OR u." + column + " IS NULL)"
 			} else {
