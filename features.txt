@@ -333,3 +333,5 @@ A - 5 - GORDON & SUSAN: switch Sign Up and Create New Account, move Sign Up, to 
 
 A - 5 - GORDON: don't make /registerDetails stuff mandatory
 
+9/3:
+A - 13 - Implemented demographic breakdown (available when 5+ or 10+ votes)
