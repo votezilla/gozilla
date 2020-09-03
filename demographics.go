@@ -305,7 +305,7 @@ var (
 		{"3", "34-41"},
 		{"4", "42-49"},
 		{"5", "50-57"},
-		{"6", "58-65"},
+		{"6", "58-64"},
 		{"7", "65+"},
 	}
 	//noOptions = OptionData{}
@@ -336,7 +336,8 @@ var (
 		"schoolDegrees": "Schooling",
 		"races": "Race",
 		"maritalStatuses": "Marital",
-		"country": "BirthYear",
+		"country": "Country",
+		"age": "BirthYear",
 	}
 
 

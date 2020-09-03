@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type PollTallyResult struct {
@@ -409,6 +410,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	pr("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
 	// Tally the vote stats
 	if !viewDemographics && !viewRankedVoteRunoff {
@@ -432,24 +434,64 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 		extraTallyInfo = make([]PollTallyInfo, len(demoOptions))
 		for o, option := range demoOptions {
-			extraTallyInfo[o].Stats = calcPollTally(postId, article.PollOptionData, viewDemographics, false,
-				ternary_str(option[0] == "SKIP",
-					" AND (u." + column + " = '" + option[0] + "' OR u." + column + " IS NULL)",
-					" AND u." + column + " = '" + option[0] + "' "))
+			var condition string
+
+			if splitByDemographic == "age" {
+/*				ageRanges = OptionData{
+					{"0", "Under 18"},
+					{"1", "18-25"},
+					{"2", "24-33"},
+					{"3", "34-41"},
+					{"4", "42-49"},
+					{"5", "50-57"},
+					{"6", "58-64"},
+					{"7", "65+"},
+				}*/
+
+				var minAge, maxAge int
+				otherCase := false
+
+				prVal("option[0]", option[0])
+
+				switch option[0][0] {
+					case '0': minAge =  0; maxAge = 17; break
+					case '1': minAge = 18; maxAge = 25; break
+					case '2': minAge = 24; maxAge = 33; break
+					case '3': minAge = 34; maxAge = 41; break
+					case '4': minAge = 42; maxAge = 49; break
+					case '5': minAge = 50; maxAge = 57; break
+					case '6': minAge = 58; maxAge = 64; break
+					case '7': minAge = 65; maxAge = 999999; break
+					default: otherCase = true
+				}
+
+				prVal("  minAge", minAge)
+				prVal("  maxAge", maxAge)
+				prVal("  otherCase", otherCase)
+
+				if otherCase {
+					condition = " AND u.BirthYear IS NULL "
+				} else {
+					currentYear := time.Now().Year()
+					minYear := currentYear - maxAge
+					maxYear := currentYear - minAge
+
+					condition = " AND (" + int_to_str(minYear) + " <= u.BirthYear AND u.BirthYear <= " + int_to_str(maxYear) + ") "
+				}
+			} else if option[0] == "SKIP" {
+				condition = " AND (u." + column + " = '" + option[0] + "' OR u." + column + " IS NULL)"
+			} else {
+				condition = " AND u." + column + " = '" + option[0] + "' "
+			}
+			extraTallyInfo[o].Stats = calcPollTally(postId, article.PollOptionData, viewDemographics, false, condition)
 			extraTallyInfo[o].Header = option[1]
 		}
 
 		// Trim demographics that have no votes.
-		prVal("extraTallyInfo", extraTallyInfo)
-		prVal("len(extraTallyInfo)", len(extraTallyInfo))
 		for i := len(extraTallyInfo) - 1; i >= 0; i-- {
-			prVal("  i", i)
 			totalCount := 0
 
-			prVal("  extraTallyInfo[i].Stats", extraTallyInfo[i].Stats)
-			prVal("  len(extraTallyInfo[i].Stats)", len(extraTallyInfo[i].Stats))
 			for j := 0; j < len(extraTallyInfo[i].Stats); j++ {
-				prVal("    j", j)
 				totalCount += extraTallyInfo[i].Stats[j].Count
 			}
 			if totalCount == 0 {
