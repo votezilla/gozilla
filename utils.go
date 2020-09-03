@@ -236,12 +236,17 @@ func prf(format string, args... interface{}) {
 	log.Printf(format, args...)
 }
 
+// TODO: change prVal to prv
 func prVal(label string, v interface{}) {
 	log.Printf("%s: %#v", label, v)
 }
 
-func prValX(label string, v interface{}) {
+func prx(label string, v interface{}) {
 	log.Printf("%s: %x", label, v)
+}
+
+func prp(label string, v interface{}) {
+	log.Printf("%s: %p", label, v)
 }
 
 

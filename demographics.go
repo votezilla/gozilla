@@ -3,6 +3,7 @@ package main
 
 
 var (
+	// register details demographics
 	genders = OptionData{
 		{"M", "Male"},
 		{"F", "Female"},
@@ -295,6 +296,51 @@ var (
 		{"ZM", "Zambia"},
 		{"ZW", "Zimbabwe"},
 	}
+
+	// Voting demographics
+	ageRanges = OptionData{
+		{"0", "Under 18"},
+		{"1", "18-25"},
+		{"2", "24-33"},
+		{"3", "34-41"},
+		{"4", "42-49"},
+		{"5", "50-57"},
+		{"6", "58-65"},
+		{"7", "65+"},
+	}
+	//noOptions = OptionData{}
+
+	demographicLabels = map[string]string{
+		"genders": "Gender",
+		"parties": "Political Party",
+		"schoolDegrees": "School Degree",
+		"races": "Race",
+		"maritalStatuses": "Marital Status",
+		"country": "Country",
+		"age": "Age",
+	}
+
+	demographicOptions = map[string]OptionData{
+		"genders": genders,
+		"parties": parties,
+		"schoolDegrees": schoolDegrees,
+		"races": races,
+		"maritalStatuses": maritalStatuses,
+		"country": countries,
+		"age": ageRanges,
+	}
+
+	demographicColumns = map[string]string{
+		"genders": "Gender",
+		"parties": "Party",
+		"schoolDegrees": "Schooling",
+		"races": "Race",
+		"maritalStatuses": "Marital",
+		"country": "BirthYear",
+	}
+
+
+	// Location country settings
 
 	// TODO: show / hide postal codes based on the country.  In registerDetailsHandler().
 	//       look for the "registerDetailsScript" in templates.

@@ -17,11 +17,21 @@ type PollTallyResults []PollTallyResult
 
 type PollTallyInfo struct {
 	Stats		PollTallyResults
-	Article		*Article
 
+	Article		*Article  		// So "PollTallyResults" can read in Article values.
 	GetArticle	func() Article
+
+	Header		string
 }
 
+func (i *PollTallyInfo) SetArticle(pArticle *Article) {
+	(*i).Article = pArticle
+	(*i).GetArticle = func() Article {
+		return *i.Article
+	}
+}
+
+type ExtraTallyInfo	[]PollTallyInfo
 
 type VoteData []string
 
@@ -145,7 +155,8 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 		pq.Array(voteAmounts))
 
 	// Tally the poll tally results, and cache them in the db.
-	pollTallyResults := calcPollTally(pollId, pollOptionData)
+	pollTallyResults := calcPollTally(pollId, pollOptionData, false, false, "")
+
 	//prVal("pollTallyResults", pollTallyResults)
 
 	pollTallyResultsJson, err := json.Marshal(pollTallyResults)
@@ -174,7 +185,171 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 // calc poll tally
 //
 //////////////////////////////////////////////////////////////////////////////
-func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults {
+func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff bool, condition string) PollTallyResults {
+	pollTallyResults := make(PollTallyResults, numOptions)
+
+	// Get the votes from the database.
+	joinStr := ternary_str(viewDemographics, " JOIN $$User u ON v.UserId = u.Id ", "")
+
+	rows := DbQuery("SELECT v.VoteOptionIds FROM $$PollVote v" + joinStr + " WHERE PollId = $1::bigint" + condition, pollId)
+	defer rows.Close()
+	for rows.Next() {
+		var voteOptions []int64	// This is the only type possible for scanning into an array of ints.
+
+		err := rows.Scan(pq.Array(&voteOptions))
+		check(err)
+
+		// Tally the votes.
+		for _, voteOption := range voteOptions {
+			pollTallyResults[voteOption].Count++
+		}
+	}
+	check(rows.Err())
+
+	dividend := 0
+	sum := 0
+	for i := range pollTallyResults {
+		sum += pollTallyResults[i].Count
+	}
+	dividend = sum
+
+	invDividendPercent := ternary_float32(dividend != 0, 100.0 / float32(dividend), 0.0) // calc scalar dividend, prevent div by zero.
+	for i := range pollTallyResults {
+		pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
+	}
+
+	return pollTallyResults
+}
+
+func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff bool,
+							condition string) PollTallyResults {
+	pollTallyResults := make(PollTallyResults, numOptions)
+
+	type UserRankedVotes struct {
+		VoteOptions	[]int64
+		VoteRanks	[]int64
+
+		BestOption	int64
+	}
+	userRankedVotes := make([]UserRankedVotes, 0)
+
+	// Get the votes from the database.
+	joinStr := ternary_str(viewDemographics, " JOIN $$User u ON v.UserId = u.Id ", "")
+
+	rows := DbQuery("SELECT v.VoteOptionIds, v.VoteAmounts FROM $$PollVote v " + joinStr + " WHERE PollId = $1::bigint" + condition, pollId)
+	defer rows.Close()
+	for rows.Next() {
+		var voteOptions, voteRanks []int64	// []int64 is the only type possible for scanning into an array of ints.
+
+		err := rows.Scan(pq.Array(&voteOptions), pq.Array(&voteRanks))
+		check(err)
+
+		assert(len(voteOptions) == len(voteRanks))
+
+		userRankedVotes = append(userRankedVotes,
+								 UserRankedVotes {
+									 VoteOptions:	voteOptions,
+									 VoteRanks:		voteRanks })
+	}
+	check(rows.Err())
+
+	// Do the ranked voting algorithm.
+	eliminatedVoteOptions := make([]int64, 0)
+	round := 1
+	rankedVotingLoop: for {
+		// For each user...
+		for u, userRankedVote := range(userRankedVotes) {
+
+			// ...Find the best option for the user...
+			userRankedVotes[u].BestOption = -1
+			minRank	  					 := MaxInt64
+			for r, rank := range(userRankedVote.VoteRanks) {
+				option := userRankedVote.VoteOptions[r]
+
+				// ...Based on the candidates still available.
+				if contains_int64(eliminatedVoteOptions, option) {
+					continue
+				}
+
+				if rank < minRank { // The best option has the lowest rank (closest to "1").
+					minRank 	   				  = rank
+					userRankedVotes[u].BestOption = option
+				}
+			}
+		}
+
+		// Clear the tally results
+		for i := range pollTallyResults {
+			pollTallyResults[i].Count = 0
+		}
+		sum := 0
+
+		// Tally the votes.
+		for _, userRankedVote := range(userRankedVotes) {
+			// If the user's best option is valid (i.e. all their candidates weren't eliminated), add it to the tally.
+			if userRankedVote.BestOption >= 0 {
+				pollTallyResults[userRankedVote.BestOption].Count++
+				sum++
+			}
+		}
+
+		prVal("sum", sum)
+
+		// Calculate the percentage.
+		invDividendPercent := 100.0 / float32(sum)
+		for i := range pollTallyResults {
+			pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
+		}
+
+		prf("Round %d results:", round)
+		for option, pollTallyResult := range pollTallyResults {
+			if contains_int64(eliminatedVoteOptions, int64(option)) {
+				continue
+			}
+
+			prf("\tOption %d\tCount %d\tPercentage %f", option, pollTallyResult.Count, pollTallyResult.Percentage)
+		}
+
+		// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
+		for i := range pollTallyResults {
+			if pollTallyResults[i].Percentage > 50.0 {
+				break rankedVotingLoop
+			}
+		}
+
+		// Otherwise, eliminate the remaining vote option with the fewest votes and recount the votes.
+		leastVotes  := MaxInt
+		worstOption := -1
+		for option, pollTallyResult := range pollTallyResults {
+			// It must be from one of the options remaining.
+			if contains_int64(eliminatedVoteOptions, int64(option)) {
+				continue
+			}
+
+			if pollTallyResult.Count < leastVotes {
+				leastVotes = pollTallyResult.Count
+				worstOption = option
+			}
+		}
+		// Eliminate the worst option... without deleting anything :)
+		eliminatedVoteOptions = append(eliminatedVoteOptions, int64(worstOption))
+
+		prf("Eliminated vote option %d, it had the lowest vote count: %d", worstOption, leastVotes)
+
+		// Stop when we have one candidate remaining.
+		if round == numOptions - 1 {
+			assert(len(eliminatedVoteOptions) == numOptions - 1)
+
+			break rankedVotingLoop
+		}
+
+		round++
+	}
+
+	return pollTallyResults
+}
+
+func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics, viewRankedVoteRunoff bool, condition string) PollTallyResults {
 	prf("calcPollTally %d %v", pollId, pollOptionData)
 
 	numOptions := len(pollOptionData.Options)
@@ -182,162 +357,12 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 	pollTallyResults := make(PollTallyResults, numOptions)
 
 	if (!pollOptionData.RankedChoiceVoting) { // Regular single or multi-select voting
-
-		// Get the votes from the database.
-		rows := DbQuery("SELECT VoteOptionIds FROM $$PollVote WHERE PollId = $1::bigint", pollId)
-		defer rows.Close()
-		for rows.Next() {
-			var voteOptions []int64	// This is the only type possible for scanning into an array of ints.
-
-			err := rows.Scan(pq.Array(&voteOptions))
-			check(err)
-
-			// Tally the votes.
-			for _, voteOption := range voteOptions {
-				pollTallyResults[voteOption].Count++
-			}
-		}
-		check(rows.Err())
-
-		prVal(">>1 pollTallyResults", pollTallyResults)
-
-		dividend := 0
-		sum := 0
-		for i := range pollTallyResults {
-			sum += pollTallyResults[i].Count
-		}
-		dividend = sum
+		pollTallyResults = calcSimpleVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, condition)
 
 		assert(len(pollOptionData.Options) == len(pollTallyResults))
 
-		prVal("dividend", dividend)
-
-		invDividendPercent := ternary_float32(dividend != 0, 100.0 / float32(dividend), 0.0) // calc scalar dividend, prevent div by zero.
-		for i := range pollTallyResults {
-			pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
-		}
-
-		prVal(">>2 pollTallyResults", pollTallyResults)
 	} else { // RankedChoiceVoting
-
-		type UserRankedVotes struct {
-			VoteOptions	[]int64
-			VoteRanks	[]int64
-
-			BestOption	int64
-		}
-		userRankedVotes := make([]UserRankedVotes, 0)
-
-		// Get the votes from the database.
-		rows := DbQuery("SELECT VoteOptionIds, VoteAmounts FROM $$PollVote WHERE PollId = $1::bigint", pollId)
-		defer rows.Close()
-		for rows.Next() {
-			var voteOptions, voteRanks []int64	// []int64 is the only type possible for scanning into an array of ints.
-
-			err := rows.Scan(pq.Array(&voteOptions), pq.Array(&voteRanks))
-			check(err)
-
-			assert(len(voteOptions) == len(voteRanks))
-
-			userRankedVotes = append(userRankedVotes,
-								     UserRankedVotes {
-										 VoteOptions:	voteOptions,
-										 VoteRanks:		voteRanks })
-		}
-		check(rows.Err())
-
-		// Do the ranked voting algorithm.
-		eliminatedVoteOptions := make([]int64, 0)
-		round := 1
-		rankedVotingLoop: for {
-			// For each user...
-			for u, userRankedVote := range(userRankedVotes) {
-
-				// ...Find the best option for the user...
-				userRankedVotes[u].BestOption = -1
-				minRank	  					 := MaxInt64
-				for r, rank := range(userRankedVote.VoteRanks) {
-					option := userRankedVote.VoteOptions[r]
-
-					// ...Based on the candidates still available.
-					if contains_int64(eliminatedVoteOptions, option) {
-						continue
-					}
-
-					if rank < minRank { // The best option has the lowest rank (closest to "1").
-						minRank 	   				  = rank
-						userRankedVotes[u].BestOption = option
-					}
-				}
-			}
-
-			// Clear the tally results
-			for i := range pollTallyResults {
-				pollTallyResults[i].Count = 0
-			}
-			sum := 0
-
-			// Tally the votes.
-			for _, userRankedVote := range(userRankedVotes) {
-				// If the user's best option is valid (i.e. all their candidates weren't eliminated), add it to the tally.
-				if userRankedVote.BestOption >= 0 {
-					pollTallyResults[userRankedVote.BestOption].Count++
-					sum++
-				}
-			}
-
-			prVal("sum", sum)
-
-			// Calculate the percentage.
-			invDividendPercent := 100.0 / float32(sum)
-			for i := range pollTallyResults {
-				pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
-			}
-
-			prf("Round %d results:", round)
-			for option, pollTallyResult := range pollTallyResults {
-				if contains_int64(eliminatedVoteOptions, int64(option)) {
-					continue
-				}
-
-				prf("\tOption %d\tCount %d\tPercentage %f", option, pollTallyResult.Count, pollTallyResult.Percentage)
-			}
-
-			// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
-			for i := range pollTallyResults {
-				if pollTallyResults[i].Percentage > 50.0 {
-					break rankedVotingLoop
-				}
-			}
-
-			// Otherwise, eliminate the remaining vote option with the fewest votes and recount the votes.
-			leastVotes  := MaxInt
-			worstOption := -1
-			for option, pollTallyResult := range pollTallyResults {
-				// It must be from one of the options remaining.
-				if contains_int64(eliminatedVoteOptions, int64(option)) {
-					continue
-				}
-
-				if pollTallyResult.Count < leastVotes {
-					leastVotes = pollTallyResult.Count
-					worstOption = option
-				}
-			}
-			// Eliminate the worst option... without deleting anything :)
-			eliminatedVoteOptions = append(eliminatedVoteOptions, int64(worstOption))
-
-			prf("Eliminated vote option %d, it had the lowest vote count: %d", worstOption, leastVotes)
-
-			// Stop when we have one candidate remaining.
-			if round == numOptions - 1 {
-				assert(len(eliminatedVoteOptions) == numOptions - 1)
-
-				break rankedVotingLoop
-			}
-
-			round++
-		}
+		pollTallyResults = calcRankedChoiceVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, condition)
 	}
 
 	return pollTallyResults
@@ -353,13 +378,21 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData) PollTallyResults
 func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
 
+	pr("======================================================================")
 	pr("viewPollResultsHandler")
+	pr("======================================================================")
 
 	prVal("r.URL.Query()", r.URL.Query())
 
 	reqPostId 			:= parseUrlParam(r, "postId")
-	viewDemographics	:= str_to_bool(parseUrlParam(r, "viewDemographics"))
+	splitByDemographic	:= parseUrlParam(r, "splitByDemographic")
+	viewDemographics	:= splitByDemographic != ""
 	viewRankedVoteRunoff:= str_to_bool(parseUrlParam(r, "viewRankedVoteRunoff"))
+
+	prVal("reqPostId", reqPostId)
+	prVal("viewDemographics", viewDemographics)
+	prVal("viewRankedVoteRunoff", viewRankedVoteRunoff)
+	prVal("splitByDemographic", splitByDemographic)
 
 	postId, err := strconv.ParseInt(reqPostId, 10, 64) // Convert from string to int64.
 	if err != nil {
@@ -376,12 +409,63 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Tally the votes, save it in the article so the html template can read it.
-	article.PollTallyInfo.Stats = calcPollTally(postId, article.PollOptionData)
-	article.PollTallyInfo.Article = &article  // So "PollTallyResults" can read in Article values.
-	article.PollTallyInfo.GetArticle = func() Article { return article }
+
+	// Tally the vote stats
+	if !viewDemographics && !viewRankedVoteRunoff {
+		article.PollTallyInfo.Stats = calcPollTally(postId, article.PollOptionData, false, false, "")
+	}
+	article.PollTallyInfo.SetArticle(&article)
+
+	// Tally the demographic vote stats
+	var extraTallyInfo ExtraTallyInfo
+	if viewDemographics {
+		pr("viewDemographics")
+
+		demoOptions, found := demographicOptions[splitByDemographic]
+		if !found {
+			http.Error(w, "Invalid demographic", http.StatusInternalServerError)
+		}
+
+		demoOptions = append(demoOptions, [2]string{"OTHER", "OTHER"}, [2]string{"SKIP", "SKIP"})
+
+		column := demographicColumns[splitByDemographic]
+
+		extraTallyInfo = make([]PollTallyInfo, len(demoOptions))
+		for o, option := range demoOptions {
+			extraTallyInfo[o].Stats = calcPollTally(postId, article.PollOptionData, viewDemographics, false,
+				ternary_str(option[0] == "SKIP",
+					" AND (u." + column + " = '" + option[0] + "' OR u." + column + " IS NULL)",
+					" AND u." + column + " = '" + option[0] + "' "))
+			extraTallyInfo[o].Header = option[1]
+		}
+
+		// Trim demographics that have no votes.
+		prVal("extraTallyInfo", extraTallyInfo)
+		prVal("len(extraTallyInfo)", len(extraTallyInfo))
+		for i := len(extraTallyInfo) - 1; i >= 0; i-- {
+			prVal("  i", i)
+			totalCount := 0
+
+			prVal("  extraTallyInfo[i].Stats", extraTallyInfo[i].Stats)
+			prVal("  len(extraTallyInfo[i].Stats)", len(extraTallyInfo[i].Stats))
+			for j := 0; j < len(extraTallyInfo[i].Stats); j++ {
+				prVal("    j", j)
+				totalCount += extraTallyInfo[i].Stats[j].Count
+			}
+			if totalCount == 0 {
+				extraTallyInfo = append(extraTallyInfo[:i], extraTallyInfo[i+1:]...)
+			}
+		}
+
+		for i := 0; i < len(extraTallyInfo); i++ {
+			extraTallyInfo[i].SetArticle(&article)
+		}
+	}
 
 	assert(len(article.PollOptionData.Options) == len(article.PollTallyInfo.Stats))
+
+	prVal("article.PollTallyInfo", article.PollTallyInfo)
+	prVal("extraTallyInfo", extraTallyInfo)
 
 	// Deduce userVoteString.
 	//{{ range $o, $option := $poll.Options }}
@@ -424,8 +508,10 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		HeadComment					Comment
 		MoreArticlesFromThisSource	[]Article
 		CommentPrompt				string
+		DemographicLabels			map[string]string
 		ViewDemographics			bool
 		ViewRankedVoteRunoff		bool
+		ExtraTallyInfo				ExtraTallyInfo
 	}{
 		PageArgs:					pa,
 		Username:					username,
@@ -442,8 +528,10 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		MoreArticlesFromThisSource: polls,
 		UserVoteString:				userVoteString,
 		CommentPrompt:				"Explain why you vote for " + userVoteString,
+		DemographicLabels:			demographicLabels,
 		ViewDemographics:			viewDemographics,
 		ViewRankedVoteRunoff:		viewRankedVoteRunoff,
+		ExtraTallyInfo:				extraTallyInfo,
 	}
 
 	executeTemplate(w, kViewPollResults, viewPollArgs)

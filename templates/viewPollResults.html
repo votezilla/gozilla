@@ -47,14 +47,32 @@
 								<td colspan=3><h5><b>Results below:</b></h4></td>
 							</tr>
 							{{ template "PollTallyResults" $article.PollTallyInfo }}
-						</table>
 
+							{{ if or .ViewDemographics .ViewRankedVoteRunoff }}
+								{{ range $i, $pollTallyInfo := .ExtraTallyInfo }}
+									.ExtraTallyInfo[{{$i}}]
+									<tr><td colspan=3><br></td></tr>
+									<tr><td colspan=3><h6><b>{{$pollTallyInfo.Header}}</b></h6><br></td></tr>
+									{{ template "PollTallyResults" $pollTallyInfo }}
+								{{ end }}
+							{{ end }}
+							<tr></td>
+						</table>
+						<!--
+							alt names:
+								View Breakdown
+								Demographic Breakdown
+						-->
+						<select name="country" class="btn btn-vote" style="font-family: Verdana;"
+								onchange="location.href='/viewPollResults/?postId='+{{$article.Id}}+`&viewRankedVoteRunoff=true&splitByDemographic=${this.value}`;">
+							<option value="-" selected>Split By Demographic</option>
+							{{ range $k, $v := .DemographicLabels }}
+								<option value="{{$k}}">{{$v}}</option>
+							{{ end }}
+						</select>
+						<br><br>
 						<div>
-							<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewDemographics=true';" value="View Demographics" class="btn btn-primary btn-vote" style="font-family: Verdana; color: white; background-color: #37cb24; border-color: #68f833;">
-						</div>
-						<br>
-						<div>
-							<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="View Ranked Vote Runoff" class="btn btn-default btn-vote" style="font-family: Verdana;">
+							<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="Ranked Vote Runoff" class="btn btn-default btn-vote" style="font-family: Verdana; color: white; background-color: #37cb24; border-color: #68f833;">
 						</div>
 						<br>
 						{{ if .UserVoteString }}

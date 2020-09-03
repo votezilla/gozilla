@@ -475,9 +475,7 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 			if len(pollTallyResultsJson) > 0 {
 				check(json.Unmarshal([]byte(pollTallyResultsJson), &newArticle.PollTallyInfo.Stats))
 
-				// TODO: refactor into .SetArticle(&newArticle)
-				newArticle.PollTallyInfo.Article = &newArticle
-				newArticle.PollTallyInfo.GetArticle = func() Article { return *newArticle.PollTallyInfo.Article }
+				newArticle.PollTallyInfo.SetArticle(&newArticle)
 
 				// Force AnyoneCanAddOptions to be true, otherwise ppl make closed polls that don't get everyone's opinion.
 				newArticle.PollOptionData.AnyoneCanAddOptions = true
