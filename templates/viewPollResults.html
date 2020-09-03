@@ -50,7 +50,6 @@
 
 							{{ if or .ViewDemographics .ViewRankedVoteRunoff }}
 								{{ range $i, $pollTallyInfo := .ExtraTallyInfo }}
-									.ExtraTallyInfo[{{$i}}]
 									<tr><td colspan=3><br></td></tr>
 									<tr><td colspan=3><h6><b>{{$pollTallyInfo.Header}}</b></h6><br></td></tr>
 									{{ template "PollTallyResults" $pollTallyInfo }}

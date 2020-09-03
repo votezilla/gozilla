@@ -956,10 +956,10 @@ $(function () {
 
 {{ define "PollTallyResults" }}
 	<!--<tr><td><i>Results:</i></td></tr>-->
-	{{- $pollTallyInfo := . -}}
-	{{- $pollTallyResults := $pollTallyInfo.Stats -}}
-	{{- $article := (call $pollTallyInfo.GetArticle) -}}
-	{{- $poll := $article.PollOptionData -}}
+	<!--{{- $pollTallyInfo := . -}}-->
+	<!--{{- $pollTallyResults := $pollTallyInfo.Stats -}}-->
+	<!--{{- $article := (call $pollTallyInfo.GetArticle) -}}-->
+	<!--{{- $poll := $article.PollOptionData -}}-->
 
 	{{- $maxOptions := 0 }}
 	{{- if eq $article.Size 2 }}     {{/*FULLPAGE ARTICLE*/}}
@@ -968,10 +968,10 @@ $(function () {
 		{{- $maxOptions = 12 }}
 	{{ end }}
 
-	<ul>
-		<li> $poll.Options = {{ $poll.Options }}
-		<li> $pollTallyInfo = {{ $pollTallyInfo }}
-	</ul>
+	<!--<ul>-->
+	<!--	<li> $poll.Options = {{ $poll.Options }}-->
+	<!--	<li> $pollTallyInfo = {{ $pollTallyInfo }}-->
+	<!--</ul>-->
 	{{ range $o, $option := $poll.Options }}
 		{{ if lt $o $maxOptions }}
 			{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
