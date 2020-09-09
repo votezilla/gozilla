@@ -62,13 +62,17 @@
 								View Breakdown
 								Demographic Breakdown
 						-->
-						<select name="country" class="btn btn-vote" style="font-family: Verdana;"
-								onchange="location.href='/viewPollResults/?postId='+{{$article.Id}}+`&viewRankedVoteRunoff=true&splitByDemographic=${this.value}`;">
-							<option value="-" selected>Split By Demographic</option>
-							{{ range $k, $v := .DemographicLabels }}
-								<option value="{{$k}}">{{$v}}</option>
-							{{ end }}
-						</select>
+						{{ if ge $article.PollTallyInfo.TotalVotes 5 }}
+							<select name="country" class="btn btn-vote" style="font-family: Verdana;"
+									onchange="location.href='/viewPollResults/?postId='+{{$article.Id}}+`&viewRankedVoteRunoff=true&splitByDemographic=${this.value}`;">
+								<option value="-" selected>Split By Demographic</option>
+								{{ range $k, $v := .DemographicLabels }}
+									<option value="{{$k}}">{{$v}}</option>
+								{{ end }}
+							</select>
+						{{ else }}
+							Demographic breakdown viewable once poll reaches 5 or more votes.  There are currently {{ $article.PollTallyInfo.TotalVotes }}.  Share to get more votes!
+						{{ end }}
 						<br><br>
 						<div>
 							<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="Ranked Vote Runoff" class="btn btn-default btn-vote" style="font-family: Verdana; color: white; background-color: #37cb24; border-color: #68f833;">

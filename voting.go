@@ -18,6 +18,7 @@ type PollTallyResults []PollTallyResult
 
 type PollTallyInfo struct {
 	Stats		PollTallyResults
+	TotalVotes	int
 
 	Article		*Article  		// So "PollTallyResults" can read in Article values.
 	GetArticle	func() Article
@@ -413,9 +414,15 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	pr("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
 	// Tally the vote stats
-	if !viewDemographics && !viewRankedVoteRunoff {
+	//if !viewDemographics && !viewRankedVoteRunoff {
 		article.PollTallyInfo.Stats = calcPollTally(postId, article.PollOptionData, false, false, "")
-	}
+		article.PollTallyInfo.TotalVotes = 0
+		for i := 0; i < len(article.PollTallyInfo.Stats); i++ {
+			article.PollTallyInfo.TotalVotes += article.PollTallyInfo.Stats[i].Count
+		}
+		prVal("article.PollTallyInfo.Stats", article.PollTallyInfo.Stats)
+		prVal("article.PollTallyInfo.TotalVotes", article.PollTallyInfo.TotalVotes)
+	//}
 	article.PollTallyInfo.SetArticle(&article)
 
 	// Tally the demographic vote stats
@@ -562,7 +569,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		HeadComment:				headComment,
 		MoreArticlesFromThisSource: polls,
 		UserVoteString:				userVoteString,
-		CommentPrompt:				"Explain why you vote for " + userVoteString,
+		CommentPrompt:				"Start a discussion, or explain why you voted for " + userVoteString + ".",
 		DemographicLabels:			demographicLabels,
 		ViewDemographics:			viewDemographics,
 		ViewRankedVoteRunoff:		viewRankedVoteRunoff,

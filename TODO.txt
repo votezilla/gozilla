@@ -8,9 +8,9 @@ JUST FIXED:
 
 WORKING ON:
 
-A - 3 - fix focus issue - When user is not doing a demographic breakdown, focus should stay at the top .
-
 A - 8 - ranked vote - show runoff.
+
+A - 3 - only allow voting breakdowns when >5 votes or rankedvote, appropritately.
 
 - git push
 
@@ -32,6 +32,8 @@ A - 8 - Continue getting feedback from close peeps!!
 	(Start with SUSAN, DAD!!!,
 		Jim, 1 or 2 at a time until more bugs are fixed!)
 
+B - Messages / marketing - try playing up the direct democracy angle a little.
+
 B   5 - prompt user to leave comment or up/down vote after viewing an article.
 
 
@@ -44,7 +46,9 @@ B - 5 - Add more activities notifications (for now, a notification for every vot
 B - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
 			https://developers.facebook.com/docs/facebook-login/web
 
-B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.
+B+ 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
+
+B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.  (See latest notes in phone for update to this via button on bottom of page.)
 
 Notifications:
 	B - 3 - change title dynamically like FB does, for alerts
@@ -69,6 +73,8 @@ B 21  =   Fix email - Emailed DO tech support.
 
   -   Remember previous page or close form upon success, and/or back tri buttons.
 
+
+B - numeric polls (On a scale of 1 to 10, or budget %, etc.)
 
 B - security - password timeout
 
@@ -108,16 +114,14 @@ B   - disallow multiple poll items with the same name
 
 B - "You must be logged in to do that!" - should be popup with kind, pretty prompt
 
-B 13 - Add more news API's (hopefully some incl. Fox News).  (TOM: seeing mostly liberal news sources.)
 
-B 8 - I need to add some suggestions about poll wording when creating polls, as I don't think this will be obvious to most ppl.
-      Also, dump in other notes with written stuff, from my notebook.
+C 13 - Add more news API's (hopefully some incl. Fox News).  (TOM: seeing mostly liberal news sources.)
 
-B - "contentScript" etc
+C - "contentScript" etc
 
 - renderTempleateZipped for /news, /article, /viewPollResults,
 
-B - DO Spaces
+C - DO Spaces
 
 POSSIBLE MACOS - ROB - BUG:
 	"I'm registered at least. Not sure anything is happening when clicking the vote nbutton"
@@ -247,8 +251,6 @@ C 5 - prompt to log in makes you forget your place.  It should open in new windo
 C 8 - Change between alias and real name depending on a post's (or comment's) privacy settings.
 
 C 8 + ability to message other users or write on a news source' wall
-
-C 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
 
 C 13 - notifications
 
