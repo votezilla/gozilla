@@ -51,7 +51,6 @@
 							{{ if or .ViewDemographics .ViewRankedVoteRunoff }}
 								{{ range $i, $pollTallyInfo := .ExtraTallyInfo }}
 									<tr><td colspan=3><br></td></tr>
-									<tr><td colspan=3><h6><b>{{$pollTallyInfo.Header}}</b></h6><br></td></tr>
 									{{ template "PollTallyResults" $pollTallyInfo }}
 								{{ end }}
 							{{ end }}
@@ -74,9 +73,11 @@
 							Demographic breakdown viewable once poll reaches 5 or more votes.  There are currently {{ $article.PollTallyInfo.TotalVotes }}.  Share to get more votes!
 						{{ end }}
 						<br><br>
-						<div>
-							<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="Ranked Vote Runoff" class="btn btn-default btn-vote" style="font-family: Verdana; color: white; background-color: #37cb24; border-color: #68f833;">
-						</div>
+						{{ if $poll.RankedChoiceVoting }}
+							<div>
+								<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="Ranked Vote Runoff" class="btn btn-default btn-vote" style="font-family: Verdana; color: white; background-color: #37cb24; border-color: #68f833;">
+							</div>
+						{{ end }}
 						<br>
 						{{ if .UserVoteString }}
 							You voted {{.UserVoteString}}.

@@ -4,15 +4,18 @@ PUSH & TEST ON SERVER:
 B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
 
 JUST FIXED:
-
+A - 8 - ranked vote - show runoff.
+A - 3 - only allow voting breakdowns when >5 votes or rankedvote, appropritately.
 
 WORKING ON:
 
-A - 8 - ranked vote - show runoff.
+A - 5 - Prioritize polls with more votes.  But less if you've already voted on it.
 
-A - 3 - only allow voting breakdowns when >5 votes or rankedvote, appropritately.
+(Start filtering / fixing polls.)
 
-- git push
+- find a way to remove password requirement, just email
+
+- poll option length is too short to write anything meaningful.  Poll results also need to be able to show longer text
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
@@ -27,6 +30,14 @@ v
   v
 
 A - 8 - Separate news from polls, news into its own tab, move /about into part of /history.
+
+A 21  =   Fix email - Emailed DO tech support.
+
+  -   Implement Email verification.  (set emailVerified=True when email is verified.)
+
+  -   Implement Forgot password.
+
+  -   Remember previous page or close form upon success, and/or back tri buttons.
 
 A - 8 - Continue getting feedback from close peeps!!
 	(Start with SUSAN, DAD!!!,
@@ -63,15 +74,6 @@ Notifications:
 - email friends & family.
 - create some good polls first
 - social idea: $100 to whichever presidential candidate wins the poll
-
-
-B 21  =   Fix email - Emailed DO tech support.
-
-  -   Implement Email verification.  (set emailVerified=True when email is verified.)
-
-  -   Implement Forgot password.
-
-  -   Remember previous page or close form upon success, and/or back tri buttons.
 
 
 B - numeric polls (On a scale of 1 to 10, or budget %, etc.)

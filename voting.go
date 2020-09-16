@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	//"fmt"
 	"github.com/lib/pq"
 	"net/http"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 type PollTallyResult struct {
 	Count		int
 	Percentage	float32
+	Skip		bool
 }
 
 type PollTallyResults []PollTallyResult
@@ -19,11 +21,11 @@ type PollTallyResults []PollTallyResult
 type PollTallyInfo struct {
 	Stats		PollTallyResults
 	TotalVotes	int
+	Header		string
+	Footer		string
 
 	Article		*Article  		// So "PollTallyResults" can read in Article values.
 	GetArticle	func() Article
-
-	Header		string
 }
 
 func (i *PollTallyInfo) SetArticle(pArticle *Article) {
@@ -157,7 +159,7 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 		pq.Array(voteAmounts))
 
 	// Tally the poll tally results, and cache them in the db.
-	pollTallyResults := calcPollTally(pollId, pollOptionData, false, false, "")
+	pollTallyResults , _:= calcPollTally(pollId, pollOptionData, false, false, "", Article{})
 
 	//prVal("pollTallyResults", pollTallyResults)
 
@@ -224,8 +226,9 @@ func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRanked
 }
 
 func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff bool,
-							condition string) PollTallyResults {
+							condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
 	pollTallyResults := make(PollTallyResults, numOptions)
+	extraTallyInfo	 := make(ExtraTallyInfo, 0)
 
 	type UserRankedVotes struct {
 		VoteOptions	[]int64
@@ -258,7 +261,10 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	// Do the ranked voting algorithm.
 	eliminatedVoteOptions := make([]int64, 0)
 	round := 1
+	done := false
 	rankedVotingLoop: for {
+		message := ""
+
 		// For each user...
 		for u, userRankedVote := range(userRankedVotes) {
 
@@ -315,48 +321,87 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
 		for i := range pollTallyResults {
 			if pollTallyResults[i].Percentage > 50.0 {
-				break rankedVotingLoop
+				if viewRankedVoteRunoff {
+					message += "Found a winner, with a majority of the vote!: '" + article.PollOptionData.Options[i] + "'"
+
+					pr(message)
+				}
+				done = true
 			}
 		}
 
 		// Otherwise, eliminate the remaining vote option with the fewest votes and recount the votes.
-		leastVotes  := MaxInt
-		worstOption := -1
-		for option, pollTallyResult := range pollTallyResults {
-			// It must be from one of the options remaining.
-			if contains_int64(eliminatedVoteOptions, int64(option)) {
-				continue
+		if !done {
+			leastVotes  := MaxInt
+			worstOption := -1
+			for option, pollTallyResult := range pollTallyResults {
+				// It must be from one of the options remaining.
+				if contains_int64(eliminatedVoteOptions, int64(option)) {
+					continue
+				}
+
+				if pollTallyResult.Count < leastVotes {
+					leastVotes = pollTallyResult.Count
+					worstOption = option
+				}
+			}
+			// Eliminate the worst option... without deleting anything :)
+			eliminatedVoteOptions = append(eliminatedVoteOptions, int64(worstOption))
+
+			if viewRankedVoteRunoff {
+				message += "Eliminated option '" + article.PollOptionData.Options[worstOption] + "', it had the lowest vote"
+				pr(message)
 			}
 
-			if pollTallyResult.Count < leastVotes {
-				leastVotes = pollTallyResult.Count
-				worstOption = option
+			// Stop when we have one candidate remaining.
+			if round == numOptions - 1 {
+				assert(len(eliminatedVoteOptions) == numOptions - 1)
+				if viewRankedVoteRunoff {
+					message += "We'll stop now since we only have one candidate remaining."
+				}
+				done = true
 			}
 		}
-		// Eliminate the worst option... without deleting anything :)
-		eliminatedVoteOptions = append(eliminatedVoteOptions, int64(worstOption))
 
-		prf("Eliminated vote option %d, it had the lowest vote count: %d", worstOption, leastVotes)
+		pr("************************************************************************")
+		if viewRankedVoteRunoff {
+			var pollTallyInfo PollTallyInfo
+			pollTallyInfo.Stats = pollTallyResults
+			pollTallyInfo.Header = "Ranked Vote Runoff - Pass " + int_to_str(round)
+			pollTallyInfo.Footer = message
 
-		// Stop when we have one candidate remaining.
-		if round == numOptions - 1 {
-			assert(len(eliminatedVoteOptions) == numOptions - 1)
+			for option, _ := range pollTallyInfo.Stats {
+				if contains_int64(eliminatedVoteOptions, int64(option)) {
+					pollTallyInfo.Stats[option].Skip = true
 
+					prVal("  SKIPPING OPTION", option)
+				}
+			}
+
+			extraTallyInfo = append(extraTallyInfo, pollTallyInfo)
+
+			prVal("  Appending pollTallyResults", pollTallyResults)
+			prVal("    Now extraTallyInfo", extraTallyInfo)
+		}
+
+		if done {
 			break rankedVotingLoop
 		}
 
 		round++
 	}
 
-	return pollTallyResults
+	return pollTallyResults, extraTallyInfo
 }
 
-func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics, viewRankedVoteRunoff bool, condition string) PollTallyResults {
+// Calcs the poll tally.  If it's a ranked vote with viewRankedVoteRunoff, return the extraTallyInfo as well.
+func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics, viewRankedVoteRunoff bool, condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
 	prf("calcPollTally %d %v", pollId, pollOptionData)
 
 	numOptions := len(pollOptionData.Options)
 
 	pollTallyResults := make(PollTallyResults, numOptions)
+	extraTallyInfo := make(ExtraTallyInfo, 0)
 
 	if (!pollOptionData.RankedChoiceVoting) { // Regular single or multi-select voting
 		pollTallyResults = calcSimpleVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, condition)
@@ -364,10 +409,10 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics
 		assert(len(pollOptionData.Options) == len(pollTallyResults))
 
 	} else { // RankedChoiceVoting
-		pollTallyResults = calcRankedChoiceVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, condition)
+		pollTallyResults, extraTallyInfo = calcRankedChoiceVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, condition, article)
 	}
 
-	return pollTallyResults
+	return pollTallyResults, extraTallyInfo
 }
 
 
@@ -414,19 +459,20 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	pr("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
 	// Tally the vote stats
-	//if !viewDemographics && !viewRankedVoteRunoff {
-		article.PollTallyInfo.Stats = calcPollTally(postId, article.PollOptionData, false, false, "")
-		article.PollTallyInfo.TotalVotes = 0
-		for i := 0; i < len(article.PollTallyInfo.Stats); i++ {
-			article.PollTallyInfo.TotalVotes += article.PollTallyInfo.Stats[i].Count
-		}
-		prVal("article.PollTallyInfo.Stats", article.PollTallyInfo.Stats)
-		prVal("article.PollTallyInfo.TotalVotes", article.PollTallyInfo.TotalVotes)
-	//}
+	var extraTallyInfo ExtraTallyInfo
+	article.PollTallyInfo.Stats, extraTallyInfo =
+		calcPollTally(postId, article.PollOptionData, false, viewRankedVoteRunoff, "", article)
+
+	article.PollTallyInfo.TotalVotes = 0
+	for i := 0; i < len(article.PollTallyInfo.Stats); i++ {
+		article.PollTallyInfo.TotalVotes += article.PollTallyInfo.Stats[i].Count
+	}
+	prVal("article.PollTallyInfo.Stats", article.PollTallyInfo.Stats)
+	prVal("article.PollTallyInfo.TotalVotes", article.PollTallyInfo.TotalVotes)
+
 	article.PollTallyInfo.SetArticle(&article)
 
 	// Tally the demographic vote stats
-	var extraTallyInfo ExtraTallyInfo
 	if viewDemographics {
 		pr("viewDemographics")
 
@@ -483,7 +529,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				condition = " AND u." + column + " = '" + option[0] + "' "
 			}
-			extraTallyInfo[o].Stats = calcPollTally(postId, article.PollOptionData, viewDemographics, false, condition)
+			extraTallyInfo[o].Stats, _ = calcPollTally(postId, article.PollOptionData, viewDemographics, false, condition, article)
 			extraTallyInfo[o].Header = option[1]
 		}
 
@@ -498,10 +544,10 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 				extraTallyInfo = append(extraTallyInfo[:i], extraTallyInfo[i+1:]...)
 			}
 		}
+	}
 
-		for i := 0; i < len(extraTallyInfo); i++ {
-			extraTallyInfo[i].SetArticle(&article)
-		}
+	for i := 0; i < len(extraTallyInfo); i++ {
+		extraTallyInfo[i].SetArticle(&article)
 	}
 
 	assert(len(article.PollOptionData.Options) == len(article.PollTallyInfo.Stats))
