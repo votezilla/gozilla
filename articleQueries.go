@@ -207,6 +207,13 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 				FROM $$PostVote
 				WHERE PostId IN (SELECT Id FROM posts)
 				GROUP BY PostId
+			 ),
+			 pollVotes AS (
+				SELECT PollId,
+					   COUNT(*) AS VoteTally
+				FROM $$PollVote
+				WHERE PollId IN (SELECT Id FROM posts WHERE Source = 'P')
+				GROUP BY PollId
 			 )
 		SELECT posts.*,
 			COALESCE(votes.VoteTally, 0) AS VoteTally,
@@ -214,11 +221,13 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 				interval '24 hours' *
 				(
 					3 * COALESCE(votes.VoteTally, 0) +
+					3 * COALESCE(pollVotes.VoteTally, 0) +
 					0.5 * posts.NumComments +
 					5 * (%s)
 				) AS OrderBy
 		FROM posts
 		LEFT JOIN votes ON posts.Id = votes.PostId
+		LEFT JOIN pollVotes ON posts.Id = pollVotes.PollId
 		ORDER BY OrderBy DESC`,
 		query,
 		ternary_str(qp.bRandomizeTime, "RANDOM()", "0"))
