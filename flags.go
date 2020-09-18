@@ -29,6 +29,7 @@ var (
 		skipWhitelist			bool
 		domain					string
 		cachingService			string		// Whether to be the caching service.
+		requirePassword			bool		// Whether to require passwords for logging in.
 	}
 )
 
@@ -61,6 +62,7 @@ func parseCommandLineFlags() {
 
 	flag.BoolVar(&flags.skipWhitelist, 		 "skipWhitelist", false, "skip reading the whitelist, which is slow")
 	flag.StringVar(&flags.domain, "domain", "", "domain name to request your certificate")
+	flag.BoolVar(&flags.requirePassword, 	"requirePassword", false, "Whether to require passwords for logging in.")
 
 	prVal("Command Line Args", os.Args)
 

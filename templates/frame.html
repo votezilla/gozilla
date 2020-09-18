@@ -955,56 +955,60 @@ $(function () {
 
 
 {{ define "PollTallyResults" }}
-	<!--<tr><td><i>Results:</i></td></tr>-->
-	{{- $article := . -}}
+	{{- $pollTallyInfo := . -}}
+	{{- $pollTallyResults := $pollTallyInfo.Stats -}}
+	{{- $article := (call $pollTallyInfo.GetArticle) -}}
 	{{- $poll := $article.PollOptionData -}}
-	{{- $pollTallyResults := $article.PollTallyResults -}}
-	{{/*- $vote := $article.VoteData -*/}}
+
 	{{- $maxOptions := 0 }}
-	{{- if eq $article.Size 1 }}     {{/*LARGE ARTICLE SIZE*/}}
-		{{- $maxOptions = 12 }}
-	{{- else if eq $article.Size 0 }}{{/*NORMAL ARTICLE SIZE*/}}
-		{{- $maxOptions = 12 }}
-	{{- else }}                      {{/*FULLPAGE ARTICLE (2) */}}
+	{{- if eq $article.Size 2 }}     {{/*FULLPAGE ARTICLE*/}}
 		{{- $maxOptions = 999999 }}
+	{{- else }}						 {{/*HEADLINE OR NORMAL ARTICLE SIZE*/}}
+		{{- $maxOptions = 12 }}
 	{{ end }}
 
-	<!--<ul>
-		<li> len $poll.Options = {{ len $poll.Options }}
-		<li> len $article.PollTallyResults = {{ len $article.PollTallyResults }}
-		<li> $poll.Options = {{ $poll.Options }}
-		<li> $pollTallyResults = {{ $pollTallyResults }}
-	</ul>-->
+	<!--<ul>-->
+	<!--	<li> $poll.Options = {{ $poll.Options }}-->
+	<!--	<li> $pollTallyInfo = {{ $pollTallyInfo }}-->
+	<!--</ul>-->
+	{{ if $pollTallyInfo.Header }}
+		<tr><td colspan=5>
+			<h6><b>{{$pollTallyInfo.Header}}</b></h6>
+			<br>
+		</td></tr>
+	{{ end }}
 	{{ range $o, $option := $poll.Options }}
-		{{ if lt $o $maxOptions }}
-			{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
-			<tr>
-				{{ if or (lt $article.LongestItem 20) (eq $article.Size 2) }}
-					<td style="min-width: 30%; max-width: 50%;
-							   word-break: break-word;
-							   -ms-word-break: break-all;
-							   vertical-align: top;">
-						{{/*$option*/}} {{(call $article.Ellipsify $option 42)}}
-					</td>
-					<td width=10% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
-					<td width=30% nowrap>
-						<div class="w3-border" style="position:relative">
-							<div class="w3-grey" style="height:24px; width:{{$percentage}}"></div>
-						</div>
-					</td>
-					<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
-					<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
-				{{ else }} {{/* If there's a long item, uses compact layout with fewer columns. */}}
-					<td style="width: 90%;
-							   word-break: break-word;
-							   -ms-word-break: break-all;
-							   vertical-align: top;">
-						{{/*$option*/}} {{(call $article.Ellipsify $option 42)}}
-					</td>
-					<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
-					<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
-				{{ end }}
-			</tr>
+		{{ if and (lt $o $maxOptions) }}
+			{{ if (not (index $pollTallyResults $o).Skip) }}
+				{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
+				<tr>
+					{{ if or (lt $article.LongestItem 20) (eq $article.Size 2) }}
+						<td style="min-width: 40%; max-width: 70%;
+								   word-break: break-word;
+								   -ms-word-break: break-all;
+								   vertical-align: top;">
+							{{ $option }} {{/*(call $article.Ellipsify $option 42)*/}}
+						</td>
+						<td width=5% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
+						<td width=35% nowrap>
+							<div class="w3-border" style="position:relative">
+								<div class="w3-grey" style="height:24px; width:{{$percentage}}"></div>
+							</div>
+						</td>
+						<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
+						<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
+					{{ else }} {{/* If there's a long item, uses compact layout with fewer columns. */}}
+						<td style="width: 90%;
+								   word-break: break-word;
+								   -ms-word-break: break-all;
+								   vertical-align: top;">
+							{{ $option }} {{/*(call $article.Ellipsify $option 42)*/}}
+						</td>
+						<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
+						<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
+					{{ end }}
+				</tr>
+			{{ end }}
 		{{ else if eq $o $maxOptions }}
 			<tr><td colspan=5>
 				<table width=100%>
@@ -1025,6 +1029,9 @@ $(function () {
 			</td></tr>
 		{{ end }}
 	{{ end }}
+	<tr><td colspan=5>
+		<b>{{$pollTallyInfo.Footer}}</b>
+	</td></tr>
 	{{ if le (len $poll.Options) $maxOptions }}
 		<tr><td colspan=5>
 			<table width=100%>
@@ -1042,13 +1049,6 @@ $(function () {
 	{{ end }}
 {{ end }}
 
-{{ define "PollTallyResultsInline" }}
-	<table width=100% style="margin-left: 0px;">
-		<tr></tr>
-		{{ template "PollTallyResults" . }}
-	</table>
-{{ end }}
-
 
 {{ define "PollInlineForm" }}
 	{{- $article := . -}}
@@ -1062,7 +1062,10 @@ $(function () {
 
 	{{- if $article.IsPoll -}}
 		{{ if $article.WeVoted }}
-			{{ template "PollTallyResultsInline" $article }}
+			<table width=100% style="margin-left: 0px;">
+				<tr></tr>
+				{{ template "PollTallyResults" $article.PollTallyInfo }}
+			</table>
 		{{ else }}
 			{{/*$article.Id*/}}
 			{{- $poll := $article.PollOptionData }}

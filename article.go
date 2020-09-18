@@ -53,10 +53,9 @@ type Article struct {
 	WeVoted				bool
 	ShowNewOption		bool  // Prompt for new option creation when voting on poll
 	PollOptionData		PollOptionData
-	PollTallyResults	PollTallyResults
+	PollTallyInfo		PollTallyInfo
 	VoteOptionIds	 	[]int64
 	VoteData			[]bool
-	//VoteOptionsMap		map[int64]bool
 	LongestItem			int
 
 	Ellipsify			func(text string, maxLength int) string

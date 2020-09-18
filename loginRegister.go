@@ -20,21 +20,33 @@ const (
 )
 
 func makeLoginForm() *Form {
-	return makeForm(
-		nuTextField(kEmailOrUsername, "Email / Username", 50, 6, 345, "email / username").noSpellCheckOrCaps(),
-		nuPasswordField(kPassword, "Password", 50, 8, 40),
-	)
+	if flags.requirePassword {
+		return makeForm(
+			nuTextField(kEmailOrUsername, "Email / Username", 50, 6, 345, "email / username").noSpellCheckOrCaps(),
+			nuPasswordField(kPassword, "Password", 50, 8, 40),
+		)
+	} else {
+		return makeForm(
+			nuTextField(kEmailOrUsername, "Email", 50, 6, 345, "email").noSpellCheckOrCaps(),
+		)
+	}
 }
 
 func makeRegisterForm() *Form {
-	return makeForm(
+	form := makeForm(
 		nuTextField(kEmail, "Email", 50, 6, 345, "email").noSpellCheckOrCaps().addFnValidator(emailValidator()),
 		nuTextField(kUsername, "Pick a Username", 50, 4, 25, "username").noSpellCheckOrCapsOrAutocomplete(),
-		nuPasswordField(kPassword, "Create Password", 40, 8, 40),
-		nuPasswordField(kConfirmPassword, "Confirm Password", 40, 8, 40).noDefaultValidators(),
 	)
+
+	if flags.requirePassword {
+		form.addField(nuPasswordField(kPassword, "Create Password", 40, 8, 40))
+		form.addField(nuPasswordField(kConfirmPassword, "Confirm Password", 40, 8, 40).noDefaultValidators())
+	}
+
+	return form
 }
 
+/*
 func loginRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	pr("loginRegisterHandler")
 
@@ -55,6 +67,8 @@ func loginRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 }
+*/
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // login
@@ -66,7 +80,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("r.Method", r.Method)
 
 	userId := GetSession(r)
-	assert(userId == -1) // User must not be already logged in!  TODO: handle this case gracefully instead of crashing here!
+	//assert(userId == -1) // So what if the user is logged in when they get here?
 
 	form := makeLoginForm()
 
@@ -79,46 +93,58 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 		isEmail := strings.Contains(emailOrUsername, "@")
 
-		var rows *sql.Rows
-		if isEmail {
-			rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " +
-							"FROM $$User WHERE Email = $1;",
-							emailOrUsername)
+		if !flags.requirePassword && !isEmail {
+			form.setFieldError(kEmailOrUsername, "Email address required to log in.")
 		} else {
-			rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " +
-							"FROM $$User WHERE Username = $1;",
-							emailOrUsername)
-		}
-
-		var passwordHashInts int256
-
-		defer rows.Close()
-		if !rows.Next() {
-			if isEmail {
-				form.setFieldError(kEmailOrUsername, "That email does not exist. Do you need to register?")
+			var rows *sql.Rows
+			// If not reqiring password, only email can be used to log in.
+			// If requiring password, email or username can be used to log in.
+			queryEmail := (isEmail || !flags.requirePassword);
+			if queryEmail {
+				rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " +
+								"FROM $$User WHERE Email = $1;",
+								emailOrUsername)
 			} else {
-				form.setFieldError(kEmailOrUsername, "That username does not exist. Do you need to register?")
+				rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " +
+								"FROM $$User WHERE Username = $1;",
+								emailOrUsername)
 			}
-		} else {
-			err := rows.Scan(&userId, &passwordHashInts[0], &passwordHashInts[1], &passwordHashInts[2], &passwordHashInts[3]);
-			check(err)
-			check(rows.Err())
-			prf("User found! - id: '%d' passwordHashInts: %#v\n", userId, passwordHashInts)
 
-			passwordHash := GetPasswordHash256(form.val(kPassword))
-			if passwordHash[0] != passwordHashInts[0] ||
-			   passwordHash[1] != passwordHashInts[1] ||
-			   passwordHash[2] != passwordHashInts[2] ||
-			   passwordHash[3] != passwordHashInts[3] {
-				form.setFieldError(kPassword, "Invalid password.  Forgot password?")
+			var passwordHashInts int256
+
+			defer rows.Close()
+			if !rows.Next() {
+				if queryEmail {
+					form.setFieldError(kEmailOrUsername, "That email does not exist. Do you need to register?")
+				} else {
+					form.setFieldError(kEmailOrUsername, "That username does not exist. Do you need to register?")
+				}
 			} else {
-				CreateSession(w, r, userId)//, true)
+				err := rows.Scan(&userId, &passwordHashInts[0], &passwordHashInts[1], &passwordHashInts[2], &passwordHashInts[3]);
+				check(err)
+				check(rows.Err())
+				prf("User found! - id: '%d' passwordHashInts: %#v\n", userId, passwordHashInts)
 
-				//bRememberMe = form.boolVal(kRememberMe)
-				//CreateSession(w, r, userId, bRememberMe)
+				// TODO: if we ever re-enable flags.requirePassword, we'll need to check if stored password is all 0's and make them enter a new password, or else let them login password-free.
+				passwordHash := int256{}
+				if flags.requirePassword {
+					passwordHash = GetPasswordHash256(form.val(kPassword))
+				}
+				if flags.requirePassword && (
+						passwordHash[0] != passwordHashInts[0] ||
+						passwordHash[1] != passwordHashInts[1] ||
+						passwordHash[2] != passwordHashInts[2] ||
+						passwordHash[3] != passwordHashInts[3]) {
+					form.setFieldError(kPassword, "Invalid password.  Forgot password?")
+				} else {
+					CreateSession(w, r, userId)//, true)
 
-				http.Redirect(w, r, "/news?alert=LoggedIn", http.StatusSeeOther)
-				return
+					//bRememberMe = form.boolVal(kRememberMe)
+					//CreateSession(w, r, userId, bRememberMe)
+
+					http.Redirect(w, r, "/news?alert=LoggedIn", http.StatusSeeOther)
+					return
+				}
 			}
 		}
 	}
@@ -168,18 +194,20 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		})
 
 	// Validate the password is complex enough.
-	form.field(kPassword).addFnValidator(
-		func(pw string) (bool, string) {
-			password := MakePassword(pw)
-			password.ProcessPassword()
-			if password.CommonPassword {
-				return false, "Your password is a common password.  Try making it harder to guess."
-			}
-			if password.Score < 2 {
-				return false, "Your password is too simple.  Try adding lower and uppercase characters, numbers, and/or special characters."
-			}
-			return true, ""
-		})
+	if flags.requirePassword {
+		form.field(kPassword).addFnValidator(
+			func(pw string) (bool, string) {
+				password := MakePassword(pw)
+				password.ProcessPassword()
+				if password.CommonPassword {
+					return false, "Your password is a common password.  Try making it harder to guess."
+				}
+				if password.Score < 2 {
+					return false, "Your password is too simple.  Try adding lower and uppercase characters, numbers, and/or special characters."
+				}
+				return true, ""
+			})
+	}
 
 	form.field(kUsername).addFnValidator(
 		func(username string) (bool, string) {
@@ -190,7 +218,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		})
 
 	if r.Method == "POST" && form.validateData(r) { // Handle POST, with valid data...
-		if form.val(kPassword) != form.val(kConfirmPassword) { // Check for mismatched passwords
+		if flags.requirePassword &&
+				form.val(kPassword) != form.val(kConfirmPassword) { // Check for mismatched passwords
 			pr("Passwords don't match")
 			form.setFieldError(kConfirmPassword, "Passwords don't match")
 		} else if DbExists("SELECT * FROM $$User WHERE Email = $1;", form.val(kEmail)) {       // Check for duplicate email
@@ -201,7 +230,10 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 			form.setFieldError(kUsername, "That username is taken... try another one.  Or, have you registered already?")
 		} else {
 			// Use a hashed password for security.
-			passwordHashInts := GetPasswordHash256(form.val(kPassword))
+			passwordHashInts := int256{}
+			if flags.requirePassword {
+				passwordHashInts = GetPasswordHash256(form.val(kPassword))
+			}
 
 			// Add new user to the database
 			prf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])

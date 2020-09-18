@@ -45,9 +45,9 @@
 			if (numOptions > 1024) // Max number of options allowed
 				return;
 
-			// Add a new option, after all the other options.
+			// Add a new option, after all the other options.  (Make sure malength = kMaxPollLength from create.go.)
 			$(`input[name ="option${numOptions-1}"]`).after(
-				`<input type="text" name="option${numOptions}" value="" placeholder="add option..." length="50" class="nuField">`
+				`<input type="text" name="option${numOptions}" value="" placeholder="add option..." length="50" maxlength="100" class="nuField">`
 			);
 		}
 	</script>

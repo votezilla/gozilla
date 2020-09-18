@@ -236,12 +236,17 @@ func prf(format string, args... interface{}) {
 	log.Printf(format, args...)
 }
 
+// TODO: change prVal to prv
 func prVal(label string, v interface{}) {
 	log.Printf("%s: %#v", label, v)
 }
 
-func prValX(label string, v interface{}) {
+func prx(label string, v interface{}) {
 	log.Printf("%s: %x", label, v)
+}
+
+func prp(label string, v interface{}) {
+	log.Printf("%s: %p", label, v)
 }
 
 
@@ -349,16 +354,6 @@ func parseUrlParam(r *http.Request, name string) string {
 	} else {
 		return values[0]
 	}
-}
-
-func testPopupHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
-
-	pr("testPopupHandler")
-
-	userId, username := GetSessionInfo(w, r)
-
-	executeTemplate(w, kTestPopup, makeFrameArgs(r, "Test popup", "", "testPopup", userId, username))
 }
 
 // Tutorial popup

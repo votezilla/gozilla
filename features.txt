@@ -327,3 +327,11 @@ A - 8 - Add num notifications javascript on 1 minute timer that asks how many no
 	Also, add more notifications
 
 C 5 - why you voted comment
+
+8/31
+A - 5 - GORDON & SUSAN: switch Sign Up and Create New Account, move Sign Up, to make simpler for new users.
+
+A - 5 - GORDON: don't make /registerDetails stuff mandatory
+
+9/3:
+A - 13 - Implemented demographic breakdown (available when 5+ or 10+ votes)

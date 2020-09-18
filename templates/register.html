@@ -10,9 +10,12 @@
 		<p class="nuFieldSubtext" style="margin: 0px;">
 			Pick a Username - i.e. RedHerring65.  Pick something cool and anonymous.</p>
 
-		{{ template "toggleablePassword" $f.password -}}
-
-		{{ template "field" $f.confirmPassword -}}
+		{{ if $f.password }}
+			{{ template "toggleablePassword" $f.password -}}
+		{{ end }}
+		{{ if $f.confirmPassword }}
+			{{ template "field" $f.confirmPassword -}}
+		{{ end }}
 
 		<p>
 

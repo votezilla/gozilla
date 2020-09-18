@@ -4,7 +4,9 @@
 		{{ $f := .Form.FieldMap }}
 		{{ template "field" $f.emailOrUsername -}}
 
-		{{ template "toggleablePassword" $f.password }}
+		{{ if $f.password }}
+			{{ template "toggleablePassword" $f.password }}
+		{{ end }}
 
 		<p>
 		<div>
@@ -15,6 +17,10 @@
 		<br>
 	{{ template "endForm" }}
 
+	<div class="nuFooter" style="font-size: 17px;">
+		Want to create an sign up?
+		<a href="/register" class="storylink" rel="nofollow" style="color:blue;">SIGN UP</a>
+	</div>
 
 <!--	TODO: add 'Forgot Password?' here.
 	<div class="nuFooter">
@@ -24,8 +30,9 @@
 -->
 	<br>
 
-
-	{{ template "toggleablePasswordScript" }}
+	{{ if $f.password }}
+		{{ template "toggleablePasswordScript" }}
+	{{ end }}
 {{end}}
 
 

@@ -207,6 +207,13 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 				FROM $$PostVote
 				WHERE PostId IN (SELECT Id FROM posts)
 				GROUP BY PostId
+			 ),
+			 pollVotes AS (
+				SELECT PollId,
+					   COUNT(*) AS VoteTally
+				FROM $$PollVote
+				WHERE PollId IN (SELECT Id FROM posts WHERE Source = 'P')
+				GROUP BY PollId
 			 )
 		SELECT posts.*,
 			COALESCE(votes.VoteTally, 0) AS VoteTally,
@@ -214,11 +221,13 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 				interval '24 hours' *
 				(
 					3 * COALESCE(votes.VoteTally, 0) +
+					3 * COALESCE(pollVotes.VoteTally, 0) +
 					0.5 * posts.NumComments +
 					5 * (%s)
 				) AS OrderBy
 		FROM posts
 		LEFT JOIN votes ON posts.Id = votes.PostId
+		LEFT JOIN pollVotes ON posts.Id = pollVotes.PollId
 		ORDER BY OrderBy DESC`,
 		query,
 		ternary_str(qp.bRandomizeTime, "RANDOM()", "0"))
@@ -473,7 +482,9 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 
 			// If this poll has already been voted on...
 			if len(pollTallyResultsJson) > 0 {
-				check(json.Unmarshal([]byte(pollTallyResultsJson), &newArticle.PollTallyResults))
+				check(json.Unmarshal([]byte(pollTallyResultsJson), &newArticle.PollTallyInfo.Stats))
+
+				newArticle.PollTallyInfo.SetArticle(&newArticle)
 
 				// Force AnyoneCanAddOptions to be true, otherwise ppl make closed polls that don't get everyone's opinion.
 				newArticle.PollOptionData.AnyoneCanAddOptions = true

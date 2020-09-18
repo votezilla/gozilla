@@ -5,7 +5,6 @@ import (
 	"fmt"
     "net"
 	"net/http"
-    //"time"
 
 	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
 	//       ttemplate does not, is not currently used and should not be used, but could be used for rendering HTML if absolutely necessary.
@@ -32,7 +31,6 @@ const (
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
 	kLogin = "login"
-	kLoginRegister = "loginRegister"
 	kLoginSignup = "loginSignup"
 	kNews = "news"
 	kNewsSources = "newsSources"
@@ -40,7 +38,6 @@ const (
 	kNuFormPopup = "nuFormPopup"
 	kRegister = "register"
 	kRegisterDetails = "registerDetails"
-	kTestPopup = "testPopup"
 	kTutorial = "tutorial"
 	kViewPollResults = "viewPollResults"
 )
@@ -233,16 +230,14 @@ func parseTemplateFiles() {
 	hDefineTemplate(kCreateLink, 	"base", "narrow", "minFrame", "nuField", "createLink")
 	hDefineTemplate(kCreatePoll, 	"base", "narrowWithSidebar", "minFrame", "nuField", "createPoll")
 
-	hDefineTemplate(kLogin,			  "base", "narrow", "minFrame", "nuField", "login")
-	hDefineTemplate(kLoginRegister,	  "base", "narrow", "minFrame", "nuField", "loginRegister")
-	hDefineTemplate(kLoginSignup,  	  "base", "narrow", "minFrame", "nuField", "loginSignup")
-	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")
-	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")
+	hDefineTemplate(kLogin,			  "base", "narrow", "minFrame", "nuField", "login")				// Log in
+	hDefineTemplate(kLoginSignup,  	  "base", "narrow", "minFrame", "nuField", "loginSignup")		// Option to Log in or Sign up
+	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")			// Sign up
+	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")	// Sign up II: Demographics
 
 	hDefineTemplate(kViewPollResults,	"base", "wide", "frame", "sidebar", "viewPollResults", "comments")
 
 	// Pop-ups:
-	hDefineTemplate(kTestPopup, 		"testPopup")
 	hDefineTemplate(kTutorial, 			"tutorial")
 
 	// Javascript snippets
@@ -305,12 +300,10 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/ip/",             			hwrap(ipHandler))
 	mux.HandleFunc("/login/",          			hwrap(loginHandler))
 	mux.HandleFunc("/loginSignup/",          	hwrap(loginSignupHandler))
-	mux.HandleFunc("/loginRegister/",       	hwrap(loginRegisterHandler))
 	mux.HandleFunc("/logout/",         			hwrap(logoutHandler))
 	mux.HandleFunc("/news/",           			hwrap(newsHandler))
 	mux.HandleFunc("/register/",       			hwrap(registerHandler))
 	mux.HandleFunc("/registerDetails/",			hwrap(registerDetailsHandler))
-	mux.HandleFunc("/testPopup/"	,   		hwrap(testPopupHandler))
 	mux.HandleFunc("/tutorial/"	,   			hwrap(tutorialHandler))
 	mux.HandleFunc("/updatePassword/", 			hwrap(updatePasswordHandler))
 	mux.HandleFunc("/viewPollResults/",			hwrap(viewPollResultsHandler))

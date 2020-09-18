@@ -89,9 +89,10 @@
 				</label>
 			{{ end }}
 
+			{{/*(Make sure maxlength = kMaxPollLength from create.go.)*/}}
 			  <input id="vote_NewOption${numNewOptions}" type="text" class="nuField"
 			  		 name="vote_NewOption${numNewOptions}"
-					 value="" size="30" maxlength="50"
+					 value="" size="50" maxlength="100"
 					 placeholder="New option"
 					 style="width: 60%; margin: 4px 4px 4px 0;"><br>
 		`);
