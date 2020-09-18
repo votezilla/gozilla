@@ -356,16 +356,6 @@ func parseUrlParam(r *http.Request, name string) string {
 	}
 }
 
-func testPopupHandler(w http.ResponseWriter, r *http.Request) {
-	RefreshSession(w, r)
-
-	pr("testPopupHandler")
-
-	userId, username := GetSessionInfo(w, r)
-
-	executeTemplate(w, kTestPopup, makeFrameArgs(r, "Test popup", "", "testPopup", userId, username))
-}
-
 // Tutorial popup
 func tutorialHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)

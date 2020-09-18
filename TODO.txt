@@ -1,33 +1,34 @@
 PUSH & TEST ON SERVER:
+A - 8 - ranked vote - show runoff communication.
+A - 3 - only allow voting breakdowns when >5 votes or rankedvote, appropritately.
 
  HAVE SUSAN TEST:
 B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
 
 JUST FIXED:
-A - 8 - ranked vote - show runoff.
-A - 3 - only allow voting breakdowns when >5 votes or rankedvote, appropritately.
 
 WORKING ON:
 
+A - 5 - find a way to remove password requirement, just email
+	Remove password requirement for now, from log in and sign up pages.  Remove with a disabled flag, so it can be reenabled later.
+
+
+
 A - 5 - Prioritize polls with more votes.  But less if you've already voted on it.
 
-(Start filtering / fixing polls.)
-
-- find a way to remove password requirement, just email
-
-- poll option length is too short to write anything meaningful.  Poll results also need to be able to show longer text
+A - 5 - poll option length is too short to write anything meaningful.  Poll results also need to be able to show longer text
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
 
 
 
-POLLS:
-
 Importance
 v
   Difficulty
   v
+
+(Start filtering / fixing polls.)
 
 A - 8 - Separate news from polls, news into its own tab, move /about into part of /history.
 
