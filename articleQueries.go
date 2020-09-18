@@ -221,7 +221,7 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 				interval '24 hours' *
 				(
 					3 * COALESCE(votes.VoteTally, 0) +
-					3 * COALESCE(pollVotes.VoteTally, 0) +
+					5 * COALESCE(pollVotes.VoteTally, 0) +
 					0.5 * posts.NumComments +
 					5 * (%s)
 				) AS OrderBy
