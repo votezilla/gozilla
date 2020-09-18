@@ -7,11 +7,11 @@ B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/que
 
 JUST FIXED:
 
-WORKING ON:
-
 A - 5 - find a way to remove password requirement, just email
 	Remove password requirement for now, from log in and sign up pages.  Remove with a disabled flag, so it can be reenabled later.
 
+
+WORKING ON:
 
 
 A - 5 - Prioritize polls with more votes.  But less if you've already voted on it.

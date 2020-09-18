@@ -983,14 +983,14 @@ $(function () {
 				{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
 				<tr>
 					{{ if or (lt $article.LongestItem 20) (eq $article.Size 2) }}
-						<td style="min-width: 30%; max-width: 50%;
+						<td style="min-width: 40%; max-width: 70%;
 								   word-break: break-word;
 								   -ms-word-break: break-all;
 								   vertical-align: top;">
-							{{(call $article.Ellipsify $option 42)}}
+							{{ $option }} {{/*(call $article.Ellipsify $option 42)*/}}
 						</td>
-						<td width=10% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
-						<td width=30% nowrap>
+						<td width=5% align=right style="padding-right: 5px;">{{(index $pollTallyResults $o).Count}}</td>
+						<td width=35% nowrap>
 							<div class="w3-border" style="position:relative">
 								<div class="w3-grey" style="height:24px; width:{{$percentage}}"></div>
 							</div>
@@ -1002,7 +1002,7 @@ $(function () {
 								   word-break: break-word;
 								   -ms-word-break: break-all;
 								   vertical-align: top;">
-							{{(call $article.Ellipsify $option 42)}}
+							{{ $option }} {{/*(call $article.Ellipsify $option 42)*/}}
 						</td>
 						<td width=5% style="padding-left: 5px; padding-right: 5px;">{{$percentage}}</td>
 						<td width=5%>{{ if (index $article.VoteData $o) }}<img width=24 height=24 src="/static/reddit checkbox.png">{{ end }}</td>
