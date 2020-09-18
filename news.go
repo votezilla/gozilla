@@ -465,7 +465,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// vv WORKS! - TODO_OPT: fix so poll don't require an extra db query
 
-	if reqCategory == "" { // /news
+	if reqCategory == "" || reqCategory == "polls" { // /news or /polls
 		startTimer("formatPolls")
 
 		// Reformat the polls to have 6 visible, with no headlines.  (Polls with headlines waste a lot of space.)
