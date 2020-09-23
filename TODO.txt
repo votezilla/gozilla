@@ -15,8 +15,10 @@ JUST FIXED:
 WORKING ON:
 
 
+B 2 - Condense demographic ages: <=17, 18-41, 42-63, 64+
+                                 <=17, 18-35, 36-53, 54+
 
-
+B 3 - Fixed an elimination bug
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
 
@@ -42,6 +44,9 @@ A 21  =   Fix email - Emailed DO tech support.
 A - 8 - Continue getting feedback from close peeps!!
 	(Start with SUSAN, DAD!!!,
 		Jim, 1 or 2 at a time until more bugs are fixed!)
+
+B - 3 - Ranked voting - add printing of # of votes for each ranking order.
+        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
 B - Messages / marketing - try playing up the direct democracy angle a little.
 
@@ -105,8 +110,6 @@ B 8 - implement really simple blogging, using markup (no quill)
 B 8 - create - add Create Discussion (requires image upload, or use Mozilla for now) (TOM)
 
 B 8 - ability to update posts, comments
-
-A 8 - upgrade DigitalOcean instance $5 -> $10
 
 B 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
 

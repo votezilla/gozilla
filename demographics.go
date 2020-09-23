@@ -297,16 +297,13 @@ var (
 		{"ZW", "Zimbabwe"},
 	}
 
-	// Voting demographics
+	// Voting demographics.  TODO: update "Min and max age ranges" in voting.go.
 	ageRanges = OptionData{
 		{"0", "Under 18"},
-		{"1", "18-25"},
-		{"2", "24-33"},
-		{"3", "34-41"},
-		{"4", "42-49"},
-		{"5", "50-57"},
-		{"6", "58-64"},
-		{"7", "65+"},
+		{"1", "18-33"},
+		{"2", "34-49"},
+		{"3", "50-65"},
+		{"4", "Over 65"},
 	}
 	countryRanges = OptionData{
 		{"US", "United States"},

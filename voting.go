@@ -258,6 +258,8 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	}
 	check(rows.Err())
 
+	// TODO: sort, return, and display userRankedVotes - # of each ranking.
+
 	// Do the ranked voting algorithm.
 	eliminatedVoteOptions := make([]int64, 0)
 	round := 1
@@ -366,7 +368,8 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		pr("************************************************************************")
 		if viewRankedVoteRunoff {
 			var pollTallyInfo PollTallyInfo
-			pollTallyInfo.Stats = pollTallyResults
+			pollTallyInfo.Stats = make(PollTallyResults, len(pollTallyResults))
+			copy(pollTallyInfo.Stats, pollTallyResults)
 			pollTallyInfo.Header = "Ranked Vote Runoff - Pass " + int_to_str(round)
 			pollTallyInfo.Footer = message
 
@@ -378,10 +381,20 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 				}
 			}
 
+			pr("Check 2")
+			for option, _ := range pollTallyInfo.Stats {
+				if pollTallyInfo.Stats[option].Skip {
+					prVal("  SKIPPING OPTION", option)
+				}
+			}
+
 			extraTallyInfo = append(extraTallyInfo, pollTallyInfo)
 
-			prVal("  Appending pollTallyResults", pollTallyResults)
-			prVal("    Now extraTallyInfo", extraTallyInfo)
+			prVal("  Appending pollTallyInfo", pollTallyInfo)
+			pr("    Now extraTallyInfo =")
+			for x, _ := range extraTallyInfo {
+				prf("      extraTallyInfo[%d]=%#v", x, extraTallyInfo[x])
+			}
 		}
 
 		if done {
@@ -389,6 +402,17 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		}
 
 		round++
+	}
+
+	pr("Check 3")
+	for x, _ := range extraTallyInfo {
+		for option, _ := range extraTallyInfo[x].Stats {
+			if extraTallyInfo[x].Stats[option].Skip {
+				prVal("  SKIPPING OPTION", option)
+			} else {
+				prVal("  Count is ", extraTallyInfo[x].Stats[option].Count)
+			}
+		}
 	}
 
 	return pollTallyResults, extraTallyInfo
@@ -473,6 +497,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	article.PollTallyInfo.SetArticle(&article)
 
 	// Tally the demographic vote stats
+	prVal("XXX viewDemographics", viewDemographics)
 	if viewDemographics {
 		pr("viewDemographics")
 
@@ -495,15 +520,13 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 				prVal("option[0]", option[0])
 
+				// Min and max age ranges - TODO: update data in ageRanges in demographics.go.
 				switch option[0][0] {
 					case '0': minAge =  0; maxAge = 17; break
-					case '1': minAge = 18; maxAge = 25; break
-					case '2': minAge = 24; maxAge = 33; break
-					case '3': minAge = 34; maxAge = 41; break
-					case '4': minAge = 42; maxAge = 49; break
-					case '5': minAge = 50; maxAge = 57; break
-					case '6': minAge = 58; maxAge = 64; break
-					case '7': minAge = 65; maxAge = 999999; break
+					case '1': minAge = 18; maxAge = 33; break
+					case '2': minAge = 34; maxAge = 49; break
+					case '3': minAge = 50; maxAge = 65; break
+					case '4': minAge = 66; maxAge = 99999; break
 					default: otherCase = true
 				}
 
