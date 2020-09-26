@@ -282,7 +282,7 @@ func (f *fileServer_Cached) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func SetupWebHandlers() *http.ServeMux {
 	mux := &http.ServeMux{}
 
-	mux.HandleFunc("/",                			hwrap(pollsHandler))
+	mux.HandleFunc("/",                			hwrap(newsHandler))
 	mux.HandleFunc("/ajaxCreateComment/",		hwrap(ajaxCreateComment))
 	mux.HandleFunc("/ajaxCheckForNotifications/",hwrap(ajaxCheckForNotifications))
 	mux.HandleFunc("/ajaxExpandComment/",		hwrap(ajaxExpandComment))
