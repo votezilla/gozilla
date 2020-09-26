@@ -13,7 +13,11 @@ B 3 - Fixed an elimination bug
 B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
 
 JUST FIXED:
-
+A - uncache news + polls, see if it fixes the server issue
+A - 8 - Tried separating news from polls, news into its own tab, move /about into part of /history.
+      - Didn't look good.  But now at least there's a flag that I can turn it on with.
+B+ 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
+- deprioritize posts you've interacted w
 
 
 
@@ -31,15 +35,12 @@ v
 
 (Start filtering / fixing polls.)
 
-A - uncache news + polls, see if it fixes the server issue
 
-A - 8 - Separate news from polls, news into its own tab, move /about into part of /history.
+
 
 A 21  =   Fix email - Emailed DO tech support.
 
-  -   Implement Email verification.  (set emailVerified=True when email is verified.)
-
-  -   Implement Forgot password.
+A - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
 
   -   Remember previous page or close form upon success, and/or back tri buttons.
 
@@ -64,7 +65,6 @@ B - 5 - Add more activities notifications (for now, a notification for every vot
 B - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
 			https://developers.facebook.com/docs/facebook-login/web
 
-B+ 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
 
 B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.  (See latest notes in phone for update to this via button on bottom of page.)
 
@@ -74,13 +74,9 @@ Notifications:
 
 	B - 3 - play alert sound for notification	https://stackoverflow.com/questions/21815323/have-sound-play-when-alert-is-triggered
 
+B - new type of poll - numeric -> budget percentage - Gordon's idea.
 
-- make bus cards
-
-- simple FB campaign - presidential poll, create FB group, IM some ppl.
-- email friends & family.
-- create some good polls first
-- social idea: $100 to whichever presidential candidate wins the poll
+- C - polls query could depriortize those that have been voted on slightly?
 
 
 B - numeric polls (On a scale of 1 to 10, or budget %, etc.)
@@ -120,6 +116,29 @@ B 8 - Add "About" section - or implement simple blog first?
 B   - disallow multiple poll items with the same name
 
 B - "You must be logged in to do that!" - should be popup with kind, pretty prompt
+
+
+
+PROMOTION:
+- make bus cards
+- simple FB campaign - presidential poll, create FB group, IM some ppl.
+- email friends & family.
+- create some good polls first
+- social idea: $100 to whichever presidential candidate wins the poll
+- poll for Votezilla mottos ppl like, then cr bus cards
+- kp adding n polls
+- read in other format vote in, then copy votes to ranked president vote
+- calcRankedVotes to allow polls to be converted to ranked voting later by me :)
+- prioritize news posts with more comments
+Featured poll, addl polls
+- A - simplify pw requirement (sql query 1st to see how much ppl struggle when trying to create account and log in)
+- B - move up arrow to right slightly
+- B - FB login
+- C 8 - menu buttons sticky to top of screen
+- C 3 - store lastVisited global per userId, on first visit to news issue ajaxCheckForNotifications right away w/ -1, on server if < 0 use lastVisited
+- D order choices by voteOrder, saved  into PollPost
+- abs popup lower left - X new news articls, or text of news ou t6y7y565 St tty i 4t t6post / poll
+- type of poll -> radio (w each option still having explanation subtext).
 
 
 C 13 - Add more news API's (hopefully some incl. Fox News).  (TOM: seeing mostly liberal news sources.)
@@ -488,7 +507,9 @@ POSTPONED FEATURES:
 
 - Separate count for up / down votes?
 
+-   Implement Email verification.  (set emailVerified=True when email is verified.)
 
+-   Implement Forgot password.
 
 
 
