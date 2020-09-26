@@ -344,3 +344,4 @@ A - 8 - Tried separating news from polls, news into its own tab, move /about int
       - Didn't look good.  But now at least there's a flag that I can turn it on with.
 B+ 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
 - deprioritize posts you've interacted w
+A - 5 - Added more spacing between articles.
