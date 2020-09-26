@@ -30,6 +30,8 @@ var (
 		domain					string
 		cachingService			string		// Whether to be the caching service.
 		requirePassword			bool		// Whether to require passwords for logging in.
+		checkForNotifications	bool		// Whether to do ajaxCheckForNotifications
+		separateNewsAndPolls	bool		// Whether to separate news and polls in separate tabs
 	}
 )
 
@@ -63,6 +65,8 @@ func parseCommandLineFlags() {
 	flag.BoolVar(&flags.skipWhitelist, 		 "skipWhitelist", false, "skip reading the whitelist, which is slow")
 	flag.StringVar(&flags.domain, "domain", "", "domain name to request your certificate")
 	flag.BoolVar(&flags.requirePassword, 	"requirePassword", false, "Whether to require passwords for logging in.")
+	flag.BoolVar(&flags.checkForNotifications, "checkForNotifications", true, "Whether to do ajaxCheckForNotifications.")
+	flag.BoolVar(&flags.separateNewsAndPolls, "separateNewsAndPolls", false, "Whether to separate news and polls in separate tabs.")
 
 	prVal("Command Line Args", os.Args)
 

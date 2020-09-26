@@ -5,6 +5,9 @@ A - 5 - find a way to remove password requirement, just email
 	Remove password requirement for now, from log in and sign up pages.  Remove with a disabled flag, so it can be reenabled later.
 A - 5 - poll option length is too short to write anything meaningful.  Poll results also need to be able to show longer text
 A - 5 - Prioritize polls with more votes.  But less if you've already voted on it.
+B 2 - Condense demographic ages: <=17, 18-41, 42-63, 64+
+                                 <=17, 18-35, 36-53, 54+
+B 3 - Fixed an elimination bug
 
  HAVE SUSAN TEST:
 B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
@@ -12,13 +15,10 @@ B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/que
 JUST FIXED:
 
 
+
+
 WORKING ON:
 
-
-B 2 - Condense demographic ages: <=17, 18-41, 42-63, 64+
-                                 <=17, 18-35, 36-53, 54+
-
-B 3 - Fixed an elimination bug
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
 
@@ -30,6 +30,8 @@ v
   v
 
 (Start filtering / fixing polls.)
+
+A - uncache news + polls, see if it fixes the server issue
 
 A - 8 - Separate news from polls, news into its own tab, move /about into part of /history.
 
@@ -236,6 +238,29 @@ D - TOM: Add Votezilla to search engines.  (He tried to search for votezilla.io 
 ~ - "I don't like questions that require an expert answer." (about quantum physics, self-driving polls) (TOM)
 
 ~ - on poll, wondered if he could press ENTER instead of clicking on the Vote button.   (TOM)
+
+GORDON FEEDBACK:
+Regarding your feedback:
+* I need to rework the whole “Welcome to Votezilla” part of the sign-in process.  Probably, it (and the rest of registration) should work like this:
+  - If the user is not logged in when they try to vote or do something, there should be an in-page pop-up prompting them to log in or register.
+  - During registration, I should maybe put off asking them for the demographic stuff, to not lose people.  Of course, I also don't want to lose that data.
+  - After logging in or signing up, it should take them to the page or action they were going to do before they signed up / logged in.  There should also be an in-page pop-up prompt, with some tutorial links for how to do stuff.
+* Re: voting and hitting the back button, discrepancies in # votes (2 of your issues):
+ - The main page is currently being cached, as an optimization.  Saves about a half second of load time.  This probably results in the number of votes being off.
+   -- I'm going to remove this optimization, for a couple reasons:
+     1. It might be causing an issue on the server where the whole site goes down and I have to restart the server.
+     2. It causes temporary discrepancies in number of votes, like the one you shared with me.  (Thanks for sharing it, cause it's the type of thing I wasn't sure if people would notice.)
+     3. I'm planning on splitting Polls vs News into their own tabs anyways, since people seem to interact more with polls.
+* Re: the polls feeling cluttered:
+ - I've heard similar feedback from others.  Can you describe what feels cluttered?  Do you have any ideas how to fix the clutter?
+ - So I think some of the issue here is I was basing the poll layout on the layout I've been using for news, since I implemented the news first.
+ - However, what I should consider doing is removing completely or shrinking the poll image, then using the extra space to give the poll options more width.
+ - I've also seen some polling websites put a rectangle around each poll option, which you can click on.
+ - Does anything else about polls feel cluttered, or are there any tweaks you think I should consider?
+* Re: paywalls
+ - Yes, I need to remove the paywall news sources.
+* Re: your comments not displaying on activity feed:
+ - It doesn't show your own activity, but the activity of others.  To see your own activity, click on the dino icon on the upper-right that has your username.
 
 
 

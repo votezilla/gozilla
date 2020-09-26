@@ -27,6 +27,7 @@ type ArticleQueryParams struct {
 	maxArticles				int
 	fetchVotesForUserId		int64
 	onlyPolls				bool
+	noPolls					bool
 	bRandomizeTime			bool
 	addSemicolon			bool
 	withinElapsedMilliseconds	int
@@ -63,7 +64,7 @@ func defaultArticleQueryParams() (qp ArticleQueryParams) {
 	return
 }
 
-func (qp ArticleQueryParams) Print() {
+func (qp ArticleQueryParams) print() {
 	prVal("idCondition", qp.idCondition)
 	prVal("userIdCondition", qp.userIdCondition)
 	prVal("categoryCondition", qp.categoryCondition)
@@ -72,12 +73,13 @@ func (qp ArticleQueryParams) Print() {
 	prVal("maxArticles", qp.maxArticles)
 	prVal("fetchVotesForUserId", qp.fetchVotesForUserId)
 	prVal("onlyPolls", qp.onlyPolls)
+	prVal("noPolls", qp.noPolls)
 	prVal("bRandomizeTime", qp.bRandomizeTime)
 	prVal("createMaterializedView", qp.createMaterializedView)
 	prVal("useMaterializedView", qp.useMaterializedView)
 }
 
-func (qp ArticleQueryParams) Validate() {
+func (qp ArticleQueryParams) validate() {
 	assertMsg(!(qp.createMaterializedView && qp.useMaterializedView),
 		"Cannot create and user the materialized view at the same time.")
 
@@ -92,8 +94,9 @@ func (qp ArticleQueryParams) Validate() {
 	   qp.newsSourceIdCondition == "IS NOT NULL" &&
 	   qp.articlesPerCategory   == (kRowsPerCategory + 1) &&
 	   qp.maxArticles 			== kMaxArticles &&
-	   qp.onlyPolls			    == false
-	assertMsg(iff(qp.createMaterializedView || qp.useMaterializedView, bMaterializable),
+	   qp.onlyPolls			    == false &&
+	   qp.noPolls			    == false
+	assertMsg(ifthen(qp.createMaterializedView || qp.useMaterializedView, bMaterializable),
 		`Can only create or user a materialized query if settings are correct,
 		 and if settings are correct, the query should be materialized.`)
 }
@@ -188,12 +191,14 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 
 	// TODO: Optimize queries so we only create strings that we will actually use.
 	query := ""
-	if qp.userIdCondition != "IS NOT NULL" {  // Looking up posts that target a user - so there can be no news posts.
+	if qp.onlyPolls {
+		query = pollPostQuery
+	} else if qp.userIdCondition != "IS NOT NULL" {  // Looking up posts that target a user - so there can be no news posts.
 		query = strings.Join([]string{linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	} else if qp.newsSourceIdCondition != "IS NOT NULL" {  // We're just querying news posts.
 		query = newsPostQuery
-	} else if qp.onlyPolls {
-		query = pollPostQuery
+	} else if qp.noPolls {
+		query = strings.Join([]string{newsPostQuery, linkPostQuery}, "\nUNION ALL\n")
 	} else {
 		query = strings.Join([]string{newsPostQuery, linkPostQuery, pollPostQuery}, "\nUNION ALL\n")
 	}
@@ -210,7 +215,8 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 			 ),
 			 pollVotes AS (
 				SELECT PollId,
-					   COUNT(*) AS VoteTally
+					   COUNT(*) AS VoteTally,
+					   SUM(CASE WHEN UserId = (%d) THEN 1 ELSE 0 END) AS MyVotes
 				FROM $$PollVote
 				WHERE PollId IN (SELECT Id FROM posts WHERE Source = 'P')
 				GROUP BY PollId
@@ -220,8 +226,10 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 			posts.PublishedAt +
 				interval '24 hours' *
 				(
-					3 * COALESCE(votes.VoteTally, 0) +
-					5 * COALESCE(pollVotes.VoteTally, 0) +
+					(
+						3 * COALESCE(votes.VoteTally, 0) +
+					 	5 * COALESCE(pollVotes.VoteTally, 0)
+					) * (1 - .5 * COALESCE(pollVotes.MyVotes, 0)) +
 					0.5 * posts.NumComments +
 					5 * (%s)
 				) AS OrderBy
@@ -230,6 +238,7 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 		LEFT JOIN pollVotes ON posts.Id = pollVotes.PollId
 		ORDER BY OrderBy DESC`,
 		query,
+		qp.fetchVotesForUserId,
 		ternary_str(qp.bRandomizeTime, "RANDOM()", "0"))
 
 	if qp.articlesPerCategory > 0 {
@@ -281,6 +290,7 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 	if qp.addSemicolon {
 		query += `;`
 	}
+
 	return query
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -295,8 +305,8 @@ func (qp ArticleQueryParams) createArticleQuery() string {
 	startTimer("createArticleQuery")
 
 	pr("createArticleQuery")
-	qp.Print()
-	qp.Validate()
+	qp.print()
+	qp.validate()
 
 	query := ""
 	if qp.createMaterializedView {
@@ -354,6 +364,8 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 	pr("queryArticles")
 
 	query := qp.createArticleQuery()
+
+	qp.print()
 
 	rows := DbQuery(query)
 
@@ -651,13 +663,14 @@ func fetchArticles(articlesPerCategory int, userId int64, maxArticles int) ([]Ar
 //   partitioned by category, up to articlesPerCategory articles per category, up to maxArticles total.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchNews(articlesPerCategory int, userId int64, maxArticles, newsCycle int) ([]Article) {
+func fetchNews(articlesPerCategory int, userId int64, maxArticles, newsCycle int, noPolls bool) ([]Article) {
 	qp := defaultArticleQueryParams()
-	qp.useMaterializedView = true
+	qp.useMaterializedView = false // Not using materialized view, for now. // true
 	qp.articlesPerCategory = articlesPerCategory
 	qp.maxArticles		   = maxArticles
 	qp.fetchVotesForUserId = userId
 	qp.newsCycle		   = newsCycle
+	qp.noPolls			   = noPolls
 	return queryArticles(qp)
 }
 

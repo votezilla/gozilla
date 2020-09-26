@@ -119,22 +119,25 @@ func sortArticles(articles []Article) {
 //
 //////////////////////////////////////////////////////////////////////////////
 func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCategory string, headlines int) ([]ArticleGroup) {
-	//rowsPerCategory := ternary_int(onlyCategory == "", kRowsPerCategory, kMaxArticles)
+	// For viewing polls, pack them together so there is not annoying white space in the middle.
+	rowsPerCategory := ternary_int(onlyCategory == "polls", kMaxArticles / kNumCols, kRowsPerCategory)
 
-	//prVal("formatArticleGroups   onlyCategory", onlyCategory)
+	pr("XXX === formatArticleGroups ===")
 
-	//prVal("len(articles)", len(articles))
+	prVal("len(articles)", len(articles))
 	//for _, article := range articles {
 	//	prVal("article.Category", article.Category)
 	//}
 
 	var categoryOrder []string
-	if onlyCategory != "" {
+	if onlyCategory == "polls" {
+		categoryOrder = []string{"polls"}
+	} else if onlyCategory != "" {
 		//prVal("headlines", headlines)
 		articlesPerCategoryGroup :=
 			switch_int(headlines,
-				kNoHeadlines,		 kRowsPerCategory * kNumCols,
-				kAlternateHeadlines, kRowsPerCategory + 1,
+				kNoHeadlines,		 rowsPerCategory * kNumCols,
+				kAlternateHeadlines, rowsPerCategory + 1,
 				kAllHeadlines, 		 2)
 		//prVal("articlesPerCategoryGroup", articlesPerCategoryGroup)
 
@@ -161,6 +164,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		col := 0
 		filled := false
 
+		prf("for ccc, category := %d, %s", ccc, category)
 
 		// Set category header text and background color.
 		if onlyCategory == "" { // Mixed categories
@@ -186,6 +190,9 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 			currArticle = 0
 		}
 
+		prVal("  onlyCategory", onlyCategory)
+		prVal("  currArticle", currArticle)
+
 		// TODO: if a single category, with headlines, either large image should be set to always
 		// 4 article height, or all articles should stack verticlally in each column.
 		// (I prefer the second idea, because it might look nicer.)
@@ -204,7 +211,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 				if row == 0 {
 					// Allocate a new column of categories
 					articleGroups[cat].Articles = append(articleGroups[cat].Articles,
-														 make([]Article, kRowsPerCategory))
+														 make([]Article, rowsPerCategory))
 				}
 
 				// The first article is always the headline.  Articles after the headline get skipped.
@@ -243,7 +250,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 					col = 0
 					row++
 
-					if row == kRowsPerCategory {
+					if row == rowsPerCategory {
 						filled = true
 						break
 					}
@@ -256,7 +263,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 			if row == 0 {
 				// Make room for new row
 				articleGroups[cat].Articles = append(articleGroups[cat].Articles,
-													 make([]Article, kRowsPerCategory))
+													 make([]Article, rowsPerCategory))
 			}
 
 			articleGroups[cat].Articles[col][row].Size = -1 // -1 means skip the article
@@ -267,7 +274,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 				col = 0
 				row++
 
-				if row == kRowsPerCategory {
+				if row == rowsPerCategory {
 					filled = true
 					break
 				}
@@ -397,15 +404,32 @@ func renderNews(w http.ResponseWriter,
 //
 //////////////////////////////////////////////////////////////////////////////
 func newsHandler(w http.ResponseWriter, r *http.Request) {
-	startTimer("newsHandler")
+	pr("newsHandler")
+	prepareNews(w, r, "news", "News", false, flags.separateNewsAndPolls)
+}
+
+func pollsHandler(w http.ResponseWriter, r *http.Request) {
+	pr("pollsHandler")
+
+	assert(flags.separateNewsAndPolls)
+
+	prepareNews(w, r, "polls", "Polls", true, false)
+}
+
+func prepareNews(w http.ResponseWriter, r *http.Request, path, title string, onlyPolls bool, noPolls bool) {
+	startTimer("prepareNews")
 
 	startTimer("A")
 	RefreshSession(w, r)
 
-	pr("newsHandler")
+	pr("prepareNews")
 
 	reqCategory		:= parseUrlParam(r, "category")
 	reqAlert		:= parseUrlParam(r, "alert")
+
+	if onlyPolls {
+		reqCategory = "polls"
+	}
 
 	prVal("reqCategory", reqCategory)
 	prVal("newsCategoryInfo.HeaderColors", newsCategoryInfo.HeaderColors)
@@ -425,7 +449,17 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	startTimer("fetchArticles")
 	var articles []Article
-	if reqCategory == "" { // /news
+	if onlyPolls || reqCategory == "polls" { // /polls
+		pr("  p")
+		// Fetch only polls.
+		articles = fetchPolls(userId, kMaxArticles)
+		prVal("len(articles)", len(articles))
+
+		// Coerce all their categories to "polls"
+		for i := 0; i < len(articles); i++ {
+			articles[i].Category = "polls"
+		}
+	} else if reqCategory == "" { // /news
 		pr("  a")
 
 		// If logged in, cycle between 3 materialized tables; if not logged in, pick one at random.
@@ -442,14 +476,9 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		prVal("newsCycle", newsCycle)
 
 		// Fetch 5 articles from each category
-		articles = fetchNews(kRowsPerCategory + 1, userId, kMaxArticles, newsCycle) // kRowsPerCategory on one side, and 1 headline on the other.
-	} else if reqCategory == "polls" {
-		pr("  b")
-		// Fetch only polls.
-		articles = fetchPolls(userId, kMaxArticles)
-		prVal("len(articles)", len(articles))
+		articles = fetchNews(kRowsPerCategory + 1, userId, kMaxArticles, newsCycle, noPolls) // kRowsPerCategory on one side, and 1 headline on the other.
 	} else {
-		pr("  c")
+		pr("  b")
 		// Fetch articles in requested category
 		articles = fetchArticlesWithinCategory(reqCategory, userId, kMaxArticles)
 	}
@@ -465,8 +494,9 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// vv WORKS! - TODO_OPT: fix so poll don't require an extra db query
 
-	if reqCategory == "" || reqCategory == "polls" { // /news or /polls
+	if (reqCategory == "" || reqCategory == "polls") /*&& !onlyPolls*/ { // /news polls category.  Does not include onlyPolls (/polls) condition.
 		startTimer("formatPolls")
+		pr("XXX FORMAT POLLS")
 
 		// Reformat the polls to have 6 visible, with no headlines.  (Polls with headlines waste a lot of space.)
 		pollArticleGroups := formatArticleGroups(articles, newsCategoryInfo, "polls", kNoHeadlines)
@@ -480,10 +510,10 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	startTimer("renderNews")
-	renderNews(w, r, "News", username, userId, "", articleGroups, "news", kNews, upvotes, downvotes, reqCategory, reqAlert)
+	renderNews(w, r, title, username, userId, "", articleGroups, path, kNews, upvotes, downvotes, reqCategory, reqAlert)
 	endTimer("renderNews")
 
-	endTimer("newsHandler")
+	endTimer("prepareNews")
 }
 
 

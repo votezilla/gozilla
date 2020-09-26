@@ -16,6 +16,11 @@ import (
 //
 ///////////////////////////////////////////////////////////////////////////////
 func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
+	if !flags.checkForNotifications{
+		serveErrorMsg(w, "Flag CheckForNotifications disabled")
+		return
+	}
+
 	pr("ajaxCheckForNotifications")
 	prVal("r.Method", r.Method)
 
@@ -28,7 +33,7 @@ func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in to get notifications.")
-		http.Error(w, "Must be logged in to get notifications.", http.StatusInternalServerError)
+		serveErrorMsg(w, "Must be logged in to get notifications.")
 		return
 	}
 
@@ -41,7 +46,7 @@ func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
     err := json.NewDecoder(r.Body).Decode(&request)
     if err != nil {
 		prVal("Failed to decode json body", r.Body)
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        serveError(w, err)
         return
     }
 
@@ -82,7 +87,7 @@ func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
     // create json response from struct
     a, err := json.Marshal(response)
     if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        serveError(w, err)
         return
     }
     w.Write(a)

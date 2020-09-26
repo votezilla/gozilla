@@ -20,7 +20,7 @@ var (
 	err		 	error
 
 	// NavMenu (constant)
-	navMenu		= []string{"news", "create", "activity", "about", "history" }
+	navMenu		[]string
 )
 
 const (
@@ -282,7 +282,7 @@ func (f *fileServer_Cached) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func SetupWebHandlers() *http.ServeMux {
 	mux := &http.ServeMux{}
 
-	mux.HandleFunc("/",                			hwrap(newsHandler))
+	mux.HandleFunc("/",                			hwrap(pollsHandler))
 	mux.HandleFunc("/ajaxCreateComment/",		hwrap(ajaxCreateComment))
 	mux.HandleFunc("/ajaxCheckForNotifications/",hwrap(ajaxCheckForNotifications))
 	mux.HandleFunc("/ajaxExpandComment/",		hwrap(ajaxExpandComment))
@@ -301,6 +301,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/login/",          			hwrap(loginHandler))
 	mux.HandleFunc("/loginSignup/",          	hwrap(loginSignupHandler))
 	mux.HandleFunc("/logout/",         			hwrap(logoutHandler))
+	mux.HandleFunc("/polls/",           		hwrap(pollsHandler))
 	mux.HandleFunc("/news/",           			hwrap(newsHandler))
 	mux.HandleFunc("/register/",       			hwrap(registerHandler))
 	mux.HandleFunc("/registerDetails/",			hwrap(registerDetailsHandler))
@@ -319,6 +320,11 @@ func SetupWebHandlers() *http.ServeMux {
 }
 
 func WebServer() {
+	if flags.separateNewsAndPolls {
+		navMenu		= []string{"polls", "news", "create", "activity", "history" }
+	} else {
+		navMenu		= []string{"news", "create", "activity", "about", "history" }
+	}
 	InitSecurity()
 	InitNewsSources()
 	InitFirewall()

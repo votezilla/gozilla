@@ -63,6 +63,10 @@ figure {
 		vertical-align: top;
 		display:		block;
 	}
+	.update-polls {
+		top: 			0.5px;
+		right: 			0.5px;
+	}
 	.update-news {
 		top: 			0.5px;
 		right: 			0.5px;
@@ -128,6 +132,10 @@ figure {
 		font-size: 		4vw;
 		width: 			5.5vw;
 		height: 		5.5vw;
+	}
+	.update-polls {
+		top: 			0.14vw;
+		right: 			-1.0vw;
 	}
 	.update-news {
 		top: 			0.14vw;
@@ -241,7 +249,11 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 									{{- end }}
 									style="color: {{- if eq $navItem $.UrlPath}}#0072ff{{else}}black{{end}};">
 									<figure style="text-align: center;">
-										{{- if eq $navItem "news" }}
+										{{- if eq $navItem "polls" }}
+											<i class="fas fa-poll vz-nav-icon">
+												<span class='update update-polls' style='display: none'>0</span>
+											</i>
+										{{- else if eq $navItem "news" }}
 											<i class="far fa-newspaper vz-nav-icon">
 												<span class='update update-news' style='display: none'>0</span>
 											</i>
@@ -264,9 +276,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 											{{- end -}}
 										{{- end }}
 										<figcaption style="size: 4vw;">
-											{{- if eq $navItem "news" }}
-												news /<br>polls
-											{{- else if eq $navItem "activity" }}
+											{{- if eq $navItem "activity" }}
 												updates
 											{{- else if eq $navItem "create" }}
 												share /<br>create
@@ -911,7 +921,10 @@ $(function () {
 		<span style="float: right; vertical-align: text-bottom; padding-right: 5px;">
 			<a href="/article/?postId={{$article.Id}}#commentsTarget"
 			   data-toggle="tooltip" title="Join the discussion!"
-			   style="color: rgb(0, 114, 255);">
+			{{ if not (and $article.IsPoll $article.WeVoted) }}
+			   style="color: rgb(0, 114, 255);"
+			{{ end }}
+			>
 				<i class='far fa-comment'></i>
 				{{ $article.NumComments }}
 				{{ if or (eq $article.Size 1) ($article.IsPoll) }}
@@ -1020,7 +1033,7 @@ $(function () {
 						</td>
 						<td align=right>
 							<label class="vote">
-								<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" style="color: #0072ff; font-size: 18px;">
+								<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" style="/*color: #0072ff;*/ font-size: 18px;">
 									Change your vote?
 								</a>
 							</label>
@@ -1038,7 +1051,7 @@ $(function () {
 				<tr>
 					<td align=right>
 						<label class="vote">
-							<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" style="color: #0072ff; font-size: 18px;">
+							<a href="/article/?postId={{$article.Id}}&changeVote=true#vote" style="/*color: #0072ff;*/ font-size: 18px;">
 								Change your vote?
 							</a>
 						</label>

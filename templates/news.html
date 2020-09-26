@@ -206,38 +206,57 @@
 
 							<table border="0" cellpadding="0" cellspacing="0">
 								<tr valign="top">
-								{{- if not $article.IsPoll -}}
-								   <a href="/article/?postId={{$article.Id}}">
-								{{- end -}}
-									<td
-									  rowspan="2"
-									{{- if not (or $article.IsPoll $article.IsThumbnail) }}
-									  style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;"
-									{{- end }}
-									  data-toggle="tooltip" data-placement="top" title="Join the discussion!">
-										<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer; height: 100%;">
-											<img
-												src="{{$article.UrlToThumbnail}}"
-											  {{- if $article.IsPoll }}
-												width="80"
-											  {{- else if $article.IsThumbnail }}
-												width="160"
-											  {{- else }}
-												width="160"
-												style="visibility: hidden;"
-											  {{- end -}}
-											><!--height="100"-->
-										{{ if $article.IsPoll }}
-											<center><b><span style="font-size:18px;">
-												{{if $article.WeVoted}}&#x2611; RESULTS{{else}}<span style="color:blue">&#x25a2; POLL</span>{{end}}
-											</span></b></center>
-										{{ end }}
-										</a>
-									</td>
-								{{- if not $article.IsPoll -}}
-								  </a>
-								{{- end -}}
+								{{/* if not $article.IsPoll */}}
+									{{- if not $article.IsPoll -}}
+									   <a href="/article/?postId={{$article.Id}}">
+									{{- end -}}
+										<td
+										  rowspan="2"
+										{{- if not (or $article.IsPoll $article.IsThumbnail) }}
+										  style="background-image:url({{$article.UrlToThumbnail}}); background-size:100% 96%; background-repeat: no-repeat; position: relative; top: 0px;"
+										{{- end }}
+										  data-toggle="tooltip" data-placement="top" title="Join the discussion!">
+											<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer; height: 100%;">
+												<img
+													src="{{$article.UrlToThumbnail}}"
+												  {{- if $article.IsPoll }}
+													width="60"
+												  {{- else if $article.IsThumbnail }}
+													width="160"
+												  {{- else }}
+													width="160"
+													style="visibility: hidden;"
+												  {{- end -}}
+												><!--height="100"-->
+											{{ if $article.IsPoll }}
+												<center><div style="line-height: 1">
+													{{if $article.WeVoted}}
+														<div style="font-size:32px;">
+															&#x2611;
+														</div>
+														<div style="font-size:12px;">
+															RESULTS
+														</div>
+													{{else}}
+														<div style="color:blue">
+															<div style="font-size:32px;">
+																&#x25a2;
+															</div>
+															<div style="font-size:12px;">
+																POLL
+															</div>
+														</div>
+													{{end}}
+												</div></center>
+											{{ end }}
+											</a>
+										</td>
+									{{- if not $article.IsPoll -}}
+									  </a>
+									{{- end -}}
+								{{/* end */}}
 									<td style="min-width: 5px;"></td>
+
 									<td class="title">
 										<div class="subtext">
 											{{ template "UserTag" $article }}
@@ -257,9 +276,13 @@
 												  {{end}}
 													max-height: 92px;
 													overflow: hidden;
-													padding-right: 4px;
-													">
-													<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article">
+													padding-right: 4px;">
+													<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article"
+														{{ if and $article.IsPoll (not $article.WeVoted) }}
+														{{/* if $article.IsPoll */}}
+															style="color: #00f !important;"
+														{{end}}
+												  	>
 														{{$article.Title}}
 														{{ if not $article.Host }}
 															<i class="fas fa-external-link-alt" style="font-size: 12px; vertical-align: middle;"></i>
@@ -283,7 +306,13 @@
 								</tr>
 								<tr>
 									<td></td>
-									<td class="subtext" style="width: 100%; font-size: 20px;">
+									<td class="subtext" style="width: 100%;
+									{{ if $article.IsPoll }}
+										font-size: 18px;
+									{{ else }}
+										font-size: 20px;
+									{{ end }}
+									">
 										<table width="100%"><tr>
 											{{ template "PostVoteWidget" $article }}
 											<!--<td align="center" style="width: auto;">
@@ -293,7 +322,11 @@
 										</tr></table>
 									</td>
 								</tr>
-								<tr class="spacer" style="height:5px"></tr>
+							{{ if $article.IsPoll }}
+								<tr class="spacer" style="height:25px"></tr>
+							{{ else }}
+								<tr class="spacer" style="height:10px"></tr>
+							{{ end }}
 							</table>
 						{{ end }} {{/*article size*/}}
 					{{ end }} {{/*{{ if ne $article.Size -1 }}*/}}
