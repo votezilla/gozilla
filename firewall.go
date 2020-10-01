@@ -211,6 +211,14 @@ func CheckAndLogIP(r *http.Request) error {
 	var errorMsg, path, query string
 
 	ip, port, err := net.SplitHostPort(r.RemoteAddr)
+	
+	path  = r.URL.Path
+	query = r.URL.RawQuery	
+
+	if flags.skipFirewall {
+		go logRequest(r, ip, port, path, query, "skipping firewall")
+		return nil // ok request
+	}
 
 	if err != nil {
 		errorMsg = fmt.Sprintf("RemoteAddr: %q is not IP:port.  ", r.RemoteAddr)
@@ -227,9 +235,6 @@ func CheckAndLogIP(r *http.Request) error {
 			errorMsg = "Preventing DOS Attack"
 			recordBadIP(ip)
 		} else {
-			path  = r.URL.Path
-			query = r.URL.RawQuery
-
 			// Block method=POST and path="/"
 			if r.Method == "POST" && path == "/" {
 				errorMsg = "Blocking non-logged-in post from " + ip
@@ -268,6 +273,10 @@ func CheckAndLogIP(r *http.Request) error {
 }
 
 func InitFirewall() {
+	if flags.skipFirewall {
+		return
+	}
+
 	pr("reading blacklist")
 	blacklist = readIPsFile("blacklist.txt")
 	emptyList := IPs(bitarray.NewSparseBitArray())
@@ -283,10 +292,6 @@ func InitFirewall() {
 		}
 		go readWhitelist()
 	}
-
-	// custom tests
-	//testIPs()
-
 	go resetDOSCounters()
 }
 

@@ -663,9 +663,9 @@ func fetchArticles(articlesPerCategory int, userId int64, maxArticles int) ([]Ar
 //   partitioned by category, up to articlesPerCategory articles per category, up to maxArticles total.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchNews(articlesPerCategory int, userId int64, maxArticles, newsCycle int, noPolls bool) ([]Article) {
+func fetchNews(articlesPerCategory int, userId int64, maxArticles, newsCycle int, noPolls, isCacheValid bool) ([]Article) {
 	qp := defaultArticleQueryParams()
-	qp.useMaterializedView = false // Not using materialized view, for now. // true
+	qp.useMaterializedView = isCacheValid
 	qp.articlesPerCategory = articlesPerCategory
 	qp.maxArticles		   = maxArticles
 	qp.fetchVotesForUserId = userId

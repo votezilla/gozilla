@@ -4,6 +4,7 @@ package main
 import (
 	//"bytes"
 	"database/sql"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,6 +18,16 @@ const (
 	kUsername	 = "username"
 	kPassword        = "password"
 	kConfirmPassword = "confirmPassword"
+
+	// String Constants (mirrored in frame.html):
+	// Cookie names:
+	kLoginReturnAddress 	= "loginReturnAddress"
+	kAlertCode          	= "alertCode"
+	// Alert codes:
+	kLoggedIn				= "LoggedIn"
+	kLoggedOut				= "LoggedOut"
+	kWelcomeToVotezilla		= "WelcomeToVotezilla"
+	kInvalidCategory		= "InvalidCategory"
 )
 
 func makeLoginForm() *Form {
@@ -46,34 +57,39 @@ func makeRegisterForm() *Form {
 	return form
 }
 
-/*
-func loginRegisterHandler(w http.ResponseWriter, r *http.Request) {
-	pr("loginRegisterHandler")
 
-	loginForm := makeLoginForm()
-	registerForm := makeRegisterForm()
-
-	executeTemplate(
-		w,
-		kLoginRegister,
-		struct {
-			PageArgs
-			LoginForm		Form
-			RegisterForm	Form
-		} {
-			PageArgs: 		makePageArgs(r, "Log In / Sign Up", "", ""),
-			LoginForm:		*loginForm,
-			RegisterForm:	*registerForm,
-		},
-	)
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // login
 //
 ///////////////////////////////////////////////////////////////////////////////
+func gotoReturnAddress(w http.ResponseWriter, r *http.Request, userId int64, alertCode string) {
+	// Return address (pre-login) was saved as a cookie.  Return the user to that address,
+	// so they can continue what they were doing before logging in.
+	returnAddress := GetAndDecodeCookie(r, kLoginReturnAddress, "/news/")
+
+	prVal("returnAddress", returnAddress)
+
+	// Insert alertCode into url
+	addrParts := strings.Split(returnAddress, "#")
+
+	if !strings.Contains(addrParts[0], "?") {
+		addrParts[0] += "?"
+	} else {
+		addrParts[0] += "&"
+	}
+
+	addrParts[0] += ("alertCode=" + alertCode)
+
+	returnAddress = strings.Join(addrParts, "#")
+
+	prVal("injected returnAddress", returnAddress)
+
+	http.Redirect(w, r, returnAddress, http.StatusSeeOther)
+	return
+}
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	pr("loginHandler")
 
@@ -99,14 +115,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			var rows *sql.Rows
 			// If not reqiring password, only email can be used to log in.
 			// If requiring password, email or username can be used to log in.
+			// Use case-insensitive compares.
 			queryEmail := (isEmail || !flags.requirePassword);
 			if queryEmail {
 				rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " +
-								"FROM $$User WHERE Email = $1;",
+								"FROM $$User WHERE LOWER(Email) = LOWER($1);",
 								emailOrUsername)
 			} else {
 				rows = DbQuery("SELECT Id, PasswordHash[1], PasswordHash[2], PasswordHash[3], PasswordHash[4] " +
-								"FROM $$User WHERE Username = $1;",
+								"FROM $$User WHERE LOWER(Username) = LOWER($1);",
 								emailOrUsername)
 			}
 
@@ -137,12 +154,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 						passwordHash[3] != passwordHashInts[3]) {
 					form.setFieldError(kPassword, "Invalid password.  Forgot password?")
 				} else {
-					CreateSession(w, r, userId)//, true)
+					CreateSession(w, r, userId)
 
-					//bRememberMe = form.boolVal(kRememberMe)
-					//CreateSession(w, r, userId, bRememberMe)
+					gotoReturnAddress(w, r, userId, kLoggedIn)
 
-					http.Redirect(w, r, "/news?alert=LoggedIn", http.StatusSeeOther)
 					return
 				}
 			}
@@ -222,10 +237,10 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 				form.val(kPassword) != form.val(kConfirmPassword) { // Check for mismatched passwords
 			pr("Passwords don't match")
 			form.setFieldError(kConfirmPassword, "Passwords don't match")
-		} else if DbExists("SELECT * FROM $$User WHERE Email = $1;", form.val(kEmail)) {       // Check for duplicate email
+		} else if DbExists("SELECT * FROM $$User WHERE LOWER(Email) = LOWER($1);", form.val(kEmail)) {       // Check for duplicate email
 			pr("That email is taken... have you registered already?")
 			form.setFieldError(kEmail, "That email is taken... have you registered already?")
-        } else if DbExists("SELECT * FROM $$User WHERE Username = $1;", form.val(kUsername)) { // Check for duplicate username
+        } else if DbExists("SELECT * FROM $$User WHERE LOWER(Username) = LOWER($1);", form.val(kUsername)) { // Check for duplicate username
 			pr("That username is taken... try another one.  Or, have you registered already?")
 			form.setFieldError(kUsername, "That username is taken... try another one.  Or, have you registered already?")
 		} else {
@@ -235,23 +250,28 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 				passwordHashInts = GetPasswordHash256(form.val(kPassword))
 			}
 
+			ip, _, err := net.SplitHostPort(r.RemoteAddr)
+			check(err)
+			prVal("ip", ip)
+
 			// Add new user to the database
 			prf("passwordHashInts[0]: %T %#v\n", passwordHashInts[0], passwordHashInts[0])
 			userId := DbInsert(
-				"INSERT INTO $$User(Email, Username, PasswordHash) " +
-				"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint]) returning id;",
+				"INSERT INTO $$User(Email, Username, PasswordHash, Ip) " +
+				"VALUES ($1, $2, ARRAY[$3::bigint, $4::bigint, $5::bigint, $6::bigint], $7) returning id;",
 				form.val(kEmail),
 				form.val(kUsername),
 				passwordHashInts[0],
 				passwordHashInts[1],
 				passwordHashInts[2],
-				passwordHashInts[3])
+				passwordHashInts[3],
+				ip)
 
 			// Send confirmation email
 			sendEmail(BUSINESS_EMAIL, form.val(kEmail), "Account Creation Confirmation", generateConfEmail(form.val(kUsername)))
 
 			// Create session (encrypted userId).
-			CreateSession(w, r, userId)//, form.boolVal(kRememberMe))
+			CreateSession(w, r, userId)
 
 			http.Redirect(w, r, "/registerDetails", http.StatusSeeOther)
 			return
@@ -271,38 +291,38 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 	//RefreshSession(w, r)
 
 	const (
-		kName = "name"
-		kZipCode = "zipCode"
+		//kName = "name"
+		//kZipCode = "zipCode"
 		kBirthYear = "birthYear"
-		kCountry = "country"
+		//kCountry = "country"
 		kGender = "gender"
 		kParty = "party"
 		kRace = "race"
-		kMaritalStatus = "maritalStatus"
+		//kMaritalStatus = "maritalStatus"
 		kSchoolCompleted = "schoolCompleted"
 	)
 
 	// Make sure all fields are skippable, since all this info is optional, and we don't want the login process to frustrate users.
 	form := makeForm(
-		nuTextField(kName, "Enter Full Name", 50, 0, 100, "full name").noSpellCheck(),
-		nuTextField(kZipCode, "Enter Zip Code", 5, 0, 10, "zip code"),
+		//nuTextField(kName, "Enter Full Name", 50, 0, 100, "full name").noSpellCheck(),
+		//nuTextField(kZipCode, "Enter Zip Code", 5, 0, 10, "zip code"),
 		nuTextField(kBirthYear, "Enter Birth Year", 4, 0, 4, "birth year"),
-		nuSelectField(kCountry, "Select Country", countries, true, false, true, true, "Please select your country"),
-		 nuOtherField(kCountry, "Enter Country", 50, 0, 100, "country"),
+		//nuSelectField(kCountry, "Select Country", countries, true, false, true, true, "Please select your country"),
+		// nuOtherField(kCountry, "Enter Country", 50, 0, 100, "country"),
 		nuSelectField(kGender, "Select Gender", genders, true, false, true, true, "Please select your gender"),
 		 nuOtherField(kGender, "Enter Gender", 50, 0, 100, "gender"),
 		nuSelectField(kParty, "Select Party", parties, true, false, true, true, "Please select your party"),
 		 nuOtherField(kParty, "Enter Party", 50, 0, 100, "party"),
 		nuSelectField(kRace, "Select Race", races, true, false, true, true, "Please select your race"),
 		 nuOtherField(kRace, "Enter Race", 50, 0, 100, "race"),
-		nuSelectField(kMaritalStatus, "Select Marital Status", maritalStatuses, true, false, true, true, "Please select your marital status"),
-		 nuOtherField(kMaritalStatus, "Enter Marital Status", 50, 0, 100, "marital status"),
+		//nuSelectField(kMaritalStatus, "Select Marital Status", maritalStatuses, true, false, true, true, "Please select your marital status"),
+		// nuOtherField(kMaritalStatus, "Enter Marital Status", 50, 0, 100, "marital status"),
 		nuSelectField(kSchoolCompleted, "Select Furthest Schooling", schoolDegrees, true, false, true, true, "Please select your furthest schooling"),
 		 nuOtherField(kSchoolCompleted, "Enter Furthest Schooling", 50, 0, 100, "furthest schooling"),
 	)
 
 	//form.field(kName).addRegexValidator(`^[\p{L}]+( [\p{L}]+)+$`, "Enter a valid full name (i.e. 'John Doe').")  // No validation since we are letting them skip fields.
-	form.field(kZipCode).addRegexValidator(`^\d{5}(?:[-\s]\d{4})?$`, "Invalid zip code")  // TODO: different countries have different zip code formats.
+	//form.field(kZipCode).addRegexValidator(`^\d{5}(?:[-\s]\d{4})?$`, "Invalid zip code")  // TODO: different countries have different zip code formats.
 	form.field(kBirthYear).addFnValidator(
 		func(input string) (bool, string) {
 			year, err := strconv.Atoi(input)
@@ -345,34 +365,31 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 			// Update the user record with registration details.
 			DbQuery(
 				`UPDATE $$User
-					SET (Name, Country, Location, BirthYear, Gender, Party, Race, Marital, Schooling,
-					     OtherGender, OtherParty, OtherRace, OtherCountry, OtherMaritalStatus, OtherSchoolCompleted)
-					= ($2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+					SET (BirthYear, Gender, Party, Race, Schooling,
+					     OtherGender, OtherParty, OtherRace, OtherSchoolCompleted)
+					= ($2, $3, $4, $5, $6, $7, $8, $9, $10)
 					WHERE Id = $1::bigint`,
 				userId,
-				form.val(kName),
-				form.val(kCountry),
-				form.val(kZipCode),
+				//form.val(kName),
+				//form.val(kCountry),
+				//form.val(kZipCode),
 				form.intVal(kBirthYear, 0),
 				form.val(kGender),
 				form.val(kParty),
 				form.val(kRace),  // TODO: I think this should multi-select input, with a comma-delimited join of races here.
-				form.val(kMaritalStatus),
+				//form.val(kMaritalStatus),
 				form.val(kSchoolCompleted),
 				form.otherVal(kGender),
 				form.otherVal(kParty),
 				form.otherVal(kRace),
-				form.otherVal(kCountry),
-				form.otherVal(kMaritalStatus),
+				//form.otherVal(kCountry),
+				//form.otherVal(kMaritalStatus),
 				form.otherVal(kSchoolCompleted))
 		} else {
 			pr("Skipping vote info")
 		}
 
-		//serveHTML(w, `<h2>Congrats, you just registered</h2>
-		//			  <script>alert('Congrats, you just registered')</script>`)
-		// TODO: do registration as a pop-up.  Commenting out this for now, as it breaks the UserId cookie:
-		http.Redirect(w, r, "/news?alert=WelcomeToVotezilla", http.StatusSeeOther)
+		gotoReturnAddress(w, r, userId, kWelcomeToVotezilla)
 		return
 	}
 
@@ -419,5 +436,13 @@ func updatePasswordHandler(w http.ResponseWriter, r *http.Request){
 //
 ///////////////////////////////////////////////////////////////////////////////
 func loginSignupHandler(w http.ResponseWriter, r *http.Request){
-	executeTemplate(w, kLoginSignup, makeFormFrameArgs(r, makeForm(), "Login / Signup"))
+	args := struct {
+		PageArgs
+		Reason		string
+	}{
+		PageArgs:	makePageArgs(r, "Login / Signup", "", ""),
+		Reason:		parseUrlParam(r, "reason"),
+	}
+
+	executeTemplate(w, kLoginSignup, args)
 }

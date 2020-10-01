@@ -1,27 +1,31 @@
 PUSH & TEST ON SERVER:
-A - 8 - ranked vote - show runoff communication.
-A - 3 - only allow voting breakdowns when >5 votes or rankedvote, appropritately.
-A - 5 - find a way to remove password requirement, just email
-	Remove password requirement for now, from log in and sign up pages.  Remove with a disabled flag, so it can be reenabled later.
-A - 5 - poll option length is too short to write anything meaningful.  Poll results also need to be able to show longer text
-A - 5 - Prioritize polls with more votes.  But less if you've already voted on it.
-B 2 - Condense demographic ages: <=17, 18-41, 42-63, 64+
-                                 <=17, 18-35, 36-53, 54+
-B 3 - Fixed an elimination bug
+A - 3 - convert email checking to all lowercase!!!
 
- HAVE SUSAN TEST:
-B - MacOS / no popups issue Rob McBride is having: https://stackoverflow.com/questions/20696041/window-openurl-blank-not-working-on-imac-safari
+A - Remove zip code, country, and real name from registerDetails.
+   Zip code can be gotten from ip address: https://ezcmd.com/ip-to-location?action=webapi&ip_address=73.240.47.68
+  Record ip address during registration
+  Real name we can get later if the person chooses (in settings) to post using their real name
+
+
+A - 13 - smoother login in notify prompt
+
+A - fix for caching optimization
+
+A - 8 - smoother post-login notification
+
+
 
 JUST FIXED:
-A - uncache news + polls, see if it fixes the server issue
-A - 8 - Tried separating news from polls, news into its own tab, move /about into part of /history.
-      - Didn't look good.  But now at least there's a flag that I can turn it on with.
-B+ 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
-- deprioritize posts you've interacted w
-A - 5 - Added more spacing between articles.
-A - fix filled in checkboxes character that looked weird on Android
+
+
+
+
 
 WORKING ON:
+
+
+
+
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
@@ -36,17 +40,24 @@ v
 (Start filtering / fixing polls.)
 
 
+- when not logged in, shows old polls and always the same.  why?
 
 
-A 21  =   Fix email - Emailed DO tech support.
+
+A - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
+		     https://developers.facebook.com/docs/facebook-login/web
+
+
+A - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
+  "Create a poll question relating to politics or any other topic you find interesting"
 
 A - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
 
-  -   Remember previous page or close form upon success, and/or back tri buttons.
+B 21  =   Fix email - Emailed DO tech support.
 
-A - 8 - Continue getting feedback from close peeps!!
-	(Start with SUSAN, DAD!!!,
-		Jim, 1 or 2 at a time until more bugs are fixed!)
+
+B - polls n desc section (rich text)
+
 
 B - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
@@ -61,9 +72,6 @@ B   5 - prompt user to leave comment or up/down vote after viewing an article.
 B - 8 - ++ popup lower left for notifications
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
-
-B - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
-			https://developers.facebook.com/docs/facebook-login/web
 
 
 B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.  (See latest notes in phone for update to this via button on bottom of page.)
@@ -81,13 +89,11 @@ B - new type of poll - numeric -> budget percentage - Gordon's idea.
 
 B - numeric polls (On a scale of 1 to 10, or budget %, etc.)
 
-B - security - password timeout
-
 B - let ppl know they can vote in their own poll
 
 - should I make polls be FB-style?
 
-B 1 - Delete ugly, old polls.
+B 3 - Moderate polls somehow
 
 B 3 - RYAN: The alert after logging in should be removed.
 
@@ -117,9 +123,25 @@ B   - disallow multiple poll items with the same name
 
 B - "You must be logged in to do that!" - should be popup with kind, pretty prompt
 
+C  -   Remember previous page or close form upon success, and/or back tri buttons.
+
+B - c add more polls after comments?
+
+
+
+
+C - -- financial times
+
 
 
 PROMOTION:
+- m poll
+    what is your opinion of the TikTok ban? (Support, Neutral, Oppose)
+    which country do you believe poses threat to Amer? (China, Russia, Iran, N Korea, No Country Does)
+    about which motto they like best, under VZ cat
+    What is your favorite hobby?
+    What is your favorite number?  (w numer input ?)
+- m POLLS have all polls regardless of category
 - make bus cards
 - simple FB campaign - presidential poll, create FB group, IM some ppl.
 - email friends & family.
@@ -131,14 +153,12 @@ PROMOTION:
 - calcRankedVotes to allow polls to be converted to ranked voting later by me :)
 - prioritize news posts with more comments
 Featured poll, addl polls
-- A - simplify pw requirement (sql query 1st to see how much ppl struggle when trying to create account and log in)
-- B - move up arrow to right slightly
-- B - FB login
 - C 8 - menu buttons sticky to top of screen
-- C 3 - store lastVisited global per userId, on first visit to news issue ajaxCheckForNotifications right away w/ -1, on server if < 0 use lastVisited
 - D order choices by voteOrder, saved  into PollPost
 - abs popup lower left - X new news articls, or text of news ou t6y7y565 St tty i 4t t6post / poll
 - type of poll -> radio (w each option still having explanation subtext).
+
+
 
 
 C 13 - Add more news API's (hopefully some incl. Fox News).  (TOM: seeing mostly liberal news sources.)
@@ -212,6 +232,10 @@ NEW STUFF:
 
 - 8 dino colors would be really cool. For user portrait, but that also becomes the color of the default image.  Use userId % 8. (If user later updates their profile pic, it will down sample to make their avatar.  Or they could just change their color too.)
 
+D - fix double 'Welcome to Votezilla' message with cookies.  Note: cookies are currently broken, multiple at once at least, so this could be unnecessarily tricky.
+
+D - when you save secure cookie, save it too both Votezilla.io and Votezilla.newz?
+
 D - push favicon.ico if not logged in
 
 
@@ -224,8 +248,6 @@ B - default user-created posts to US (?)
 C - ChicaWhisperer article sidebar says more from [blank]:
 
 C - vote timeline - looks cool and doesn't require much data.  Need to add time to table.
-
-- cacheService for unloggedIn users?  w h SEO?
 
 D - write go script (via flag) to clear test votes.
 
@@ -290,8 +312,6 @@ MED-HIGH PRIORITY (for test w/ 10 friends):
 = C 2 - add Create your own poll or news post on the left bottom of each news cat (PART I complete - the link.  TODO: feed category from url to default value.)
 
 C 2 - Break word by width=50% if any option len > 20
-
-C 3 - max username length is 345 - this is too long!
 
 C 3 - voting from history doesn't work when there are duplicates.  Could just manually remove duplicates in Go after the query.
 
@@ -511,5 +531,6 @@ POSTPONED FEATURES:
 
 -   Implement Forgot password.
 
+C - security - password timeout
 
 

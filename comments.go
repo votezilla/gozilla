@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	kMaxCommentLines = 6
+	kMaxCommentLines = 20 // 6
 	kCharsPerLine    = 60  // 60 for mobile.  80 would be desktop, but there is no way to detect the difference yet.
 
 	tabs = "                                                                                                    "

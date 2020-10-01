@@ -316,8 +316,8 @@ var (
 		"parties": "Political Party",
 		"schoolDegrees": "School Degree",
 		"races": "Race",
-		"maritalStatuses": "Marital Status",
-		"country": "Country",
+	//	"maritalStatuses": "Marital Status",
+	//	"country": "Country",
 		"age": "Age",
 	}
 

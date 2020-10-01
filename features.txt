@@ -333,6 +333,25 @@ A - 5 - GORDON & SUSAN: switch Sign Up and Create New Account, move Sign Up, to 
 
 A - 5 - GORDON: don't make /registerDetails stuff mandatory
 
+
+
+
+
+
+Easier login - just email for now.  (Please don't abuse this.)
+
+A - 8 - ranked vote - show runoff communication.
+A - 3 - only allow voting breakdowns when >5 votes or rankedvote, appropritately.
+A - 5 - find a way to remove password requirement, just email
+	Remove password requirement for now, from log in and sign up pages.  Remove with a disabled flag, so it can be reenabled later.
+A - 5 - poll option length is too short to write anything meaningful.  Poll results also need to be able to show longer text
+A - 5 - Prioritize polls with more votes.  But less if you've already voted on it.
+B 2 - Condense demographic ages: <=17, 18-41, 42-63, 64+
+                                 <=17, 18-35, 36-53, 54+
+B 3 - Fixed an elimination bug
+
+
+
 9/3:
 A - 13 - Implemented demographic breakdown (available when 5+ or 10+ votes)
 

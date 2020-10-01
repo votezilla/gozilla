@@ -42,6 +42,8 @@ func voteUpDown(postId, userId int64, add, up, comment bool) {
 			postId,
 			userId)
 	}
+
+	InvalidateCache(userId)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,6 +86,8 @@ func ajaxVote(w http.ResponseWriter, r *http.Request) {
     prVal("vote", vote)
 
     voteUpDown(int64(vote.PostId), userId, vote.Add, vote.Up, vote.IsComment)
+
+    InvalidateCache(userId)
 
     // create json response from struct
     a, err := json.Marshal(vote)

@@ -91,6 +91,8 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 		// Have user like their own posts by default.
 		voteUpDown(newPostId, userId, true, true, false)
 
+		InvalidateCache(userId)
+
 		http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d", newPostId), http.StatusSeeOther)
 		return
 	}
@@ -219,6 +221,8 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 			// Have user like their own polls by default.
 			voteUpDown(pollPostId, userId, true, true, false)
 
+			InvalidateCache(userId)
+
 			http.Redirect(w, r, fmt.Sprintf("/article/?postId=%d#vote", pollPostId), http.StatusSeeOther)
 			return
 		}
@@ -285,6 +289,8 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Have user like their own blogs by default.
 		voteUpDown(blogPostId, userId, true, true, false)
+
+		InvalidateCache(userId)
 
 		return
 	} else if r.Method == "POST" {

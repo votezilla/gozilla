@@ -158,7 +158,8 @@
 								<tr valign="top">
 									<td class="title" style="padding-left: 5px;">
 										<span class="articleTitle">
-											<a href="{{$article.Url}}" target="_blank"
+											<a id="post{{$article.Id}}" 
+											   href="{{$article.Url}}" target="_blank"
 											   style="font-size: 22px;"
 											   data-toggle="tooltip" data-placement="top" title="Read the article">
 												{{$article.Title}}
@@ -277,7 +278,8 @@
 													max-height: 92px;
 													overflow: hidden;
 													padding-right: 4px;">
-													<a href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article"
+													<a id="post{{$article.Id}}"
+													   href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article"
 														{{ if and $article.IsPoll (not $article.WeVoted) }}
 														{{/* if $article.IsPoll */}}
 															style="color: #00f !important;"

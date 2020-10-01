@@ -342,6 +342,7 @@ func formatRequest(r *http.Request) string {
 		request = append(request, "\n")
 		request = append(request, r.Form.Encode())
 	}
+
 	// Return the request as a string
 	return strings.Join(request, "\n")
 }
@@ -365,6 +366,15 @@ func tutorialHandler(w http.ResponseWriter, r *http.Request) {
 	userId, username := GetSessionInfo(w, r)
 
 	executeTemplate(w, kTutorial, makeFrameArgs(r, "Tutorial", "", "tutorial", userId, username))
+}
+
+// Login required popup
+func loginRequiredHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
+
+	pr("loginRequiredHandler")
+
+	executeTemplate(w, kLoginRequired, makeFrameArgs(r, kLoginRequired, "", kLoginRequired, -1, ""))
 }
 
 /////////////////////////////////////////////////////////////////////////

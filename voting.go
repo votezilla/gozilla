@@ -167,6 +167,8 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
    	check(err)
    	//prVal("pollTallyResultsJson", pollTallyResultsJson)
 
+   	InvalidateCache(userId)
+
 	DbExec(
 		`UPDATE $$PollPost
 		 SET PollTallyResults = $1

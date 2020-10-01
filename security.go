@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"github.com/gorilla/securecookie"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -49,6 +50,7 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 		Secure	: false, // TODO: set cookie.Secure to true once SSL is enabled.
 		HttpOnly: true,  // Prevent XSFR attacks.
 		Path	: "/",
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	prVal("setCookie", cookie)
@@ -91,6 +93,20 @@ func GetCookie(r *http.Request, name string, defaultValue string) string {
 	}
 }
 
+func GetAndDecodeCookie(r *http.Request, name string, defaultValue string) string {
+	cookieVal := GetCookie(r, name, defaultValue)
+
+	prVal("encoded cookieVal", cookieVal)
+
+	// decode return address
+	decodedCookieVal, err := url.QueryUnescape(cookieVal)
+	check(err)
+
+	prVal("decoded cookieVal", cookieVal)
+
+	return decodedCookieVal
+}
+
 // Refreshes a cookie by potentially extending its expiration.
 func refreshCookie(w http.ResponseWriter, r *http.Request, name string, expiration time.Time) {
 /*	prVal("RefreshCookie", name)
@@ -123,25 +139,8 @@ func shortExpiration() time.Time { return time.Now().Add(10 * time.Minute) }
 
 // Creates a secure session for Username.
 // If RememberMe, remember cookie for one year.  Otherwise, terminate cookie when browser closes.
-func CreateSession(w http.ResponseWriter, r *http.Request, userId int64) {//, rememberMe bool) {
-	// Set expiration time
-	var expiration time.Time
-	//if rememberMe {
-		expiration = longExpiration()
-	//} else {
-	//	expiration = shortExpiration()
-	//}
-
-	prVal("CreateSession userId", userId)
-	//prVal("              rememberMe", rememberMe)
-	prVal("              expiration", expiration.Format(time.UnixDate))
-
-	setCookie(w, r, kUserId, strconv.FormatInt(userId, 10), expiration, true)
-//	if rememberMe {
-//		setCookie(w, r, kRememberMe, "true", expiration, false)
-//	} else {
-//		setCookie(w, r, kRememberMe, "false", expiration, false)
-//	}
+func CreateSession(w http.ResponseWriter, r *http.Request, userId int64) {
+	setCookie(w, r, kUserId, strconv.FormatInt(userId, 10), longExpiration(), true)
 }
 
 func DestroySession(w http.ResponseWriter, r *http.Request) {
@@ -201,6 +200,43 @@ func GetSessionInfo(w http.ResponseWriter, r *http.Request) (userId int64, usern
 	prf("GetSessionInfo %d, %s", userId, username)
 
 	return
+}
+
+func InvalidateCache(userId int64) {
+	DbExec(`UPDATE $$User
+		       SET LastModTime = Now()
+		     WHERE Id = $1::bigint;`,
+		    userId)
+}
+
+func GetSessionInfo2(w http.ResponseWriter, r *http.Request) (userId int64, username string, isCacheValid bool) {
+	userId = GetSession(r)
+
+	if userId == -1 {
+		pr(`GetSessionInfo: -1, ""`)
+		return -1, "", true
+	}
+
+	username = ""
+	isCacheValid = false
+	rows := DbQuery(`SELECT Username,
+							Now() > LastModtime + interval '3 minutes'
+					   FROM $$User
+					  WHERE Id = $1::bigint;`,
+					 userId)
+	if rows.Next() {
+		err := rows.Scan(&username, &isCacheValid)
+		check(err)
+	} else {  // User was deleted from db; destroy session to maintain consistency.
+		DestroySession(w, r)
+		return -1, "", true
+	}
+	check(rows.Err())
+	rows.Close()
+
+	prf("GetSessionInfo2 %d, %s, %s", userId, username, bool_to_str(isCacheValid))
+
+	return userId, username, isCacheValid
 }
 
 func GetUsername(userId int64) (username string) {

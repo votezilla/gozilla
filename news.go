@@ -164,7 +164,7 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 		col := 0
 		filled := false
 
-		prf("for ccc, category := %d, %s", ccc, category)
+//		prf("for ccc, category := %d, %s", ccc, category)
 
 		// Set category header text and background color.
 		if onlyCategory == "" { // Mixed categories
@@ -190,8 +190,8 @@ func formatArticleGroups(articles []Article, categoryInfo CategoryInfo, onlyCate
 			currArticle = 0
 		}
 
-		prVal("  onlyCategory", onlyCategory)
-		prVal("  currArticle", currArticle)
+		//prVal("  onlyCategory", onlyCategory)
+		//prVal("  currArticle", currArticle)
 
 		// TODO: if a single category, with headlines, either large image should be set to always
 		// 4 article height, or all articles should stack verticlally in each column.
@@ -444,7 +444,7 @@ func prepareNews(w http.ResponseWriter, r *http.Request, path, title string, onl
 	endTimer("A")
 
 	startTimer("B")
-	userId, username := GetSessionInfo(w, r)
+	userId, username, isCacheValid := GetSessionInfo2(w, r)
 	endTimer("B")
 
 	startTimer("fetchArticles")
@@ -476,7 +476,7 @@ func prepareNews(w http.ResponseWriter, r *http.Request, path, title string, onl
 		prVal("newsCycle", newsCycle)
 
 		// Fetch 5 articles from each category
-		articles = fetchNews(kRowsPerCategory + 1, userId, kMaxArticles, newsCycle, noPolls) // kRowsPerCategory on one side, and 1 headline on the other.
+		articles = fetchNews(kRowsPerCategory + 1, userId, kMaxArticles, newsCycle, noPolls, isCacheValid)
 	} else {
 		pr("  b")
 		// Fetch articles in requested category

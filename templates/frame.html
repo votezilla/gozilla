@@ -243,7 +243,7 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 									{{- else if and (eq $navItem "history") (not $.Username) }}
 										"/loginSignup"
 									{{- else if and (eq $navItem "create") (not $.Username) }}
-										"javascript:alert('You must be logged in to do that!')"
+										"javascript:loginRequired('create a poll', '/create/')"
 									{{- else }}
 										"/{{$navItem}}"
 									{{- end }}
@@ -303,19 +303,27 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 		</td></tr>
 	</table>
 
-<!-- TUTORIAL POP-UP WINDOW:
+
+	<a id="loginRequired" data-target="#myModal" data-toggle="modal" data-path="loginRequired" data-title="login required" style="cursor:pointer; display: none;">
+		loginRequired
+	</a>
+
+<!-- POP-UP WINDOWS:
 	<a data-target="#myModal" data-toggle="modal" data-path="tutorial" data-title="Log In" style="cursor:pointer">
 		tutorial
 	</a>
-<div style=" display: table; width: 100%; table-layout: fixed;">
-  <div style="display:table-cell; width: 20%; background-color: red">B</div>
-  <div style="display:table-cell; width: 20%; background-color: yellow">B</div>
-  <div style="display:table-cell; width: 20%; background-color: red">B</div>
-  <div style="display:table-cell; width: 20%; background-color: yellow">B</div>
-  <div style="display:table-cell; width: 20%; background-color: red">B</div>
-</div>-->
+	<a id="youMustBeLoggedInTarget" data-target="#myModal" data-toggle="modal" data-path="youMustBeLoggedIn" data-title="You Must Be Logged In" style="cursor:pointer">
+		youMustBeLoggedIn
+	</a>
+
+	<a href="javascript:loginRequired();" style="color:#0072ff">
+		Forgot Account?
+		<a id="forgotAccountTarget" data-target="#myModal" data-toggle="modal" data-path="forgotAccount" data-title="Forgot Account"></a>
+	</a>
+-->
 
 	{{ template "content" . }}
+
 {{ template "endFrame" . }}
 
 <!-- Modal popup body -->
@@ -338,22 +346,126 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 </div>
 
 <script>
+///////////////////////////////////////////////////////////////////////////////
+//
+// COOKIES
+//
+///////////////////////////////////////////////////////////////////////////////
+// String Constants (mirrored in loginRegister.go):
+// Cookie names:
+const kLoginReturnAddress 	= "loginReturnAddress";
+const kAlertCode          	= "alertCode";
+// Alert codes:
+const kLoggedIn				= "LoggedIn";
+const kLoggedOut			= "LoggedOut";
+const kWelcomeToVotezilla	= "WelcomeToVotezilla";
+const kInvalidCategory		= "InvalidCategory";
+
+
+// Ref: https://stackoverflow.com/questions/1458724/how-do-i-set-unset-a-cookie-with-jquery
+/*
+function setCookie(key, value, expiry) {
+//	document.cookie = key + '=' + encodeURIComponent(value);
+
+	var expires = new Date();
+	expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
+	document.cookie = key + '=' + encodeURIComponent(value) + '; expires=' + expires.toUTCString() +' ;path=/';
+
+	console.log("document.cookie got set to: " + document.cookie);
+}
+*/
+function setCookie(cname, value) {
+	const exdays = 365;
+
+	console.log("setCookie " + cname + ' ' + value);
+	var cvalue = encodeURIComponent(value);
+
+	var d = new Date();
+	d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+	var expires = "expires=" + d.toUTCString();
+	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/" + ";SameSite=Strict";
+
+	console.log("document.cookie trying to set to: " + (cname + "=" + cvalue + ";" + expires + ";path=/"));
+
+	console.log("document.cookie got set to: " + document.cookie);
+}
+
+/*
+function getCookie(key) {
+	// TODO: we might need to add decodeURIComponent() in here.
+
+	console.log("getCookie: document.cookie = " + document.cookie);
+
+	var keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+	var retValue keyValue ? keyValue[2] : null;
+}*/
+function getCookie(cname) {
+	var name = cname + "=";
+	var decodedCookie = decodeURIComponent(document.cookie);
+	var ca = decodedCookie.split(';');
+	for(var i = 0; i <ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0) == ' ') {
+			c = c.substring(1);
+		}
+		if (c.indexOf(name) == 0) {
+			console.log(`getCookie(${cname}) = '${c.substring(name.length, c.length)}'`);
+			return c.substring(name.length, c.length);
+		}
+	}
+	console.log(`getCookie(${cname}) = ''`);
+	console.log(`  btw document.cookie = ${document.cookie}`);
+	return "";
+}
+
+function eraseCookie(key) {
+	var keyValue = getCookie(key);
+	setCookie(key, keyValue, '-1');
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // ALERT
 //
 ///////////////////////////////////////////////////////////////////////////////
-$(document).ready(function() {
+$(function() {
+	const url = new URL(
+	  document.location
+	);
+
+	alertCode = url.searchParams.get(kAlertCode);
+
+	console.log("alertCode = " + alertCode)
+
+	if (alertCode) {
+		console.log("  alertCode is non-null!!!");
+
+		if      (alertCode == kLoggedIn)			{ alert('You are now signed in.  Welcome back to Votezilla!'); }
+		else if (alertCode == kLoggedOut)			{ alert('You are now logged out.'); }
+		else if (alertCode == kWelcomeToVotezilla)	{ alert('Your account has been created.  Welcome to Votezilla!'); }
+		else if (alertCode == kInvalidCategory)		{ alert('Invalid category; displaying all news posts.'); }
+		else 										{ alert('Error: Unknown Alert: ' + alertCode); }
+
+		setCookie(kAlertCode, alertCode + "2");
+	}
+
+/*
+	console.log("getCookie('visited') = " + getCookie('visited'));
+
 	{{ if      eq .PageArgs.Script "LoggedIn"}}		 		alert('You are now logged in :)');
 	{{ else if eq .PageArgs.Script "LoggedOut"}}			alert('You are now logged out.');
 	{{ else if eq .PageArgs.Script "AccountCreated"}}		alert('Your account has been created, good work!');
-	{{ else if eq .PageArgs.Script "WelcomeToVotezilla"}}	alert('Welcome to Votezilla!!!');
+	{{ else if eq .PageArgs.Script "WelcomeToVotezilla"}}	alert('Your account has been created. Welcome to Votezilla!!!');
 	{{ else if eq .PageArgs.Script "SubmittedLink"}}		alert('Your link has been created, and will appear shortly.');
 	{{ else if eq .PageArgs.Script "SubmittedPoll"}}		alert('Your poll has been created, and will appear shortly.');
 	{{ else if eq .PageArgs.Script "InvalidCategory"}}		alert('Invalid category; displaying all news posts.');
 	{{ else if    .PageArgs.Script }}				    	alert('Error: {{.PageArgs.Script}}');
 	{{ end }}
+
+	setCookie("visited", "I am a visitor from outer space.");
+
+	console.log("document.cookie = " + document.cookie);
+*/
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -394,7 +506,6 @@ $('#myModal').on('show.bs.modal', function(e) {
 			console.log(msg);
 			return;
   		}
-
 
 		console.log('Load was performed');
 
@@ -529,8 +640,12 @@ function Vote(id, up, bcomment) {
 		cancelVote(id, !up, bcomment) // cancel opposite type of vote
 		toggleVote(id, up, bcomment)  // toggle this type of vote
 	} else {
-		alert("You must be logged in to do that!")
-		//TODO: onClick_OpenModalLink('youMustBeLoggedIn')
+		console.log(`=====> /news/#post${id}`);
+
+		loginRequired(
+			'up/down vote a post',
+			`/news/#post${id}`
+		);
 	}
 }
 
@@ -685,8 +800,13 @@ function validateVoteData(pollType, voteData, newVoteData, newOptions, pollOptio
 function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 	var numOptions = pollOptions.length
 
+	console.log(`xxxxxx>>>  /news/?category=polls#post${pollId}`);
+
 	if ({{.UserId}} == -1) {
-		alert("You must be logged in to do that!");  // TODO: make this a modal that prompts for login / register
+		loginRequired(
+			'vote on a poll',
+			`/news/?category=polls#post${pollId}`
+		);
 
 		return;
 	}
@@ -825,22 +945,35 @@ function checkForUpdates() {
 var triggerModalDataTargetAnchor = "";
 //var triggerModalId = "";
 
+function loginRequired(reason, returnAddress) {
+	setCookie(kLoginReturnAddress, returnAddress)
+
+	onClick_OpenModalLink('loginRequired');
+
+
+	//setCookie(kLoginAlertId, Math.floor(Math.random()*1000000)) // Random number from 0 to 999999.
+		//document.cookie = "loginReturnAddress=" + encodeURIComponent(returnAddress) + "; path=/; ";
+	//window.open('/loginSignup/?reason=' + reason, '_blank');
+	//window.location.assign('/loginSignup/');
+}
+
 function onClick_OpenModalLink(modalDataTargetAnchor) {
 	console.log("onClick_OpenModalLink: modalDataTargetAnchor = " + modalDataTargetAnchor);
 
 	triggerModalDataTargetAnchor = modalDataTargetAnchor;
-	$('#myModal').modal('hide');
+	//$('#myModal').modal('hide');
+
+	$("#" + modalDataTargetAnchor).click();
 }
 
 // After onClick_OpenModalLink, the window close generates the following callback. */
 $('#myModal').on('hidden.bs.modal', function (e) {
 	if (triggerModalDataTargetAnchor) {
-		$( "#myModal" ).modal( "show", $( "#"+triggerModalDataTargetAnchor ) );  // The caller must define an anchor with id="theTarget".
+	//	$( "#myModal" ).modal( "show", $( "#"+triggerModalDataTargetAnchor ) );  // The caller must define an anchor with id="theTarget".
 
 		triggerModalDataTargetAnchor = "";
 	}
 })
-
 
 
 
@@ -853,7 +986,6 @@ $(function () {
 </script>
 
 {{end}} {{/*body*/}}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -1065,15 +1197,13 @@ $(function () {
 
 {{ define "PollInlineForm" }}
 	{{- $article := . -}}
-
-	{{- $maxOptions := 0 }}
-	{{- if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
-		{{- $maxOptions = 12 }}
-	{{- else }}
-		{{- $maxOptions = 12 }}   {{/*SMALL ARTICLE SIZE*/}}
-	{{ end }}
-
 	{{- if $article.IsPoll -}}
+		{{- $maxOptions := 0 }}
+		{{- if eq $article.Size 1 }} {{/*LARGE ARTICLE SIZE*/}}
+			{{- $maxOptions = 12 }}
+		{{- else }}
+			{{- $maxOptions = 12 }}   {{/*SMALL ARTICLE SIZE*/}}
+		{{ end }}
 		{{ if $article.WeVoted }}
 			<table width=100% style="margin-left: 0px;">
 				<tr></tr>

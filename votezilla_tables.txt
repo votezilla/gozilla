@@ -29,15 +29,21 @@ CREATE TABLE vz.User (
     Schooling       TEXT,
 
     -- Details - other fields
-    OtherGender              TEXT,
-    OtherParty               TEXT,
-    OtherRace                TEXT,
+    OtherGender          TEXT,
+    OtherParty           TEXT,
+    OtherRace            TEXT,
     OtherCountry         TEXT,
-    OtherMaritalStatus         TEXT,
+    OtherMaritalStatus   TEXT,
     OtherSchoolCompleted TEXT,
 
     -- Verification status
-    VerifiedEmail   BOOL DEFAULT False
+    VerifiedEmail   BOOL DEFAULT False,
+
+    -- NEW FIELDS:
+    Created         TIMESTAMPTZ      NOT NULL DEFAULT now(),
+    LastModTime	    TIMESTAMPTZ	     NOT NULL DEFAULT TIMESTAMP 'epoch',
+
+    Ip              TEXT
 );
 
 CREATE TABLE vz.Post (

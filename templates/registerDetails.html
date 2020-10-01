@@ -2,29 +2,29 @@
 		{{ template "formHeader" "Voter Info for" }}
 
 		<div style="font-size: 17px">
-			Voter info is important.  It helps us ensure votes are authentic, and all types of voters are represented.
+			Voter info ensures all voices are heard.
 		</div>
 		<p>
-		<div>
-			Your data will remain private.  All answers are optional.
+		<div style="font-size: 17px">
+			Your data stays private.  All answers are optional.
 		</div>
 		</p>
 
 	{{ template "beginForm" .Form }}
 		{{ $f := .Form.FieldMap }}
-		{{ template "field" $f.name -}}
-		{{ template "field" $f.zipCode -}}
+		{{/* template "field" $f.name -*/}}
+		{{/* template "field" $f.zipCode -*/}}
 		{{ template "field" $f.birthYear -}}
-		{{ template "field" $f.country -}}
-			{{ template "field" $f.other_country -}}
+		{{/* template "field" $f.country -*/}}
+			{{/* template "field" $f.other_country -*/}}
 		{{ template "field" $f.gender -}}
 			{{ template "field" $f.other_gender -}}
 		{{ template "field" $f.party -}}
 			{{ template "field" $f.other_party -}}
 		{{ template "field" $f.race -}}
 			{{ template "field" $f.other_race -}}
-		{{ template "field" $f.maritalStatus -}}
-			{{ template "field" $f.other_maritalStatus -}}
+		{{/* template "field" $f.maritalStatus -*/}}
+			{{/* template "field" $f.other_maritalStatus -*/}}
 		{{ template "field" $f.schoolCompleted -}}
 			{{ template "field" $f.other_schoolCompleted -}}
 

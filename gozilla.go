@@ -31,7 +31,8 @@ const (
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
 	kLogin = "login"
-	kLoginSignup = "loginSignup"
+	kLoginRequired = "loginRequired"	// Prompt to log in / sign in if required from user action.	
+	kLoginSignup = "loginSignup"		// User clicks on log in / sign in button
 	kNews = "news"
 	kNewsSources = "newsSources"
 	kNuForm = "nuForm"
@@ -239,6 +240,7 @@ func parseTemplateFiles() {
 
 	// Pop-ups:
 	hDefineTemplate(kTutorial, 			"tutorial")
+	hDefineTemplate(kLoginRequired, "loginRequired")
 
 	// Javascript snippets
 	//tDefineTemplate(kRegisterDetailsScript, "registerDetailsScript")  // TODO: find a new home for this.  Just add to registerDetails(?)
@@ -266,18 +268,8 @@ func FileServer_Cached(root http.FileSystem) http.Handler {
 }
 func (f *fileServer_Cached) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "max-age:31536000, public")
-	//cacheSince := time.Now().Format(http.TimeFormat)
-	//cacheUntil := time.Now().AddDate(0, 0, 1).Format(http.TimeFormat)
-	//w.Header().Set("Last-Modified", cacheSince)
-	//w.Header().Set("Expires", cacheUntil)
-	//prVal("<<w.Header()", w.Header())
-
 	f.fileServer.ServeHTTP(w, r)
-
-	//prVal(">>w.Header()", w.Header())
-	//pr("")
 }
-///
 
 func SetupWebHandlers() *http.ServeMux {
 	mux := &http.ServeMux{}
@@ -299,6 +291,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/history/",        			hwrap(historyHandler))
 	mux.HandleFunc("/ip/",             			hwrap(ipHandler))
 	mux.HandleFunc("/login/",          			hwrap(loginHandler))
+	mux.HandleFunc("/loginRequired/",			hwrap(loginRequiredHandler))
 	mux.HandleFunc("/loginSignup/",          	hwrap(loginSignupHandler))
 	mux.HandleFunc("/logout/",         			hwrap(logoutHandler))
 	mux.HandleFunc("/polls/",           		hwrap(pollsHandler))

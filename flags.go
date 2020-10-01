@@ -32,6 +32,7 @@ var (
 		requirePassword			bool		// Whether to require passwords for logging in.
 		checkForNotifications	bool		// Whether to do ajaxCheckForNotifications
 		separateNewsAndPolls	bool		// Whether to separate news and polls in separate tabs
+		skipFirewall			bool		// Whether to skip the firewall
 	}
 )
 
@@ -67,6 +68,7 @@ func parseCommandLineFlags() {
 	flag.BoolVar(&flags.requirePassword, 	"requirePassword", false, "Whether to require passwords for logging in.")
 	flag.BoolVar(&flags.checkForNotifications, "checkForNotifications", true, "Whether to do ajaxCheckForNotifications.")
 	flag.BoolVar(&flags.separateNewsAndPolls, "separateNewsAndPolls", false, "Whether to separate news and polls in separate tabs.")
+	flag.BoolVar(&flags.skipFirewall, "skipFirewall", true, "Whether to skip the firewall")
 
 	prVal("Command Line Args", os.Args)
 
