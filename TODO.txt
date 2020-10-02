@@ -1,28 +1,17 @@
 PUSH & TEST ON SERVER:
-A - 3 - convert email checking to all lowercase!!!
-
-A - Remove zip code, country, and real name from registerDetails.
-   Zip code can be gotten from ip address: https://ezcmd.com/ip-to-location?action=webapi&ip_address=73.240.47.68
-  Record ip address during registration
-  Real name we can get later if the person chooses (in settings) to post using their real name
-
-
-A - 13 - smoother login in notify prompt
-
-A - fix for caching optimization
-
-A - 8 - smoother post-login notification
 
 
 
 JUST FIXED:
 
 
-
-
-
 WORKING ON:
 
+
+WORK ON NEXT:
+
+A - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
+		     https://developers.facebook.com/docs/facebook-login/web
 
 
 
@@ -44,28 +33,28 @@ v
 
 
 
-A - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
-		     https://developers.facebook.com/docs/facebook-login/web
-
-
 A - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
   "Create a poll question relating to politics or any other topic you find interesting"
 
-A - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
+A 21 - Fix email - Emailed DO tech support.
+A 13 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
 
-B 21  =   Fix email - Emailed DO tech support.
+A - cr and convert En votes for presidential poll
 
+A - tweak motto?  focus test it, get suggestions.
 
 B - polls n desc section (rich text)
 
+B - 'updates' b4 'share/create' ?
+
+B - 'Welcome to Votezilla: a censorship-free...' - only n to be on /news, not subcategories
 
 B - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
-B - Messages / marketing - try playing up the direct democracy angle a little.
-
 B   5 - prompt user to leave comment or up/down vote after viewing an article.
 
+B - Messages / marketing - try playing up the direct democracy angle a little.
 
 "	___ shared an article" - when they really shared a poll
 
@@ -73,6 +62,7 @@ B - 8 - ++ popup lower left for notifications
 
 B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
+B - 3 - Expanded comment loses all <br>'s.
 
 B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.  (See latest notes in phone for update to this via button on bottom of page.)
 
@@ -127,20 +117,22 @@ C  -   Remember previous page or close form upon success, and/or back tri button
 
 B - c add more polls after comments?
 
-
+B - link to votezilla from sheeplethegame.com
 
 
 C - -- financial times
 
-
+B - not logged in, Updates - " RhymeStein commented on your article ..."
 
 PROMOTION:
 - m poll
-    what is your opinion of the TikTok ban? (Support, Neutral, Oppose)
     which country do you believe poses threat to Amer? (China, Russia, Iran, N Korea, No Country Does)
     about which motto they like best, under VZ cat
     What is your favorite hobby?
     What is your favorite number?  (w numer input ?)
+    Where do you get your news from? (Votezilla.news, ___, ____...)
+    Did you know Votezilla has news?  (Yes, I read it, Was aware but haven't read it, Wasn't aware, I'm just here for the polls.)
+    Ranked vote / numeric vote - which order should the votezilla categories go?  (polls, news, world news, ...)
 - m POLLS have all polls regardless of category
 - make bus cards
 - simple FB campaign - presidential poll, create FB group, IM some ppl.
@@ -159,7 +151,8 @@ Featured poll, addl polls
 - type of poll -> radio (w each option still having explanation subtext).
 
 
-
+C - deduce state & country from IP, use that for splitting demographics by location.
+    ref: ezcmd.com/ip-to-location/?action=webapi
 
 C 13 - Add more news API's (hopefully some incl. Fox News).  (TOM: seeing mostly liberal news sources.)
 
@@ -203,20 +196,11 @@ C 3 - erase old large thumbnails.  (eventually, small thumbnails?)
 
 C 5 - article poll voting - image too large; but viewPollResults has no image at all.  Fix?
 
-C 21 - show how ranked voting runoff works
-
 C - great 10-step guide to optimization!!! - https://www.eurovps.com/blog/reasons-for-slow-website-loading/#:~:text=A%20large%20volume%20of%20unoptimized,your%20website%20to%20load%20slowly.
 
 C 3 - list news sources and ppl
 
 C 3 - In history, display comments overview with the article.  Hmm.. realizing this may need to become an Activity-style list, sorted by time
-
-C 21 - More topics!!!  Use keyword-AI to do this.  Also for searching.
-
-C 13 - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
-   - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
-
-C 8 - fill in Polls category - to remove white space
 
 C 8 - load comments AFTER article - could use an iframe.  this will speed up in-site article load time.
 
@@ -232,18 +216,6 @@ NEW STUFF:
 
 - 8 dino colors would be really cool. For user portrait, but that also becomes the color of the default image.  Use userId % 8. (If user later updates their profile pic, it will down sample to make their avatar.  Or they could just change their color too.)
 
-D - fix double 'Welcome to Votezilla' message with cookies.  Note: cookies are currently broken, multiple at once at least, so this could be unnecessarily tricky.
-
-D - when you save secure cookie, save it too both Votezilla.io and Votezilla.newz?
-
-D - push favicon.ico if not logged in
-
-
-- refresh icon on top to load more news
-
-- I need to create interesting polls
-
-B - default user-created posts to US (?)
 
 C - ChicaWhisperer article sidebar says more from [blank]:
 
@@ -261,15 +233,25 @@ C - Google Analytics
 
 C 13 - TOM: Tickertape news would be cool
 
+C - RYAN - I'd like to have links or additional inline documentation before taking a poll. oh, you could have an optional voter's pamphlet for each poll. Weird thing--as I am typing this the page kept scrolling back to the top. (RYAN)
+
+
 D - Create db flag to mark test accounts I've created.
 
 D - front page should perhaps only show you news + polls you haven't clicked on yet?
 
-FEEDBACK:
-C - discussion on what to do when there are too many poll items: http://votezilla.io/viewPollResults2/?postId=95391#comment_71 (may need to change url to viewPollResults w/o 2
-  ^ Ryan H: Only listing the first three options in the summary is going to influence votes. Try not including the poll choices in the summary at all? or at least not be able to vote from the summary? Should polls have descriptions? (yes).
 
-C - I'd like to have links or additional inline documentation before taking a poll. oh, you could have an optional voter's pamphlet for each poll. Weird thing--as I am typing this the page kept scrolling back to the top. (RYAN)
+D 13 - TOM - 1st impression = what is this?  (Need splashscreen(s) / tutorial(s) / about page) (TOM)
+   - (include what up / down / comment icons do, since Tom didn't naturally figure them out.)
+
+D 21 - More topics!!!  Use keyword-AI to do this.  Also for searching.
+
+D - fix double 'Welcome to Votezilla' message with cookies.  Note: cookies are currently broken, multiple at once at least, so this could be unnecessarily tricky.
+    Ref: https://smartlazycoding.com/javascript-tutorial/change-the-url-without-reloading-the-page
+
+D - when you save secure cookie, save it too both Votezilla.io and Votezilla.newz?
+
+D - push favicon.ico if not logged in
 
 TOM FEEDBACK:
 D - TOM: Add Votezilla to search engines.  (He tried to search for votezilla.io on the search engine!) (Need to optimize and improve SEO first!) (TOM)

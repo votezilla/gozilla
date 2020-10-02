@@ -127,7 +127,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("r.Method", r.Method)
 
 	form := makeForm(
-		nuTextField(kTitle, "Ask a poll question...", 50, 12, 100, "poll question"),
+		nuTextField(kTitle, "Ask a poll question...", 50, 12, 150, "poll question"),
 		nuTextField(kOption1, "add option...", 50, 1, kMaxPollLength, "poll option 1"),
 		nuTextField(kOption2, "add option...", 50, 1, kMaxPollLength, "poll option 2"),
 		//nuBoolField(kAnyoneCanAddOptions, "Allow anyone to add options", false),

@@ -364,3 +364,24 @@ A - 8 - Tried separating news from polls, news into its own tab, move /about int
 B+ 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
 - deprioritize posts you've interacted w
 A - 5 - Added more spacing between articles.
+
+
+9/28
+A - uncache news + polls, see if it fixes the server issue
+A - 8 - Tried separating news from polls, news into its own tab, move /about into part of /history.
+      - Didn't look good.  But now at least there's a flag that I can turn it on with.
+B+ 8 - organize cat posts in columns to save vertical space, on desktop... oh yeah, there's a reason I didn't do that, it's because of sorting order desktop vs mobile... hmmm.  Send both versions with a media query to decide which to show?  looking up poll option would have to search both of them?  Or just serve the column version, but put high-priority articles in left, low-priority on the right?
+- deprioritize posts you've interacted w
+A - 5 - Added more spacing between articles.
+A - fix filled in checkboxes character that looked weird on Android
+
+10/1
+A - 3 - converted email checking to all lowercase!!!
+A - 8 - Removed zip code, country, and real name from registerDetails.
+   Zip code can be gotten from ip address: https://ezcmd.com/ip-to-location?action=webapi&ip_address=73.240.47.68
+  Record ip address during registration
+  Real name we can get later if the person chooses (in settings) to post using their real name
+A - 13 - smoother login in notify prompt (pop up)
+A - 8 - fix for caching optimization
+A - 8 - smoother post-login notification
+
