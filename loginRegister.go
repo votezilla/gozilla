@@ -446,3 +446,18 @@ func loginSignupHandler(w http.ResponseWriter, r *http.Request){
 
 	executeTemplate(w, kLoginSignup, args)
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// login via Facebook
+//
+///////////////////////////////////////////////////////////////////////////////
+func loginFBHandler(w http.ResponseWriter, r *http.Request){
+	args := struct {
+		PageArgs
+	}{
+		PageArgs:	makePageArgs(r, "Login with Facebook", "", ""),
+	}
+
+	executeTemplate(w, kLoginFB, args)
+}

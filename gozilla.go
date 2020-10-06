@@ -31,6 +31,7 @@ const (
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
 	kLogin = "login"
+	kLoginFB = "loginFB"
 	kLoginRequired = "loginRequired"	// Prompt to log in / sign in if required from user action.
 	kLoginSignup = "loginSignup"		// User clicks on log in / sign in button
 	kNews = "news"
@@ -232,6 +233,10 @@ func parseTemplateFiles() {
 	hDefineTemplate(kCreatePoll, 	"base", "narrowWithSidebar", "minFrame", "nuField", "createPoll")
 
 	hDefineTemplate(kLogin,			  "base", "narrow", "minFrame", "nuField", "login")				// Log in
+
+	hDefineTemplate(kLoginFB,		"base", "narrow", "minFrame", "nuField", "loginFB")				// Log in
+
+
 	hDefineTemplate(kLoginSignup,  	  "base", "narrow", "minFrame", "nuField", "loginSignup")		// Option to Log in or Sign up
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")			// Sign up
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")	// Sign up II: Demographics
@@ -291,6 +296,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/history/",        			hwrap(historyHandler))
 	mux.HandleFunc("/ip/",             			hwrap(ipHandler))
 	mux.HandleFunc("/login/",          			hwrap(loginHandler))
+	mux.HandleFunc("/loginFB/",          		hwrap(loginFBHandler))
 	mux.HandleFunc("/loginRequired/",			hwrap(loginRequiredHandler))
 	mux.HandleFunc("/loginSignup/",          	hwrap(loginSignupHandler))
 	mux.HandleFunc("/logout/",         			hwrap(logoutHandler))
