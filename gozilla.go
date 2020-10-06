@@ -31,7 +31,7 @@ const (
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
 	kLogin = "login"
-	kLoginRequired = "loginRequired"	// Prompt to log in / sign in if required from user action.	
+	kLoginRequired = "loginRequired"	// Prompt to log in / sign in if required from user action.
 	kLoginSignup = "loginSignup"		// User clicks on log in / sign in button
 	kNews = "news"
 	kNewsSources = "newsSources"
@@ -302,6 +302,9 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/updatePassword/", 			hwrap(updatePasswordHandler))
 	mux.HandleFunc("/viewPollResults/",			hwrap(viewPollResultsHandler))
 	mux.HandleFunc("/width/",					hwrap(widthHandler))
+
+	mux.HandleFunc("/fbHome/",					hwrap(fbHome))
+	mux.HandleFunc("/fbLogin/",					hwrap(fbLogin))
 
 	// Serve static files.
 	mux.Handle("/static/", http.StripPrefix("/static/", FileServer_Cached(http.Dir("./static"))))
