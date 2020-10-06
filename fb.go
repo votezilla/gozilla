@@ -78,7 +78,7 @@ package main
 
 
  		ClientID:     "759729064806025", // change this to yours
- 		ClientSecret: "", //"ff2818b2b4eea10a8822bebe1021d239",
+ 		ClientSecret: "",
  		RedirectURL:  "https://votezilla.news",
  		Scopes:       []string{"email", "user_birthday", "user_location", "user_about_me"},
  		Endpoint: oauth2.Endpoint{

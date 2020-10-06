@@ -10,8 +10,6 @@ WORKING ON:
 
 WORK ON NEXT:
 
-A - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
-		     https://developers.facebook.com/docs/facebook-login/web
 
 
 
@@ -504,6 +502,11 @@ SUPER-LOW PRIORITY (100k)
 
 
 POSTPONED FEATURES:
+
+A - 13 - FB signup - https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
+		     https://developers.facebook.com/docs/facebook-login/web
+
+- FB share - https://developers.facebook.com/docs/plugins/share-button/
 
 - Docker (50% implemented, but turned out to be pain in the ass).
 
