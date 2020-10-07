@@ -565,3 +565,15 @@ figcaption {
 	text-size-adjust:100%;
 	top:0px;
 }
+
+.softBorder {
+	border: 1px solid #dadce0;
+	border-radius: 8px;
+	margin: 2px;
+}
+
+.softBorder:hover {
+	border: 1px solid #0072ff;
+	border-radius: 8px;
+	margin: 2px;
+}

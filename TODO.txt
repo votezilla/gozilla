@@ -4,9 +4,11 @@ PUSH & TEST ON SERVER:
 
 JUST FIXED:
 
-X - RYAN - remove #comments icon
-X RYAN - added spacing and clearly outlined boxes like google news
-X - FB link was logging out user (had to set cookie mode = Lax instead of Strict)
+2 - RYAN - remove #comments icon
+5 - RYAN - added spacing and clearly outlined boxes like google news
+3 - Cool article border hover effect
+5 - FB link was logging out user (had to set cookie mode = Lax instead of Strict)
+
 
 WORKING ON:
 
@@ -43,6 +45,7 @@ A - cr and convert En votes for presidential poll
   "Create a poll question relating to politics or any other topic you find interesting"
 
 
+B 1 - "news" -> "news / polls"
 
 --- OPTIONAL:
 
