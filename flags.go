@@ -33,6 +33,8 @@ var (
 		checkForNotifications	bool		// Whether to do ajaxCheckForNotifications
 		separateNewsAndPolls	bool		// Whether to separate news and polls in separate tabs
 		skipFirewall			bool		// Whether to skip the firewall
+		testEmail				bool		// Send a test email and exit
+		smtpPassword			string		// Password for sending email to the SMTP server
 	}
 )
 
@@ -69,6 +71,8 @@ func parseCommandLineFlags() {
 	flag.BoolVar(&flags.checkForNotifications, "checkForNotifications", true, "Whether to do ajaxCheckForNotifications.")
 	flag.BoolVar(&flags.separateNewsAndPolls, "separateNewsAndPolls", false, "Whether to separate news and polls in separate tabs.")
 	flag.BoolVar(&flags.skipFirewall, "skipFirewall", true, "Whether to skip the firewall")
+	flag.BoolVar(&flags.testEmail, "testEmail", false, "Send a test email and exit")
+	flag.StringVar(&flags.smtpPassword, "smtpPassword", "", "Password for sending email to the SMTP server")
 
 	prVal("Command Line Args", os.Args)
 

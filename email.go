@@ -13,24 +13,25 @@ import (
 // See https://gist.github.com/chrisgillis/10888032 for original source and discussion.
 
 const BUSINESS_EMAIL = "vtzilla@gmail.com"
-const BUSINESS_PASS = "vote22zilla"  //TODO TSecurity issue of including password in this code.
+//const BUSINESS_PASS = "vote22zilla"  //TODO TSecurity issue of including password in this code.
 
 /* possible emails to use:
 vzilla@gmail.com
 votezilla.io@gmail.com
 */
 
-/*
-func main() {
 
-    from := mail.Address{"", "wisety@gmail.com"}
-    to   := mail.Address{"", "wisety@gmail.com"}
+func testEmail() {
+	pr("testEmail():")
+
+    from := BUSINESS_EMAIL
+    to   := "magicsquare15@gmail.com"
     subj := "Email via Go Code"
     body := "Hi, Aaron,\n\nThe email example you sent me appears to work! (Gmail allows it if you turn on the \"Access for less secure apps\" setting.)\n\n--Tyler C, sent from Go."
 
 	sendEmail(from, to, subj, body)
 }
-*/
+
 
 func generateConfEmail(user string) string {
 	//TODO TMake this email message much more palatable
@@ -38,11 +39,11 @@ func generateConfEmail(user string) string {
 }
 
 func sendEmail(from string, to string, subj string, body string) {
-    pr("sendEmail: DISABLING EMAIL UNTIL FIXED")
-    
+    //pr("sendEmail: DISABLING EMAIL UNTIL FIXED")
+
 	// TODO: replace checks with an exception, make it not accept the email address if that is what was failing when registering.
 
-	return;
+	//return;
 
 	prf("sendEmail %s %s %s %s", from, to, subj, body)
 
@@ -69,7 +70,9 @@ func sendEmail(from string, to string, subj string, body string) {
 
     host, _, _ := net.SplitHostPort(servername)
 
-    auth := smtp.PlainAuth("",BUSINESS_EMAIL, BUSINESS_PASS, host)
+    //prVal("flags.smtpPassword", flags.smtpPassword)
+
+    auth := smtp.PlainAuth("",BUSINESS_EMAIL, flags.smtpPassword, host)
 
     // TLS config
     tlsconfig := &tls.Config {
@@ -105,4 +108,5 @@ func sendEmail(from string, to string, subj string, body string) {
 
     c.Quit()
 
+	//pr("Done, exiting.")
 }

@@ -340,8 +340,12 @@ func main() {
 
 	OpenDatabase()
 	defer CloseDatabase()
+	
+	prVal("flags.testEmail", flags.testEmail)
 
-	if flags.imageService != "" {
+	if flags.testEmail {
+		testEmail()
+	} else if flags.imageService != "" {
 		ImageService()
 	} else if flags.newsService != "" {
 		NewsService()
