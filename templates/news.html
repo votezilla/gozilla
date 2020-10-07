@@ -136,7 +136,9 @@
 				{{ range $j, $article := $articleCol }}
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
 						{{ if and (eq $article.Size 1) (not $article.IsPoll) }} {{/*LARGE ARTICLE SIZE... alt logic: and (eq $article.Size 1) (not $article.IsPoll)*/}}
-							<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer" data-toggle="tooltip" data-placement="top" title="View the discussion">
+							{{ if not $article.IsPoll }}
+								<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer" data-toggle="tooltip" data-placement="top" title="View the discussion">
+							{{ end }}
 								<div style="border: 1px solid #dadce0; border-radius: 8px; margin: 2px;">
 
 									<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer">
@@ -205,9 +207,13 @@
 										<tr class="spacer" style="height:5px"></tr>
 									</table>
 								</div>
-							</a>
+							{{ if not $article.IsPoll }}
+								</a>
+							{{ end }}
 						{{ else }}                  {{/*NORMAL ARTICLE SIZE*/}}
-							<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer" data-toggle="tooltip" data-placement="top" title="View the discussion">
+							{{ if not $article.IsPoll }}
+								<a href="/article/?postId={{$article.Id}}" class="pollImageLabel" style="cursor:pointer" data-toggle="tooltip" data-placement="top" title="View the discussion">
+							{{ end }}
 								<div style="border: 1px solid #dadce0; border-radius: 8px; margin: 2px;">
 									<table border="0" cellpadding="0" cellspacing="0">
 										<tr valign="top">
@@ -330,7 +336,9 @@
 									{{ end }}
 									</table>
 								</div>
-							</a>
+							{{ if not $article.IsPoll }}
+								</a>
+							{{ end }}
 							<div style="height:4px"></div>  <!-- spacing between rounded box borders -->
 						{{ end }} {{/*article size*/}}
 					{{ end }} {{/*{{ if ne $article.Size -1 }}*/}}
