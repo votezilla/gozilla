@@ -65,6 +65,7 @@ func defaultArticleQueryParams() (qp ArticleQueryParams) {
 }
 
 func (qp ArticleQueryParams) print() {
+	/*
 	prVal("idCondition", qp.idCondition)
 	prVal("userIdCondition", qp.userIdCondition)
 	prVal("categoryCondition", qp.categoryCondition)
@@ -77,6 +78,7 @@ func (qp ArticleQueryParams) print() {
 	prVal("bRandomizeTime", qp.bRandomizeTime)
 	prVal("createMaterializedView", qp.createMaterializedView)
 	prVal("useMaterializedView", qp.useMaterializedView)
+	*/
 }
 
 func (qp ArticleQueryParams) validate() {
