@@ -847,11 +847,9 @@ $(function () {
 			   style="color: rgb(0, 114, 255);"
 			{{ end }}
 			>
-				<i class='far fa-comment'></i>
+				<!--<i class='far fa-comment'></i>-->
 				{{ $article.NumComments }}
-				{{ if or (eq $article.Size 1) ($article.IsPoll) }}
-					 Comment{{if ne $article.NumComments 1}}s{{end}}
-				{{ end }}
+				Comment{{if ne $article.NumComments 1}}s{{end}}
 			</a>
 		</span>
 	</td>
@@ -1131,7 +1129,7 @@ $(function () {
 				</table>
 			</td>
 		</tr>
-		<tr class="spacer" style="height:10px"></tr>
+		<!--<tr class="spacer" style="height:10px"></tr>-->
 	{{ end }}
 {{ end }}
 

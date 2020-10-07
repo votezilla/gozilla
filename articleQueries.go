@@ -552,6 +552,20 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 			newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 1,//2,
 												    "/static/ballotboxes/ballotbox 3dinos small.jpg",
 													"/static/ballotboxes/ballotbox 3dinos small 160x180.jpg")
+			// TODO: this is a dup of the code below it.
+			if thumbnailStatus >= image_DownsampledV2 {
+				thumbnailBasePath := "/static/thumbnails/" + strconv.FormatInt(id, 10)
+
+				// v2+ - Downsamples into two version of the thumbnail, different heights depending on the height of the article.  (New version 2 of the thumbnail.)  TODO: maybe we can pick a or b ahead of time?
+				newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 2,
+					thumbnailBasePath + "a.jpeg", // a - 160 x 116 - thumbnail
+					thumbnailBasePath + "b.jpeg") // b - 160 x 150
+
+				// v3  - Point full-size image to large thumbnail.
+				if thumbnailStatus >= image_DownsampledV3 {
+					newArticle.UrlToImage = thumbnailBasePath + "c.jpeg" // c - 570 x _ [large thumbnail]
+				}
+			}
 
 			//prVal("newArticle.PollOptionData", newArticle.PollOptionData)
 

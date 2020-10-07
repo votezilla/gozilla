@@ -48,7 +48,7 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 		Expires	: expiration,
 		Domain	: r.URL.Host,
 		Secure	: false, // TODO: set cookie.Secure to true once SSL is enabled.
-		HttpOnly: true,  // Prevent XSFR attacks.
+		HttpOnly: true,  // Prevents XSFR attacks, but does not allow server-side cookies to be read on the client side via JS.
 		Path	: "/",
 		SameSite: http.SameSiteStrictMode,
 	}
@@ -209,6 +209,7 @@ func InvalidateCache(userId int64) {
 		    userId)
 }
 
+// Get userId, username, isCacheValid from the secure cookie & database lookup.
 func GetSessionInfo2(w http.ResponseWriter, r *http.Request) (userId int64, username string, isCacheValid bool) {
 	userId = GetSession(r)
 

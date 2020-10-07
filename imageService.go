@@ -113,10 +113,11 @@ const (
 
 	image_DownsampleError	= -1
 
-	//genThumbPass_PollPost	= 0 // Don't need, because all polls right now use the default dino jpg.
 	genThumbPass_LinkPost	= 0
 	genThumbPass_NewsPost	= 1
-	NUM_GEN_THUMBS_PASSES   = 2
+	genThumbPass_PollPost	= 2
+
+	NUM_GEN_THUMBS_PASSES   = 3
 
 	kImageBatchSize = 5		// Number of images to convert to thumbnails per batch
 )
@@ -357,6 +358,14 @@ func ImageService() {
 		   AND Created > now() - interval '2 weeks'
 		 ORDER BY COALESCE(PublishedAt, Created) DESC
 		 LIMIT %d;`,
+
+		`SELECT Id, UrlToImage, ThumbnailStatus
+		 FROM $$PollPost
+		 WHERE 0 <= ThumbnailStatus AND ThumbnailStatus < %d
+		   AND UrlToImage <> ''
+		   AND Created > now() - interval '2 weeks'
+		 ORDER BY Created DESC
+		 LIMIT %d;`,
 	}
 	for i := 0; i < NUM_GEN_THUMBS_PASSES; i++ {
 		fetchImagesToDownsampleQuery[i] = fmt.Sprintf(
@@ -414,13 +423,6 @@ func ImageService() {
 						prVal("  newThumbnailStatus", newThumbnailStatus)
 
 						switch pass {
-							//case genThumbPass_PollPost:
-							//	DbExec(
-							//		`UPDATE $$PollPost
-							//		 SET ThumbnailStatus = $1
-							//		 WHERE Id = $2::bigint`,
-							//		newThumbnailStatus,
-							//		downsampleResult.postId)
 							case genThumbPass_LinkPost:
 								DbExec(
 									`UPDATE $$LinkPost
@@ -431,6 +433,13 @@ func ImageService() {
 							case genThumbPass_NewsPost:
 								DbExec(
 									`UPDATE $$NewsPost
+									 SET ThumbnailStatus = $1
+									 WHERE Id = $2::bigint`,
+									newThumbnailStatus,
+									downsampleResult.postId)
+							case genThumbPass_PollPost:
+								DbExec(
+									`UPDATE $$PollPost
 									 SET ThumbnailStatus = $1
 									 WHERE Id = $2::bigint`,
 									newThumbnailStatus,
@@ -454,12 +463,6 @@ func ImageService() {
 							prf("Removing timed out id %d url %s prevStatus %d", id, urlStatus.url, urlStatus.status)
 
 							switch pass {
-								//case genThumbPass_PollPost:
-								//	DbExec(
-								//		`UPDATE $$PollPost
-								//		 SET ThumbnailStatus = -1
-								//		 WHERE Id = $1::bigint`,
-								//		id)
 								case genThumbPass_LinkPost:
 									DbExec(
 										`UPDATE $$LinkPost
@@ -469,6 +472,12 @@ func ImageService() {
 								case genThumbPass_NewsPost:
 									DbExec(
 										`UPDATE $$NewsPost
+										 SET ThumbnailStatus = -1
+										 WHERE Id = $1::bigint`,
+										id)
+								case genThumbPass_PollPost:
+									DbExec(
+										`UPDATE $$PollPost
 										 SET ThumbnailStatus = -1
 										 WHERE Id = $1::bigint`,
 										id)

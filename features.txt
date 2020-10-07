@@ -385,3 +385,5 @@ A - 13 - smoother login in notify prompt (pop up)
 A - 8 - fix for caching optimization
 A - 8 - smoother post-login notification
 
+10/6
+A - Fixed email.

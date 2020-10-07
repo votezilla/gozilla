@@ -8,81 +8,84 @@
 
 			{{ template "BackToCategory" $article.Category }}
 
-			<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
-				<tr>
-					<td align="left" style="width: 35%; padding-left:5px;">
-						{{ template "UserTag" $article }}
-						&middot;
-						<span class="age" align="right">{{$article.TimeSince}}</span>
-					</td>
-				</tr>
+			<div style="border: 1px solid #dadce0; border-radius: 8px; margin: 2px;">
 
-				<tr valign="top">
-					<td class="title" style="padding-left: 5px;">
-						{{$article.Title}}
-					</td>
-				</tr>
+				<table border="0" cellpadding="0" cellspacing="0" class="subtext" style="width: 100%">
+					<tr>
+						<td align="left" style="width: 35%; padding-left:5px;">
+							{{ template "UserTag" $article }}
+							&middot;
+							<span class="age" align="right">{{$article.TimeSince}}</span>
+						</td>
+					</tr>
 
-				<tr>
-					<td class="subtext" style="width: 100%; padding-left: 5px;">
-						<table width="100%"><tr>
-							{{ template "PostVoteWidget" $article }}
-							<td align="right" style="width: 40%; padding-right: 5px;">
-								<a href="#">...</a>
-							</td>
-						</tr></table>
-					</td>
-				</tr>
+					<tr valign="top">
+						<td class="title" style="padding-left: 5px;">
+							{{$article.Title}}
+						</td>
+					</tr>
 
-				<tr class="spacer" style="height:15px"></tr>
+					<tr>
+						<td class="subtext" style="width: 100%; padding-left: 5px;">
+							<table width="100%"><tr>
+								{{ template "PostVoteWidget" $article }}
+								<td align="right" style="width: 40%; padding-right: 5px;">
+									<a href="#">...</a>
+								</td>
+							</tr></table>
+						</td>
+					</tr>
 
-				<tr>
-					<td align="left" style="width: 100%; padding-left:5px;">
-						<table width=100%>
-							<tr></tr>
-							<tr>
-								<td colspan=3><h5><b>Results below:</b></h4></td>
-							</tr>
-							{{ template "PollTallyResults" $article.PollTallyInfo }}
+					<tr class="spacer" style="height:15px"></tr>
 
-							{{ if or .ViewDemographics .ViewRankedVoteRunoff }}
-								{{ range $i, $pollTallyInfo := .ExtraTallyInfo }}
-									<tr><td colspan=3><br></td></tr>
-									{{ template "PollTallyResults" $pollTallyInfo }}
+					<tr>
+						<td align="left" style="width: 100%; padding-left:5px;">
+							<table width=100%>
+								<tr></tr>
+								<tr>
+									<td colspan=3><h5><b>Results below:</b></h4></td>
+								</tr>
+								{{ template "PollTallyResults" $article.PollTallyInfo }}
+
+								{{ if or .ViewDemographics .ViewRankedVoteRunoff }}
+									{{ range $i, $pollTallyInfo := .ExtraTallyInfo }}
+										<tr><td colspan=3><br></td></tr>
+										{{ template "PollTallyResults" $pollTallyInfo }}
+									{{ end }}
 								{{ end }}
+								<tr></td>
+							</table>
+							<!--
+								alt names:
+									View Breakdown
+									Demographic Breakdown
+							-->
+							{{ if ge $article.PollTallyInfo.TotalVotes 5 }}
+								<select name="country" class="btn btn-vote" style="font-family: Verdana;"
+										onchange="location.href='/viewPollResults/?postId='+{{$article.Id}}+`&viewRankedVoteRunoff=true&splitByDemographic=${this.value}`;">
+									<option value="-" selected>Split By Demographic</option>
+									{{ range $k, $v := .DemographicLabels }}
+										<option value="{{$k}}">{{$v}}</option>
+									{{ end }}
+								</select>
+							{{ else }}
+								Demographic breakdown viewable once poll reaches 5 or more votes.  There are currently {{ $article.PollTallyInfo.TotalVotes }}.  Share to get more votes!
 							{{ end }}
-							<tr></td>
-						</table>
-						<!--
-							alt names:
-								View Breakdown
-								Demographic Breakdown
-						-->
-						{{ if ge $article.PollTallyInfo.TotalVotes 5 }}
-							<select name="country" class="btn btn-vote" style="font-family: Verdana;"
-									onchange="location.href='/viewPollResults/?postId='+{{$article.Id}}+`&viewRankedVoteRunoff=true&splitByDemographic=${this.value}`;">
-								<option value="-" selected>Split By Demographic</option>
-								{{ range $k, $v := .DemographicLabels }}
-									<option value="{{$k}}">{{$v}}</option>
-								{{ end }}
-							</select>
-						{{ else }}
-							Demographic breakdown viewable once poll reaches 5 or more votes.  There are currently {{ $article.PollTallyInfo.TotalVotes }}.  Share to get more votes!
-						{{ end }}
-						<br><br>
-						{{ if $poll.RankedChoiceVoting }}
-							<div>
-								<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="Ranked Vote Runoff" class="btn btn-default btn-vote" style="font-family: Verdana; color: white; background-color: #37cb24; border-color: #68f833;">
-							</div>
-						{{ end }}
-						<br>
-						{{ if .UserVoteString }}
-							You voted {{.UserVoteString}}.
-						{{ end }}
-				    </td>
-				</tr>
-				<tr class="spacer" style="height:5px"></tr>
-			</table>
+							<br><br>
+							{{ if $poll.RankedChoiceVoting }}
+								<div>
+									<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="Ranked Vote Runoff" class="btn btn-default btn-vote" style="font-family: Verdana; color: white; background-color: #37cb24; border-color: #68f833;">
+								</div>
+							{{ end }}
+							<br>
+							{{ if .UserVoteString }}
+								You voted {{.UserVoteString}}.
+							{{ end }}
+						</td>
+					</tr>
+					<tr class="spacer" style="height:5px"></tr>
+				</table>
+			</div>
 		</div> {{/*col-md-12*/}}
 		<div class="col-md-6 vz-col-md-6">
 		</div>

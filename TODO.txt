@@ -4,15 +4,14 @@ PUSH & TEST ON SERVER:
 
 JUST FIXED:
 
+X - RYAN - remove #comments icon
+X RYAN - added spacing and clearly outlined boxes like google news
+X - FB link was logging out user (had to set cookie mode = Lax instead of Strict)
 
 WORKING ON:
 
 
 WORK ON NEXT:
-
-
-
-
 
 
 HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
@@ -30,20 +29,36 @@ v
 - when not logged in, shows old polls and always the same.  why?
 
 
+LAUNCH FEATURE SHORTLIST:
+--- MUST HAVE
 
-A - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
-  "Create a poll question relating to politics or any other topic you find interesting"
-
-A 21 - Fix email - Emailed DO tech support.
 A 13 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
+       = FEATURED POLL + NEW UPDATES
+	- For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
+	- Automatically picks up all updates since last dailyEmail.  (Store stats about daily email in table?)
 
 A - cr and convert En votes for presidential poll
 
-A - tweak motto?  focus test it, get suggestions.
+- A - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
+  "Create a poll question relating to politics or any other topic you find interesting"
+
+
+
+--- OPTIONAL:
+
+B - 'updates' b4 'share/create' ?
 
 B - polls n desc section (rich text)
 
-B - 'updates' b4 'share/create' ?
+--- OPTIONAL:
+
+A - tweak motto?  focus test it, get suggestions.
+
+B - Messages / marketing - try playing up the direct democracy angle a little.
+
+B - fixed ranked vote runoff printing
+
+--- OPTIONAL:
 
 B - 'Welcome to Votezilla: a censorship-free...' - only n to be on /news, not subcategories
 
@@ -52,7 +67,16 @@ B - 3 - Ranked voting - add printing of # of votes for each ranking order.
 
 B   5 - prompt user to leave comment or up/down vote after viewing an article.
 
-B - Messages / marketing - try playing up the direct democracy angle a little.
+---
+
+B - RYAN: in daily emails, show results of previous polls.
+
+B - RYAN: get >= 5 votes, get your poll features.  (Fair polls only, no one-sided polls allowed.)
+
+---
+
+
+C - poll images - TOM: the image makes no difference to me.  (Could manually set images for now?)
 
 "	___ shared an article" - when they really shared a poll
 
@@ -169,8 +193,6 @@ C also zipping for  static/ any mime type text
 
 
 C - use font awesome icons for polls checkboxes?
-
-- when signing up, store referrer in server side cookie, to return signed in person to that page.  Instead of javascript alert, popup with Welcome to Votezilla.  Store in cookie so this does not reactivate, somehow.
 
 C - 8 -browser notifications API (requires user permission): https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API
 
