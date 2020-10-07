@@ -50,7 +50,7 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 		Secure	: false, // TODO: set cookie.Secure to true once SSL is enabled.
 		HttpOnly: true,  // Prevents XSFR attacks, but does not allow server-side cookies to be read on the client side via JS.
 		Path	: "/",
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 	}
 
 	prVal("setCookie", cookie)
@@ -61,7 +61,11 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 
 // Gets a secure cookie value.
 func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
+	prVal("getCookie ", name)
 	cookie, err := r.Cookie(name)
+
+	prVal("  r.Cookie", cookie)
+
 	if err != nil {  // likely ErrNoCookie
 		return "", err
 	}
@@ -155,6 +159,7 @@ func DestroySession(w http.ResponseWriter, r *http.Request) {
 
 // Returns the User.Id if the secure cookie exists, ok=false otherwise.
 func GetSession(r *http.Request) (userId int64) {
+	pr("GetSession")
 	// Get userId.
 	cookie, err := getCookie(r, kUserId, true)
 	if err != nil { // Missing or forged cookie
@@ -168,6 +173,7 @@ func GetSession(r *http.Request) (userId int64) {
 	}
 	userId, err = strconv.ParseInt(cookie, 10, 64)
 	if err != nil { // Cannot parse cookie
+		pr("Cannot parse cookie")
 		return -1
 	}
 
@@ -178,8 +184,9 @@ func GetSession(r *http.Request) (userId int64) {
 
 // Get userId, username from the secure cookie.
 func GetSessionInfo(w http.ResponseWriter, r *http.Request) (userId int64, username string) {
+	pr("GetSessionInfo")
 	userId = GetSession(r)
-
+	prVal("  userId", userId)
 	if userId == -1 {
 		pr(`GetSessionInfo: -1, ""`)
 		return -1, ""
@@ -211,7 +218,9 @@ func InvalidateCache(userId int64) {
 
 // Get userId, username, isCacheValid from the secure cookie & database lookup.
 func GetSessionInfo2(w http.ResponseWriter, r *http.Request) (userId int64, username string, isCacheValid bool) {
+	pr("GetSessionInfo2")
 	userId = GetSession(r)
+	prVal("  userId", userId)
 
 	if userId == -1 {
 		pr(`GetSessionInfo: -1, ""`)
@@ -227,15 +236,17 @@ func GetSessionInfo2(w http.ResponseWriter, r *http.Request) (userId int64, user
 					 userId)
 	if rows.Next() {
 		err := rows.Scan(&username, &isCacheValid)
+		prf("  username=%s isCacheValid=%s", username, bool_to_str(isCacheValid))
 		check(err)
 	} else {  // User was deleted from db; destroy session to maintain consistency.
+		pr("  DestroySession")
 		DestroySession(w, r)
 		return -1, "", true
 	}
 	check(rows.Err())
 	rows.Close()
 
-	prf("GetSessionInfo2 %d, %s, %s", userId, username, bool_to_str(isCacheValid))
+	prf("  GetSessionInfo2 %d, %s, %s", userId, username, bool_to_str(isCacheValid))
 
 	return userId, username, isCacheValid
 }
