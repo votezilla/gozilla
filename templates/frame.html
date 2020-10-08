@@ -434,7 +434,7 @@ function Vote(id, up, bcomment) {
 
 		loginRequired(
 			'up/down vote a post',
-			`/news/#post${id}`
+			`/article/?postId=${id}`
 		);
 	}
 }
@@ -595,7 +595,7 @@ function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 	if ({{.UserId}} == -1) {
 		loginRequired(
 			'vote on a poll',
-			`/news/?category=polls#post${pollId}`
+			`/article/?postId=${pollId}`
 		);
 
 		return;

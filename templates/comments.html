@@ -208,7 +208,7 @@
 		if (!({{template "LoggedIn" .}})) {
 			loginRequired(
 				'leave a comment',
-				`article/?postId=${postId}#comment_${parentId}`
+				`/article/?postId=${postId}#comment_${parentId}`
 			);
 			return;
 		}

@@ -387,3 +387,9 @@ A - 8 - smoother post-login notification
 
 10/6
 A - Fixed email.
+
+10/7
+2 - RYAN - remove #comments icon
+5 - RYAN - added spacing and clearly outlined boxes like google news
+3 - Cool article border hover effect
+5 - FB link was logging out user (had to set cookie mode = Lax instead of Strict)

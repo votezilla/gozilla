@@ -4,19 +4,14 @@ PUSH & TEST ON SERVER:
 
 JUST FIXED:
 
-2 - RYAN - remove #comments icon
-5 - RYAN - added spacing and clearly outlined boxes like google news
-3 - Cool article border hover effect
-5 - FB link was logging out user (had to set cookie mode = Lax instead of Strict)
 
 
 WORKING ON:
 
 
+
+
 WORK ON NEXT:
-
-
-HIGH PRIORITY (for test w/ Ryan, Tom, Tyler, Mike Munk, Dad):
 
 
 
@@ -44,8 +39,14 @@ A - cr and convert En votes for presidential poll
 - A - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
   "Create a poll question relating to politics or any other topic you find interesting"
 
+A 3 - post sign up -> /article
+
 
 B 1 - "news" -> "news / polls"
+
+B - 3 - Ranked voting - add printing of # of votes for each ranking order.
+        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
+
 
 --- OPTIONAL:
 
@@ -64,9 +65,6 @@ B - fixed ranked vote runoff printing
 --- OPTIONAL:
 
 B - 'Welcome to Votezilla: a censorship-free...' - only n to be on /news, not subcategories
-
-B - 3 - Ranked voting - add printing of # of votes for each ranking order.
-        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
 B   5 - prompt user to leave comment or up/down vote after viewing an article.
 
