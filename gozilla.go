@@ -30,6 +30,7 @@ const (
 	kCreateBlog = "createBlog"
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
+	kDailyEmail = "dailyEmail"
 	kLogin = "login"
 	kLoginFB = "loginFB"
 	kLoginRequired = "loginRequired"	// Prompt to log in / sign in if required from user action.
@@ -245,7 +246,10 @@ func parseTemplateFiles() {
 
 	// Pop-ups:
 	hDefineTemplate(kTutorial, 			"tutorial")
-	hDefineTemplate(kLoginRequired, "loginRequired")
+	hDefineTemplate(kLoginRequired, 	"loginRequired")
+
+	// Email templates:
+	hDefineTemplate(kDailyEmail,	"dailyEmail")
 
 	// Javascript snippets
 	//tDefineTemplate(kRegisterDetailsScript, "registerDetailsScript")  // TODO: find a new home for this.  Just add to registerDetails(?)
@@ -331,6 +335,7 @@ func WebServer() {
 	InitNewsSources()
 	InitFirewall()
 	InitWebServer()
+	//InitEmail()
 }
 
 func main() {
@@ -344,6 +349,7 @@ func main() {
 	prVal("flags.testEmail", flags.testEmail)
 
 	if flags.testEmail {
+		//InitEmail()
 		testEmail()
 	} else if flags.imageService != "" {
 		ImageService()

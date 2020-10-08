@@ -2,8 +2,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"io"
+	//"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -255,47 +256,48 @@ func prp(label string, v interface{}) {
 // render template files
 //
 ///////////////////////////////////////////////////////////////////////////////
+func parseAndCheckTemplate(templateName string) {
+	if flags.debug != "" {
+		parseTemplateFiles()
+	}
+
+	_, ok := htemplates[templateName]
+	assert(ok)
+}
+
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
 	pr("executeTemplate: " + templateName)
 
-	if flags.debug != "" {
-		parseTemplateFiles()
-	}
+	parseAndCheckTemplate(templateName)
 
-	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
-	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
-	_, ok := htemplates[templateName]
-	var err error
-	if ok {
-		err = htemplates[templateName].Execute(w, data)
-	}// else {
-	//	err = ttemplates[templateName].Execute(w, data)
-	//}
-	if err != nil {
-		check(err)
-		return
-	}
-}
-
-// writes to io.Writer instead of http.ResponseWriter
-func renderTemplate(w io.Writer, templateName string, data interface{}) {
-	pr("renderTemplate: " + templateName)
-
-	if flags.debug != "" {
-		parseTemplateFiles()
-	}
-
-	// Note: htemplate does HTML-escaping, which prevents against HTML-injection attacks!
-	//       ttemplate does not, but is necessary for rendering HTML, such as auto-generated forms.
-	_, ok := htemplates[templateName]
-	var err error
-	if ok {
-		err = htemplates[templateName].Execute(w, data)
-	}// else {
-	//	err = ttemplates[templateName].Execute(w, data)
-	//}
+	err := htemplates[templateName].Execute(w, data)
 	check(err)
 }
+
+// renders template to string
+func renderToString(templateName string, data interface{}) string {
+	pr("renderToString: " + templateName)
+
+	parseAndCheckTemplate(templateName)
+
+	var tpl bytes.Buffer
+	err := htemplates[templateName].Execute(&tpl, data)
+	check(err)
+
+	return tpl.String()
+}
+
+/* Works but not used
+// renders template to io.Writer
+func renderToWriter(w io.Writer, templateName string, data interface{}) {
+	pr("renderToWriter: " + templateName)
+
+	parseAndCheckTemplate(templateName)
+
+	err := htemplates[templateName].Execute(w, data)
+	check(err)
+}
+*/
 
 // Serves the specified HTML string as a webpage.
 func serveHTML(w http.ResponseWriter, html string) {

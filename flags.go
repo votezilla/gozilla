@@ -35,6 +35,7 @@ var (
 		skipFirewall			bool		// Whether to skip the firewall
 		testEmail				bool		// Send a test email and exit
 		smtpPassword			string		// Password for sending email to the SMTP server
+		dryRun					bool		// If true, email message is generated but not sent
 	}
 )
 
@@ -73,6 +74,7 @@ func parseCommandLineFlags() {
 	flag.BoolVar(&flags.skipFirewall, "skipFirewall", true, "Whether to skip the firewall")
 	flag.BoolVar(&flags.testEmail, "testEmail", false, "Send a test email and exit")
 	flag.StringVar(&flags.smtpPassword, "smtpPassword", "", "Password for sending email to the SMTP server")
+	flag.BoolVar(&flags.dryRun, "dryRun", false, "If true, email message is generated but not sent")
 
 	prVal("Command Line Args", os.Args)
 

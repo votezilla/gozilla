@@ -6,10 +6,16 @@ JUST FIXED:
 A 3 - post sign up -> /article
 B 1 - "news" -> "news & polls"
 B 1 - 'updates' b4 'share/create' ?
-
+B - 3 - play alert sound for notification
 
 WORKING ON:
 
+A 13 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
+       = FEATURED POLL
+       = MORE POLLS
+       = UPDATES
+	- For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
+	- Automatically picks up all updates since last dailyEmail.  (Store stats about daily email in table?)
 
 
 
@@ -32,18 +38,9 @@ LAUNCH FEATURE SHORTLIST:
 --- MUST HAVE
 
 
-WALK IDEAS:
-1) Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
-2)
-
-A 13 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
-       = FEATURED POLL
-       = MORE POLLS
-       = UPDATES
-	- For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
-	- Automatically picks up all updates since last dailyEmail.  (Store stats about daily email in table?)
-
 A - cr and convert En votes for presidential poll
+
+A 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
 
 - A - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
   "Create a poll question relating to politics or any other topic you find interesting"
@@ -98,7 +95,7 @@ Notifications:
 	B - 3 - change title dynamically like FB does, for alerts
 	https://stackoverflow.com/questions/7173596/changing-the-page-title-with-jquery
 
-	B - 3 - play alert sound for notification	https://stackoverflow.com/questions/21815323/have-sound-play-when-alert-is-triggered
+
 
 B - new type of poll - numeric -> budget percentage - Gordon's idea.
 

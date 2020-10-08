@@ -2,11 +2,13 @@ package main
 
 //TODO TMight be importing extraneous files here, I'm not sure.
 import (
-    "fmt"
-    "net"
-    "net/mail"
+	"crypto/tls"
+	"fmt"
+	"gopkg.in/gomail.v2"
+	//"io"
+	"net"
+	"net/mail"
 	"net/smtp"
-    "crypto/tls"
 )
 
 // Uses SSL/TLS Email Example
@@ -25,12 +27,50 @@ func testEmail() {
 	pr("testEmail():")
 
     from := BUSINESS_EMAIL
-    to   := "magicsquare15@gmail.com"
-    subj := "Email via Go Code"
-    body := "Hi, Aaron,\n\nThe email example you sent me appears to work! (Gmail allows it if you turn on the \"Access for less secure apps\" setting.)\n\n--Tyler C, sent from Go."
+    //to   := "magicsquare15@gmail.com"
+    //subj := "Email via Go Code"
+    //body := "Hi, Aaron,\n\nThe email example you sent me appears to work! (Gmail allows it if you turn on the \"Access for less secure apps\" setting.)\n\n--Tyler C, sent from Go."
 
-	sendEmail(from, to, subj, body)
+	//sendEmail(from, to, subj, body)
+	m := gomail.NewMessage()
+	m.SetHeader("From", from)
+	m.SetHeader("To", "magicsquare15@gmail.com", "alterego200@yahoo.com")
+	m.SetAddressHeader("Cc", "sheeple.game@gmail.com", "Sheepie")
+	m.SetHeader("Subject", "Hello!")
+//	m.SetBody("text/html", "Hello <b>Bob</b> and <i>Cora</i>!")
+//	m.Attach("static\\ballotboxes\\ballotbox 3dinos small 160x180.jpg") // works.  would need '/' for linux.
+
+	// Render the email body template.
+	body := renderToString(
+		kDailyEmail,
+		struct { // Email template args
+			FeaturedPoll	int
+		} {
+			FeaturedPoll : 777,
+		},
+	)
+	prVal("body", body)
+
+	m.SetBody("text/html", body)
+
+	if !flags.dryRun {
+		pr("sending the email")
+		d := gomail.NewDialer("smtp.gmail.com", 465, BUSINESS_EMAIL, flags.smtpPassword)
+
+		// TODO: numEmailSent++
+
+		// Send the email to Bob, Cora and Dan.
+		if err := d.DialAndSend(m); err != nil {
+			panic(err)
+		}
+	}
 }
+
+/*
+func InitEmail() {
+	d := gomail.NewDialer("smtp.example.com", 587, "user", "123456")
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+}*/
 
 
 func generateConfEmail(user string) string {
