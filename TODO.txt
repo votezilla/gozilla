@@ -44,6 +44,9 @@ A - cr and convert En votes for presidential poll
 B - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
+B - 3 - Polls - add linkUrl (optional)
+
+B - 5 - Polls - add description (optional, rich text)
 
 --- OPTIONAL:
 
