@@ -31,8 +31,15 @@ v
 LAUNCH FEATURE SHORTLIST:
 --- MUST HAVE
 
+
+WALK IDEAS:
+1) Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
+2)
+
 A 13 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
-       = FEATURED POLL + NEW UPDATES
+       = FEATURED POLL
+       = MORE POLLS
+       = UPDATES
 	- For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
 	- Automatically picks up all updates since last dailyEmail.  (Store stats about daily email in table?)
 
