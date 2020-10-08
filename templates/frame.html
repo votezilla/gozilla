@@ -692,6 +692,30 @@ function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 ///////////////////////////////////////////////////////////////////////////////
 var gLandingTime;
 var gDelay = 60000; // 1 minute (60,000 ms)
+var bFirstNotification = true;
+var gOriginalTitle = document.title;
+
+// Ref: https://stackoverflow.com/questions/7173596/changing-the-page-title-with-jquery
+function animateTitle() {
+	console.log("animateTitle(): bFirstNotification = " + bFirstNotification)
+
+	if (bFirstNotification) {
+		bFirstNotification = false;
+
+		var counter = 0;
+
+		var titleTimerId = setInterval(function(){
+			document.title = '>' + document.title;
+			counter++;
+			if(counter == 30) {
+				clearInterval(titleTimerId);
+
+				bFirstNotification = true;
+				document.title = gOriginalTitle;
+			}
+		}, 100);
+	}
+}
 
 function checkForNotifications(notificationType) {
 	var jsonData = JSON.stringify({
@@ -719,6 +743,8 @@ function checkForNotifications(notificationType) {
 				notificationWidget.show();
 
 				playAlertSound();
+
+				animateTitle();
 			} else {
 				notificationWidget.hide();
 			}

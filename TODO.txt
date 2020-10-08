@@ -7,6 +7,8 @@ A 3 - post sign up -> /article
 B 1 - "news" -> "news & polls"
 B 1 - 'updates' b4 'share/create' ?
 B - 3 - play alert sound for notification
+B - 3 - change title dynamically like FB does, for alerts
+
 
 WORKING ON:
 
@@ -90,11 +92,6 @@ B - 5 - Add more activities notifications (for now, a notification for every vot
 B - 3 - Expanded comment loses all <br>'s.
 
 B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.  (See latest notes in phone for update to this via button on bottom of page.)
-
-Notifications:
-	B - 3 - change title dynamically like FB does, for alerts
-	https://stackoverflow.com/questions/7173596/changing-the-page-title-with-jquery
-
 
 
 B - new type of poll - numeric -> budget percentage - Gordon's idea.
