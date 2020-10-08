@@ -322,10 +322,10 @@ func SetupWebHandlers() *http.ServeMux {
 }
 
 func WebServer() {
-	if flags.separateNewsAndPolls {
+	if flags.separateNewsAndPolls { // false
 		navMenu		= []string{"polls", "news", "create", "activity", "history" }
 	} else {
-		navMenu		= []string{"news", "create", "activity", "about", "history" }
+		navMenu		= []string{"news", "activity", "create", "about", "history" }
 	}
 	InitSecurity()
 	InitNewsSources()
@@ -340,7 +340,7 @@ func main() {
 
 	OpenDatabase()
 	defer CloseDatabase()
-	
+
 	prVal("flags.testEmail", flags.testEmail)
 
 	if flags.testEmail {

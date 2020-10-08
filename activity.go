@@ -57,6 +57,7 @@ func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
 
 	switch request.NotificationType[0] {
 		case 'n': // "news"
+			pr("  request.NotificationType = 'news'")
 			elapsedSeconds := request.ElapsedMilliseconds / 1000
 			withinTimeInterval := "now() - " + int_to_str(elapsedSeconds) + " * (interval '1 second')"
 
@@ -66,8 +67,10 @@ func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
 
 			break;
 		case 'a': // "activity"
-
+			pr("  request.NotificationType = 'activity'")
 			_, _, _, unvisited := fetchActivity(userId, request.ElapsedMilliseconds) // CHECKIN_TODO: only fetch activity within the last ___ seconds!
+
+			prVal("  unvisited", unvisited)
 
 			// Add up the unvisited notifications - this is the update number.
 			response.NumNotifications = 0
@@ -76,6 +79,8 @@ func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
 					response.NumNotifications++
 				}
 			}
+
+			prVal("  response.NumNotifications", response.NumNotifications)
 
 			break;
 		default:
@@ -213,6 +218,8 @@ func fetchActivity(userId int64, withinElapsedMilliseconds int) (allArticles []A
 	pr("Get articles shared by user")
 	{
 		articles := fetchArticlesNotPostedByUser(userId, 50, withinElapsedMilliseconds)
+
+		prVal("  len(articles)", len(articles))
 
 		for a, article := range articles {
 			//prVal("article.UserId", article.UserId)

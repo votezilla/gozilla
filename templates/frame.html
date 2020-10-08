@@ -66,8 +66,10 @@ var numNewOptions = 0; // Also used by addOption() in article.html
 											{{- end -}}
 										{{- end }}
 										<figcaption style="size: 4vw;">
-											{{- if eq $navItem "activity" }}
-												updates
+											{{- if eq $navItem "news" }}
+												polls &<br>news
+											{{- else if eq $navItem "activity" }}
+												activity
 											{{- else if eq $navItem "create" }}
 												share /<br>create
 											{{- else if eq $navItem "history" }}

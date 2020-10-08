@@ -3,7 +3,9 @@ PUSH & TEST ON SERVER:
 
 
 JUST FIXED:
-
+A 3 - post sign up -> /article
+B 1 - "news" -> "news & polls"
+B 1 - 'updates' b4 'share/create' ?
 
 
 WORKING ON:
@@ -39,18 +41,11 @@ A - cr and convert En votes for presidential poll
 - A - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
   "Create a poll question relating to politics or any other topic you find interesting"
 
-A 3 - post sign up -> /article
-
-
-B 1 - "news" -> "news / polls"
-
 B - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
 
 --- OPTIONAL:
-
-B - 'updates' b4 'share/create' ?
 
 B - polls n desc section (rich text)
 

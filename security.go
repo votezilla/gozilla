@@ -61,10 +61,10 @@ func setCookie(w http.ResponseWriter, r *http.Request, name string, value string
 
 // Gets a secure cookie value.
 func getCookie(r *http.Request, name string, encrypted bool) (string, error) {
-	prVal("getCookie ", name)
+	//prVal("getCookie ", name)
 	cookie, err := r.Cookie(name)
 
-	prVal("  r.Cookie", cookie)
+	//prVal("  r.Cookie", cookie)
 
 	if err != nil {  // likely ErrNoCookie
 		return "", err
