@@ -14,6 +14,11 @@ import (
 
 type int256 [4]int64
 
+type UserData struct {
+	Username	string
+	Name		string
+}
+
 var (
 	cookieCypher *securecookie.SecureCookie
 )
@@ -207,6 +212,19 @@ func GetSessionInfo(w http.ResponseWriter, r *http.Request) (userId int64, usern
 	prf("GetSessionInfo %d, %s", userId, username)
 
 	return
+}
+
+func GetUserData(userId int64) (userData UserData) {
+	rows := DbQuery("SELECT Username, Name FROM $$User WHERE Id = $1::bigint;", userId)
+	if rows.Next() {
+		err := rows.Scan(&userData.Username, &userData.Name)
+		check(err)
+	}
+	check(rows.Err())
+	rows.Close()
+
+	prVal("userData", userData)
+	return userData
 }
 
 func InvalidateCache(userId int64) {

@@ -162,7 +162,7 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 
 
 func widthHandler(w http.ResponseWriter, r *http.Request) {
-	serveHTML(w, `
+	serveHtml(w, `
 		<script>
 			alert('Your device inner width: ' + window.innerWidth +
 				  '; screen width: ' + screen.width);
@@ -312,6 +312,10 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/updatePassword/", 			hwrap(updatePasswordHandler))
 	mux.HandleFunc("/viewPollResults/",			hwrap(viewPollResultsHandler))
 	mux.HandleFunc("/width/",					hwrap(widthHandler))
+
+	// For testing the HTML email
+	mux.HandleFunc("/welcomeEmail/",			hwrap(welcomeEmailHandler))
+	mux.HandleFunc("/dailyEmail/",				hwrap(dailyEmailHandler))
 
 	mux.HandleFunc("/fbHome/",					hwrap(fbHome))
 	mux.HandleFunc("/fbLogin/",					hwrap(fbLogin))

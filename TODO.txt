@@ -3,16 +3,12 @@ PUSH & TEST ON SERVER:
 
 
 JUST FIXED:
-A 3 - post sign up -> /article
-B 1 - "news" -> "news & polls"
-B 1 - 'updates' b4 'share/create' ?
-B - 3 - play alert sound for notification
-B - 3 - change title dynamically like FB does, for alerts
 
 
 WORKING ON:
 
 A 13 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
+X       + Html template tech
        = FEATURED POLL
        = MORE POLLS
        = UPDATES
@@ -76,7 +72,11 @@ B   5 - prompt user to leave comment or up/down vote after viewing an article.
 
 B - RYAN: in daily emails, show results of previous polls.
 
-B - RYAN: get >= 5 votes, get your poll features.  (Fair polls only, no one-sided polls allowed.)
+B - RYAN: get >= 5 votes, get your poll featured.  (Fair polls only, no one-sided polls allowed.)
+
+B - poll image thumbnail (at least for non-default thumbnails) - CSS = margin-left:0, border-radius:8px, height and width 68x68 works well.
+
+B - elim dup poll options somehow
 
 ---
 

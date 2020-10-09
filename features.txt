@@ -393,3 +393,9 @@ A - Fixed email.
 5 - RYAN - added spacing and clearly outlined boxes like google news
 3 - Cool article border hover effect
 5 - FB link was logging out user (had to set cookie mode = Lax instead of Strict)
+A 3 - post sign up -> /article
+B 1 - "news" -> "news & polls"
+B 1 - 'updates' b4 'share/create' ?
+B - 3 - play alert sound for notification
+B - 3 - change title dynamically like FB does, for alerts
+

@@ -300,7 +300,7 @@ func renderToWriter(w io.Writer, templateName string, data interface{}) {
 */
 
 // Serves the specified HTML string as a webpage.
-func serveHTML(w http.ResponseWriter, html string) {
+func serveHtml(w http.ResponseWriter, html string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprintf(w, html)
 }

@@ -58,12 +58,7 @@ func makeRegisterForm() *Form {
 }
 
 
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// login
-//
-///////////////////////////////////////////////////////////////////////////////
+// After login, return to the article or page you were interacting with.
 func gotoReturnAddress(w http.ResponseWriter, r *http.Request, userId int64, alertCode string) {
 	// Return address (pre-login) was saved as a cookie.  Return the user to that address,
 	// so they can continue what they were doing before logging in.
@@ -90,6 +85,11 @@ func gotoReturnAddress(w http.ResponseWriter, r *http.Request, userId int64, ale
 	return
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// login
+//
+///////////////////////////////////////////////////////////////////////////////
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	pr("loginHandler")
 
@@ -267,8 +267,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 				passwordHashInts[3],
 				ip)
 
-			// Send confirmation email
-			sendEmail(BUSINESS_EMAIL, form.val(kEmail), "Account Creation Confirmation", generateConfEmail(form.val(kUsername)))
+			sendAccountConfirmationEmail(form.val(kEmail), form.val(kUsername))
 
 			// Create session (encrypted userId).
 			CreateSession(w, r, userId)
@@ -427,7 +426,7 @@ func updatePasswordHandler(w http.ResponseWriter, r *http.Request){
 
 	prf("Updated password for user %d", userId)
 
-	serveHTML(w, "<h2>You successfully updated your password!</h2>")
+	serveHtml(w, "<h2>You successfully updated your password!</h2>")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
