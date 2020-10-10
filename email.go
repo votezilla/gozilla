@@ -99,7 +99,7 @@ func sendAccountConfirmationEmail(eml, username string) {
 }
 
 func sendEmail(from string, to_eml string, to_name string, subj string, body string) {
-	prf("sendEmail %s %s %s %s %s", from, to_eml, to_name, subj, body)
+	prf("sendEmail %s %s %s %s %s", from, to_eml, to_name, subj, ellipsify(body, 50))
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", from)

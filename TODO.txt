@@ -11,7 +11,7 @@ C - 8 - cool button style
 
 WORKING ON:
 
-A 34 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
+A 34 - eml - notifications about new polls
 X       + Html template tech
   [X] 8 html email tech
   [X] 8 Design FEATURED POLL part of daily email
@@ -21,7 +21,7 @@ X       + Html template tech
 
     [] try converting back to htemplate and send test daily email before submitting
   [X] 3 Test w/ images turned off
-  []  2 git commit, test sending email new way on the server
+  [-]  2 git commit, test sending email new way on the server
 
   []  5 unsubscribe eml & prefs on server (Email prefs: 1 / day, 1 / week, 1 / month, no email)
   []  5 Implement daily email batch: For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
@@ -60,15 +60,15 @@ B - 2 - Polls - add urlToImage (optional)
 
 B - 3 - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
   "Create a poll question relating to politics or any other topic you find interesting"
+  (Where it says "Share to get more votes!")
 
 B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
 
-B - 3 -  Design welcome email?
-
-B - 3 - Secure my emails by:
+B - 3 - Secure my emails:
           1) admin emails should have admin=True set in vz.User
           2) require &showPassword=true, then if reqShowPassword on server, enter password when Admin=true
 
+[] B - 3 - Delete bad polls
 
 << FINISH BY EOD FRI 10/9! >>
  > send daily email
@@ -81,6 +81,10 @@ B - 3 - Secure my emails by:
 
 
 --- OPTIONAL:
+
+C - fix poll ranking algorithm by penalizing old polls less, like the sqrt of the time elapsed?
+
+C - add to daily emails: more polls, poll results, updates, new news articles(?)
 
 C - 3 - Register + log-in - prevent bugs by stripping spaces from front and end of email?
 
