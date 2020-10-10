@@ -60,7 +60,7 @@ func ajaxCreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in to create a comment.")
@@ -166,7 +166,7 @@ func ajaxExpandComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in to create a comment.")

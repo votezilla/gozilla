@@ -155,8 +155,8 @@ func reportError(errorMsg string) error {
 
 func join(strList []string) string { return strings.Join(strList, "[,]") }
 
-func logRequest(r *http.Request, ip, port, path, query, errorMsg string) {
-	userId := GetSession(r)
+func logRequest(w http.ResponseWriter, r *http.Request, ip, port, path, query, errorMsg string) {
+	userId := GetSession(w, r)
 
 	DbExec(`INSERT INTO vz.Request(Ip, Port, Method, Path, RawQuery, Language, Referer, UserId, Error)
 			VALUES($1, $2, $3, $4, $5, $6, $7, $8::bigint, $9);`,
@@ -205,18 +205,18 @@ func resetDOSCounters() {
 }
 
 // If this is an evil request, return false.  Otherwise, return true and log the request.
-func CheckAndLogIP(r *http.Request) error {
+func CheckAndLogIP(w http.ResponseWriter, r *http.Request) error {
 	pr("CheckAndLogIP")
 
 	var errorMsg, path, query string
 
 	ip, port, err := net.SplitHostPort(r.RemoteAddr)
-	
+
 	path  = r.URL.Path
-	query = r.URL.RawQuery	
+	query = r.URL.RawQuery
 
 	if flags.skipFirewall {
-		go logRequest(r, ip, port, path, query, "skipping firewall")
+		go logRequest(w, r, ip, port, path, query, "skipping firewall")
 		return nil // ok request
 	}
 
@@ -264,7 +264,7 @@ func CheckAndLogIP(r *http.Request) error {
 	}
 
 	// Log the request in the background.
-	go logRequest(r, ip, port, path, query, errorMsg)
+	go logRequest(w, r, ip, port, path, query, errorMsg)
 
 	if errorMsg != "" {
 		return reportError(errorMsg)
@@ -327,7 +327,7 @@ func InitFirewall() {
 
 	//prVal("r.Form.Encode()", 	r.Form.Encode())
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	prVal("userId", userId)
 	pr("<<")
 */

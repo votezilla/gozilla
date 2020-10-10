@@ -15,6 +15,7 @@ import (
 type int256 [4]int64
 
 type UserData struct {
+	Email		string
 	Username	string
 	Name		string
 }
@@ -163,9 +164,36 @@ func DestroySession(w http.ResponseWriter, r *http.Request) {
 }
 
 // Returns the User.Id if the secure cookie exists, ok=false otherwise.
-func GetSession(r *http.Request) (userId int64) {
+func GetSession(w http.ResponseWriter, r *http.Request) (userId int64) {
 	pr("GetSession")
-	// Get userId.
+
+	// Friction-free login from email if url has &autoLoginEmail=[eml]
+	escapedEmail := parseUrlParam(r, "autoLoginEmail")
+	prVal("  escapedEmail", escapedEmail)
+	if escapedEmail != "" {
+		autoLoginEmail, err := url.QueryUnescape(escapedEmail)
+		check(err)
+		prVal("  autoLoginEmail", autoLoginEmail)
+
+		userId := int64(-1)
+		rows := DbQuery("SELECT Id FROM $$User WHERE Email = $1", autoLoginEmail)
+		if rows.Next() {
+			err := rows.Scan(&userId)
+			check(err)
+		}
+		check(rows.Err())
+		rows.Close()
+
+		if userId >= 0 {
+			prf("  XXX Auto-Login from email successful!  UserId = %d", userId)
+
+			CreateSession(w, r, userId)
+
+			return userId
+		}
+	}
+
+	// Get userId from the session cookie.
 	cookie, err := getCookie(r, kUserId, true)
 	if err != nil { // Missing or forged cookie
 		if flags.testUserId != "" {
@@ -190,7 +218,7 @@ func GetSession(r *http.Request) (userId int64) {
 // Get userId, username from the secure cookie.
 func GetSessionInfo(w http.ResponseWriter, r *http.Request) (userId int64, username string) {
 	pr("GetSessionInfo")
-	userId = GetSession(r)
+	userId = GetSession(w, r)
 	prVal("  userId", userId)
 	if userId == -1 {
 		pr(`GetSessionInfo: -1, ""`)
@@ -215,9 +243,9 @@ func GetSessionInfo(w http.ResponseWriter, r *http.Request) (userId int64, usern
 }
 
 func GetUserData(userId int64) (userData UserData) {
-	rows := DbQuery("SELECT Username, COALESCE(Name, '') FROM $$User WHERE Id = $1::bigint;", userId)
+	rows := DbQuery("SELECT Email, Username, COALESCE(Name, '') FROM $$User WHERE Id = $1::bigint;", userId)
 	if rows.Next() {
-		err := rows.Scan(&userData.Username, &userData.Name)
+		err := rows.Scan(&userData.Email, &userData.Username, &userData.Name)
 		check(err)
 	}
 	check(rows.Err())
@@ -237,7 +265,7 @@ func InvalidateCache(userId int64) {
 // Get userId, username, isCacheValid from the secure cookie & database lookup.
 func GetSessionInfo2(w http.ResponseWriter, r *http.Request) (userId int64, username string, isCacheValid bool) {
 	pr("GetSessionInfo2")
-	userId = GetSession(r)
+	userId = GetSession(w, r)
 	prVal("  userId", userId)
 
 	if userId == -1 {

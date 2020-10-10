@@ -24,7 +24,17 @@ X       + Html template tech
   [X]  2 git commit, test sending email new way on the server
 
   [X] 5 unsubscribe eml & prefs on server (Email prefs: 1 / day, 1 / week, 1 / month, no email)
+
+  [X] 2 update daily email send from bus address + unsubscribe / email prefs link
+
+  [X]  3 friction-free login from email via &autoLoginEmail=[eml]  (for poll + unsubscribe)
+	[>] decode this next
+
+  [>]  submit and test on server
+
   []  5 Implement daily email batch: For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
+   	test w/ -testBatch=true which will just send to test emails (test db column for which users have testable emails)
+	cont @ email.go:93
 
 - attempting to fix poll ranking.  [] see how it looks on the server
 

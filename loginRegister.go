@@ -23,7 +23,7 @@ const (
 	// Cookie names:
 	kLoginReturnAddress 	= "loginReturnAddress"
 	kAlertCode          	= "alertCode"
-	
+
 	// Alert codes:
 	kLoggedIn				= "LoggedIn"
 	kLoggedOut				= "LoggedOut"
@@ -97,7 +97,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	prVal("r.Method", r.Method)
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	//assert(userId == -1) // So what if the user is logged in when they get here?
 
 	form := makeLoginForm()
@@ -341,7 +341,7 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){
 			}
 		})
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("secure cookie not found")
@@ -407,7 +407,7 @@ func emailPreferenceHandler(w http.ResponseWriter, r *http.Request){
 		nuSelectField(kEmailPreference, "Select Email Preference", emailPref, true, false, false, false, "Please select your email preference"),
 	)
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("secure cookie not found")

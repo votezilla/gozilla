@@ -181,7 +181,7 @@ func hwrap(handler func(w http.ResponseWriter, r *http.Request)) func(w http.Res
 		prf("\n Handling request from: %s\n", formatRequest(r))
 		startTimer("hwrap")
 
-		err := CheckAndLogIP(r)
+		err := CheckAndLogIP(w, r)
 		if err != nil {
 			serveError(w, err)
 			return
@@ -360,6 +360,8 @@ func main() {
 	if flags.testEmail {
 		//InitEmail()
 		testEmail()
+	} else if flags.dailyEmail {
+		dailyEmail()
 	} else if flags.imageService != "" {
 		ImageService()
 	} else if flags.newsService != "" {

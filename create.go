@@ -48,7 +48,7 @@ func createLinkHandler(w http.ResponseWriter, r *http.Request) {
 		nuHiddenField(kThumbnail, ""),
 	)
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in create a post.  TODO: add createLinkHandler to stack somehow... popup window?")
@@ -116,7 +116,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		kRankedChoiceVoting = "bRankedChoiceVoting"
 	)
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in create a post.  TODO: add createPollHandler to stack somehow.")
@@ -253,7 +253,7 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 
 	const kBlogVal = "blogVal"
 
-	userId := GetSession(r)
+	userId := GetSession(w, r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
 		// So go to the register page.
 		pr("Must be logged in create a post.  TODO: add createPollHandler to stack somehow.")
