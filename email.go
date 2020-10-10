@@ -55,14 +55,15 @@ func renderDailyEmail(email string, featuredArticleId int64) string {
 	featuredArticle, err := fetchArticle(featuredArticleId, -1)
 	check(err)
 
-	autoLoginSuffix := "?autoLoginEmail=" + url.QueryEscape(email)
-	prVal("  autoLoginSuffix", autoLoginSuffix)
+	//autoLoginSuffix := "?autoLoginEmail=" + url.QueryEscape(email)
+	//prVal("  autoLoginSuffix", autoLoginSuffix)
 
 	pr("  makeUrlsAbsolute")
 	makeUrlsAbsolute(&featuredArticle)
-	featuredArticle.Url += autoLoginSuffix
+	//featuredArticle.Url += autoLoginSuffix
+	featuredArticle.Url = insertUrlParam(featuredArticle.Url, "autoLoginEmail", email)
 
-	unsubscribeLink := "http://votezilla.news/emailPreference/" + autoLoginSuffix
+	unsubscribeLink := insertUrlParam("http://votezilla.news/emailPreference/", "autoLoginEmail", email)
 	prVal("  unsubscribeLink", unsubscribeLink)
 
 	// Render the email body template.

@@ -93,6 +93,8 @@ B - 3 - Secure my emails:
 
 --- OPTIONAL:
 
+C - remember loginOrEmail value - what I mean is Chrome doesn't remember it.  Maybe it needs a more traditional email or login name.
+
 C - fix poll ranking algorithm by penalizing old polls less, like the sqrt of the time elapsed?
 
 C - nag users who haven't provided demographic data with big red exclamation point by their profile pic, then

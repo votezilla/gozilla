@@ -68,18 +68,7 @@ func gotoReturnAddress(w http.ResponseWriter, r *http.Request, userId int64, ale
 
 	prVal("returnAddress", returnAddress)
 
-	// Insert alertCode into url
-	addrParts := strings.Split(returnAddress, "#")
-
-	if !strings.Contains(addrParts[0], "?") {
-		addrParts[0] += "?"
-	} else {
-		addrParts[0] += "&"
-	}
-
-	addrParts[0] += ("alertCode=" + alertCode)
-
-	returnAddress = strings.Join(addrParts, "#")
+	returnAddress = insertUrlParam(returnAddress, kAlertCode, alertCode)
 
 	prVal("injected returnAddress", returnAddress)
 

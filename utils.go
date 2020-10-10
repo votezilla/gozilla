@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -143,6 +144,25 @@ func sqlEscapeString(value string) string {
     }
 
     return value;
+}
+
+
+// Takes a URL, adds a new param name=value to it, returns it.
+func insertUrlParam(url_, newParamName, newParamValue string) string {
+	pr("insertUrlParam")
+
+	addrParts := strings.Split(url_, "#") // Just work on the part before the hash.
+
+	if !strings.Contains(addrParts[0], "?") {
+		addrParts[0] += "?"
+	} else {
+		addrParts[0] += "&"
+	}
+
+	// Add the new name, value pair.  Must escape the value.
+	addrParts[0] += (newParamName + "=" + url.QueryEscape(newParamValue))
+
+	return strings.Join(addrParts, "#") // Re-join the hash.
 }
 
 
@@ -292,7 +312,7 @@ func renderToString(templateName string, data interface{}) string {
 
 	var tpl bytes.Buffer
 	//err := ttemplates[templateName].Execute(&tpl, data) // Note: uses ttemplates not htemplates.
-	err := htemplates[templateName].Execute(&tpl, data)	
+	err := htemplates[templateName].Execute(&tpl, data)
 	check(err)
 
 	return tpl.String()
