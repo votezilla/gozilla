@@ -5,6 +5,7 @@
 		false
 	{{- end -}}
 {{ end }}
+
 {{ define "PostVoteWidget" }}
 	{{ $article := . }}
 	<td align="left" style="width: 40%;">
@@ -19,6 +20,7 @@
 		</span>
 	</td>
 {{ end }}
+
 {{ define "CommentVoteWidget" }}
 	{{ $tag := . }}
 	<td align="left" style="width: 40%;">
@@ -31,6 +33,7 @@
 		</span>
 	</td>
 {{ end }}
+
 {{define "CommentWidget"}}
 	{{ $article := . }}
 	<td align="right" style="width: 60%;">
@@ -58,6 +61,7 @@
 		</span>
 	</td>-->
 {{end}}
+
 {{ define "VoteOnPollHandler" }}
 	{{- $article := . -}}
 	{{- $poll := $article.PollOptionData -}}
@@ -78,6 +82,7 @@
 		{{- end }}
 	)"
 {{ end }}
+
 {{ define "PollTallyResults" }}
 	{{- $pollTallyInfo := . -}}
 	{{- $pollTallyResults := $pollTallyInfo.Stats -}}
@@ -172,6 +177,7 @@
 		</tr>
 	{{ end }}
 {{ end }}
+
 {{ define "PollInlineForm" }}
 	{{- $article := . -}}
 	{{- if $article.IsPoll -}}
@@ -251,72 +257,68 @@
 		{{ end }}
 	{{ end }}
 {{ end }}
+
 {{ define "PollForm" }}
 	{{- $article := . -}}
 	{{- if $article.IsPoll -}}
 		{{- $poll := $article.PollOptionData }}
-		<a id="vote" href="#"> <!-- Anchor so user sees the poll. -->
-		<tr valign="top">
-			<td class="title" style="padding-left: 5px;">
-				<table width="100%">
+		<table width="100%">
+			{{ if $poll.RankedChoiceVoting }}
+				<tr><td align="left">
+					<span class="rankedVoteIntro">
+						Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.
+					</span>
+					<br>
+				</td></tr>
+			{{ end }}
+			<tr><td align="left">
+				{{ range $o, $option := $poll.Options }}
 					{{ if $poll.RankedChoiceVoting }}
-						<tr><td align="left">
-							<span class="rankedVoteIntro">
-								Ranked Vote: 1 = 1st choice, 2 = 2nd choice, etc.
-							</span>
-							<br>
-						</td></tr>
+						<div>
+							<label>
+								<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
+									   maxlength="1" style="width: 25px; padding: 5px; margin: 4px 4px 4px 0;">
+								{{$option}}
+							</label>
+						</div>
+					{{ else if $poll.CanSelectMultipleOptions }}
+						<div>
+							<label class="vote">
+								<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
+									   value="{{$o}}" style="margin: 6px;">
+								{{$option}}
+							</label>
+						</div>
+					{{ else }}
+						<div>
+							<label class="vote" style="margin-bottom: 0">
+								<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
+									   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}
+									   style="margin: 8px;">
+								{{$option}}
+							</label>
+						</div>
 					{{ end }}
-					<tr><td align="left">
-						{{ range $o, $option := $poll.Options }}
-							{{ if $poll.RankedChoiceVoting }}
-								<div>
-									<label>
-										<input id="vote_{{$article.Id}}_{{$o}}" type="digit" value="" size="1"
-											   maxlength="1" style="width: 25px; padding: 5px; margin: 4px 4px 4px 0;">
-										{{$option}}
-									</label>
-								</div>
-							{{ else if $poll.CanSelectMultipleOptions }}
-								<div>
-									<label class="vote">
-										<input id="vote_{{$article.Id}}_{{$o}}" type="checkbox" class="vote"
-										   	   value="{{$o}}" style="margin: 6px;">
-										{{$option}}
-									</label>
-								</div>
-							{{ else }}
-								<div>
-									<label class="vote" style="margin-bottom: 0">
-										<input id="vote_{{$article.Id}}_{{$o}}" type="radio" class="vote"
-											   name="vote_{{$article.Id}}" {{ if eq $o -1 }} checked {{ end }}
-											   style="margin: 8px;">
-										{{$option}}
-									</label>
-								</div>
-							{{ end }}
-						{{ end }}
+				{{ end }}
 
-						{{ if $poll.AnyoneCanAddOptions }}
-							<div id="addOptionLink">
-								<label class="vote" style="margin: 0px;">
-									<a href="javascript:addOption({{$article.Id}})" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
-										Add option...
-									</a>
-									<br>
-								</label>
-							</div>
-						{{ end }}
+				{{ if $poll.AnyoneCanAddOptions }}
+					<div id="addOptionLink">
+						<label class="vote" style="margin: 0px;">
+							<a href="javascript:addOption({{$article.Id}})" style="font-size: 18px; color: #0072ff; margin-left: 8px;">
+								Add option...
+							</a>
+							<br>
+						</label>
+					</div>
+				{{ end }}
 
-						{{- $poll := $article.PollOptionData }}
+				{{- $poll := $article.PollOptionData }}
 
-						<input name="vote_{{ $article.Id }}_len" type=hidden value="{{ len $poll.Options }}">
+				<input name="vote_{{ $article.Id }}_len" type=hidden value="{{ len $poll.Options }}">
 
-						<button type="submit" class="btn btn-vote" style="margin: 1rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
-					</td></tr>
-				</table>
-			</td>
-		</tr>
+				<button type="submit" class="btn btn-vote" style="margin: 1rem 0;" {{template "VoteOnPollHandler" $article}}>Vote!</button>
+			</td></tr>
+		</table>
 		<!--<tr class="spacer" style="height:10px"></tr>-->
 	{{ end }}
 {{ end }}
@@ -341,24 +343,29 @@
 		</td>
 	</table>
 {{ end }}
+
+
 {{ define "UserTag" }}
 	{{ $article := . }}
 	<a href="/history/?username={{$article.Author}}" class="userTag">
 		<span><img src="{{$article.AuthorIconUrl}}" width=16 height=16></span>
 		<span style="color: #88f">{{$article.Author}}</span></a>
 {{ end }}
+
 {{ define "UserTagL" }}
 	{{ $article := . }}
 	<a href="/history/?username={{$article.Author}}" class="userTag">
 		<span><img src="{{$article.AuthorIconUrl}}" width=24 height=24></span>
 		<span style="color: #88f; font-size: 18px;">{{$article.Author}}</span></a>
 {{ end }}
+
 {{ define "CommentUserTag" }}
 	{{ $comment := . }}
 	<a href="/history?username={{$comment.Username}}" class="userTag">
 		<span><img src="/static/dino-head-24x24.png" width=16 height=16></span>
 		<span style="color: #88f;">{{$comment.Username}}</span></a>
 {{ end }}
+
 {{ define "UserTagMainMenu" }}
 	<a href="/history">
 		<span class="desktop_only">
@@ -366,6 +373,7 @@
 		</span>
 		{{.}}</a>
 {{ end }}
+
 {{ define "UserTagMainMenuSel" }}
 	<a href="/history">
 		<span class="desktop_only">
@@ -376,6 +384,7 @@
 		<span>
 	</a>
 {{ end }}
+
 {{ define "UserTagHistory" }}
 	{{.}}
 {{ end }}

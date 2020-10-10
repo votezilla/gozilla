@@ -4,18 +4,29 @@ PUSH & TEST ON SERVER:
 
 JUST FIXED:
 
+B - 2 - poll image thumbnail (at least for non-default thumbnails) - CSS = margin-left:0, border-radius:8px, height and width 68x68 works well.
+
+C - 8 - cool button style
+
 
 WORKING ON:
 
-A 13 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
+A 34 - eml - notifications about new polls (showing full poll), new articles, new comments. (, more poll votes?).
 X       + Html template tech
-       = FEATURED POLL
-       = MORE POLLS
-       = UPDATES
-	- For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
-	- Automatically picks up all updates since last dailyEmail.  (Store stats about daily email in table?)
+  [X] 8 html email tech
+  [X] 8 Design FEATURED POLL part of daily email
+  [X] 1 Add link to poll image, title, and vote button
+  [X] 2 Shrink images a little
+  [X] 1 Clean up unused email code
 
+    [] try converting back to htemplate and send test daily email before submitting
+  [X] 3 Test w/ images turned off
+  []  2 git commit, test sending email new way on the server
 
+  []  5 unsubscribe eml & prefs on server (Email prefs: 1 / day, 1 / week, 1 / month, no email)
+  []  5 Implement daily email batch: For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
+
+- attempting to fix poll ranking.  [] see how it looks on the server
 
 WORK ON NEXT:
 
@@ -35,48 +46,69 @@ v
 LAUNCH FEATURE SHORTLIST:
 --- MUST HAVE
 
+A - 1 - Create a new user "votezilla", use that to share polls
+A - 3 - Change email of both my accounts to something more obscure, to prevent hacking?
 
-A - cr and convert En votes for presidential poll
+A - 5 - cr and convert En votes for presidential poll
 
-A 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
-
-- A - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
-  "Create a poll question relating to politics or any other topic you find interesting"
-
-B - 3 - Ranked voting - add printing of # of votes for each ranking order.
+A - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
-B - 3 - Polls - add linkUrl (optional)
+B - 3 - Polls - add description (optional, plain text for now.  do rich text later)
 
-B - 5 - Polls - add description (optional, rich text)
+B - 2 - Polls - add urlToImage (optional)
+
+B - 3 - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
+  "Create a poll question relating to politics or any other topic you find interesting"
+
+B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
+
+B - 3 -  Design welcome email?
+
+B - 3 - Secure my emails by:
+          1) admin emails should have admin=True set in vz.User
+          2) require &showPassword=true, then if reqShowPassword on server, enter password when Admin=true
+
+
+<< FINISH BY EOD FRI 10/9! >>
+ > send daily email
+
+<< LAUNCH MON! >>
+ > email blast
+ > setup gleam.io
+
+
+
 
 --- OPTIONAL:
 
-B - polls n desc section (rich text)
+C - 3 - Register + log-in - prevent bugs by stripping spaces from front and end of email?
+
+C - tweak motto?  focus test it, get suggestions.
+
+C - Messages / marketing - try playing up the direct democracy angle a little.
 
 --- OPTIONAL:
 
-A - tweak motto?  focus test it, get suggestions.
+C - 'Welcome to Votezilla: a censorship-free...' - only n to be on /news, not subcategories ?
 
-B - Messages / marketing - try playing up the direct democracy angle a little.
-
-B - fixed ranked vote runoff printing
-
---- OPTIONAL:
-
-B - 'Welcome to Votezilla: a censorship-free...' - only n to be on /news, not subcategories
-
-B   5 - prompt user to leave comment or up/down vote after viewing an article.
+C 5 - prompt user to leave comment after viewing an article.
 
 ---
 
-B - RYAN: in daily emails, show results of previous polls.
+--- DAILY EMAIL:
+	++ MORE POLLS
+	++ UPDATES
+	- Automatically picks up all updates since last dailyEmail.  (Store stats about daily email in table?)
 
-B - RYAN: get >= 5 votes, get your poll featured.  (Fair polls only, no one-sided polls allowed.)
+C - 8 Poll description - ++ rich text <- if time-sensitive, make plain text for now
+                            rich text = <i> <b> \n url (starting w https?:// or <a href="fsidsi">) ul ol li & closing tags
 
-B - poll image thumbnail (at least for non-default thumbnails) - CSS = margin-left:0, border-radius:8px, height and width 68x68 works well.
+C - RYAN: in daily emails, show results of previous polls.
 
-B - elim dup poll options somehow
+C - RYAN: get >= 5 votes, get your poll featured.  (Fair polls only, no one-sided polls allowed.)
+
+C - elim dup poll options somehow
 
 ---
 
@@ -85,66 +117,68 @@ C - poll images - TOM: the image makes no difference to me.  (Could manually set
 
 "	___ shared an article" - when they really shared a poll
 
-B - 8 - ++ popup lower left for notifications
+C - 8 - ++ popup lower left for notifications
 
-B - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
+C - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
 
-B - 3 - Expanded comment loses all <br>'s.
+C - 3 - Expanded comment loses all <br>'s.
 
-B - 2 - About - add an email for support, feedback, reporting bugs, requesting features.  (See latest notes in phone for update to this via button on bottom of page.)
+C - 2 - About - add an email for support, feedback, reporting bugs, requesting features.  (See latest notes in phone for update to this via button on bottom of page.)
 
 
-B - new type of poll - numeric -> budget percentage - Gordon's idea.
+C - new type of poll - numeric -> budget percentage - Gordon's idea.
 
 - C - polls query could depriortize those that have been voted on slightly?
 
 
-B - numeric polls (On a scale of 1 to 10, or budget %, etc.)
+C - numeric polls (On a scale of 1 to 10, or budget %, etc.)
 
-B - let ppl know they can vote in their own poll
+C - let ppl know they can vote in their own poll
 
 - should I make polls be FB-style?
 
-B 3 - Moderate polls somehow
+C 3 - Moderate polls somehow
 
-B 3 - RYAN: The alert after logging in should be removed.
+C 3 - RYAN: The alert after logging in should be removed.
 
-B 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
+C 3 - Ryan's poll with the weird characters... if I vote for the 2nd option as "2 1" with ranked choices, it tells me below that I voted for the wrong one.
 
-B 2 - Let user specify "Other" field that appears when other is selected, just group all the other stuff there for now.
+C 2 - Let user specify "Other" field that appears when other is selected, just group all the other stuff there for now.
 
-B 8 - privacy alias'
+C 8 - privacy alias'
 
-B 8 - ability to delete posts, comments
+C 8 - ability to delete posts, comments
 
-B 8 - newlines are getting stripped from comments, and markdown would be nice.
+C 8 - newlines are getting stripped from comments, and markdown would be nice.
     - It would be nice if urls in comments became links. also basic html tags.
     - Also, article titles and desciptions need to respect \n -> <br>, <br>, <b>, <i>, <ol>, <li> :)
 
-B 8 - implement really simple blogging, using markup (no quill)
+C 8 - implement really simple blogging, using markup (no quill)
 
-B 8 - create - add Create Discussion (requires image upload, or use Mozilla for now) (TOM)
+C 8 - create - add Create Discussion (requires image upload, or use Mozilla for now) (TOM)
 
-B 8 - ability to update posts, comments
+C 8 - ability to update posts, comments
 
-B 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
+C 8 - Allow user to specify new category when creating poll or post, then group all unmatched under Other category.
 
-B 8 - Add "About" section - or implement simple blog first?
+C 8 - Add "About" section - or implement simple blog first?
 
-B   - disallow multiple poll items with the same name
+C   - disallow multiple poll items with the same name
 
-B - "You must be logged in to do that!" - should be popup with kind, pretty prompt
+C - "You must be logged in to do that!" - should be popup with kind, pretty prompt
 
 C  -   Remember previous page or close form upon success, and/or back tri buttons.
 
-B - c add more polls after comments?
+C - c add more polls after comments?
 
-B - link to votezilla from sheeplethegame.com
+C - link to votezilla from sheeplethegame.com
 
 
 C - -- financial times
 
-B - not logged in, Updates - " RhymeStein commented on your article ..."
+C - not logged in, Updates - " RhymeStein commented on your article ..."
+
+C - improve welcome email (? - because text only is already good for this type of email)
 
 PROMOTION:
 - m poll

@@ -220,15 +220,15 @@ func parseTemplateFiles() {
 		htemplates[handle] = htemplate.Must(htemplate.ParseFiles(map_str(getTemplatePath, filenames)...))
 	}
 
-	hDefineTemplate(kNews, 			"base", "wide", "frame", "news")
+	hDefineTemplate(kNews, 			"base", "wide", "defines", "frame", "news")
 
-	hDefineTemplate(kNuForm, 		"base", "narrow", "frame", "nuField", "nuForm", "defaultForm")
-	hDefineTemplate(kArticle, 		"base", "wide", "frame", "sidebar", "article", "comments")
-	hDefineTemplate(kNewsSources,	"base", "wide", "frame", "newsSources")  // nyi
-	hDefineTemplate(kActivity, 		"base", "wide", "frame", "activity")
+	hDefineTemplate(kNuForm, 		"base", "narrow", "defines", "frame", "nuField", "nuForm", "defaultForm")
+	hDefineTemplate(kArticle, 		"base", "wide", "defines", "frame", "sidebar", "article", "comments")
+	hDefineTemplate(kNewsSources,	"base", "wide", "defines", "frame", "newsSources")  // nyi
+	hDefineTemplate(kActivity, 		"base", "wide", "defines", "frame", "activity")
 
 	hDefineTemplate(kCreate, 		"base", "narrow", "minFrame", "nuField", "create")
-	//hDefineTemplate(kCreate, 		"base", "wide", "frame", "nuField", "create")
+	//hDefineTemplate(kCreate, 		"base", "wide", "defines", "frame", "nuField", "create")
 	hDefineTemplate(kCreateBlog, 	"base", "narrow", "minFrame", "nuField", "createBlog")
 	hDefineTemplate(kCreateLink, 	"base", "narrow", "minFrame", "nuField", "createLink")
 	hDefineTemplate(kCreatePoll, 	"base", "narrowWithSidebar", "minFrame", "nuField", "createPoll")
@@ -242,14 +242,14 @@ func parseTemplateFiles() {
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")			// Sign up
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")	// Sign up II: Demographics
 
-	hDefineTemplate(kViewPollResults,	"base", "wide", "frame", "sidebar", "viewPollResults", "comments")
+	hDefineTemplate(kViewPollResults,	"base", "wide", "defines", "frame", "sidebar", "viewPollResults", "comments")
 
 	// Pop-ups:
 	hDefineTemplate(kTutorial, 			"tutorial")
 	hDefineTemplate(kLoginRequired, 	"loginRequired")
 
 	// Email templates:
-	hDefineTemplate(kDailyEmail,	"dailyEmail")
+	hDefineTemplate(kDailyEmail,	 "emailBase", "defines", "dailyEmail")
 
 	// Javascript snippets
 	//tDefineTemplate(kRegisterDetailsScript, "registerDetailsScript")  // TODO: find a new home for this.  Just add to registerDetails(?)

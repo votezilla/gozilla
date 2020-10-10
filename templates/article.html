@@ -41,15 +41,17 @@
 				</td>
 			</tr>
 
-			{{ template "PollForm" $article }}
+			<a id="vote" href="#"> <!-- Anchor so user sees the poll. -->		
+			<tr valign="top">
+				<td class="title" style="padding-left: 5px;">
+					{{ template "PollForm" $article }}
+				</td>
+			</tr>
 
 			<tr>
 				<td class="subtext" style="width: 100%; padding-left: 5px; padding-top: 10px">
 					<table width="100%"><tr>
 						{{ template "PostVoteWidget" $article }}
-						<!--<td align="right" style="width: auto;">
-							<a href="#">...</a>
-						</td>-->
 					</tr></table>
 				</td>
 			</tr>

@@ -49,7 +49,7 @@ func InitWebServer() {
 
 	domains := []string{"votezilla.io", "www.votezilla.io", "votezilla.news", "www.votezilla.news"}
 
-	if flags.domain != "" {
+	if flags.domain != "" && flags.domain != "localhost:8080" && flags.domain != "10.0.0.71:8080" { // TODO: add a flag for this to remove the hackiness.
 		// Running SSL in production - votezilla.io
 		certManager := autocert.Manager{
 			Prompt:     autocert.AcceptTOS,

@@ -162,3 +162,17 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 
 	executeTemplate(w, kArticle, articleArgs)
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// fix urls in article to be absolute
+//
+//////////////////////////////////////////////////////////////////////////////
+func makeUrlsAbsolute(article *Article) {
+	assert(flags.domain != "")
+
+	article.Url				= "http://" + flags.domain + article.Url
+	article.UrlToImage		= "http://" + flags.domain + article.UrlToImage
+	article.UrlToThumbnail	= "http://" + flags.domain + article.UrlToThumbnail
+	article.AuthorIconUrl	= "http://" + flags.domain + article.AuthorIconUrl
+}

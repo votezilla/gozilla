@@ -28,18 +28,24 @@ func renderWelcomeEmail(username string) string {
 	return fmt.Sprintf("Hello %s! This email is to confirm the creation of a new Votezilla account.\n\nNo further action is necessary.", username)
 }
 
-func renderDailyEmail(username, name string) string {
+func renderDailyEmail(featuredArticleId int64) string {
+	pr("renderDailyEmail")
+	prVal("  featuredArticleId", featuredArticleId)
+	assert(featuredArticleId >= 0)
+
+	featuredArticle, err := fetchArticle(featuredArticleId, -1)
+	check(err)
+
+	pr("makeUrlsAbsolute")
+	makeUrlsAbsolute(&featuredArticle)
+
 	// Render the email body template.
 	return renderToString(
 		kDailyEmail,
 		struct { // Email template args
-			FeaturedPoll	int
-			Username		string
-			Name			string
+			FeaturedArticle		Article
 		} {
-			FeaturedPoll:	777,
-			Username: 		username,
-			Name:			name,
+			FeaturedArticle:	featuredArticle,
 		},
 	)
 }
@@ -55,9 +61,15 @@ func welcomeEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 // For testing daily email.
 func dailyEmailHandler(w http.ResponseWriter, r *http.Request) {
-	_, username := GetSessionInfo(w, r)
+	pr("dailyEmailHandler")
 
-	body := renderDailyEmail(username, "Aaron Smith")
+//	userId, username := GetSessionInfo(w, r)
+//	userData := GetUserData(userId)
+
+	featuredArticleId := int64(flags.featuredArticleId) // 29825
+	assert(featuredArticleId >= 0)
+
+	body := renderDailyEmail(featuredArticleId)
 
 	serveHtml(w, body)
 }
@@ -67,19 +79,23 @@ func testEmail() {
 
 	userData := GetUserData(36) // My userId on localhost. (Goes to my primary eml)
 
-	subj := "Poll Question of the Day"
-	body := renderDailyEmail(userData.Username, userData.Name)
+	featuredArticleId := int64(flags.featuredArticleId) // 29825
+	assert(featuredArticleId >= 0)
 
-	sendEmail(BUSINESS_EMAIL, "magicsquare15@gmail.com", "Aaron Smith", subj, body)
-	sendEmail(BUSINESS_EMAIL, "alterego200@yahoo.com", "Aaron Smith", subj, body)
+	subj := "Poll Question of the Day"
+	body := renderDailyEmail(featuredArticleId)
+
+	sendEmail(BUSINESS_EMAIL, "magicsquare15@gmail.com", userData.Name, subj, body)
+	sendEmail(BUSINESS_EMAIL, "alterego200@yahoo.com", userData.Name, subj, body)
+	//sendEmail(BUSINESS_EMAIL, "parker510@comcast.net", userData.Name, subj, body)
 }
 
 func dailyEmail() {
 }
 
+// Send confirmation email
 func sendAccountConfirmationEmail(eml, username string) {
-	// Send confirmation email
-	sendEmail(BUSINESS_EMAIL, eml, "Aaron Smith", "Votezilla Account Creation Confirmation", renderWelcomeEmail(username))
+	sendEmail(BUSINESS_EMAIL, eml, "", "Votezilla Account Creation Confirmation", renderWelcomeEmail(username))
 }
 
 func sendEmail(from string, to_eml string, to_name string, subj string, body string) {

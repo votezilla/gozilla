@@ -29,9 +29,6 @@
 						<td class="subtext" style="width: 100%; padding-left: 5px;">
 							<table width="100%"><tr>
 								{{ template "PostVoteWidget" $article }}
-								<td align="right" style="width: 40%; padding-right: 5px;">
-									<a href="#">...</a>
-								</td>
 							</tr></table>
 						</td>
 					</tr>
@@ -61,7 +58,7 @@
 									Demographic Breakdown
 							-->
 							{{ if ge $article.PollTallyInfo.TotalVotes 5 }}
-								<select name="country" class="btn btn-vote" style="font-family: Verdana;"
+								<select name="country" class="btn btn-vote-dropdown" style="font-family: Verdana;"
 										onchange="location.href='/viewPollResults/?postId='+{{$article.Id}}+`&viewRankedVoteRunoff=true&splitByDemographic=${this.value}`;">
 									<option value="-" selected>Split By Demographic</option>
 									{{ range $k, $v := .DemographicLabels }}

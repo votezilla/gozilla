@@ -4,7 +4,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	//"io"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -264,6 +264,15 @@ func parseAndCheckTemplate(templateName string) {
 	_, ok := htemplates[templateName]
 	assert(ok)
 }
+/*
+func parseAndCheckTextTemplate(templateName string) {
+	if flags.debug != "" {
+		parseTemplateFiles()
+	}
+
+	_, ok := ttemplates[templateName]
+	assert(ok)
+}*/
 
 func executeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
 	pr("executeTemplate: " + templateName)
@@ -276,12 +285,14 @@ func executeTemplate(w http.ResponseWriter, templateName string, data interface{
 
 // renders template to string
 func renderToString(templateName string, data interface{}) string {
-	pr("renderToString: " + templateName)
+	//pr("renderToString: " + templateName)
 
+	//parseAndCheckTextTemplate(templateName)
 	parseAndCheckTemplate(templateName)
 
 	var tpl bytes.Buffer
-	err := htemplates[templateName].Execute(&tpl, data)
+	//err := ttemplates[templateName].Execute(&tpl, data) // Note: uses ttemplates not htemplates.
+	err := htemplates[templateName].Execute(&tpl, data)	
 	check(err)
 
 	return tpl.String()
@@ -302,7 +313,7 @@ func renderToWriter(w io.Writer, templateName string, data interface{}) {
 // Serves the specified HTML string as a webpage.
 func serveHtml(w http.ResponseWriter, html string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, html)
+	io.WriteString(w, html)
 }
 
 func serveErrorMsg(w http.ResponseWriter, errorMsg string) {

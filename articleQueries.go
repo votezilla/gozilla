@@ -47,6 +47,12 @@ const (
 	kDefaultThumbnail   	= "/static/dino-head-160x96.png"
 	kDefaultImage       	= "/static/dino-head-546x386.png"
 
+	// TODO: conver to PNG.
+	kDefaultPollImage       	= "/static/ballotboxes/ballotbox-3dinos.jpg"
+	kDefaultPollThumbnail 		= "/static/ballotboxes/ballotbox-3dinos-small.jpg"
+	kDefaultPollThumbnailTall 	= "/static/ballotboxes/ballotbox-3dinos-small-160x180.jpg"
+
+
 	kApproxCharsPerLine 	= 30
 )
 
@@ -230,10 +236,10 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 				(
 					(
 						3 * COALESCE(votes.VoteTally, 0) +
-					 	5 * COALESCE(pollVotes.VoteTally, 0)
+					 	3 * COALESCE(pollVotes.VoteTally, 0)
 					) * (1 - .5 * COALESCE(pollVotes.MyVotes, 0)) +
 					0.5 * posts.NumComments +
-					5 * (%s)
+					8 * (%s)
 				) AS OrderBy
 		FROM posts
 		LEFT JOIN votes ON posts.Id = votes.PostId
@@ -550,10 +556,11 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 
 			//newArticle.UrlToImage 	  = fmt.Sprintf("/static/ballotboxes/%d.jpg", rand.Intn(17)) // Pick a random ballotbox image.
 			//newArticle.UrlToThumbnail = newArticle.UrlToImage
-			newArticle.UrlToImage 	  = "/static/ballotboxes/ballotbox 3dinos.jpg"
-			newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 1,//2,
-												    "/static/ballotboxes/ballotbox 3dinos small.jpg",
-													"/static/ballotboxes/ballotbox 3dinos small 160x180.jpg")
+			newArticle.UrlToImage 	  = kDefaultPollImage
+			newArticle.UrlToThumbnail = ternary_str(numLinesApprox <= 1,
+												    kDefaultPollThumbnail,
+													kDefaultPollThumbnailTall)
+
 			// TODO: this is a dup of the code below it.
 			if thumbnailStatus >= image_DownsampledV2 {
 				thumbnailBasePath := "/static/thumbnails/" + strconv.FormatInt(id, 10)
@@ -614,6 +621,9 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 				panic(fmt.Sprintf("Unexpected thumbnail status: %d", thumbnailStatus))
 			}
 		}
+
+		//prVal("newArticle.UrlToImage",newArticle.UrlToImage)
+		//prVal("newArticle.UrlToThumbnail", newArticle.UrlToThumbnail)
 
 		newArticle.Ellipsify = func(text string, maxLength int) string { return ellipsify(text, maxLength); }
 
