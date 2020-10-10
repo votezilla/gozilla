@@ -121,7 +121,11 @@ func DbExists(query string, values ...interface{}) bool {
 
 	rows := DbQuery(query, values...)
 
-	return rows.Next()
+	b := rows.Next()
+
+	rows.Close()
+
+	return b
 }
 
 
@@ -132,5 +136,7 @@ func DbExists(query string, values ...interface{}) bool {
 //     results := make(map[string]interface{})
 //     err = rows.MapScan(results)
 // }
+//	check(rows.Err())
+//	rows.Close()
 //
 // Source: https://jmoiron.github.io/sqlx/

@@ -145,6 +145,7 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	check(rows.Err())
+	rows.Close()
 
 	// Send poll vote to the database, removing any prior vote.
 	// TODO: make the code and database protect against duplicate names.
