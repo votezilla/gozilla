@@ -108,6 +108,28 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 	font-size: 20px;
 }
 
+
+#override .btn-green {
+	background-color: #37cb24;
+	background: #37cb24 !important;
+	border-color: #68f833 !important;
+	color: #fff;
+	background: linear-gradient(0deg, rgb(45 213 26) 50%, rgb(145 255 126) 100%) !important;
+	border-color: #2092ff;
+	cursor: pointer;
+	font-size: 20px;
+}
+#override .btn-green:hover {
+	color: #fff;
+	background-color: #0072ff;
+	background: linear-gradient(0deg, rgb(45 228 26) 50%, rgb(170 255 151) 100%) !important;
+	box-shadow: 0 3px 8px rgba(45, 228, 26, .4);
+	border-color: #62b7ff;
+	cursor: pointer;
+	font-size: 20px;
+}
+
+
 /* Same as .btn-vote but removes background linear-gradient, since it breaks on dropdown "Split By Demographic" on Chrome desktop. */
 #override .btn-vote-dropdown {
 	color: #fff;

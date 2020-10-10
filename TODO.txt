@@ -10,9 +10,6 @@ C - 8 - cool button style
 
 A - 1 - Create a new user "votezilla", use that to share polls
 
-
-WORKING ON:
-
 A 34 - eml - notifications about new polls
 X       + Html template tech
   [X] 8 html email tech
@@ -30,11 +27,18 @@ X       + Html template tech
   [X]  3 friction-free login from email via &autoLoginEmail=[eml]  (for poll + unsubscribe)
 	[>] decode this next
 
-  [>]  submit and test on server
+  [X]  submit and test on server
 
-  [] "Create new account" button should be green!
+  HOW TO SEND DAILY EMAILS:
+  ./gozilla $(< ~/flags.txt) -testEmail=true -featuredArticleId=376999
 
-  []  5 Implement daily email batch: For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
+  [X] 3 "Create new account" button should be green!
+  B - 2 - Gave it a nicer gradient too.
+
+
+WORKING ON:
+
+  [>]  5 Implement daily email batch: For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
    	test w/ -testBatch=true which will just send to test emails (test db column for which users have testable emails)
 	cont @ email.go:93
 
@@ -79,7 +83,7 @@ B - 3 - Secure my emails:
           1) admin emails should have admin=True set in vz.User
           2) require &showPassword=true, then if reqShowPassword on server, enter password when Admin=true
 
-[] B - 3 - Delete bad polls
+B - 3 - Delete bad polls
 
 << FINISH BY EOD FRI 10/9! >>
  > send daily email
