@@ -8,6 +8,8 @@ B - 2 - poll image thumbnail (at least for non-default thumbnails) - CSS = margi
 
 C - 8 - cool button style
 
+A - 1 - Create a new user "votezilla", use that to share polls
+
 
 WORKING ON:
 
@@ -18,12 +20,10 @@ X       + Html template tech
   [X] 1 Add link to poll image, title, and vote button
   [X] 2 Shrink images a little
   [X] 1 Clean up unused email code
-
-    [] try converting back to htemplate and send test daily email before submitting
   [X] 3 Test w/ images turned off
-  [-]  2 git commit, test sending email new way on the server
+  [X]  2 git commit, test sending email new way on the server
 
-  []  5 unsubscribe eml & prefs on server (Email prefs: 1 / day, 1 / week, 1 / month, no email)
+  [X] 5 unsubscribe eml & prefs on server (Email prefs: 1 / day, 1 / week, 1 / month, no email)
   []  5 Implement daily email batch: For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
 
 - attempting to fix poll ranking.  [] see how it looks on the server
@@ -46,7 +46,6 @@ v
 LAUNCH FEATURE SHORTLIST:
 --- MUST HAVE
 
-A - 1 - Create a new user "votezilla", use that to share polls
 A - 3 - Change email of both my accounts to something more obscure, to prevent hacking?
 
 A - 5 - cr and convert En votes for presidential poll
@@ -54,7 +53,7 @@ A - 5 - cr and convert En votes for presidential poll
 A - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
-B - 3 - Polls - add description (optional, plain text for now.  do rich text later)
+B - 3 - Polls - add description (optional, plain text for now.  do rich text later.  or see if there's a good library for markdown!!)
 
 B - 2 - Polls - add urlToImage (optional)
 
@@ -83,6 +82,9 @@ B - 3 - Secure my emails:
 --- OPTIONAL:
 
 C - fix poll ranking algorithm by penalizing old polls less, like the sqrt of the time elapsed?
+
+C - nag users who haven't provided demographic data with big red exclamation point by their profile pic, then
+    with a red message and exclamation point next to the updating demographic data.
 
 C - add to daily emails: more polls, poll results, updates, new news articles(?)
 

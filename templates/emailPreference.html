@@ -1,0 +1,24 @@
+{{define "content"}}
+		{{ template "formHeader" "Email Preference for" }}
+
+		<div style="font-size: 17px">
+			You can update your email preference here.
+		</div>
+		<p>
+
+	{{ template "beginForm" .Form }}
+		{{ $f := .Form.FieldMap }}
+		{{ template "field" $f.emailPreference -}}
+
+		<p>
+		<div>
+			<button type="submit" class="nuBtn btn btn-vote center full">
+				Update
+			</button>
+		</div>
+		<br>
+		<br>
+		<br>
+
+	{{ template "endForm" }}
+{{end}}

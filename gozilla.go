@@ -31,6 +31,7 @@ const (
 	kCreateLink = "createLink"
 	kCreatePoll = "createPoll"
 	kDailyEmail = "dailyEmail"
+	kEmailPreference = "emailPreference"
 	kLogin = "login"
 	kLoginFB = "loginFB"
 	kLoginRequired = "loginRequired"	// Prompt to log in / sign in if required from user action.
@@ -242,6 +243,8 @@ func parseTemplateFiles() {
 	hDefineTemplate(kRegister,		  "base", "narrow", "minFrame", "nuField", "register")			// Sign up
 	hDefineTemplate(kRegisterDetails, "base", "narrow", "minFrame", "nuField", "registerDetails")	// Sign up II: Demographics
 
+	hDefineTemplate(kEmailPreference, "base", "narrow", "minFrame", "nuField", "emailPreference")
+
 	hDefineTemplate(kViewPollResults,	"base", "wide", "defines", "frame", "sidebar", "viewPollResults", "comments")
 
 	// Pop-ups:
@@ -297,6 +300,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/createBlog/",   			hwrap(createBlogHandler))
 	mux.HandleFunc("/createLink/",   			hwrap(createLinkHandler))
 	mux.HandleFunc("/createPoll/",   			hwrap(createPollHandler))
+	mux.HandleFunc("/emailPreference/",			hwrap(emailPreferenceHandler))
 	mux.HandleFunc("/history/",        			hwrap(historyHandler))
 	mux.HandleFunc("/ip/",             			hwrap(ipHandler))
 	mux.HandleFunc("/login/",          			hwrap(loginHandler))
@@ -313,10 +317,11 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/viewPollResults/",			hwrap(viewPollResultsHandler))
 	mux.HandleFunc("/width/",					hwrap(widthHandler))
 
-	// For testing the HTML email
+	// For testing the HTML email:
 	mux.HandleFunc("/welcomeEmail/",			hwrap(welcomeEmailHandler))
 	mux.HandleFunc("/dailyEmail/",				hwrap(dailyEmailHandler))
 
+	// For testing Facebook widgets:
 	mux.HandleFunc("/fbHome/",					hwrap(fbHome))
 	mux.HandleFunc("/fbLogin/",					hwrap(fbLogin))
 

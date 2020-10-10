@@ -307,7 +307,7 @@ func (f *Form) processData(r *http.Request) {
 }
 
 // Accessors
-func (f Form) field(fieldName string) *Field	{ return f.FieldMap[fieldName] 		   }
+func (f Form) field(fieldName string)    *Field	{ return f.FieldMap[fieldName] 		   }
 func (f Form) val(fieldName string) 	 string { return f.field(fieldName).val()	   }
 func (f Form) otherVal(fieldName string) string	{ return f.val(kOther + fieldName)	   }
 func (f Form) intVal(fieldName string, defaultValue int) int { return f.field(fieldName).intVal(defaultValue)   }

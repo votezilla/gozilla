@@ -43,6 +43,9 @@ CREATE TABLE vz.User (
     Created         TIMESTAMPTZ      NOT NULL DEFAULT now(),
     LastModTime	    TIMESTAMPTZ	     NOT NULL DEFAULT TIMESTAMP 'epoch',
 
+    -- PREFERENCES:
+    EmailPreference      TEXT,
+
     Ip              TEXT
 );
 

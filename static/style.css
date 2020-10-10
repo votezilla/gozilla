@@ -125,6 +125,14 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 	font-size: 20px;
 }
 
+#override .btn-white {
+	background-color: white;
+	background: white !important;
+	border-width: thin;
+	color: #0275d8;
+	font-family: Verdana;
+}
+
 /* Alignment: next a .center, .left, or .right beneath a .full. */
 .full{
 	width:100%;

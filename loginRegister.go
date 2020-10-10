@@ -23,11 +23,13 @@ const (
 	// Cookie names:
 	kLoginReturnAddress 	= "loginReturnAddress"
 	kAlertCode          	= "alertCode"
+	
 	// Alert codes:
 	kLoggedIn				= "LoggedIn"
 	kLoggedOut				= "LoggedOut"
 	kWelcomeToVotezilla		= "WelcomeToVotezilla"
 	kInvalidCategory		= "InvalidCategory"
+	kPreferencesSaved		= "PreferencesSaved"
 )
 
 func makeLoginForm() *Form {
@@ -286,7 +288,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 // register details about the user
 //
 ///////////////////////////////////////////////////////////////////////////////
-func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId int64) {
+func registerDetailsHandler(w http.ResponseWriter, r *http.Request){
 	//RefreshSession(w, r)
 
 	const (
@@ -397,7 +399,47 @@ func registerDetailsHandler(w http.ResponseWriter, r *http.Request){//, userId i
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// update password
+// email preference
+//
+///////////////////////////////////////////////////////////////////////////////
+func emailPreferenceHandler(w http.ResponseWriter, r *http.Request){
+	form := makeForm(
+		nuSelectField(kEmailPreference, "Select Email Preference", emailPref, true, false, false, false, "Please select your email preference"),
+	)
+
+	userId := GetSession(r)
+	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
+		// So go to the register page.
+		pr("secure cookie not found")
+		http.Redirect(w, r, "/register", http.StatusSeeOther)
+		return
+	}
+
+	// Get the current value
+	rows := DbQuery(`SELECT COALESCE(EmailPreference, '') FROM $$User WHERE Id = $1::bigint`, userId)
+	if rows.Next() {
+		check(rows.Scan(&form.field(kEmailPreference).Value))
+	}
+	check(rows.Err())
+	rows.Close()
+
+	// On post, set value
+	if r.Method == "POST" && form.validateData(r) {
+		DbQuery(
+			`UPDATE $$User SET EmailPreference = $2 WHERE Id = $1::bigint`,
+			userId,
+			form.val(kEmailPreference),
+		)
+
+		http.Redirect(w, r, "/history/?alertCode=" + kPreferencesSaved, http.StatusSeeOther)
+	}
+
+	executeTemplate(w, kEmailPreference, makeFormFrameArgs(r, form, "Email Preference"))
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// update password - not tested, but could work in theory.  Passwords are not currently in use.
 //
 ///////////////////////////////////////////////////////////////////////////////
 func updatePasswordHandler(w http.ResponseWriter, r *http.Request){

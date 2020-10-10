@@ -3,7 +3,15 @@ package main
 
 
 var (
-	// register details demographics
+	// Preferences
+	emailPref = OptionData{
+		{"Daily",   "One per day"},
+		{"Weekly",  "One per week"},
+		{"Monthly", "One per month"},
+		{"NoEmail", "No email"},
+	}
+
+	// Register details demographics
 	genders = OptionData{
 		{"M", "Male"},
 		{"F", "Female"},
