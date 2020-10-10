@@ -33,7 +33,7 @@ func renderWelcomeEmail(email, username string) string {
 		<br><br>
 		Thanks for joining us in the fight to fix politics.  Here's how you can help:
 		<br><br>
-		1) Hop on the <a href="https://votezilla.news/&autoLoginEmail=%s">Votezilla</a> website - vote on polls, start discussions, and stay informed with balanced news.  All of these things are effective tools in making real change happen.
+		1) Hop on the <a href="https://votezilla.news/?autoLoginEmail=%s">Votezilla</a> website - vote on polls, start discussions, and stay informed with balanced news.  All of these things are effective tools in making real change happen.
 		<br>
 		2) Join our <a href="https://www.facebook.com/groups/2402226416745938/">Facebook</a> group.
 		<br>
@@ -58,7 +58,7 @@ func renderDailyEmail(email string, featuredArticleId int64) string {
 	pr("makeUrlsAbsolute")
 	makeUrlsAbsolute(&featuredArticle)
 
-	unsubscribeLink := "http://votezilla.news/emailPreference/&autoLoginEmail=" + url.QueryEscape(email)
+	unsubscribeLink := "http://votezilla.news/emailPreference/?autoLoginEmail=" + url.QueryEscape(email)
 	prVal("unsubscribeLink", unsubscribeLink)
 
 	// Render the email body template.

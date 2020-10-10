@@ -167,7 +167,7 @@ func DestroySession(w http.ResponseWriter, r *http.Request) {
 func GetSession(w http.ResponseWriter, r *http.Request) (userId int64) {
 	pr("GetSession")
 
-	// Friction-free login from email if url has &autoLoginEmail=[eml]
+	// Friction-free login from email if url has ?autoLoginEmail=[eml]
 	escapedEmail := parseUrlParam(r, "autoLoginEmail")
 	prVal("  escapedEmail", escapedEmail)
 	if escapedEmail != "" {
