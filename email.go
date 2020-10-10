@@ -55,11 +55,15 @@ func renderDailyEmail(email string, featuredArticleId int64) string {
 	featuredArticle, err := fetchArticle(featuredArticleId, -1)
 	check(err)
 
-	pr("makeUrlsAbsolute")
-	makeUrlsAbsolute(&featuredArticle)
+	autoLoginSuffix := "?autoLoginEmail=" + url.QueryEscape(email)
+	prVal("  autoLoginSuffix", autoLoginSuffix)
 
-	unsubscribeLink := "http://votezilla.news/emailPreference/?autoLoginEmail=" + url.QueryEscape(email)
-	prVal("unsubscribeLink", unsubscribeLink)
+	pr("  makeUrlsAbsolute")
+	makeUrlsAbsolute(&featuredArticle)
+	featuredArticle.Url += autoLoginSuffix
+
+	unsubscribeLink := "http://votezilla.news/emailPreference/" + autoLoginSuffix
+	prVal("  unsubscribeLink", unsubscribeLink)
 
 	// Render the email body template.
 	return renderToString(
@@ -101,12 +105,14 @@ func testEmail() {
 
 	userData := GetUserData(36) // My userId on localhost. (Goes to my primary eml)
 
+/*
+	subj := "Welcome to Votezilla!"
+	body := renderWelcomeEmail("magicsquare15@gmail.com", "magicsquare15") //
+*/
+	subj := "Poll Question of the Day"
 	featuredArticleId := int64(flags.featuredArticleId) // 29825
 	assert(featuredArticleId >= 0)
-
-	subj := "Poll Question of the Day"
-	body := renderWelcomeEmail("magicsquare15@gmail.com", "magicsquare15") //
-	//body := renderDailyEmail("magicsquare15@gmail.com", featuredArticleId)
+	body := renderDailyEmail("magicsquare15@gmail.com", featuredArticleId)
 
 	sendEmail(BUSINESS_EMAIL, "magicsquare15@gmail.com", userData.Name, subj, body)
 	sendEmail(BUSINESS_EMAIL, "alterego200@yahoo.com", userData.Name, subj, body)
