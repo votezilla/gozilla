@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	kMaxCommentLines = 20 // 6
+	kMaxCommentLines = 32 // 20
 	kCharsPerLine    = 60  // 60 for mobile.  80 would be desktop, but there is no way to detect the difference yet.
 
 	tabs = "                                                                                                    "
@@ -198,13 +198,19 @@ func ajaxExpandComment(w http.ResponseWriter, r *http.Request) {
 		if rows.Next() {
 			err := rows.Scan(&expandedComment.Text)
 			check(err)
+
+//			prVal("  << expandedComment.Text", expandedComment.Text)
+
+			expandedComment.Text = strings.Replace(expandedComment.Text, "\n", "<br>", -1)
+
+//			prVal("  >> expandedComment.Text", expandedComment.Text)
 		} else {
 			assert(false)
 		}
 		check(rows.Err())
 	}
 
-	prVal("=======>>>>> expandedComment", expandedComment)
+//	prVal("=======>>>>> expandedComment", expandedComment)
 
 	// create json response from struct.  It needs to know newCommentId so it knows where to put the focus after the window reload.
 	a, err := json.Marshal(expandedComment)

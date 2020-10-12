@@ -262,8 +262,6 @@ $(function() {
 		else 										{ alert('Error: Unknown Alert: ' + alertCode); }
 
 		setCookie(kAlertCode, alertCode + "2");
-
-		//playAlertSound();
 	}
 
 /*
@@ -334,8 +332,6 @@ $('#myModal').on('show.bs.modal', function(e) {
 		} else {
 			console.log("Not showing modal!!!!!");
 		}
-
-		//playAlertSound();
 	});
 });
 
@@ -419,9 +415,6 @@ function addOrRemoveVote(id, add, up, bcomment, updateDatabase, updateText) {
 	if (updateText) {
 		incVoteLabel(id, bcomment, (add && up || !add && !up) ? 1 : -1)
 	}
-
-	// play sound
-	//playAlertSound();
 
 	// AJAX - database state
 	if (updateDatabase) {
@@ -683,8 +676,6 @@ function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 		// Cancel opening the modal
 		console.log("invalid vote data");
 	}
-
-	//playAlertSound();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -744,7 +735,9 @@ function checkForNotifications(notificationType) {
 				notificationWidget.text(numNotifications);
 				notificationWidget.show();
 
-				playAlertSound();
+				if (notificationType == 'activity') {
+					playAlertSound();
+				}
 
 				animateTitle();
 			} else {

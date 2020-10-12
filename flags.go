@@ -38,6 +38,7 @@ var (
 		smtpPassword			string		// Password for sending email to the SMTP server
 		dryRun					bool		// If true, email message is generated but not sent
 		featuredArticleId		int			// For the daily poll email, the main article (i.e. poll) to share.")
+		emailTarget				string		// Target for the batch email, e.g. 'Daily', 'Test', one day... 'Weekly' and 'Monthly'
 	}
 )
 
@@ -81,6 +82,7 @@ func parseCommandLineFlags() {
 	flag.StringVar(&flags.smtpPassword, "smtpPassword", "", "Password for sending email to the SMTP server")
 	flag.BoolVar(&flags.dryRun, "dryRun", false, "If true, email message is generated but not sent")
 	flag.IntVar(&flags.featuredArticleId, "featuredArticleId", -1, "For the daily poll email, the main article (i.e. poll) to share.")
+	flag.StringVar(&flags.emailTarget, "emailTarget", "", "Target for the batch email, e.g. 'Daily', 'Test', one day... 'Weekly' and 'Monthly'")
 
 	prVal("Command Line Args", os.Args)
 

@@ -150,7 +150,7 @@
 				console.log("Id: " + `#comment_${commentId}`);
 				console.log("r.Text: " + r.Text);
 
-				$(`#comment_${commentId}`).text(r.Text);
+				$(`#comment_${commentId}`).html(r.Text);
 			},
 			error:   function(r) { console.log("AJAX - error"); }
 		});

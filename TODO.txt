@@ -1,6 +1,12 @@
 PUSH & TEST ON SERVER:
 
 
+Postgres copy-paste to initiate:
+
+\connect vz
+SET client_encoding = 'UTF8';
+SET timezone TO 'US/Pacific';
+
 
 JUST FIXED:
 
@@ -25,24 +31,28 @@ X       + Html template tech
   [X] 2 update daily email send from bus address + unsubscribe / email prefs link
 
   [X]  3 friction-free login from email via &autoLoginEmail=[eml]  (for poll + unsubscribe)
-	[>] decode this next
 
   [X]  submit and test on server
 
-  HOW TO SEND DAILY EMAILS:
-  ./gozilla $(< ~/flags.txt) -testEmail=true -featuredArticleId=376999
-
   [X] 3 "Create new account" button should be green!
   B - 2 - Gave it a nicer gradient too.
+  B - 3 - Fixed poll ranking
+
+  B - 3 - Votezilla name appears in email From now.
+
+  C - 3 - Expanded comment loses all <br>'s.
 
 
 WORKING ON:
 
-  [>]  5 Implement daily email batch: For now, triggered via: gozilla -dailyEmailId=12345 -dailyEmailService=true
+  [>]  8 Implement daily email batch: For now, triggered via: gozilla -dailyEmail=true -featuredArticleId=376999
    	test w/ -testBatch=true which will just send to test emails (test db column for which users have testable emails)
+   	send in batches of 25 w 3 min breaks?
 	cont @ email.go:93
 
-- attempting to fix poll ranking.  [] see how it looks on the server
+(  HOW TO SEND DAILY EMAILS:
+   ./gozilla $(< ~/flags.txt) -testEmail=true -featuredArticleId=376999
+)
 
 WORK ON NEXT:
 
@@ -96,6 +106,11 @@ B - 3 - Delete bad polls
 
 
 --- OPTIONAL:
+C - improve voting UI - hover over buttons that automatically check box or enter 1, 2, 3 when clicking, like FB polls.
+
+C - make vote results more colorful.  Each bar up to 6 or 8 colors that mod.  Bright colors with glow, and 3d border effect.
+
+C - if I know their email when introducing them to vz, -> /login (reads in email from url), "Email: [...] Click here to change email.
 
 C - remember loginOrEmail value - what I mean is Chrome doesn't remember it.  Maybe it needs a more traditional email or login name.
 
@@ -106,7 +121,7 @@ C - nag users who haven't provided demographic data with big red exclamation poi
 
 C - add to daily emails: more polls, poll results, updates, new news articles(?)
 
-C - 3 - Register + log-in - prevent bugs by stripping spaces from front and end of email?
+D - 3 - Register + log-in - prevent bugs by stripping spaces from front and end of email?
 
 C - tweak motto?  focus test it, get suggestions.
 
@@ -144,8 +159,6 @@ C - poll images - TOM: the image makes no difference to me.  (Could manually set
 C - 8 - ++ popup lower left for notifications
 
 C - 5 - Add more activities notifications (for now, a notification for every vote (by Created time, nd to add)), reply to your comment, notification for upvoted articles.
-
-C - 3 - Expanded comment loses all <br>'s.
 
 C - 2 - About - add an email for support, feedback, reporting bugs, requesting features.  (See latest notes in phone for update to this via button on bottom of page.)
 
@@ -203,6 +216,8 @@ C - -- financial times
 C - not logged in, Updates - " RhymeStein commented on your article ..."
 
 C - improve welcome email (? - because text only is already good for this type of email)
+
+C - when viewing an article a person posted, the sidebar says "More from:" - it should fetch other articles that user posted.
 
 PROMOTION:
 - m poll

@@ -97,6 +97,24 @@ func DbQuery(query string, values ...interface{}) *sql.Rows {
 	return rows
 }
 
+// Given a database result, calls the callback doFunc on each one so it can process the data with rows.Scan().
+func DoRows(rows *sql.Rows, doFunc func(*sql.Rows)) {
+	for rows.Next() {
+		doFunc(rows)
+	}
+	check(rows.Err())
+	rows.Close()
+}
+
+// Executes a database query, querying data, then calls the callback doFunc on each one so it can process the data with rows.Scan().
+// (We have to do the weird argument order because values is a varidic paramenter.
+func DoQuery(doFunc func(*sql.Rows), query string, values ...interface{}) {
+	DoRows(
+		DbQuery(query, values...),
+		doFunc,
+	)
+}
+
 // Executes a database query which returns a single count,
 // (usually by invoking COUNT(*)), and returns the int count.
 func DbQueryCount(query string, values ...interface{}) int {

@@ -2,20 +2,18 @@ package main
 
 //TODO TMight be importing extraneous files here, I'm not sure.
 import (
-//	"crypto/tls"
+	"database/sql"
 	"fmt"
 	"gopkg.in/gomail.v2"
-//	"io"
-//	"net"
-//	"net/mail"
-//	"net/smtp"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Uses SSL/TLS Email Example
 // See https://gist.github.com/chrisgillis/10888032 for original source and discussion.
 
+const BUSINESS_NAME = "Votezilla"
 const BUSINESS_EMAIL = "vtzilla@gmail.com"
 //const BUSINESS_PASS = "vote22zilla"  //TODO TSecurity issue of including password in this code.
 
@@ -52,8 +50,11 @@ func renderDailyEmail(email string, featuredArticleId int64) string {
 	prVal("  featuredArticleId", featuredArticleId)
 	assert(featuredArticleId >= 0)
 
-	featuredArticle, err := fetchArticle(featuredArticleId, -1)
-	check(err)
+	polls := fetchPolls(-1, 1) // Only one poll, but we need to dereference it
+	assertMsg(len(polls) >= 1, "Poll not found")
+	featuredArticle := polls[0]
+	//featuredArticle, err := fetchArticle(featuredArticleId, -1)
+	//check(err)
 
 	//autoLoginSuffix := "?autoLoginEmail=" + url.QueryEscape(email)
 	//prVal("  autoLoginSuffix", autoLoginSuffix)
@@ -115,9 +116,8 @@ func testEmail() {
 	assert(featuredArticleId >= 0)
 	body := renderDailyEmail("magicsquare15@gmail.com", featuredArticleId)
 
-	sendEmail(BUSINESS_EMAIL, "magicsquare15@gmail.com", userData.Name, subj, body)
-	sendEmail(BUSINESS_EMAIL, "alterego200@yahoo.com", userData.Name, subj, body)
-	//sendEmail(BUSINESS_EMAIL, "parker510@comcast.net", userData.Name, subj, body)
+	sendEmail("magicsquare15@gmail.com", userData.Name, subj, body)
+	sendEmail("alterego200@yahoo.com", userData.Name, subj, body)
 }
 
 // Code should work, but:
@@ -130,42 +130,51 @@ func testEmail() {
 func dailyEmail() {
 	pr("dailyEmail")
 
-	featuredArticleId := int64(flags.featuredArticleId)
-	assert(featuredArticleId >= 0)
-	prVal("  featuredArticleId", featuredArticleId)
-
 	subj := "Poll Question of the Day"
-	body := renderDailyEmail("magicsquare15@gmail.com", featuredArticleId)
+	body := renderDailyEmail("magicsquare15@gmail.com", int64(flags.featuredArticleId))
 
-	rows := DbQuery(
-		`SELECT Email, Name FROM $$User WHERE COALESCE(EmailPreference, '') IN ('', 'Daily')`)
 
+	// Send each subscriber a daily emil (who should receive one).
 	numSent := 0
-	for rows.Next() {
-		var email, name string
-
-		err := rows.Scan(&email, &name)
-		check(err)
-
-		sendEmail(BUSINESS_EMAIL, email, name, subj, body)
-		numSent++
+	query := `SELECT Email, COALESCE(Name, '') FROM $$User WHERE NOT FakeEmail`
+	switch strings.ToLower(flags.emailTarget) {
+		case "daily":
+			query = query + ` AND COALESCE(EmailPreference, '') IN ('', 'Daily', 'Test')`
+			break;
+		case "test":
+			query = query + ` AND COALESCE(EmailPreference, '') = 'Test'`
+			break;
+		default:
+			panic("  Unhandled flags.emailTarget: '" + flags.emailTarget + "'")
 	}
-	check(rows.Err())
-	rows.Close()
+	DoQuery(
+		func(rows *sql.Rows) {
+			var email, name string
 
-	prf("Daily email sent %d emails!")
+			err := rows.Scan(&email, &name)
+			check(err)
+
+			sendEmail(email, name, subj, body)
+			numSent++
+		},
+		query,
+	)
+
+	prf("Daily email sent %d emails!", numSent)
 }
 
 // Send confirmation email
 func sendAccountConfirmationEmail(eml, username string) {
-	sendEmail(BUSINESS_EMAIL, eml, "", "Welcome to Votezilla!", renderWelcomeEmail(eml, username))
+	sendEmail(eml, "", "Welcome to Votezilla!", renderWelcomeEmail(eml, username))
 }
 
-func sendEmail(from string, to_eml string, to_name string, subj string, body string) {
-	prf("sendEmail %s %s %s %s %s", from, to_eml, to_name, subj, ellipsify(body, 100))
+func sendEmail(to_eml string, to_name string, subj string, body string) {
+	prf("sendEmail %s %s %s %s", to_eml, to_name, subj, ellipsify(strings.Replace(body, "\r\n", " ", -1), 30))
+	//prf("sendEmail %s %s %s %s", to_eml, to_name, subj, ellipsify(body, 100))
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", from)
+	m.SetAddressHeader("From", BUSINESS_EMAIL, BUSINESS_NAME)
+	//m.SetHeader("From", BUSINESS_EMAIL)
 
 	if to_name != "" {
 		m.SetAddressHeader("To", to_eml, to_name)
@@ -176,7 +185,9 @@ func sendEmail(from string, to_eml string, to_name string, subj string, body str
 	m.SetHeader("Subject", subj)
 	m.SetBody("text/html", body)
 
-	if !flags.dryRun {
+	if flags.dryRun {
+		//prf("  dryRun; would have sent email to %s %s", to_name, to_eml)
+	} else {
 		pr("sending the email")
 		d := gomail.NewDialer("smtp.gmail.com", 465, BUSINESS_EMAIL, flags.smtpPassword)
 

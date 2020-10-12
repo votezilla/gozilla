@@ -6,11 +6,15 @@ Where do you get your news from?  (Check all that apply)
  - CNN
  - Fox News
  - Google News
- - Social media
+ - Facebook
+ - Twitter
  - Television
  - Newspaper
  - New York Times
  - Breitbart
+ - Timcast
+ - China Uncensored
+ - America Uncovered
 
 Who do you think would do a better job protecting the country from the Coronavirus?
  - Trump
@@ -23,3 +27,131 @@ How many states have you been to?
 
 
 What are political compromises that the two sides could agree on?
+
+The Mainstream Media is... (Select all that apply.)
+   mostly biased
+   cherry-picked
+   just plain fake news
+   a somewhat-reliable source
+   a mostly-reliable source
+   the most reliable source
+   a completely-reliable source
+   the only reliable source
+(^ fix grammar)
+
+Do you support fracking?
+   support
+   oppose
+
+What will happen to the price of oil? (bus cat)
+
+What are issues that both sides agree on, mostly?
+
+What are your top 3 movies of all time?  (Ranked vote, that ends in 3 items.)
+
+What are your 3 favorite hobbies?  (Ranked vote, that ends in 3 hobbies.)
+   game design
+   travel
+   hiking
+
+Do you support Cancel Culture?
+
+Have you ever been to a protest?
+
+What percentage of cops are good?  What percentage are bad?
+   100% good, 0% bad
+   80% good, 20% bad
+   60% good, 40% bad
+   40% good, 60% bad
+   20% good, 80% bad
+   0% good, 100% bad
+
+Should prisoners have the right to vote?
+
+Ranked vote for president should include the popular forerunners.  Or do one poll w/, one w/o.
+
+Which pillar of truth do you mainly base your beliefs upon, political and otherwise?
+   Ethos - Emotion
+   Logos - Facts, logic
+   Pathos - Trust in sources, people, or authorities
+
+Do you support a ban on assault rifles?
+
+Which political group is more violent, Antifa or Proud Boys?
+   Antifa
+   Proud Boys
+   Both are equally violent
+   Neither group is violent
+   Undecided
+
+Do you support the Border Wall with Mexico?
+   Support
+   Oppose
+   Neutral
+
+Do you support the Tariff on China?
+   Support
+   Oppose
+   Neutral
+
+Do you support a national $15 Minimum Wage law for the US?
+   Support
+   Oppose
+   Neutral
+
+Is Pluto a planet?
+   Yes
+   No
+   Undecided
+
+When will asteroid mining become profitable?
+   Within 10 years
+   Within 50 years
+   Within 100 years
+   In more than 100 years
+   It is impossible or will never become profitable
+
+What percentage of jobs will become obsolete due to AI & automation in the next 10 years?
+	  0%
+	 20%
+	 40%
+	 60%
+	 80%
+	100%
+
+Is it still worth it to go to college in 2020?
+
+Re-post (created = Now()) & share old polls.
+
+Should we consider reducing the salaries of members of conggress?
+
+What are the main factors preventing member of congress from doing their job, or what are the top factors influecing their vote?
+   doing what they think is right
+   representing their state
+   political contributions / bribes from corporations
+   their followers
+   their party
+
+What is your opinion of Netflix's Cuties?
+   It's disgusting
+   I have no problem with it
+
+Which is more important, freedom or security?
+   Freedom
+   Security
+
+Is Big Tech a problem?
+
+Did FDR know that Pearl Harbor was going to happen?
+  (There's some speculation that the US had broken the Japanese code, or ... told the president.)
+
+Is the Earth flat?
+
+Is rent control good or bad? Does it bring up values of rent in a city or lower them?
+  (Credit to Dylan Smeder)
+
+
+
+Blog:
+	$3-4 trillion to corporations and $1200 to each American.
+	vs $4 trillion could have given every adult 18 and over $1000 / month for the entire year!

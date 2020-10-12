@@ -38,6 +38,7 @@ CREATE TABLE vz.User (
 
     -- Verification status
     VerifiedEmail   BOOL DEFAULT False,
+    FakeEmail       BOOL DEFAULT False,
 
     -- NEW FIELDS:
     Created         TIMESTAMPTZ      NOT NULL DEFAULT now(),
