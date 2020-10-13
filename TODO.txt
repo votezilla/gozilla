@@ -1,47 +1,11 @@
 PUSH & TEST ON SERVER:
 
-
+NOTES:
 Postgres copy-paste to initiate:
 
 \connect vz
 SET client_encoding = 'UTF8';
 SET timezone TO 'US/Pacific';
-
-
-JUST FIXED:
-
-B - 2 - poll image thumbnail (at least for non-default thumbnails) - CSS = margin-left:0, border-radius:8px, height and width 68x68 works well.
-
-C - 8 - cool button style
-
-A - 1 - Create a new user "votezilla", use that to share polls
-
-A 34 - eml - notifications about new polls
-X       + Html template tech
-  [X] 8 html email tech
-  [X] 8 Design FEATURED POLL part of daily email
-  [X] 1 Add link to poll image, title, and vote button
-  [X] 2 Shrink images a little
-  [X] 1 Clean up unused email code
-  [X] 3 Test w/ images turned off
-  [X]  2 git commit, test sending email new way on the server
-
-  [X] 5 unsubscribe eml & prefs on server (Email prefs: 1 / day, 1 / week, 1 / month, no email)
-
-  [X] 2 update daily email send from bus address + unsubscribe / email prefs link
-
-  [X]  3 friction-free login from email via &autoLoginEmail=[eml]  (for poll + unsubscribe)
-
-  [X]  submit and test on server
-
-  [X] 3 "Create new account" button should be green!
-  B - 2 - Gave it a nicer gradient too.
-  B - 3 - Fixed poll ranking
-
-  B - 3 - Votezilla name appears in email From now.
-
-  C - 3 - Expanded comment loses all <br>'s.
-  [X]  8 Implement daily email batch: For now, triggered via: gozilla -dailyEmail=true -featuredArticleId=376999
 
 
 (  HOW TO SEND DAILY EMAILS:
@@ -52,12 +16,27 @@ Linux:
    ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=376999 -dryRun=true -emailTarget=daily
 )
 
+JUST FIXED:
+
+A - 3 - Change email of both my accounts to something more obscure, to prevent hacking?
+
+B - 2 - Polls - add urlToImage (optional)
+
+
+
 WORKING ON:
 
+A - 5 - cr and convert En votes for presidential poll
+
+A - 3 - Ranked voting - add printing of # of votes for each ranking order.
+        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
+
+Tomorrow (10/13) morning:
+[] Send first daily email tomorrow!
+
+[] Test with neighbor Jim
 
 
-
-WORK ON NEXT:
 
 
 
@@ -66,35 +45,17 @@ v
   Difficulty
   v
 
-(Start filtering / fixing polls.)
-
-
-- when not logged in, shows old polls and always the same.  why?
-
 
 LAUNCH FEATURE SHORTLIST:
 --- MUST HAVE
 
-A - 3 - Change email of both my accounts to something more obscure, to prevent hacking?
-
-A - 5 - cr and convert En votes for presidential poll
-
-A - 3 - Ranked voting - add printing of # of votes for each ranking order.
-        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
-
 B - 3 - Polls - add description (optional, plain text for now.  do rich text later.  or see if there's a good library for markdown!!)
-
-B - 2 - Polls - add urlToImage (optional)
 
 B - 3 - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
   "Create a poll question relating to politics or any other topic you find interesting"
   (Where it says "Share to get more votes!")
 
 B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
-
-B - 3 - Secure my emails:
-          1) admin emails should have admin=True set in vz.User
-          2) require &showPassword=true, then if reqShowPassword on server, enter password when Admin=true
 
 B - 3 - Delete bad polls
 

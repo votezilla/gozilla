@@ -20,6 +20,7 @@ const (
 	kCategory = "category"
 	kAnonymity = "anonymity"
 	kThumbnail = "thumbnail"
+	kUrlToImage = "urlToImage"
 
 	kMaxPollLength = 100
 )
@@ -130,10 +131,11 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 		nuTextField(kTitle, "Ask a poll question...", 50, 12, 150, "poll question"),
 		nuTextField(kOption1, "add option...", 50, 1, kMaxPollLength, "poll option 1"),
 		nuTextField(kOption2, "add option...", 50, 1, kMaxPollLength, "poll option 2"),
+		nuTextField(kUrlToImage, "Image URL (optional)", 50, 0, 150, "image URL"),
 		//nuBoolField(kAnyoneCanAddOptions, "Allow anyone to add options", false),
 		nuBoolField(kCanSelectMultipleOptions, "Allow people to select multiple options", false),
 		nuBoolField(kRankedChoiceVoting, "Enable ranked-choice voting", false),
-		nuSelectField(kCategory, "Select Category", newsCategoryInfo.CategorySelect, true, true, false, false, "Please select a poll category"),
+		nuSelectField(kCategory, "Select Category", newsCategoryInfo.CategorySelect, true, false, false, false, "Please select a poll category"),
 	)
 
 	// Add fields for additional options that were added, there could be an arbitrary number, we'll cap it at 1024 for now.
@@ -155,10 +157,6 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 			pollOptions = append(pollOptions, newOption)
 		}
 	}
-
-	prVal("r.Method", r.Method)
-	prVal("r.PostForm", r.PostForm)
-	//prVal("form", form)
 
 	if r.Method == "POST" && form.validateData(r) {
 		pr("Valid form!")
@@ -204,17 +202,25 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 
 			//prVal("pollOptionsJson", pollOptionsJson)
 
+			category := form.val(kCategory)
+			prVal("<<category", category)
+			if category == "-" {
+				category = "polls"
+			}
+			prVal(">>category", category)
+
 			// Create the new poll.
 			pollPostId := DbInsert(
 				`INSERT INTO $$PollPost(UserId, Title, Category, Language, Country,
-										PollOptionData)
-				 VALUES($1::bigint, $2, $3, $4, $5, $6) returning id;`,
+										PollOptionData, UrlToImage)
+				 VALUES($1::bigint, $2, $3, $4, $5, $6, $7) returning id;`,
 				userId,
 				form.val(kTitle),
-				form.val(kCategory),
+				category,
 				"en",
 				"us",
 				pollOptionsJson,
+				form.val(kUrlToImage),
 			)
 			prVal("Just added a poll #", pollPostId)
 
