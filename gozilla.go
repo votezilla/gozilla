@@ -357,10 +357,11 @@ func main() {
 
 	prVal("flags.testEmail", flags.testEmail)
 
-	if flags.testEmail {
+	/* if flags.testEmail {
 		//InitEmail()
 		testEmail()
-	} else if flags.dailyEmail {
+	} else */
+	if flags.dailyEmail {
 		dailyEmail()
 	} else if flags.imageService != "" {
 		ImageService()

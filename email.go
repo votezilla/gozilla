@@ -44,23 +44,18 @@ func renderWelcomeEmail(email, username string) string {
 		url.QueryEscape(email))
 }
 
-func renderDailyEmail(email string, featuredArticleId int64) string {
+func renderDailyEmail(email string) string {
 	pr("renderDailyEmail")
+
+	featuredArticleId := int64(flags.featuredArticleId)
 	prVal("  featuredArticleId", featuredArticleId)
 	assert(featuredArticleId >= 0)
 
-	polls := fetchPolls(-1, 1) // Only one poll, but we need to dereference it
-	assertMsg(len(polls) >= 1, "Poll not found")
-	featuredArticle := polls[0]
-	//featuredArticle, err := fetchArticle(featuredArticleId, -1)
-	//check(err)
-
-	//autoLoginSuffix := "?autoLoginEmail=" + url.QueryEscape(email)
-	//prVal("  autoLoginSuffix", autoLoginSuffix)
+	featuredArticle, err := fetchArticle(featuredArticleId, -1) // Only one poll, but we need to dereference it
+	check(err)
 
 	pr("  makeUrlsAbsolute")
 	makeUrlsAbsolute(&featuredArticle)
-	//featuredArticle.Url += autoLoginSuffix
 	featuredArticle.Url = insertUrlParam(featuredArticle.Url, "autoLoginEmail", email)
 
 	unsubscribeLink := insertUrlParam("http://votezilla.news/emailPreference/", "autoLoginEmail", email)
@@ -93,31 +88,26 @@ func welcomeEmailHandler(w http.ResponseWriter, r *http.Request) {
 func dailyEmailHandler(w http.ResponseWriter, r *http.Request) {
 	pr("dailyEmailHandler")
 
-	featuredArticleId := int64(flags.featuredArticleId) // 29825
+	featuredArticleId := int64(flags.featuredArticleId)
 	assert(featuredArticleId >= 0)
 
-	body := renderDailyEmail("magicsquare15@gmail.com", featuredArticleId)
+	body := renderDailyEmail(flags.testEmailAddress)
 
 	serveHtml(w, body)
 }
 
+/*
 func testEmail() {
 	pr("testEmail():")
 
-	userData := GetUserData(36) // My userId on localhost. (Goes to my primary eml)
-
-/*
 	subj := "Welcome to Votezilla!"
-	body := renderWelcomeEmail("magicsquare15@gmail.com", "magicsquare15") //
-*/
-	subj := "Poll Question of the Day"
-	featuredArticleId := int64(flags.featuredArticleId) // 29825
-	assert(featuredArticleId >= 0)
-	body := renderDailyEmail("magicsquare15@gmail.com", featuredArticleId)
+	body := renderWelcomeEmail(flags.testEmailAddress, flags.testUsername) //
 
-	sendEmail("magicsquare15@gmail.com", userData.Name, subj, body)
-	sendEmail("alterego200@yahoo.com", userData.Name, subj, body)
-}
+	subj := "Poll Question of the Day"
+	body := renderDailyEmail(flags.testEmailAddress)
+
+	sendEmail(flags.testEmailAddress, flags.tes
+}*/
 
 // Code should work, but:
 // 1) Test it with -dryRun=true
@@ -128,9 +118,6 @@ func testEmail() {
 // 4) Look for any other goodies in the documentation.
 func dailyEmail() {
 	pr("dailyEmail")
-
-	subj := "Poll Question of the Day"
-	body := renderDailyEmail("magicsquare15@gmail.com", int64(flags.featuredArticleId))
 
 	// Send each subscriber a daily emil (who should receive one).
 	recipients := make([]EmailRecipient, 0)
@@ -160,7 +147,11 @@ func dailyEmail() {
 	}
 	prVal("recipients", recipients)
 
-	sendBulkEmail(recipients, subj, body)
+	sendBulkEmail(
+		recipients,
+		"Poll Question of the Day",
+		renderDailyEmail,
+	)
 }
 
 // Send confirmation email.
@@ -198,8 +189,8 @@ func sendEmail(to_eml string, to_name string, subj string, body string) {
 }
 
 // Sends a bulk email blast (newsletter) to a group of email recipients (subscribers).
-func sendBulkEmail(recipients []EmailRecipient, subj string, body string) {
-	prf("sendBulkEmail recipients(%d) %s %s", len(recipients), subj, body)
+func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(email string)string) {
+	prf("sendBulkEmail recipients(%d) %s", len(recipients), subj)
 
 	numSent := 0
 
@@ -217,6 +208,7 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, body string) {
 	for _, recipient := range(recipients) {
 		to_eml := recipient.Email
 		to_name := recipient.Name
+		body := emailRenderer(to_eml)
 
 		prf("  sendEmail %s %s %s %s", to_eml, to_name, subj, ellipsify(strings.Replace(body, "\r\n", " ", -1), 30))
 
