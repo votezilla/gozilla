@@ -22,11 +22,9 @@ A - 3 - Change email of both my accounts to something more obscure, to prevent h
 
 B - 2 - Polls - add urlToImage (optional)
 
-
+A - cr presidential poll
 
 WORKING ON:
-
-A - 5 - cr and convert En votes for presidential poll
 
 A - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
