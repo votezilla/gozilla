@@ -41,18 +41,21 @@ X       + Html template tech
   B - 3 - Votezilla name appears in email From now.
 
   C - 3 - Expanded comment loses all <br>'s.
+  [X]  8 Implement daily email batch: For now, triggered via: gozilla -dailyEmail=true -featuredArticleId=376999
 
+
+(  HOW TO SEND DAILY EMAILS:
+Windows:
+   gozilla.exe -dbuser=postgres -dbpassword=xanadu777 -dbsalt="SALT AND PEPPA PLAYA" -cookieHashKey="chocoLATE CHIP HAsher" -cookieBlockKey="hA$hHpotat0e$ and grAvy!" -port=8080 -smtpPassword=vote33zilla -debug=true -checkForNotifications=false -domain=votezilla.news -dailyEmail=true -featuredArticleId=1833 -dryRun=true -emailTarget=daily
+
+Linux:
+   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=376999 -dryRun=true -emailTarget=daily
+)
 
 WORKING ON:
 
-  [>]  8 Implement daily email batch: For now, triggered via: gozilla -dailyEmail=true -featuredArticleId=376999
-   	test w/ -testBatch=true which will just send to test emails (test db column for which users have testable emails)
-   	send in batches of 25 w 3 min breaks?
-	cont @ email.go:93
 
-(  HOW TO SEND DAILY EMAILS:
-   ./gozilla $(< ~/flags.txt) -testEmail=true -featuredArticleId=376999
-)
+
 
 WORK ON NEXT:
 
