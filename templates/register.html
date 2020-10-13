@@ -7,8 +7,8 @@
 		{{ $f := .Form.FieldMap }}
 		{{ template "field" $f.email -}}
 		{{ template "field" $f.username -}}
-		<p class="nuFieldSubtext" style="margin: 0px;">
-			Pick a Username - i.e. RedHerring65.  Pick something cool and anonymous.</p>
+		<p class="nuFieldSubtext" style="margin: 0px; font-size: 16px;">
+			Pick a Username.  Something cool and anonymous, i.e. RedHerring65. </p>
 
 		{{ if $f.password }}
 			{{ template "toggleablePassword" $f.password -}}
@@ -21,8 +21,8 @@
 
 		{{template "button" "Sign Up"}}
 
-		<p class="nuFieldSubtext" style="margin: 8px;">By clicking Sign Up, you agree to our Terms and that
-		you have read our Data Policy, including our Cookie Use.</p>
+		<p class="nuFieldSubtext" style="margin: 8px; font-size: 12px;">By clicking Sign Up, you agree to our terms and
+		data policy, including our cookie use and email opt-in.</p>
 
 		<div class="nuFooter" style="font-size: 17px;">
 			Already a Votezilla member?

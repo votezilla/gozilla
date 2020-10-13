@@ -22,7 +22,6 @@ vzilla@gmail.com
 votezilla.io@gmail.com
 */
 
-
 func renderWelcomeEmail(email, username string) string {
 	return fmt.Sprintf(
 		`Hello %s,
