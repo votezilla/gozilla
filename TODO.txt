@@ -13,7 +13,7 @@ Windows:
    gozilla.exe -dbuser=postgres -dbpassword=xanadu777 -dbsalt="SALT AND PEPPA PLAYA" -cookieHashKey="chocoLATE CHIP HAsher" -cookieBlockKey="hA$hHpotat0e$ and grAvy!" -port=8080 -smtpPassword=vote33zilla -debug=true -checkForNotifications=false -domain=votezilla.news -dailyEmail=true -featuredArticleId=1833 -dryRun=true -emailTarget=daily
 
 Linux:
-   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=376999 -dryRun=true -emailTarget=daily
+   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=395139 -dryRun=true -emailTarget=test
 )
 
 JUST FIXED:

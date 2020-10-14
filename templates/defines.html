@@ -96,13 +96,10 @@
 		{{- $maxOptions = 12 }}
 	{{ end }}
 
-	<!--<ul>-->
-	<!--	<li> $poll.Options = {{ $poll.Options }}-->
-	<!--	<li> $pollTallyInfo = {{ $pollTallyInfo }}-->
-	<!--</ul>-->
+
 	{{ if $pollTallyInfo.Header }}
 		<tr><td colspan=5>
-			<h6><b>{{$pollTallyInfo.Header}}</b></h6>
+			<b>{{$pollTallyInfo.Header}}</b>
 			<br>
 		</td></tr>
 	{{ end }}
@@ -110,8 +107,12 @@
 		{{ if and (lt $o $maxOptions) }}
 			{{ if (not (index $pollTallyResults $o).Skip) }}
 				{{ $percentage := printf "%.0f%%" (index $pollTallyResults $o).Percentage }}
-				<tr>
-					{{ if or (lt $article.LongestItem 20) (eq $article.Size 2) }}
+				<tr
+				{{ if (index $pollTallyResults $o).Worst }}
+					style="text-decoration: line-through;"
+				{{ end }}
+				>
+					{{ if or (lt $article.LongestItem 30) (eq $article.Size 2) }}
 						<td style="min-width: 40%; max-width: 70%;
 								   word-break: break-word;
 								   -ms-word-break: break-all;

@@ -13,7 +13,8 @@ import (
 type PollTallyResult struct {
 	Count		int
 	Percentage	float32
-	Skip		bool
+	Skip		bool		// Option has already been eliminated
+	Worst		bool		// Option is currently being eliminated
 }
 
 type PollTallyResults []PollTallyResult
@@ -230,6 +231,8 @@ func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRanked
 
 func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff bool,
 							condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
+	pr("calcRankedChoiceVoting")
+
 	pollTallyResults := make(PollTallyResults, numOptions)
 	extraTallyInfo	 := make(ExtraTallyInfo, 0)
 
@@ -262,6 +265,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	check(rows.Err())
 
 	// TODO: sort, return, and display userRankedVotes - # of each ranking.
+	prVal("  userRankedVotes", userRankedVotes)
 
 	// Do the ranked voting algorithm.
 	eliminatedVoteOptions := make([]int64, 0)
@@ -336,9 +340,10 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		}
 
 		// Otherwise, eliminate the remaining vote option with the fewest votes and recount the votes.
+		var worstOptions []int64
+
 		if !done {
 			leastVotes  := MaxInt
-			worstOption := -1
 			for option, pollTallyResult := range pollTallyResults {
 				// It must be from one of the options remaining.
 				if contains_int64(eliminatedVoteOptions, int64(option)) {
@@ -347,22 +352,37 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 
 				if pollTallyResult.Count < leastVotes {
 					leastVotes = pollTallyResult.Count
-					worstOption = option
 				}
 			}
-			// Eliminate the worst option... without deleting anything :)
-			eliminatedVoteOptions = append(eliminatedVoteOptions, int64(worstOption))
+			// Eliminate the worst options... without deleting anything.
+			for option, pollTallyResult := range pollTallyResults {
+				// It must be from one of the options remaining.
+				if contains_int64(eliminatedVoteOptions, int64(option)) {
+					continue
+				}
+
+				if pollTallyResult.Count == leastVotes {
+					worstOptions = append(worstOptions, int64(option))
+				}
+			}
 
 			if viewRankedVoteRunoff {
-				message += "Eliminated option '" + article.PollOptionData.Options[worstOption] + "', it had the lowest vote"
+				message += "Eliminated option '"
+
+				for _, worstOption := range(worstOptions) {
+					message = message + article.PollOptionData.Options[worstOption] + ", "
+				}
+
+				message = message + ternary_str(len(worstOptions) > 1, "they", "it") + " had the lowest vote."
+
 				pr(message)
 			}
 
 			// Stop when we have one candidate remaining.
 			if round == numOptions - 1 {
-				assert(len(eliminatedVoteOptions) == numOptions - 1)
+				//assert(len(eliminatedVoteOptions) == numOptions - 1)
 				if viewRankedVoteRunoff {
-					message += "We'll stop now since we only have one candidate remaining."
+					message += " We'll stop now since we only have one candidate remaining."
 				}
 				done = true
 			}
@@ -375,6 +395,14 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 			copy(pollTallyInfo.Stats, pollTallyResults)
 			pollTallyInfo.Header = "Ranked Vote Runoff - Pass " + int_to_str(round)
 			pollTallyInfo.Footer = message
+
+			for option, _ := range pollTallyInfo.Stats {
+				if contains_int64(worstOptions, int64(option)) {
+					pollTallyInfo.Stats[option].Worst = true
+
+					prVal("  WORST OPTION", option)
+				}
+			}
 
 			for option, _ := range pollTallyInfo.Stats {
 				if contains_int64(eliminatedVoteOptions, int64(option)) {
@@ -399,6 +427,8 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 				prf("      extraTallyInfo[%d]=%#v", x, extraTallyInfo[x])
 			}
 		}
+
+		eliminatedVoteOptions = append(eliminatedVoteOptions, worstOptions...)
 
 		if done {
 			break rankedVotingLoop
