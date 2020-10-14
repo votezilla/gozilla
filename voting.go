@@ -265,10 +265,10 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	check(rows.Err())
 
 	// TODO: sort, return, and display userRankedVotes - # of each ranking.
-	
-/*	
+
+/*
 	//prVal("  userRankedVotes", userRankedVotes)
-	
+
 	rawRankedVotes := make(map[string]int)
 	pr("==================================================================================")
 	pr("  Calculating raw ranked votes:")
@@ -287,9 +287,9 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 
 		rawRankedVotes[rankedVoteDescription]++
 	}
-	
+
 	//prVal("  rawRankedVotes", rawRankedVotes)
-	
+
 	pr("  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. ")
 	pr("  rawRankedVotes:")
 	for k, v := range rawRankedVotes {
@@ -342,9 +342,15 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		prVal("sum", sum)
 
 		// Calculate the percentage.
-		invDividendPercent := 100.0 / float32(sum)
-		for i := range pollTallyResults {
-			pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
+		if sum > 0 {
+			invDividendPercent := 100.0 / float32(sum)
+			for i := range pollTallyResults {
+				pollTallyResults[i].Percentage = float32(pollTallyResults[i].Count) * invDividendPercent
+			}
+		} else {
+			for i := range pollTallyResults {
+				pollTallyResults[i].Percentage = 0.0
+			}
 		}
 
 		prf("Round %d results:", round)
@@ -395,14 +401,14 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 				}
 			}
 
-			if viewRankedVoteRunoff {
-				message += "Eliminated option '"
+			if viewRankedVoteRunoff && len(worstOptions) >= 1 {
+				message += "Eliminated " + ternary_str(len(worstOptions) > 1, "options", "option") + ": '"
 
-				for _, worstOption := range(worstOptions) {
+				for _, worstOption := range worstOptions  {
 					message = message + article.PollOptionData.Options[worstOption] + ", "
 				}
 
-				message = message + ternary_str(len(worstOptions) > 1, "they", "it") + " had the lowest vote."
+				message = message + "', as " + ternary_str(len(worstOptions) > 1, "they", "it") + " had the lowest vote."
 
 				pr(message)
 			}
@@ -411,7 +417,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 			if round == numOptions - 1 {
 				//assert(len(eliminatedVoteOptions) == numOptions - 1)
 				if viewRankedVoteRunoff {
-					message += " We'll stop now since we only have one candidate remaining."
+					message += "We'll stop now since we only have two or less candidates remaining."
 				}
 				done = true
 			}
