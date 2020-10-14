@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	//"fmt"
+	"fmt"
 	"github.com/lib/pq"
 	"net/http"
 	"strconv"
@@ -417,7 +417,8 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 			if round == numOptions - 1 {
 				//assert(len(eliminatedVoteOptions) == numOptions - 1)
 				if viewRankedVoteRunoff {
-					message += "We'll stop now since we only have two or less candidates remaining."
+					numOptionsRemaining := len(pollTallyResults) - len(eliminatedVoteOptions) - len(worstOptions)
+					message += fmt.Sprintf("We'll stop now since we only have %d candidates remaining.", numOptionsRemaining)
 				}
 				done = true
 			}
