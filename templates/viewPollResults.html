@@ -57,6 +57,12 @@
 									View Breakdown
 									Demographic Breakdown
 							-->
+							{{ if $poll.RankedChoiceVoting }}
+								<div>
+									<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="Ranked Vote Runoff" class="btn btn-default btn-green">
+								</div>
+							{{ end }}
+							<br><br>
 							{{ if ge $article.PollTallyInfo.TotalVotes 5 }}
 								<select name="country" class="btn btn-vote-dropdown" style="font-family: Verdana;"
 										onchange="location.href='/viewPollResults/?postId='+{{$article.Id}}+`&viewRankedVoteRunoff=true&splitByDemographic=${this.value}`;">
@@ -67,12 +73,6 @@
 								</select>
 							{{ else }}
 								Demographic breakdown viewable once poll reaches 5 or more votes.  There are currently {{ $article.PollTallyInfo.TotalVotes }}.  Share to get more votes!
-							{{ end }}
-							<br><br>
-							{{ if $poll.RankedChoiceVoting }}
-								<div>
-									<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}&viewRankedVoteRunoff=true';" value="Ranked Vote Runoff" class="btn btn-default btn-green">
-								</div>
 							{{ end }}
 							<br>
 							{{ if .UserVoteString }}

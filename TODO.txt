@@ -24,7 +24,9 @@ B - 2 - Polls - add urlToImage (optional)
 
 A - cr presidential poll
 
-A - 5 - Fixed some 3-way vote and divide by zero bugs, plus improved messaging for ranked votes
+A - 5 - Fixed some tied ranked voting and divide by zero bugs, plus improved messaging for ranked votes
+
+B - 3 - Delete bad polls
 
 
 WORKING ON:
@@ -33,12 +35,7 @@ A - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
 
-Tomorrow (10/13) morning:
-[] Send first daily email tomorrow!
-
-[] Test with neighbor Jim
-
-
+[] 10/15 - Test with neighbor Jim
 
 
 
@@ -51,27 +48,16 @@ v
 LAUNCH FEATURE SHORTLIST:
 --- MUST HAVE
 
-B - 3 - Polls - add description (optional, plain text for now.  do rich text later.  or see if there's a good library for markdown!!)
+B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
 
+
+--- OPTIONAL:
 B - 3 - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
   "Create a poll question relating to politics or any other topic you find interesting"
   (Where it says "Share to get more votes!")
 
-B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
+B - 3 - Polls - add description (optional, plain text for now.  do rich text later.  or see if there's a good library for markdown!!)
 
-B - 3 - Delete bad polls
-
-<< FINISH BY EOD FRI 10/9! >>
- > send daily email
-
-<< LAUNCH MON! >>
- > email blast
- > setup gleam.io
-
-
-
-
---- OPTIONAL:
 C - improve voting UI - hover over buttons that automatically check box or enter 1, 2, 3 when clicking, like FB polls.
 
 C - make vote results more colorful.  Each bar up to 6 or 8 colors that mod.  Bright colors with glow, and 3d border effect.

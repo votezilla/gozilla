@@ -149,7 +149,7 @@ func dailyEmail() {
 
 	sendBulkEmail(
 		recipients,
-		"Poll Question of the Day",
+		ternary_str(flags.emailSubject != "", flags.emailSubject, "Poll Question of the Day"),
 		renderDailyEmail,
 	)
 }
