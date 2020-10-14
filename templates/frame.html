@@ -424,6 +424,7 @@ function addOrRemoveVote(id, add, up, bcomment, updateDatabase, updateText) {
 			contentType: 'application/json; charset=utf-8',
 			data: JSON.stringify({PostId: id, Add: add, Up: up, IsComment: bcomment}), // Hmmm <-- should be UserId not Username
 			dataType: 'json',
+			timeout: 0,
 			success: function(r) { console.log("AJAX - success"); },
 			error:   function(r) { console.log("AJAX - error"); }
 		});
@@ -657,6 +658,7 @@ function VoteOnPoll(pollId, pollOptions, pollType, windowTarget) {
 			contentType: 'application/json; charset=utf-8',
 			data: jsonData,
 			dataType: 'json',
+			timeout: 0,
 			success: function(r) {
 				console.log("AJAX Poll Vote - success");
 

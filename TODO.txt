@@ -290,6 +290,7 @@ C 13 - TOM: Tickertape news would be cool
 
 C - RYAN - I'd like to have links or additional inline documentation before taking a poll. oh, you could have an optional voter's pamphlet for each poll. Weird thing--as I am typing this the page kept scrolling back to the top. (RYAN)
 
+D - remove alerts, especially when voting.  (Ryan struggled with it.)
 
 D - Create db flag to mark test accounts I've created.
 

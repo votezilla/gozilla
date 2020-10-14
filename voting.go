@@ -265,8 +265,37 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	check(rows.Err())
 
 	// TODO: sort, return, and display userRankedVotes - # of each ranking.
-	prVal("  userRankedVotes", userRankedVotes)
+	
+/*	
+	//prVal("  userRankedVotes", userRankedVotes)
+	
+	rawRankedVotes := make(map[string]int)
+	pr("==================================================================================")
+	pr("  Calculating raw ranked votes:")
+	for u, userRankedVote := range userRankedVotes {
+		prVal("   u", u)
 
+		// Turn ranked vote into a string description
+		rankedVoteDescription := ""
+		for r := int64(1); r < int64(10); r++ {
+			for _, rank := range userRankedVote.VoteRanks {
+				if rank == r {
+					rankedVoteDescription = rankedVoteDescription + article.PollOptionData.Options[r] + ", "
+				}
+			}
+		}// ^^ TODO: rework / clean up / debug this code!
+
+		rawRankedVotes[rankedVoteDescription]++
+	}
+	
+	//prVal("  rawRankedVotes", rawRankedVotes)
+	
+	pr("  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. ")
+	pr("  rawRankedVotes:")
+	for k, v := range rawRankedVotes {
+		prf("  %40s -> %d", k, v)
+	}
+*/
 	// Do the ranked voting algorithm.
 	eliminatedVoteOptions := make([]int64, 0)
 	round := 1
@@ -275,12 +304,12 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		message := ""
 
 		// For each user...
-		for u, userRankedVote := range(userRankedVotes) {
+		for u, userRankedVote := range userRankedVotes {
 
 			// ...Find the best option for the user...
 			userRankedVotes[u].BestOption = -1
 			minRank	  					 := MaxInt64
-			for r, rank := range(userRankedVote.VoteRanks) {
+			for r, rank := range userRankedVote.VoteRanks {
 				option := userRankedVote.VoteOptions[r]
 
 				// ...Based on the candidates still available.
@@ -302,7 +331,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		sum := 0
 
 		// Tally the votes.
-		for _, userRankedVote := range(userRankedVotes) {
+		for _, userRankedVote := range userRankedVotes {
 			// If the user's best option is valid (i.e. all their candidates weren't eliminated), add it to the tally.
 			if userRankedVote.BestOption >= 0 {
 				pollTallyResults[userRankedVote.BestOption].Count++
