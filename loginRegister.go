@@ -283,6 +283,8 @@ func exportSubsHandler(w http.ResponseWriter, r *http.Request){
 
 	pr("exportSubsHandler")
 
+	assert( GetSession(w, r) == 5)
+
 	tr := func(s string) string { return "<tr>" + s + "</tr>" }
 	td := func(s string) string { return "<td>" + s + "</td>" }
 
