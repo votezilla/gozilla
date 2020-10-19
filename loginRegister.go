@@ -272,57 +272,6 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	executeTemplate(w, kRegister, makeFormFrameArgs(r, form, "Sign Up"))
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// import and export subscribers
-//
-///////////////////////////////////////////////////////////////////////////////
-func exportSubsHandler(w http.ResponseWriter, r *http.Request){
-	// TODO: assert(userId == 5)
-
-	pr("exportSubsHandler")
-
-	tr := func(s string) string { return "<tr>" + s + "</tr>" }
-	td := func(s string) string { return "<td>" + s + "</td>" }
-
-	table := "<table>"
-	table = table + tr(td("email") + td("name") + td("first name") + td("last name"))
-	DoQuery(
-		func(rows *sql.Rows) {
-			var email, name string
-
-			err := rows.Scan(&email, &name)
-			check(err)
-
-			names := strings.Split(name, " ")
-
-			prVal("name", name)
-			prVal("names", names)
-
-			var firstName, lastName string
-
-			if len(names) > 0 {
-				firstName = names[0]
-				lastName = names[len(names)-1]
-			}
-
-			table = table + tr(td(email) + td(name) + td(firstName) + td(lastName))
-
-		},
-		//"SELECT Email, COALESCE(Name, '') FROM $$User")
-		"SELECT Email, COALESCE(Name, '') FROM $$User WHERE NOT FakeEmail")
-	table = table + "</table>"
-
-	serveHtml(w, table)
-}
-
-func importSubsHandler(w http.ResponseWriter, r *http.Request){
-
-}
-
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // register details about the user

@@ -50,6 +50,12 @@ CREATE TABLE vz.User (
     Ip              TEXT
 );
 
+CREATE TABLE vz.NewSub (		-- Newletter Subscriber
+    Email           TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
+    Name            TEXT
+);
+
+
 CREATE TABLE vz.Post (
     Id              BIGSERIAL        NOT NULL,
     UserId          BIGINT           NOT NULL,
