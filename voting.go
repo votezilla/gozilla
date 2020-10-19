@@ -193,7 +193,7 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 // calc poll tally
 //
 //////////////////////////////////////////////////////////////////////////////
-func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff bool, condition string) PollTallyResults {
+func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff, canSelectMultipleOptions bool, condition string) PollTallyResults {
 	pollTallyResults := make(PollTallyResults, numOptions)
 
 	// Get the votes from the database.
@@ -216,8 +216,15 @@ func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRanked
 
 	dividend := 0
 	sum := 0
-	for i := range pollTallyResults {
-		sum += pollTallyResults[i].Count
+	TallyMultipleOptionsDifferently := false // TODO: revisit this later.
+	if canSelectMultipleOptions && TallyMultipleOptionsDifferently {
+		for i := range pollTallyResults {
+			sum = max_int(sum, pollTallyResults[i].Count)
+		}
+	} else {
+		for i := range pollTallyResults {
+			sum += pollTallyResults[i].Count
+		}
 	}
 	dividend = sum
 
@@ -364,7 +371,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 
 		// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
 		for i := range pollTallyResults {
-			if pollTallyResults[i].Percentage > 50.0 {
+			if pollTallyResults[i].Percentage > 50.0 /*&& !viewRankedVoteRunoff*/ {
 				if viewRankedVoteRunoff {
 					message += "Found a winner, with a majority of the vote!: '" + article.PollOptionData.Options[i] + "'"
 
@@ -497,7 +504,7 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics
 	extraTallyInfo := make(ExtraTallyInfo, 0)
 
 	if (!pollOptionData.RankedChoiceVoting) { // Regular single or multi-select voting
-		pollTallyResults = calcSimpleVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, condition)
+		pollTallyResults = calcSimpleVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, pollOptionData.CanSelectMultipleOptions, condition)
 
 		assert(len(pollOptionData.Options) == len(pollTallyResults))
 

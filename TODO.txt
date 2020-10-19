@@ -13,7 +13,7 @@ Windows:
    gozilla.exe -dbuser=postgres -dbpassword=xanadu777 -dbsalt="SALT AND PEPPA PLAYA" -cookieHashKey="chocoLATE CHIP HAsher" -cookieBlockKey="hA$hHpotat0e$ and grAvy!" -port=8080 -smtpPassword=vote33zilla -debug=true -checkForNotifications=false -domain=votezilla.news -dailyEmail=true -featuredArticleId=1833 -dryRun=true -emailTarget=daily
 
 Linux:
-   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=395139 -dryRun=true -emailTarget=test
+   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=xxx999 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: How can we fix income inequality in America?"
 )
 
 JUST FIXED:
@@ -31,8 +31,9 @@ B - 3 - Delete bad polls
 
 WORKING ON:
 
-A - 3 - Ranked voting - add printing of # of votes for each ranking order.
-        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
+B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
+
+
 
 
 [] 10/15 - Test with neighbor Jim
@@ -48,6 +49,10 @@ v
 LAUNCH FEATURE SHORTLIST:
 --- MUST HAVE
 
+C - 3 - Ranked voting - add printing of # of votes for each ranking order.
+        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
+
+
 B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
 
 
@@ -57,6 +62,12 @@ B - 3 - "Share a news article, video, or other interesting link" ++ -> top of /n
   (Where it says "Share to get more votes!")
 
 B - 3 - Polls - add description (optional, plain text for now.  do rich text later.  or see if there's a good library for markdown!!)
+
+C - before more polls or more whatever, it could have a button to create a poll or share a news post, or same for blog.
+
+[] - re-send welcome message (to new ppl not via contest?) that welcomes them, lets them know about contest.
+
+C - need notification when someone likes your post.
 
 C - improve voting UI - hover over buttons that automatically check box or enter 1, 2, 3 when clicking, like FB polls.
 

@@ -103,6 +103,7 @@
 			<br>
 		</td></tr>
 	{{ end }}
+
 	{{ range $o, $option := $poll.Options }}
 		{{ if and (lt $o $maxOptions) }}
 			{{ if (not (index $pollTallyResults $o).Skip) }}
@@ -202,6 +203,12 @@
 						<i><b>Ranked Vote:</b> Mark "1" for your 1st choice, "2" for your 2nd choice, etc.</i>
 					</div>
 				</div>
+			{{ else if $poll.CanSelectMultipleOptions }}
+				<div>
+					<div style="width: 100%; padding-left: 5px;">
+						<i>Select All Options you agree with.</i>
+					</div>
+				</div>
 			{{ end }}
 			<div valign="top">
 				<div style="width: 100%;">
@@ -271,6 +278,12 @@
 					</span>
 					<br>
 				</td></tr>
+			{{ else if $poll.CanSelectMultipleOptions }}
+				<div>
+					<div style="width: 100%; padding-left: 5px;">
+						<i><b>Multi-Select Vote:</b> Select All Options you agree with.</i>
+					</div>
+				</div>
 			{{ end }}
 			<tr><td align="left">
 				{{ range $o, $option := $poll.Options }}
