@@ -56,10 +56,15 @@ func renderDailyEmail(email string) string {
 
 	pr("  makeUrlsAbsolute")
 	makeUrlsAbsolute(&featuredArticle)
-	featuredArticle.Url = insertUrlParam(featuredArticle.Url, "autoLoginEmail", email)
 
-	unsubscribeLink := insertUrlParam("http://votezilla.news/emailPreference/", "autoLoginEmail", email)
-	prVal("  unsubscribeLink", unsubscribeLink)
+	unsubscribeLink := ""
+
+	if flags.newSubs == "" { // Don't do auto-login for newSubs, who aren't yet members.
+		featuredArticle.Url = insertUrlParam(featuredArticle.Url, "autoLoginEmail", email)
+
+		unsubscribeLink = insertUrlParam("http://votezilla.news/emailPreference/", "autoLoginEmail", email)
+		prVal("  unsubscribeLink", unsubscribeLink)
+	}
 
 	// Render the email body template.
 	return renderToString(
@@ -119,31 +124,66 @@ func testEmail() {
 func dailyEmail() {
 	pr("dailyEmail")
 
-	// Send each subscriber a daily emil (who should receive one).
 	recipients := make([]EmailRecipient, 0)
-	{
-		query := `SELECT Email, COALESCE(Name, '') FROM $$User WHERE NOT FakeEmail`
-		switch strings.ToLower(flags.emailTarget) {
-			case "daily":
-				query = query + ` AND COALESCE(EmailPreference, '') IN ('', 'Daily', 'Test')`
-				break;
-			case "test":
-				query = query + ` AND COALESCE(EmailPreference, '') = 'Test'`
-				break;
-			default:
-				panic("  Unhandled flags.emailTarget: '" + flags.emailTarget + "'")
-		}
+	if flags.newSubs != "" { // For newsletter subscribers, who are not votezilla members yet.
+		assert(flags.newSubs != "")
+		assert(flags.emailTarget == "newSubs")
+
+		// Get list of users emails, so we can exclude them and not send double daily emails.
+		excludeEmails := make(map[string]bool)
 		DoQuery(
 			func(rows *sql.Rows) {
-				recipient := EmailRecipient{}
+				var email string
 
-				err := rows.Scan(&recipient.Email, &recipient.Name)
+				err := rows.Scan(&email)
 				check(err)
 
-				recipients = append(recipients, recipient)
+				excludeEmails[email] = true
 			},
-			query,
+			`SELECT Email FROM $$User`,
 		)
+		prVal("excludeEmails", excludeEmails)
+
+		// Parse the newSubs (new subscribers) from the commandline, separate by comma delimiter.
+		emails := strings.Split(flags.newSubs, (","))
+
+		for _, email := range emails {
+			_, found := excludeEmails[email]
+			if !found {
+				prVal("Adding recipient", email)
+				recipient := EmailRecipient{Email: email}
+
+				recipients = append(recipients, recipient)
+			} else {
+				prVal("Excluding recipient", email)
+			}
+		}
+	} else {
+		// Send each subscriber a daily emil (who should receive one).
+		{
+			query := `SELECT Email, COALESCE(Name, '') FROM $$User WHERE NOT FakeEmail`
+			switch strings.ToLower(flags.emailTarget) {
+				case "daily":
+					query = query + ` AND COALESCE(EmailPreference, '') IN ('', 'Daily', 'Test')`
+					break;
+				case "test":
+					query = query + ` AND COALESCE(EmailPreference, '') = 'Test'`
+					break;
+				default:
+					panic("  Unhandled flags.emailTarget: '" + flags.emailTarget + "'")
+			}
+			DoQuery(
+				func(rows *sql.Rows) {
+					recipient := EmailRecipient{}
+
+					err := rows.Scan(&recipient.Email, &recipient.Name)
+					check(err)
+
+					recipients = append(recipients, recipient)
+				},
+				query,
+			)
+		}
 	}
 	prVal("recipients", recipients)
 
@@ -247,39 +287,51 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 
 
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// import and export subscribers
+//
+///////////////////////////////////////////////////////////////////////////////
+func exportSubsHandler(w http.ResponseWriter, r *http.Request){
+	// TODO: assert(userId == 5)
 
-/*
-func emailDaemon() {
-    d := gomail.NewDialer("smtp.gmail.com", 465, BUSINESS_EMAIL, flags.smtpPassword)
+	pr("exportSubsHandler")
 
-    var s gomail.SendCloser
-    var err error
-    open := false
-    for {
-        select {
-        case m, ok := <-ch:
-            if !ok {
-                return
-            }
-            if !open {
-                if s, err = d.Dial(); err != nil {
-                    panic(err)
-                }
-                open = true
-            }
-            if err := gomail.Send(s, m); err != nil {
-                log.Print(err)
-            }
-        // Close the connection to the SMTP server if no email was sent in
-        // the last 30 seconds.
-        case <-time.After(30 * time.Second):
-            if open {
-                if err := s.Close(); err != nil {
-                    panic(err)
-                }
-                open = false
-            }
-        }
-    }
-}()
-*/
+	tr := func(s string) string { return "<tr>" + s + "</tr>" }
+	td := func(s string) string { return "<td>" + s + "</td>" }
+
+	table := "<table>"
+	table = table + tr(td("email") + td("name") + td("first name") + td("last name"))
+	DoQuery(
+		func(rows *sql.Rows) {
+			var email, name string
+
+			err := rows.Scan(&email, &name)
+			check(err)
+
+			names := strings.Split(name, " ")
+
+			prVal("name", name)
+			prVal("names", names)
+
+			var firstName, lastName string
+
+			if len(names) > 0 {
+				firstName = names[0]
+				lastName = names[len(names)-1]
+			}
+
+			table = table + tr(td(email) + td(name) + td(firstName) + td(lastName))
+
+		},
+		//"SELECT Email, COALESCE(Name, '') FROM $$User")
+		"SELECT Email, COALESCE(Name, '') FROM $$User WHERE NOT FakeEmail")
+	table = table + "</table>"
+
+	serveHtml(w, table)
+}
+
+func importSubsHandler(w http.ResponseWriter, r *http.Request){
+
+}
+

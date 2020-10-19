@@ -272,6 +272,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	executeTemplate(w, kRegister, makeFormFrameArgs(r, form, "Sign Up"))
 }
 
+<<<<<<< HEAD
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -325,6 +326,8 @@ func importSubsHandler(w http.ResponseWriter, r *http.Request){
 
 
 
+=======
+>>>>>>> 8e95614904fd65fc21de22a6000f36c51fe4ef23
 ///////////////////////////////////////////////////////////////////////////////
 //
 // register details about the user
