@@ -390,6 +390,12 @@ func parseUrlParam(r *http.Request, name string) string {
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////
+//
+// Misc handlers
+//
+/////////////////////////////////////////////////////////////////////////
+
 // Tutorial popup
 func tutorialHandler(w http.ResponseWriter, r *http.Request) {
 	RefreshSession(w, r)
@@ -409,6 +415,16 @@ func loginRequiredHandler(w http.ResponseWriter, r *http.Request) {
 
 	executeTemplate(w, kLoginRequired, makeFrameArgs(r, kLoginRequired, "", kLoginRequired, -1, ""))
 }
+
+// Contest handler
+func contestHandler(w http.ResponseWriter, r *http.Request) {
+	RefreshSession(w, r)
+
+	pr("contestHandler")
+
+	executeTemplate(w, kContest, makeFrameArgs(r, kContest, "", kContest, -1, ""))
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 //

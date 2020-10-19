@@ -1,0 +1,194 @@
+CREATE DATABASE vz ENCODING 'UTF8';
+
+\connect vz
+SET client_encoding = 'UTF8';
+SET timezone TO 'US/Pacific';
+
+
+CREATE SCHEMA vz;
+
+
+CREATE TABLE vz.User (
+    Id              BIGSERIAL   PRIMARY KEY,
+    Email           TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
+    Username        TEXT        UNIQUE NOT NULL, -- UNIQUE implies an index
+    PasswordHash    BIGINT[4]   NOT NULL,        -- Store a 256-byte hash of the password
+
+    Name            TEXT,
+
+    -- Details
+    Country         TEXT,
+    Location        TEXT,
+    -- TODO: ++ Language    TEXT.  Will default to "English (US)" if Country is "US".  Otherwise, will unhide a request for language, which was previously hidden by JQuery
+
+    BirthYear       INT,
+    Gender          TEXT,
+    Party           TEXT,
+    Race            TEXT,
+    Marital         TEXT,
+    Schooling       TEXT,
+
+    -- Details - other fields
+    OtherGender          TEXT,
+    OtherParty           TEXT,
+    OtherRace            TEXT,
+    OtherCountry         TEXT,
+    OtherMaritalStatus   TEXT,
+    OtherSchoolCompleted TEXT,
+
+    -- Verification status
+    VerifiedEmail   BOOL DEFAULT False,
+    FakeEmail       BOOL DEFAULT False,
+
+    -- NEW FIELDS:
+    Created         TIMESTAMPTZ      NOT NULL DEFAULT now(),
+    LastModTime	    TIMESTAMPTZ	     NOT NULL DEFAULT TIMESTAMP 'epoch',
+
+    -- PREFERENCES:
+    EmailPreference      TEXT,
+
+    Ip              TEXT
+);
+
+CREATE TABLE vz.Post (
+    Id              BIGSERIAL        NOT NULL,
+    UserId          BIGINT           NOT NULL,
+    Created         TIMESTAMPTZ      NOT NULL DEFAULT now(),
+    Title           TEXT             NOT NULL,
+    VoteTally       INT              NOT NULL DEFAULT 0,  -- Up/down votes
+    NumComments     INT              NOT NULL DEFAULT 0,
+
+    Description     TEXT,            -- NewsPosts currently have this.  Also includes user's description of a link or poll, below the headline title.  Could appear in a zoomed in view.
+    Category        TEXT,
+    Language        TEXT,
+    Country         TEXT,
+
+    UrlToImage         TEXT,
+    ThumbnailStatus    INT DEFAULT 0,
+
+    PRIMARY KEY (Id)
+);
+
+CREATE TABLE vz.LinkPost (
+    LinkURL            TEXT NOT NULL
+) INHERITS (vz.Post);
+
+CREATE TABLE vz.NewsPost (
+    PublishedAt        TIMESTAMPTZ,      -- TODO?: can we get this from the article, for user-submitted posts, and then move this to Post?
+    NewsSourceId    TEXT    NOT NULL,
+
+    UNIQUE(PublishedAt, Title)           -- This constraint prevents duplicate articles News API updates.
+) INHERITS (vz.LinkPost);
+ALTER TABLE vz.newspost ADD UNIQUE(LinkURL);
+ALTER TABLE vz.newspost ADD UNIQUE(Title, NewsSourceId);
+
+-- select a.newssourceid, a.title, a.linkurl, a.publishedat, a.created from vz.newspost a join vz.newspost b on a.title = b.title and a.newssourceid = b.newssourceid and a.id < b.id order by a.title, a.title, a.id;
+-- delete from vz.newspost where id in (select a.id from vz.newspost a join vz.newspost b on a.title = b.title and a.newssourceid = b.newssourceid and a.id < b.id);
+
+CREATE TABLE vz.BlogPost (
+    Blog            TEXT        -- The actual blog article.  Text vs byte?  In this case, the description would give a preview or short summary in the zoomed in view.
+) INHERITS (vz.Post);
+
+CREATE TABLE vz.PollPost (
+    PollOptionData  TEXT        -- JSON
+    PollTallyResults TEXT        -- JSON
+) INHERITS (vz.Post);
+
+
+CREATE TABLE vz.PollVote (
+    PollId          BIGINT          NOT NULL,
+    UserId          BIGINT          NOT NULL,
+    Vote            TEXT,            -- JSON     -- TODO: remove this
+    VoteOptionIds   INT[],        -- TODO: make this NOT NULL eventually
+    VoteAmounts     INT[],
+
+    PRIMARY KEY (PollId, UserId)
+);
+CREATE INDEX poll_index ON vz.PollVote (PollId);
+
+
+CREATE TABLE vz.PostVote (
+    PostId            BIGINT        NOT NULL,
+    UserId            BIGINT        NOT NULL,
+    Up                BOOL          NOT NULL,
+    Created           TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    UNIQUE(PostId, UserId)
+);
+
+CREATE TABLE vz.CommentVote (
+    CommentId         BIGINT        NOT NULL,
+    UserId            BIGINT        NOT NULL,
+    Up                BOOL          NOT NULL,
+    Created           TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    UNIQUE(CommentId, UserId)
+);
+
+CREATE TABLE vz.Comment (
+    Id                  BIGSERIAL   PRIMARY KEY,
+
+    PostId              BIGINT NOT NULL, -- Which post this is a comment on.
+    UserId              BIGINT NOT NULL, -- The user who left this comment.
+    ParentId            BIGINT,          -- The parent comment, hierarchially.
+
+    VoteTally               INT              NOT NULL DEFAULT 0,  -- Up/down votes
+
+    Text                TEXT NOT NULL,         -- Max length is 40000, but TEXT type is easier to deal with in Golang.
+    PrevRevisions       VARCHAR(40000)[],
+
+    -- Materialized path - this sorts it into a tree hierarchy for us, though
+    --                     we'll still need to sort by aye/nay vote later...
+    --                     think if this is the right algorithm.
+    -- MaterializedPath    BIGINT NOT NULL, -- int64, bits used as follows:
+    --                                      --    16b, 16b, 8b, 8b, 4b, 4b, 4b, 4b
+    --                                      --     L0   L1  L2  L3  L4  L5  L6, L7
+
+    -- The simpler way: vvv
+    Path                BIGINT[] NOT NULL,
+
+    NumChildren         BIGINT DEFAULT 0,
+
+    -- Note: for now we'll fetch all comments for a post,
+    --       then SORT BY MaterializedPath.
+    --       in Go, we'll parse these into a hierarchy, will need pointers.
+    --              Then sort each list by aye/nay vote.
+    --       Eventually... we'll need to optimize this.
+
+    Created             TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    Deleted             BOOL DEFAULT false
+);
+CREATE UNIQUE INDEX comment_path_index ON vz.Comment (Id, Path);  -- The simpler way
+
+
+CREATE TABLE vz.Request (
+    Ip                  TEXT NOT NULL,    -- e.g. "73.240.47.68"
+    Port                TEXT NOT NULL,    -- e.g. "62568"
+    Method              TEXT NOT NULL,    -- e.g. "GET"
+    Path                TEXT NOT NULL,    -- e.g. "/ip/"
+    RawQuery            TEXT NOT NULL,    -- e.g. "" or "?x=5"
+    Language            TEXT NOT NULL,    -- e.g. "en-US,en;q=0.9"
+    Referer             TEXT NOT NULL,    -- e.g. full ip address of the previous website
+
+    UserId              BIGINT,           -- userId if user is logged in; -1 otherwise
+
+    Created             TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE TABLE vz.HasVisited (
+    UserId              BIGINT NOT NULL,
+    PathQuery           TEXT NOT NULL
+);
+CREATE UNIQUE INDEX user_path_query_index ON vz.HasVisited (UserId, PathQuery);
+
+
+
+-- FUNCTIONS
+-- Gets the category based on the category and user's country of origin.
+-- Note: Using lower because users use uppercase countries while posts use lowercase.  Fix someday?
+CREATE OR REPLACE FUNCTION vz.GetCategory(category TEXT, country TEXT) RETURNS TEXT
+    AS $$SELECT CASE
+        WHEN $1 <> 'news' THEN $1
+        WHEN lower(COALESCE($2, 'us')) <> 'us' THEN 'world news'
+        ELSE 'news'
+    END;$$
+    LANGUAGE SQL
+    IMMUTABLE;

@@ -40,7 +40,22 @@
 							<table width=100%>
 								<tr></tr>
 								<tr>
-									<td colspan=3><h5><b>Results below:</b></h4></td>
+									{{ if $poll.RankedChoiceVoting }}
+										<tr><td align="left">
+											<span class="rankedVoteIntro">
+												<i><b>Ranked Vote:</b> Results:</i>
+											</span>
+											<br>
+										</td></tr>
+									{{ else if $poll.CanSelectMultipleOptions }}
+										<div>
+											<div style="width: 100%; padding-left: 5px;">
+												<i><b>Multi-Select Vote:</b> Results:</i>
+											</div>
+										</div>
+									{{ else }}
+										<td colspan=3><h5><b>Results below:</b></h4></td>
+									{{ end }}
 								</tr>
 								{{ template "PollTallyResults" $article.PollTallyInfo }}
 

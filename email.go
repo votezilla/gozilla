@@ -235,7 +235,10 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 
 		if numSent % 3 == 0 {
 			prf("  Just sent %d emails; waiting 3 minutes.", numSent)
-			time.Sleep(3 * time.Minute)
+
+			if !flags.dryRun {
+				time.Sleep(3 * time.Minute)
+			}
 		}
 	}
 

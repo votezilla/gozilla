@@ -1,3 +1,6 @@
+./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=412837 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: Should the government pass another stimulus relief bill?"
+
+
 Create and share the contest giveaway!, also do that for tomorrow's daily email.
 
 Use MailChimp for contest blast
@@ -9,9 +12,42 @@ Start sharing with my vz list.
 
 Start contacting friends
 
-B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
+--
 
-How can we fix income inequality in America?  Select all ideas you agree with, or propose your own:
+Giveaway:
+"""
+$100 Votezilla Vote & Win Giveaway.
+
+Who will you be voting for in November?
+
+Vote NOW for a chance to win a $100 Gift Card!
+
+Votezilla is a platform I'm creating to popularize Ranked Voting, Positive Politics, Direct Democracy, Balanced News, and Freedom from Censorship.
+"""
+--
+
+Are you confident your mail-in ballot will be secure and counted?
+
+Does voting make a difference?
+
+
+X What is your stance on Abortion (select all that apply)
+  Pro-choice
+  Pro-life
+  I'd be open to a
+  (wait, isn't this in my notes somewhere?)
+
+Will Joe Biden pack the supreme court?
+
+Do you support the War on Drugs?
+
+Do you support the Three Strikes You're Out law?
+
+fb post: How many friends or jobs have you lost from Facebook and Twitter?  (Or it could be a poll.)
+
+Do you support no-knock warrants?
+
+X How can we fix income inequality in America?  Select all ideas you agree with, or propose your own:
   35 hour work week
   Decrease college tuition
   Decrease salary and pensions of politicians
@@ -41,9 +77,9 @@ How can we fix income inequality in America?  Select all ideas you agree with, o
   Universal health care
 (Share options as part of the FB post?)
 
-Do you support the taking down of the Abraham Lincoln statue?
+X Do you support the taking down of the Abraham Lincoln statue?
 
-Who will you be voting for in November?
+X Who will you be voting for in November?
 - Donald Trump (R)
 - Joe Biden (D)
 - Jo Jorgenson (L)
@@ -137,6 +173,7 @@ Which political group is more violent, Antifa or Proud Boys?
    Both are equally violent
    Neither group is violent
    Undecided
+   Antifa is just an idea
 
 Do you support the Border Wall with Mexico?
    Support

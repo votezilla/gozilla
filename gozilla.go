@@ -26,6 +26,7 @@ var (
 const (
 	kActivity = "activity"
 	kArticle = "article"
+	kContest = "contest"
 	kCreate = "create"
 	kCreateBlog = "createBlog"
 	kCreateLink = "createLink"
@@ -228,6 +229,8 @@ func parseTemplateFiles() {
 	hDefineTemplate(kNewsSources,	"base", "wide", "defines", "frame", "newsSources")  // nyi
 	hDefineTemplate(kActivity, 		"base", "wide", "defines", "frame", "activity")
 
+	hDefineTemplate(kContest, 		"base", "wide", "defines", "frame", "contest")
+
 	hDefineTemplate(kCreate, 		"base", "narrow", "minFrame", "nuField", "create")
 	//hDefineTemplate(kCreate, 		"base", "wide", "defines", "frame", "nuField", "create")
 	hDefineTemplate(kCreateBlog, 	"base", "narrow", "minFrame", "nuField", "createBlog")
@@ -296,6 +299,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/ajaxVote/",				hwrap(ajaxVote))
 	mux.HandleFunc("/article/",       			hwrap(articleHandler))
 	mux.HandleFunc("/activity/",       			hwrap(activityHandler))
+	mux.HandleFunc("/contest/",					hwrap(contestHandler))
 	mux.HandleFunc("/create/",   				hwrap(createHandler))
 	mux.HandleFunc("/createBlog/",   			hwrap(createBlogHandler))
 	mux.HandleFunc("/createLink/",   			hwrap(createLinkHandler))
@@ -316,6 +320,9 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/updatePassword/", 			hwrap(updatePasswordHandler))
 	mux.HandleFunc("/viewPollResults/",			hwrap(viewPollResultsHandler))
 	mux.HandleFunc("/width/",					hwrap(widthHandler))
+
+	mux.HandleFunc("/exportSubs/",				hwrap(exportSubsHandler))
+	mux.HandleFunc("/importSubs/",				hwrap(importSubsHandler))
 
 	// For testing the HTML email:
 	mux.HandleFunc("/welcomeEmail/",			hwrap(welcomeEmailHandler))
