@@ -14,6 +14,9 @@ Windows:
 
 Linux:
    ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=xxx999 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: How can we fix income inequality in America?"
+
+   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=414138 -dryRun=true -emailTarget=newSubs -emailSubject="Daily Poll: Was there a conspiracy behind the assassination of JFK?" -newSubs="magicsquare15@gmail.com,sheeple.game@gmail.com,alterego200@yahoo.com"
+
 )
 
 JUST FIXED:

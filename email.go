@@ -267,7 +267,9 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 			pr("sending the email")
 
 			// Send the email to Bob, Cora and Dan.
-			check(gomail.Send(s, m))
+			if gomail.Send(s, m) != nil {
+				prVal("bad email, skipping", to_eml)
+			}
 
 			numSent++
 		}
