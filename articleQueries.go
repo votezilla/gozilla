@@ -237,7 +237,7 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 					(
 						3 * COALESCE(votes.VoteTally, 0) +
 					 	3 * COALESCE(pollVotes.VoteTally, 0)
-					) * (1 - .5 * COALESCE(pollVotes.MyVotes, 0)) +
+					) * (1 - .9 * COALESCE(pollVotes.MyVotes, 0)) +
 					0.5 * posts.NumComments +
 					8 * (%s)
 				) AS OrderBy

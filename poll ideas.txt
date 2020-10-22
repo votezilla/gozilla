@@ -28,6 +28,8 @@ Votezilla is a platform I'm creating to popularize Ranked Voting, Positive Polit
 
 Are you confident your mail-in ballot will be secure and counted?
 
+Which candidate is better equipped to handle racial inequality?
+
 Does voting make a difference?
 
 
@@ -155,6 +157,8 @@ What percentage of cops are good?  What percentage are bad?
    40% good, 60% bad
    20% good, 80% bad
    0% good, 100% bad
+
+
 
 Should prisoners have the right to vote?
 
