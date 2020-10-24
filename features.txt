@@ -433,3 +433,12 @@ X       + Html template tech
   C - 3 - Expanded comment loses all <br>'s.
   [X]  8 Implement daily email batch: For now, triggered via: gozilla -dailyEmail=true -featuredArticleId=376999
 
+A - 3 - Change email of both my accounts to something more obscure, to prevent hacking?
+
+B - 2 - Polls - add urlToImage (optional)
+
+A - cr presidential poll
+
+A - 5 - Fixed some tied ranked voting and divide by zero bugs, plus improved messaging for ranked votes
+
+B - 3 - Delete bad polls

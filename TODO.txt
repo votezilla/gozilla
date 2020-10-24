@@ -9,33 +9,22 @@ SET timezone TO 'US/Pacific';
 
 
 (  HOW TO SEND DAILY EMAILS:
-Windows:
-   gozilla.exe -dbuser=postgres -dbpassword=xanadu777 -dbsalt="SALT AND PEPPA PLAYA" -cookieHashKey="chocoLATE CHIP HAsher" -cookieBlockKey="hA$hHpotat0e$ and grAvy!" -port=8080 -smtpPassword=vote33zilla -debug=true -checkForNotifications=false -domain=votezilla.news -dailyEmail=true -featuredArticleId=1833 -dryRun=true -emailTarget=daily
 
 Linux:
-   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=xxx999 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: How can we fix income inequality in America?"
+   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=417186 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: Who won the 2nd Presidential Debate last night?"
 
-   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=414138 -dryRun=true -emailTarget=newSubs -emailSubject="Daily Poll: Was there a conspiracy behind the assassination of JFK?" -newSubs="magicsquare15@gmail.com,sheeple.game@gmail.com,alterego200@yahoo.com"
 
 )
 
 JUST FIXED:
 
-A - 3 - Change email of both my accounts to something more obscure, to prevent hacking?
 
-B - 2 - Polls - add urlToImage (optional)
-
-A - cr presidential poll
-
-A - 5 - Fixed some tied ranked voting and divide by zero bugs, plus improved messaging for ranked votes
-
-B - 3 - Delete bad polls
 
 
 WORKING ON:
 
 B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
-
+        FB share example: https://developers.facebook.com/docs/sharing/reference/share-dialog/
 
 
 
@@ -56,7 +45,6 @@ C - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
 
-B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
 
 
 --- OPTIONAL:

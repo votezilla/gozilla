@@ -1,4 +1,4 @@
-./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=412837 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: Should the government pass another stimulus relief bill?"
+./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=416653 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: Do you support allowing the moderator to mute candidates' microphones during tonight's debate?"
 
 
 Create and share the contest giveaway!, also do that for tomorrow's daily email.
@@ -25,6 +25,10 @@ Vote NOW for a chance to win a $100 Gift Card!
 Votezilla is a platform I'm creating to popularize Ranked Voting, Positive Politics, Direct Democracy, Balanced News, and Freedom from Censorship.
 """
 --
+
+vvv
+
+Do you support Universal Healthcare?
 
 Are you confident your mail-in ballot will be secure and counted?
 
