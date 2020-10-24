@@ -275,11 +275,11 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 		}
 		m.Reset()
 
-		if numSent % 3 == 0 {
-			prf("  Just sent %d emails; waiting 3 minutes.", numSent)
+		if numSent % 10 == 0 {
+			prf("  Just sent %d emails; waiting 1 minutes.", numSent)
 
 			if !flags.dryRun {
-				time.Sleep(3 * time.Minute)
+				time.Sleep(1 * time.Minute)
 			}
 		}
 	}
