@@ -303,18 +303,15 @@ func exportSubsHandler(w http.ResponseWriter, r *http.Request){
 	td := func(s string) string { return "<td>" + s + "</td>" }
 
 	table := "<table>"
-	table = table + tr(td("email") + td("name") + td("first name") + td("last name"))
+	table = table + tr(td("email") + td("name") + td("first name") + td("last name") + td("num votes"))
 	DoQuery(
 		func(rows *sql.Rows) {
-			var email, name string
+			var email, name, numVotes string
 
-			err := rows.Scan(&email, &name)
+			err := rows.Scan(&email, &name, &numVotes)
 			check(err)
 
 			names := strings.Split(name, " ")
-
-			prVal("name", name)
-			prVal("names", names)
 
 			var firstName, lastName string
 
@@ -323,11 +320,14 @@ func exportSubsHandler(w http.ResponseWriter, r *http.Request){
 				lastName = names[len(names)-1]
 			}
 
-			table = table + tr(td(email) + td(name) + td(firstName) + td(lastName))
+			table = table + tr(td(email) + td(name) + td(firstName) + td(lastName) + td(numVotes))
 
 		},
-		//"SELECT Email, COALESCE(Name, '') FROM $$User")
-		"SELECT Email, COALESCE(Name, '') FROM $$User WHERE NOT FakeEmail")
+		`SELECT Email, COALESCE(Name, ''), COUNT(*)
+		 FROM $$User u LEFT JOIN $$PollVote v ON u.Id=v.UserId
+		 WHERE NOT FakeEmail
+		 GROUP BY 1, 2`,
+	)
 	table = table + "</table>"
 
 	serveHtml(w, table)

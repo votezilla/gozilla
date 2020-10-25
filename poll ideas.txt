@@ -1,4 +1,4 @@
-./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=416653 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: Do you support allowing the moderator to mute candidates' microphones during tonight's debate?"
+./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=418049 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: Do you support Universal Health Care?"
 
 
 Create and share the contest giveaway!, also do that for tomorrow's daily email.
@@ -28,13 +28,17 @@ Votezilla is a platform I'm creating to popularize Ranked Voting, Positive Polit
 
 vvv
 
-Do you support Universal Healthcare?
+X Do you support Universal Healthcare?
 
 Are you confident your mail-in ballot will be secure and counted?
+
+Do you support no-knock warrants?
 
 Which candidate is better equipped to handle racial inequality?
 
 Does voting make a difference?
+
+Should the FBI investigate allegations against Hunter Biden?
 
 
 X What is your stance on Abortion (select all that apply)
@@ -51,7 +55,7 @@ Do you support the Three Strikes You're Out law?
 
 fb post: How many friends or jobs have you lost from Facebook and Twitter?  (Or it could be a poll.)
 
-Do you support no-knock warrants?
+
 
 X How can we fix income inequality in America?  Select all ideas you agree with, or propose your own:
   35 hour work week

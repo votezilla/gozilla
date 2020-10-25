@@ -1,0 +1,135 @@
+
+
+update vz.pollpost set title='Is the US controlled by a Deep State?' where id=334862;
+
+update vz.pollpost set title='Why do you see people wearing their masks in their cars?' where id=342200;
+
+update vz.pollpost set title='Should we stop celebrating Columbus Day?' where id=299050;
+
+update vz.pollpost set title='Is Antifa starting the Oregon wildfires?' where id=275356;
+
+update vz.pollpost set title='Should the Military Industrial Complex exist?' where id=299039;
+
+update vz.pollpost set title='Is social media censorship of conservatives a problem?' where id=254197;
+
+update vz.pollpost set title='Which Votezilla features are you primarily interested in?' where id=222986;
+
+update vz.pollpost set title='What type of diet do you follow?' where id=249348;
+
+update vz.pollpost set title='Should we cancel student loan debt?' where id=254019;
+
+update vz.pollpost set title='Which Votezilla domain name do you prefer?' where id=225701;
+
+update vz.pollpost set title='What do you most enjoy about wearing a mask?' where id=208213;
+
+update vz.pollpost set title='What is your favorite thing about wearing a mask?' where id=208252;
+
+update vz.pollpost set title='Do you support mail-in ballots?' where id= 208357;
+
+
+
+
+
+
+update vz.pollpost set title='Do you support Universal Basic Income?' where id= 215694;
+
+update vz.pollpost set title='How do you feel about Liberal Ideals?' where id= 221640;
+
+update vz.pollpost set title='How many genders exist?' where id= 151804;
+
+update vz.pollpost set title='Who should be President in November?' where id= 183080;
+
+update vz.pollpost set title='What is your opinion of the Mainstream Media?' where id= 183079;
+
+update vz.pollpost set title='Should schools be re-opened?' where id= 183086;
+
+update vz.pollpost set title='Do you support mail-in ballots?' where id= 208357;
+
+
+
+update vz.pollpost set title='Do you know anyone who has died of Covid-19?' where id= 180356;
+
+update vz.pollpost set title='Rock, Paper, or Scissors?  Pick one!' where id= 144483;
+
+update vz.pollpost set title='Do you support mail-in ballots?' where id= 208357;
+
+update vz.pollpost set title='What is your favorite comedy of all-time?' where id= 151803;
+
+
+
+
+
+
+
+
+
+
+
+update vz.pollpost set title='Which decade had the best music?' where id= 154452;
+
+update vz.pollpost set title='Do you know anyone who died of Covid-19?' where id= 124702;
+
+update vz.pollpost set title='What is your favorite ''3 Stogges'' stooge?' where id= 144687;
+
+update vz.pollpost set title='What do you expect the Stock Market to do by the end of the year?' where id= 72602;
+
+update vz.pollpost set title='Are all races equally racist?' where id= 99733;
+
+update vz.pollpost set title='How many years will it take for self-driving cars to become mainstream?' where id= 72581;
+
+
+
+
+update vz.pollpost set title='Should marijuana be legalized federally?' where id= 77505;
+
+update vz.pollpost set title='Who should be president in 2020?' where id= 79180;
+
+update vz.pollpost set title='What is your favorite movie genre?' where id= 79179;
+
+update vz.pollpost set title='Is Communism good or evil?' where id= 78791;
+
+update vz.pollpost set title='How happy are you?' where id= 72540;
+
+update vz.pollpost set title='What is your favorite color?' where id= 79178;
+
+update vz.pollpost set title='Are all races equally racist?' where id= 99733;
+
+delete from vz.pollpost where id=55443;
+
+update vz.pollpost set title='How many children do you have?' where id= 72613;
+
+
+
+update vz.pollpost set title='Should we defund the police?' where id= 55997;
+
+update vz.pollpost set title='Who are you voting for in 2020?' where id= 53155;
+
+update vz.pollpost set title='Are there too many cooks?' where id= 42128;
+
+update vz.pollpost set title='Who is better, Luke or Picard?' where id= 10168;
+
+
+
+
+update vz.pollpost set title='What effect does wearing masks have on our freedom?' where id= 342189;
+
+update vz.pollpost set title='Do you support the Black Lives Matter movement?' where id= 225707;
+
+
+
+update vz.pollpost set title='What is your opinion of Kamala Harris?' where id= 208265;
+
+update vz.pollpost set title='Should we be required to wear masks?' where id= 183083;
+
+update vz.pollpost set title='Who is your favorite character from ''Wizard of Oz''?' where id= 153779;
+
+
+
+update vz.pollpost set title='What should be the default options when creating a new poll?' where id= 88165;
+
+update vz.pollpost set title='What is your favorite Sci-Fi movie of all-time?' where id= 95391;
+
+
+
+
+update vz.pollpost set title='What is your favorite interpretation of Quantum Mechanics?' where id= 81107;
