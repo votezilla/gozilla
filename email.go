@@ -295,7 +295,8 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 //
 ///////////////////////////////////////////////////////////////////////////////
 func exportSubsHandler(w http.ResponseWriter, r *http.Request){
-	// TODO: assert(userId == 5)
+	userId := GetSession(w, r);
+	assert(userId == 5)
 
 	pr("exportSubsHandler")
 
