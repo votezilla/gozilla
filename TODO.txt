@@ -11,7 +11,7 @@ SET timezone TO 'US/Pacific';
 (  HOW TO SEND DAILY EMAILS:
 
 Linux:
-   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=417186 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: Who won the 2nd Presidential Debate last night?"
+   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=418901 -dryRun=false -emailTarget=test -emailSubject="Silly Poll Sunday: Does PINEAPPLE belong on PIZZA?!"
 
 
 )

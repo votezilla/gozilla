@@ -1,4 +1,4 @@
-./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=418049 -dryRun=false -emailTarget=test -emailSubject="Daily Poll: Do you support Universal Health Care?"
+./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=421363 -dryRun=false -emailTarget=test -emailSubject="Did Trump commit tax fraud?"
 
 
 Create and share the contest giveaway!, also do that for tomorrow's daily email.
@@ -28,24 +28,40 @@ Votezilla is a platform I'm creating to popularize Ranked Voting, Positive Polit
 
 vvv
 
-X Do you support Universal Healthcare?
 
-Are you confident your mail-in ballot will be secure and counted?
+
+Do you support Three Strikes You're Out?
 
 Do you support no-knock warrants?
 
-Which candidate is better equipped to handle racial inequality?
+
+
+Which candidate is better equipped to handle the Coronavirus?
+
+Which candidate is better equipped to handle the economy?
+
+Do you consider this to be the most important presidential election of your lifetime?
+
+X Does Donald Trump deserve the Nobel Peace Prize?
+
+Are you confident your mail-in ballot will be secure and counted?
+
+Will there be a civil war in November?
+
+Which group is more violent, Antifa or Proud Boys?
+   Antifa
+   Proud Boys
+   Both are equally violent
+   Neither group is violent
+   Undecided
+   Antifa is just an idea
+
+
+
 
 Does voting make a difference?
 
-Should the FBI investigate allegations against Hunter Biden?
 
-
-X What is your stance on Abortion (select all that apply)
-  Pro-choice
-  Pro-life
-  I'd be open to a
-  (wait, isn't this in my notes somewhere?)
 
 Will Joe Biden pack the supreme court?
 
@@ -55,46 +71,6 @@ Do you support the Three Strikes You're Out law?
 
 fb post: How many friends or jobs have you lost from Facebook and Twitter?  (Or it could be a poll.)
 
-
-
-X How can we fix income inequality in America?  Select all ideas you agree with, or propose your own:
-  35 hour work week
-  Decrease college tuition
-  Decrease salary and pensions of politicians
-  Decrease or eliminate taxes on the poor and middle class
-  Decrease taxes
-  Decrease the maximum interest rate for credit cards & predatory loans
-  End the private prison system
-  Financial stimulus for small businesses
-  Financial stimulus for US manufacturing companies
-  Flat tax
-  Higher minimum wage
-  Increase Paid Time Off for employees
-  Increase prison time for fraud and white collar crime
-  Increase tax on tech giants
-  Increase tax on the wealthy
-  Increase tax on Wall Street
-  Increase the estate tax on the wealthy
-  Prevent CEOs from influencing or serving in political offices
-  Prevent corporate donations to politicians
-  Prevent illegal immigration
-  Re-open society quickly and safely
-  Require doctors & hospitals to publicly post their prices
-  Stop bailing out the big banks
-  Stop bailing out Wall Street
-  Tax AI and automation
-  Universal basic income
-  Universal health care
-(Share options as part of the FB post?)
-
-X Do you support the taking down of the Abraham Lincoln statue?
-
-X Who will you be voting for in November?
-- Donald Trump (R)
-- Joe Biden (D)
-- Jo Jorgenson (L)
-- Howie Hawkins (G)
-- Kanye West (B)
 
 Who was the greatest American President of all time?
 
@@ -158,6 +134,8 @@ Do you support Cancel Culture?
 
 Have you ever been to a protest?
 
+
+(vv wait til I have numeric support)
 What percentage of cops are good?  What percentage are bad?
    100% good, 0% bad
    80% good, 20% bad
@@ -178,14 +156,6 @@ Which pillar of truth do you mainly base your beliefs upon, political and otherw
    Pathos - Trust in sources, people, or authorities
 
 Do you support a ban on assault rifles?
-
-Which political group is more violent, Antifa or Proud Boys?
-   Antifa
-   Proud Boys
-   Both are equally violent
-   Neither group is violent
-   Undecided
-   Antifa is just an idea
 
 Do you support the Border Wall with Mexico?
    Support
@@ -263,3 +233,57 @@ Is rent control good or bad? Does it bring up values of rent in a city or lower 
 Blog:
 	$3-4 trillion to corporations and $1200 to each American.
 	vs $4 trillion could have given every adult 18 and over $1000 / month for the entire year!
+
+
+SHARED POLLS:
+
+X Do you support Universal Healthcare?
+
+X Which candidate is better equipped to handle racial inequality?
+
+X Should the FBI investigate allegations against Hunter Biden?
+
+X What is your stance on Abortion (select all that apply)
+  Pro-choice
+  Pro-life
+  I'd be open to a
+  (wait, isn't this in my notes somewhere?)
+
+X How can we fix income inequality in America?  Select all ideas you agree with, or propose your own:
+  35 hour work week
+  Decrease college tuition
+  Decrease salary and pensions of politicians
+  Decrease or eliminate taxes on the poor and middle class
+  Decrease taxes
+  Decrease the maximum interest rate for credit cards & predatory loans
+  End the private prison system
+  Financial stimulus for small businesses
+  Financial stimulus for US manufacturing companies
+  Flat tax
+  Higher minimum wage
+  Increase Paid Time Off for employees
+  Increase prison time for fraud and white collar crime
+  Increase tax on tech giants
+  Increase tax on the wealthy
+  Increase tax on Wall Street
+  Increase the estate tax on the wealthy
+  Prevent CEOs from influencing or serving in political offices
+  Prevent corporate donations to politicians
+  Prevent illegal immigration
+  Re-open society quickly and safely
+  Require doctors & hospitals to publicly post their prices
+  Stop bailing out the big banks
+  Stop bailing out Wall Street
+  Tax AI and automation
+  Universal basic income
+  Universal health care
+(Share options as part of the FB post?)
+
+X Do you support the taking down of the Abraham Lincoln statue?
+
+X Who will you be voting for in November?
+- Donald Trump (R)
+- Joe Biden (D)
+- Jo Jorgenson (L)
+- Howie Hawkins (G)
+- Kanye West (B)

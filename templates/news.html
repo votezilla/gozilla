@@ -47,7 +47,7 @@
 		<br>
 		<center>
 			<h5>
-				<b>Welcome to Votezilla:</b> a censorship-free social network based on creating polls, voting, sharing news, and fostering positive political discussion.  <span id="desktop_only"> (Or nerd out on other topics you love.)</span>
+				<b>Welcome to Votezilla:</b> a social network based on creating polls, voting, sharing news, and fostering positive political discussion.  <span class="desktop_only">"Get a million people together, and the Berlin Wall crumbles."</span>
 			</h5>
 		</center>
 		<br>
@@ -164,9 +164,13 @@
 											<td class="title" style="padding-left: 5px;">
 												<span class="articleTitle">
 													<a id="post{{$article.Id}}"
-													   href="{{$article.Url}}" target="_blank"
+													   href="{{$article.Url}}"
 													   style="font-size: 22px;"
-													   data-toggle="tooltip" data-placement="top" title="Read the article">
+													   data-toggle="tooltip" data-placement="top" title="Read the article"
+													   {{if not $article.IsPoll}}
+													   		target="_blank"
+													   {{end}}
+													   >
 														{{$article.Title}}
 														{{ if not $article.Host }}
 															<i class="fas fa-external-link-alt" style="font-size: 14px; vertical-align: middle;"></i>
@@ -288,7 +292,11 @@
 														overflow: hidden;
 														padding-right: 4px;">
 														<a id="post{{$article.Id}}"
-														   href="{{$article.Url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Read the article"
+														   href="{{$article.Url}}"
+														   data-toggle="tooltip" data-placement="top" title="Read the article"
+														    {{if not $article.IsPoll}}
+														    	target="_blank"
+														    {{end}}
 															{{ if and $article.IsPoll (not $article.WeVoted) }}
 															{{/* if $article.IsPoll */}}
 																style="color: #00f !important;"
@@ -372,6 +380,7 @@
 						</td>
 					</tr>
 				</table>
+				<br>
 			{{ end }}
 		</div> {{/*row*/}}
 	{{end}} {{/*range $_, $articleGroup := .ArticleGroups*/}}

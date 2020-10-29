@@ -134,7 +134,7 @@ CREATE TABLE vz.Comment (
 
     PostId              BIGINT NOT NULL, -- Which post this is a comment on.
     UserId              BIGINT NOT NULL, -- The user who left this comment.
-    ParentId            BIGINT,          -- The parent comment, hierarchially.
+    ParentId	            BIGINT,          -- The parent comment, hierarchially.
 
     VoteTally               INT              NOT NULL DEFAULT 0,  -- Up/down votes
 
