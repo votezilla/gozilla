@@ -215,6 +215,10 @@
 
 		var text = $(`#text_${parentId}`).val();
 
+		if (text == '') {
+			return;
+		}
+
 		console.log(text);
 
 		data = JSON.stringify({

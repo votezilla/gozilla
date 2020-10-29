@@ -386,6 +386,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 
 		if !done {
 			leastVotes  := MaxInt
+			mostVotes   := 0
 			for option, pollTallyResult := range pollTallyResults {
 				// It must be from one of the options remaining.
 				if contains_int64(eliminatedVoteOptions, int64(option)) {
@@ -395,38 +396,50 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 				if pollTallyResult.Count < leastVotes {
 					leastVotes = pollTallyResult.Count
 				}
+				if pollTallyResult.Count > mostVotes {
+					mostVotes = pollTallyResult.Count
+				}
 			}
 			// Eliminate the worst options... without deleting anything.
-			for option, pollTallyResult := range pollTallyResults {
-				// It must be from one of the options remaining.
-				if contains_int64(eliminatedVoteOptions, int64(option)) {
-					continue
+			if leastVotes < mostVotes {
+				for option, pollTallyResult := range pollTallyResults {
+					// It must be from one of the options remaining.
+					if contains_int64(eliminatedVoteOptions, int64(option)) {
+						continue
+					}
+
+					if pollTallyResult.Count == leastVotes {
+						worstOptions = append(worstOptions, int64(option))
+					}
 				}
 
-				if pollTallyResult.Count == leastVotes {
-					worstOptions = append(worstOptions, int64(option))
+				if viewRankedVoteRunoff && len(worstOptions) >= 1 {
+					message += "Eliminated " + ternary_str(len(worstOptions) > 1, "options", "option") + ": "
+
+					for _, worstOption := range worstOptions  {
+						message = message + "'" + article.PollOptionData.Options[worstOption] + "', "
+					}
+					message = message[:len(message)-2] // strip the last ", "
+
+					message = message + ", as " + ternary_str(len(worstOptions) > 1, "they", "it") + " had the lowest vote."
+
+					pr(message)
 				}
-			}
 
-			if viewRankedVoteRunoff && len(worstOptions) >= 1 {
-				message += "Eliminated " + ternary_str(len(worstOptions) > 1, "options", "option") + ": '"
-
-				for _, worstOption := range worstOptions  {
-					message = message + article.PollOptionData.Options[worstOption] + ", "
+				// Stop when we have one candidate remaining.
+				if round == numOptions - 1 {
+					//assert(len(eliminatedVoteOptions) == numOptions - 1)
+					if viewRankedVoteRunoff {
+						numOptionsRemaining := len(pollTallyResults) - len(eliminatedVoteOptions) - len(worstOptions)
+						message += fmt.Sprintf("We'll stop now since we only have %d candidates remaining.", numOptionsRemaining)
+					}
+					done = true
 				}
+			} else {
+				assert(leastVotes == mostVotes)
 
-				message = message + "', as " + ternary_str(len(worstOptions) > 1, "they", "it") + " had the lowest vote."
+				message += fmt.Sprintf("We'll stop now since it's a tie.")
 
-				pr(message)
-			}
-
-			// Stop when we have one candidate remaining.
-			if round == numOptions - 1 {
-				//assert(len(eliminatedVoteOptions) == numOptions - 1)
-				if viewRankedVoteRunoff {
-					numOptionsRemaining := len(pollTallyResults) - len(eliminatedVoteOptions) - len(worstOptions)
-					message += fmt.Sprintf("We'll stop now since we only have %d candidates remaining.", numOptionsRemaining)
-				}
 				done = true
 			}
 		}
