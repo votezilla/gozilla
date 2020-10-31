@@ -35,13 +35,16 @@ var (
 		skipFirewall			bool		// Whether to skip the firewall
 		testEmail				bool		// Send a test email and exit
 		dailyEmail				bool		// Send the daily email and exit
-		smtpPassword			string		// Password for sending email to the SMTP server
+		smtpServer				string		// SMTP Server
+		smtpUsername			string		//
+		smtpPassword			string		//
 		dryRun					bool		// If true, email message is generated but not sent
 		featuredArticleId		int			// For the daily poll email, the main article (i.e. poll) to share.")
 		emailTarget				string		// Target for the batch email, e.g. 'Daily', 'Test', one day... 'Weekly' and 'Monthly'
 		testEmailAddress		string		// Test email address
 		emailSubject			string		// Subject for the email
 		newSubs					string
+		businessEmail			string
 	}
 )
 
@@ -82,6 +85,9 @@ func parseCommandLineFlags() {
 	flag.BoolVar(&flags.dailyEmail, "dailyEmail", false, "Send the daily email and exit")
 
 
+	flag.StringVar(&flags.businessEmail, "businessEmail", "", "")
+	flag.StringVar(&flags.smtpServer, "smtpServer", "", "")
+	flag.StringVar(&flags.smtpUsername, "smtpUsername", "", "")
 	flag.StringVar(&flags.smtpPassword, "smtpPassword", "", "Password for sending email to the SMTP server")
 	flag.BoolVar(&flags.dryRun, "dryRun", true, "If true, email message is generated but not sent")
 	flag.IntVar(&flags.featuredArticleId, "featuredArticleId", -1, "For the daily poll email, the main article (i.e. poll) to share.")

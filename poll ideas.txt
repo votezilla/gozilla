@@ -1,4 +1,4 @@
-./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=421363 -dryRun=false -emailTarget=test -emailSubject="Did Trump commit tax fraud?"
+./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=423050 -dryRun=false -emailTarget=test -emailSubject="Do you consider this to be the most important presidential election of your lifetime?"
 
 
 Create and share the contest giveaway!, also do that for tomorrow's daily email.
@@ -39,10 +39,6 @@ Do you support no-knock warrants?
 Which candidate is better equipped to handle the Coronavirus?
 
 Which candidate is better equipped to handle the economy?
-
-Do you consider this to be the most important presidential election of your lifetime?
-
-X Does Donald Trump deserve the Nobel Peace Prize?
 
 Are you confident your mail-in ballot will be secure and counted?
 
@@ -236,6 +232,11 @@ Blog:
 
 
 SHARED POLLS:
+
+
+X Do you consider this to be the most important presidential election of your lifetime?
+
+X Does Donald Trump deserve the Nobel Peace Prize?
 
 X Do you support Universal Healthcare?
 

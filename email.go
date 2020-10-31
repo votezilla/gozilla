@@ -15,7 +15,6 @@ import (
 // See https://gist.github.com/chrisgillis/10888032 for original source and discussion.
 
 const BUSINESS_NAME = "Votezilla"
-const BUSINESS_EMAIL = "vtzilla@gmail.com" // Other possible accounts: vzilla@gmail.com, votezilla.io@gmail.com
 
 type EmailRecipient struct {
 	Email	string
@@ -101,18 +100,19 @@ func dailyEmailHandler(w http.ResponseWriter, r *http.Request) {
 	serveHtml(w, body)
 }
 
-/*
 func testEmail() {
 	pr("testEmail():")
 
+	assert(flags.testEmailAddress != "")
+
 	subj := "Welcome to Votezilla!"
-	body := renderWelcomeEmail(flags.testEmailAddress, flags.testUsername) //
+	body := renderWelcomeEmail(flags.testEmailAddress, "Test Username")
+	sendEmail(flags.testEmailAddress, "Tester Dude", subj, body)
 
-	subj := "Poll Question of the Day"
-	body := renderDailyEmail(flags.testEmailAddress)
-
-	sendEmail(flags.testEmailAddress, flags.tes
-}*/
+	subj = "Poll Question of the Day"
+	body = renderDailyEmail(flags.testEmailAddress)
+	sendEmail(flags.testEmailAddress, "Tester Dude", subj, body)
+}
 
 // Code should work, but:
 // 1) Test it with -dryRun=true
@@ -203,8 +203,13 @@ func sendAccountConfirmationEmail(eml, username string) {
 func sendEmail(to_eml string, to_name string, subj string, body string) {
 	prf("sendEmail %s %s %s %s", to_eml, to_name, subj, ellipsify(strings.Replace(body, "\r\n", " ", -1), 30))
 
+	assertMsg(flags.businessEmail != "", "flags.businessEmail is required")
+	assertMsg(flags.smtpPassword != "", "flags.smtpPassword is required")
+	assertMsg(flags.smtpServer != "", "flags.smtpServer is required")
+	assertMsg(flags.smtpUsername != "", "flags.smtpUsername is required")
+
 	m := gomail.NewMessage()
-	m.SetAddressHeader("From", BUSINESS_EMAIL, BUSINESS_NAME)
+	m.SetAddressHeader("From", flags.businessEmail, BUSINESS_NAME)
 
 	if to_name != "" {
 		m.SetAddressHeader("To", to_eml, to_name)
@@ -216,10 +221,10 @@ func sendEmail(to_eml string, to_name string, subj string, body string) {
 	m.SetBody("text/html", body)
 
 	if flags.dryRun {
-		//prf("  dryRun; would have sent email to %s %s", to_name, to_eml)
+		prf("  dryRun; would have sent email to %s %s", to_name, to_eml)
 	} else {
 		pr("sending the email")
-		d := gomail.NewDialer("smtp.gmail.com", 465, BUSINESS_EMAIL, flags.smtpPassword)
+		d := gomail.NewDialer(flags.smtpServer, 465, flags.smtpUsername, flags.smtpPassword)
 
 		// Send the email to Bob, Cora and Dan.
 		if err := d.DialAndSend(m); err != nil {
@@ -232,13 +237,18 @@ func sendEmail(to_eml string, to_name string, subj string, body string) {
 func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(email string)string) {
 	prf("sendBulkEmail recipients(%d) %s", len(recipients), subj)
 
+	assertMsg(flags.businessEmail != "", "flags.businessEmail is required")
+	assertMsg(flags.smtpPassword != "", "flags.smtpPassword is required")
+	assertMsg(flags.smtpServer != "", "flags.smtpServer is required")
+	assertMsg(flags.smtpUsername != "", "flags.smtpUsername is required")
+
 	numSent := 0
 
 	// Connect to the SMTP server.
 	var s gomail.SendCloser
 	var err error
 	if !flags.dryRun {
-		d := gomail.NewDialer("smtp.gmail.com", 465, BUSINESS_EMAIL, flags.smtpPassword)
+		d := gomail.NewDialer(flags.smtpServer, 465, flags.smtpUsername, flags.smtpPassword)
 		s, err = d.Dial()
 		check(err)
 	}
@@ -252,7 +262,7 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 
 		prf("  sendEmail %s %s %s %s", to_eml, to_name, subj, ellipsify(strings.Replace(body, "\r\n", " ", -1), 30))
 
-		m.SetAddressHeader("From", BUSINESS_EMAIL, BUSINESS_NAME)
+		m.SetAddressHeader("From", flags.businessEmail, BUSINESS_NAME)
 		if to_name != "" {
 			m.SetAddressHeader("To", to_eml, to_name)
 		} else {
@@ -262,7 +272,7 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 		m.SetBody("text/html", body)
 
 		if flags.dryRun {
-			//prf("  dryRun; would have sent email to %s %s", to_name, to_eml)
+			prf("  dryRun; would have sent email to %s %s", to_name, to_eml)
 		} else {
 			pr("sending the email")
 
