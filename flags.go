@@ -44,6 +44,7 @@ var (
 		testEmailAddress		string		// Test email address
 		emailSubject			string		// Subject for the email
 		newSubs					string
+		customEmails			string
 		businessEmail			string
 	}
 )
@@ -94,6 +95,7 @@ func parseCommandLineFlags() {
 	flag.StringVar(&flags.emailTarget, "emailTarget", "", "Target for the batch email, e.g. 'Daily', 'Test', 'newSubs', one day... 'Weekly' and 'Monthly'")
 	flag.StringVar(&flags.testEmailAddress, "testEmailAddress", "", "Test email address")
 	flag.StringVar(&flags.emailSubject, "emailSubject", "", "Subject for the email")
+	flag.StringVar(&flags.customEmails, "customEmails", "", "Custom email list to send to")
 	flag.StringVar(&flags.newSubs, "newSubs", "", "Newsletter subscribers (who are not yet uers) - comma-separated email list")
 
 

@@ -128,7 +128,16 @@ func dailyEmail() {
 	pr("dailyEmail")
 
 	recipients := make([]EmailRecipient, 0)
-	if flags.newSubs != "" { // For newsletter subscribers, who are not votezilla members yet.
+	if flags.customEmails != "" {
+		emails := strings.Split(flags.customEmails, (","))
+
+		for _, email := range emails {
+			prVal("Adding recipient", email)
+			recipient := EmailRecipient{Email: email}
+
+			recipients = append(recipients, recipient)
+		}
+	} else if flags.newSubs != "" { // For newsletter subscribers, who are not votezilla members yet.
 		assert(flags.newSubs != "")
 		assert(flags.emailTarget == "newSubs")
 
@@ -295,7 +304,7 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 			prf("  Just sent %d emails; waiting 1 minutes.", numSent)
 
 			if !flags.dryRun {
-				time.Sleep(1 * time.Minute)
+				time.Sleep(3 * time.Minute)
 			}
 		}
 	}
