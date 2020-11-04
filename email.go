@@ -103,7 +103,7 @@ func dailyEmailHandler(w http.ResponseWriter, r *http.Request) {
 func testEmail() {
 	pr("testEmail():")
 
-	assert(flags.testEmailAddress != "")
+	assertMsg(flags.testEmailAddress != "", "flags.testEmailAddress is required")
 
 	subj := "Welcome to Votezilla!"
 	body := renderWelcomeEmail(flags.testEmailAddress, "Test Username")
@@ -243,6 +243,7 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 	assertMsg(flags.smtpUsername != "", "flags.smtpUsername is required")
 
 	numSent := 0
+	emailsWithErrors := []string{}
 
 	// Connect to the SMTP server.
 	var s gomail.SendCloser
@@ -277,8 +278,10 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 			pr("sending the email")
 
 			// Send the email to Bob, Cora and Dan.
-			if gomail.Send(s, m) != nil {
-				prVal("bad email, skipping", to_eml)
+			err := gomail.Send(s, m)
+			if err != nil {
+				emailsWithErrors = append(emailsWithErrors, to_eml)
+				prf("bad email, skipping: %s, reason: %s", to_eml, err.Error())
 			}
 
 			numSent++
@@ -295,6 +298,7 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 	}
 
 	prf("  BULK EMAIL FINISHED - SENT %d MESSAGES! (dryRun = %s)", numSent, bool_to_str(flags.dryRun))
+	prVal("  EMAILS WITH ERRORS", emailsWithErrors)
 }
 
 

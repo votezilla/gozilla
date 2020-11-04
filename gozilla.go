@@ -71,7 +71,7 @@ func makePageArgs(r *http.Request, title, oImage, oDescription string) (pa PageA
 	pa.Metadata["og:title"]			= title
 	pa.Metadata["og:image"]		 	= ternary_str(oImage != "", oImage, "http://votezilla.io/static/votezilla logo/votezilla FB og image.jpg")
 	pa.Metadata["og:description"] 	= ternary_str(oDescription != "", oDescription, `Votezilla:
-a censorship-free social network based on creating polls, voting, sharing news, and fostering positive
+a social network based on creating polls, ranked voting, sharing news, and fostering positive
 political discussion. (Or nerd out on other topics you love.)`)
 	pa.Metadata["og:type"] 		 	= "website"
 	pa.Metadata["og:site_name"] 	= "Votezilla"

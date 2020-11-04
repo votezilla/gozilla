@@ -1,44 +1,34 @@
-./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=423050 -dryRun=false -emailTarget=test -emailSubject="Do you consider this to be the most important presidential election of your lifetime?"
+./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=426802 -dryRun=false -emailTarget=test -emailSubject="Have you voted yet?"
 
 
-Create and share the contest giveaway!, also do that for tomorrow's daily email.
 
-Use MailChimp for contest blast
-  - n2mk new MC acct.
-  - I'll need to import my list, and it will be a list to grow when the contest gets going.
-  - (rem to mark / remove bounced email addresses)
-
-Start sharing with my vz list.
-
-Start contacting friends
-
---
-
-Giveaway:
-"""
-$100 Votezilla Vote & Win Giveaway.
-
-Who will you be voting for in November?
-
-Vote NOW for a chance to win a $100 Gift Card!
-
-Votezilla is a platform I'm creating to popularize Ranked Voting, Positive Politics, Direct Democracy, Balanced News, and Freedom from Censorship.
-"""
---
 
 vvv
 
+( Will President Trump concede if he loses the election?) )
 
+WED:
+What are the top 3 reasons you voted for your candidate for president?
+
+THURS:
+Who would be your ideal candidate for president in 2024?
+
+
+Worst atrocity
+
+
+Electoral College
 
 Do you support Three Strikes You're Out?
 
 Do you support no-knock warrants?
 
 
-
 Which candidate is better equipped to handle the Coronavirus?
 
-Which candidate is better equipped to handle the economy?
+
+
+What are the most important issues to you, that made you vote the way you did?
 
 Are you confident your mail-in ballot will be secure and counted?
 
@@ -53,6 +43,17 @@ Which group is more violent, Antifa or Proud Boys?
    Antifa is just an idea
 
 
+
+
+Which is the worst human rights atrocity of the present?
+  Chinese factories
+  CCP persecution of Uyghur Muslims  ( https://s3-ap-southeast-2.amazonaws.com/ad-aspi/2020-03/Uyghurs%20for%20sale_UPDATE-03MAR.pdf?HkDS1tkITXTpF7eZJQ4AdwXTejt3ZDtC&fbclid=IwAR09Xdl_BnMpb5j_7l10RXbp1CznFJER3gS68ylB31yYqjqL0DZeJFJNRZs )
+  Israels in Gaza
+  US Prison labor
+  Rape and child molestation in US Boarder Camps
+  Pedogate
+  Guantanamo Bay
+  Drone Strikes
 
 
 Does voting make a difference?
