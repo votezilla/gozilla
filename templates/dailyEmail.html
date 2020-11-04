@@ -1,59 +1,66 @@
 {{ define "body" }}
 
-{{ $article := .FeaturedArticle }}
-
 <div style="width: 100%; max-width:640px; text-align:center;">
-	<a href="{{$article.Url}}"> <!-- Note: using $article.Url is valid as long as this is a poll.  Not valid for articles. -->
+	{{ $firstArticle := index .Polls 0 }}
+
+	<a href="{{$firstArticle.Url}}"> <!-- Note: using $article.Url is valid as long as this is a poll.  Not valid for articles. -->
 		<img src='https://votezilla.news/static/votezilla-logo/votezilla-6-email.png' alt="" style="display:block; width: 80%; max-width: 512px; margin: 0 auto;" >
 	</a>
 	<br>
-	<table width="100%">
-		<tr>
-			<td align="center" style="width: auto;">
-				<center>
-					<h5 style="font-size: 28px; color: white; background-color: #0072ff; padding: 20px 0px; font-family: Arial, Helvetica, sans-serif; margin: 0px;">
-						<a href="{{$article.Url}}" style="color: inherit; text-decoration: inherit;">
-							{{$article.Title}}
-						</a>
-					</h5>
-				</center>
-			</td>
-		</tr>
-	</table>
+	<div style="align:left; font-size:20px;">Wow, what a close election!  (Votezilla predicted a close election, did we not?)  Probably closer than anyone would have wished for.  Yet here we are.</div>
+	<br>
+	<div style="align:left; font-size:20px;">We've got a double-whammy of excitement today.  We're going to attempt to predict the election by accumulating everyone's guesses as to who will win each swing state.  Buckle up, cause it's a Double-Poll Post-Election Wednesday!</div>
+	<br>
 
-	<a href="{{$article.Url}}">
-		<img src="{{$article.UrlToImage}}" style="width: 240px; border-radius: 8px;" alt="">
-	</a>
+	{{ range $_, $article := .Polls }}
+		<table width="100%">
+			<tr>
+				<td align="center" style="width: auto;">
+					<center>
+						<h5 style="font-size: 28px; color: white; background-color: #0072ff; padding: 20px 0px; font-family: Arial, Helvetica, sans-serif; margin: 0px;">
+							<a href="{{$article.Url}}" style="color: inherit; text-decoration: inherit;">
+								{{$article.Title}}
+							</a>
+						</h5>
+					</center>
+				</td>
+			</tr>
+		</table>
 
-	<a href="{{$article.Url}}" style="color: inherit; text-decoration: inherit;">
-		<div style="
-				background-color:#f1f1f1;
-				border:solid 0px red;
-				border:solid 1px #898888;
-				font-family:'Trebuchet MS';
-				margin:5px auto;
-				width:100%;
-		">
+		<a href="{{$article.Url}}">
+			<img src="{{$article.UrlToImage}}" style="width: 240px; border-radius: 8px;" alt="">
+		</a>
+
+		<a href="{{$article.Url}}" style="color: inherit; text-decoration: inherit;">
 			<div style="
-					background-color:red;
-					background: linear-gradient(0deg, rgba(255,174,0,1) 0%, rgba(255,0,0,1) 100%) !important;
-					border-radius:10px;
-					border: 1px solid #fff !important;
-					color:white;
-					font-size:32px;
-					font-weight:bold;
-					margin:15px auto;
-					padding:10px;
-					text-align:center;
-					width:250px;
+					background-color:#f1f1f1;
+					border:solid 0px red;
+					border:solid 1px #898888;
+					font-family:'Trebuchet MS';
+					margin:5px auto;
+					width:100%;
 			">
-				VOTE NOW!
+				<div style="
+						background-color:red;
+						background: linear-gradient(0deg, rgba(255,174,0,1) 0%, rgba(255,0,0,1) 100%) !important;
+						border-radius:10px;
+						border: 1px solid #fff !important;
+						color:white;
+						font-size:32px;
+						font-weight:bold;
+						margin:15px auto;
+						padding:10px;
+						text-align:center;
+						width:250px;
+				">
+					VOTE NOW!
+				</div>
 			</div>
-		</div>
-	</a>
+		</a>
+		<br>
+	{{ end }}
 	<br>
-	<br>
-	<div style="    font-family: 'Trebuchet MS'; font: small/ 1.5 Arial,Helvetica,sans-serif;">
+	<div style="font-family: 'Trebuchet MS'; font: small/ 1.5 Arial,Helvetica,sans-serif;">
 		{{ if .UnsubscribeLink }}
 			To update your email preferences or unsubscribe, click <a href="{{.UnsubscribeLink}}">here</a><br>
 		{{ else }}

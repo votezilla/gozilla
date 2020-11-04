@@ -46,33 +46,41 @@ func renderWelcomeEmail(email, username string) string {
 func renderDailyEmail(email string) string {
 	pr("renderDailyEmail")
 
-	featuredArticleId := int64(flags.featuredArticleId)
-	prVal("  featuredArticleId", featuredArticleId)
-	assert(featuredArticleId >= 0)
-
-	featuredArticle, err := fetchArticle(featuredArticleId, -1) // Only one poll, but we need to dereference it
-	check(err)
-
-	pr("  makeUrlsAbsolute")
-	makeUrlsAbsolute(&featuredArticle)
+	featuredPolls := []Article{}
 
 	unsubscribeLink := ""
 
-	if flags.newSubs == "" { // Don't do auto-login for newSubs, who aren't yet members.
-		featuredArticle.Url = insertUrlParam(featuredArticle.Url, "autoLoginEmail", email)
+	for _, pollIdString := range strings.Split(flags.featuredArticleId, ",") {
+		featuredArticleId := str_to_int64(pollIdString)
+		prVal("  featuredArticleId", featuredArticleId)
+		assert(featuredArticleId >= 0)
 
-		unsubscribeLink = insertUrlParam("http://votezilla.news/emailPreference/", "autoLoginEmail", email)
-		prVal("  unsubscribeLink", unsubscribeLink)
+		featuredArticle, err := fetchArticle(featuredArticleId, -1) // Only one poll, but we need to dereference it
+		check(err)
+
+		pr("  makeUrlsAbsolute")
+		makeUrlsAbsolute(&featuredArticle)
+
+		if flags.newSubs == "" { // Don't do auto-login for newSubs, who aren't yet members.
+			featuredArticle.Url = insertUrlParam(featuredArticle.Url, "autoLoginEmail", email)
+
+			unsubscribeLink = insertUrlParam("http://votezilla.news/emailPreference/", "autoLoginEmail", email)
+			prVal("  unsubscribeLink", unsubscribeLink)
+		}
+
+		featuredPolls = append(featuredPolls, featuredArticle)
 	}
+
+	prVal("featuredPolls", featuredPolls)
 
 	// Render the email body template.
 	return renderToString(
 		kDailyEmail,
 		struct { // Email template args
-			FeaturedArticle		Article
+			Polls				[]Article
 			UnsubscribeLink		string
 		} {
-			FeaturedArticle:	featuredArticle,
+			Polls:				featuredPolls,
 			UnsubscribeLink:	unsubscribeLink,
 		},
 	)
@@ -92,12 +100,7 @@ func welcomeEmailHandler(w http.ResponseWriter, r *http.Request) {
 func dailyEmailHandler(w http.ResponseWriter, r *http.Request) {
 	pr("dailyEmailHandler")
 
-	featuredArticleId := int64(flags.featuredArticleId)
-	assert(featuredArticleId >= 0)
-
-	body := renderDailyEmail(flags.testEmailAddress)
-
-	serveHtml(w, body)
+	serveHtml(w, renderDailyEmail(flags.testEmailAddress))
 }
 
 func testEmail() {
