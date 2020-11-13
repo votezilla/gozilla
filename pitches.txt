@@ -1,3 +1,19 @@
+Personal email pitch:
+
+Hey <<First name>>,
+
+<<Personal message>>
+
+Just wanted to let you know, I've been working on a new website called Votezilla.  It's a polling & news platform that improves the world by supporting ranked voting, positive political discussion, direct democracy, and freedom from censorship.  It's an open forum where anyone can create their own polls.  There is anonymity, because sharing your opinion should never cause you to lose your friends or your job.
+
+I would really love it if you could check it out.  The website is http://votezilla.news
+
+We have a new presidential poll.  If you could take a minute and cast your vote, that would mean a lot to me.  (Plus, one lucky voter will win $100!)
+
+Thank you so much,
+Aaron Smith
+
+
 Business page pitch:
 """
 This is a platform I'm creating to popularize Ranked Voting, Positive Politics, Direct Democracy, Balanced News, and Freedom from Censorship.

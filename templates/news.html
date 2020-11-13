@@ -51,6 +51,25 @@
 			</h5>
 		</center>
 		<br>
+
+		<div>
+			<button type="submit"
+			{{ if (or (eq $.Category "") (eq $.Category "polls")) }}
+					onclick="{{ if not $.Username }} javascript:loginRequired('create a poll', '/createPoll/')
+							 {{- else }} window.location.href='/createPoll';
+							 {{- end }}"
+					class="nuBtn btn btn-vote center">
+				Create Poll
+			{{ else }}
+					onclick="{{ if not $.Username }} javascript:loginRequired('share a news article', '/createPoll/')
+							 {{- else }} window.location.href='/createLink';
+							 {{- end }}"
+					class="nuBtn btn btn-green center">
+				Share Article or Link
+			{{ end }}
+			</button>
+		</div>
+		<br>
 	{{- end }}
 
 	{{ range $aaa, $articleGroup := .ArticleGroups }} {{/*Article Category*/}}

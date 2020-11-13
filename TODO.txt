@@ -17,16 +17,22 @@ Linux:
 )
 
 JUST FIXED:
-
+B - 3 - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
+  "Create a poll question relating to politics or any other topic you find interesting"
+  (Where it says "Share to get more votes!")
 
 
 
 WORKING ON:
 
+- now:
+
+A - create Blog or Discussion, and encourage contest ppl to create a Blog post. Ask Jamie or Dylan if they can add their posts to vz (or if too much hassle, I c do I for them?)
+
+- later:
+
 B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
         FB share example: https://developers.facebook.com/docs/sharing/reference/share-dialog/
-
-
 
 [] 10/15 - Test with neighbor Jim
 
@@ -44,13 +50,14 @@ LAUNCH FEATURE SHORTLIST:
 C - 3 - Ranked voting - add printing of # of votes for each ranking order.
         (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
+B - ++ description/commentary ("share your thoughts about this article") to Share Link
 
+B - ++ snippet of comment below article in /news (so it is more engaging!)
+
+B - s send u an update when someone likes your post, tell you their username!!!
 
 
 --- OPTIONAL:
-B - 3 - "Share a news article, video, or other interesting link" ++ -> top of /news, also:
-  "Create a poll question relating to politics or any other topic you find interesting"
-  (Where it says "Share to get more votes!")
 
 B - 3 - Polls - add description (optional, plain text for now.  do rich text later.  or see if there's a good library for markdown!!)
 

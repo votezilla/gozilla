@@ -212,6 +212,9 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 	}
 
 	// Add vote tally and sort quality per article.
+	// Sorting heuristic:
+	//   (3 * NumVotes + 3 * NumUpVotes + .5 * NumComments) * (1 if you didn't vote yet, .04 if you have voted on it) + (random number from 0 to 8)
+	// Testing decreased heuristic, TODO: test it out.
 	query = fmt.Sprintf(`
 		WITH posts AS (%s),
 			 votes AS (
@@ -235,9 +238,9 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 				interval '24 hours' *
 				(
 					(
-						3 * COALESCE(votes.VoteTally, 0) +
-					 	3 * COALESCE(pollVotes.VoteTally, 0) +
-						0.5 * posts.NumComments
+						2 * COALESCE(votes.VoteTally, 0) +
+					 	2 * COALESCE(pollVotes.VoteTally, 0) +
+						0.35 * posts.NumComments
 					) * (1 - .96 * COALESCE(pollVotes.MyVotes, 0)) +
 					8 * (%s)
 				) AS OrderBy

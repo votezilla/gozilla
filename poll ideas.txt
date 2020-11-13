@@ -1,20 +1,22 @@
-./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=426802 -dryRun=false -emailTarget=test -emailSubject="Have you voted yet?"
+./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=433398 -dryRun=false -emailTarget=test -emailSubject="Should we abolish Daylight Savings Time?"
 
 
+Leave your comments & cast your vote! https://votezilla.news/article/?postId=431635&changeVote=true#vote
 
+Congrats to user @HappyGram for being selected for the Poll Question of the Day!
 
 vvv
 
-( Will President Trump concede if he loses the election?) )
+
 
 WED:
-What are the top 3 reasons you voted for your candidate for president?
+X What are the top 3 reasons you voted for your candidate for president?
 
 THURS:
 Who would be your ideal candidate for president in 2024?
 
 
-Worst atrocity
+What is the most inhumane atrocity in the present times?
 
 
 Electoral College
@@ -22,6 +24,151 @@ Electoral College
 Do you support Three Strikes You're Out?
 
 Do you support no-knock warrants?
+
+Do you trust the news?
+
+How has the Covid-19 pandemic personally affected you?
+	illness, lose job, hurt my small businesses, isolated from friends and family, connected with friends and family,
+	pursued hobby, lost a loved one / friend
+
+Should we do away with electronic voting machines?
+
+Do you trust the Mainstream Media?
+
+Does America have a "rape culture"?
+
+Do you trust polls?  (Yes, No, Not sure, Just Votezilla)
+
+Is nudity in films wrong?
+
+Do you support or oppose Elon Musk?  (Or: Is your opinion of Elon Musk positive or negative?)
+
+What are the primary causes of racism?
+
+Who is your biggest celebrity crush?  (Or political, or "What celebrity do you have a secret crush on?")
+
+
+X Will Trump concede the election if he loses?
+
+X Will the Democrats steal the election with bogus votes?
+
+X If Biden is elected, do you feel he will shut down America due to the Covid 19 Virus?
+
+
+
+How long will it take to find out the election result?
+
+Will there be a peaceful transition of power
+
+Should we wait to count the votes?
+
+ Is the Coronavirus under control in the U.S.?
+
+Electoral college
+
+Favorite Simpson's character
+
+Do you trust the Presidential Election polls?
+
+Do you plan to fly anywhere before the end of the year?
+
+Should doctors and medical offices be required to post their prices, so patients know what they're going to pay?
+
+Should we subsidize American manufacturing to rebuild our manufacturing industry?
+
+X How are you celebrating Halloween this year?
+
+How long did China know about the Covid outbreak before telling the rest of the world?
+
+Is Western Society in decline?
+
+Who won the debate last night? (10/22)
+
+Shutting down the country: Is the Cure Worse than the Disease
+
+Do you support Universal Healthcare?
+
+Do you support a national $15 Minimum Wage?
+ S, U, It should be up to the states
+
+Does Big Tech have too much power?
+
+Post about trump 4d chess
+
+Should the government encourage herd immunity?
+
+Should the government taxes tobacco, should it also tax fatty foods, sugar, or red meat?
+
+Should prisoners have the right to vote?
+
+What should be the legal drinking age?
+
+What should be the voting age?
+
+What should be the age of consent?
+
+Do you approve of Fauci's job handling the Coronavirus?
+
+Should we pass a law preventing cruelty to livestock?
+
+Does the US have a "rape culture?"
+
+Do you support the tearing down of statues?
+
+How do you define "racism?"
+
+For the single people: Are you interested in getting married?
+
+Will there be a civil war?
+
+What is your stance on abortion? (multiselect)
+ Pro-life, pro choice, prolife or pro open to a compromise: no abortions after 3 months, always allow abortions in case of rape or health risks
+
+How many months of paid leave should women get for pregnancy?
+
+Where do you identify yourself on the spectrum of gender rights? (multiselect)
+ - women's rights
+ - feminist
+ - men's rights
+ - mgtow
+ - incel
+ - ____
+
+Does America have a rape culture?
+
+On polls, start over button at the bottom for poll clicking ui (like Add Option...)
+
+I'm building an alt platform, and y'all are invited! It's called Votezilla, and it's about creating and voting on polls, sharing news, and positive political discussion... without all the censorship.  Check it out: http://votezilla.news
+
+
+What is your stance on gun control?
+
+What is your stance on abortion?
+
+What should be the legal age of consent?
+
+Was there a conspiracy in the death of JFK?
+
+Do you agree with the Electoral College?
+
+Rate each president 1-10:
+  Trump
+  Obama
+  Bush
+  Clinton
+  Lincoln
+  Washington
+
+Do you support charter schools?
+
+Was the Moon Landing faked?
+
+Which country poses the greatest threat to the United States?
+  China
+  Russia
+  Iran
+  N Korea
+  No country poses a threat
 
 
 Which candidate is better equipped to handle the Coronavirus?
@@ -289,3 +436,8 @@ X Who will you be voting for in November?
 - Jo Jorgenson (L)
 - Howie Hawkins (G)
 - Kanye West (B)
+
+X Will this election be decided by the Supreme Court?
+
+
+X Will President Trump concede if he loses the election?
