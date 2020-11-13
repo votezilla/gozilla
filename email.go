@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
+//	"time"
 )
 
 // Uses SSL/TLS Email Example
@@ -300,13 +300,13 @@ func sendBulkEmail(recipients []EmailRecipient, subj string, emailRenderer func(
 		}
 		m.Reset()
 
-		if numSent % 10 == 0 {
-			prf("  Just sent %d emails; waiting 1 minutes.", numSent)
-
-			if !flags.dryRun {
-				time.Sleep(3 * time.Minute)
-			}
-		}
+//		if numSent % 10 == 0 {
+//			prf("  Just sent %d emails; waiting 1 minutes.", numSent)
+//
+//			if !flags.dryRun {
+//				time.Sleep(1 * time.Minute)
+//			}
+//		}
 	}
 
 	prf("  BULK EMAIL FINISHED - SENT %d MESSAGES! (dryRun = %s)", numSent, bool_to_str(flags.dryRun))
