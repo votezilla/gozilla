@@ -1,16 +1,19 @@
-./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=433398 -dryRun=false -emailTarget=test -emailSubject="Should we abolish Daylight Savings Time?"
+./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=439721 -dryRun=false -emailTarget=test -emailSubject="Do humans have free will, or is it an illusion?"
 
 
 Leave your comments & cast your vote! https://votezilla.news/article/?postId=431635&changeVote=true#vote
 
 Congrats to user @HappyGram for being selected for the Poll Question of the Day!
 
-vvv
 
 
+How has Covid affected you, both positively and negatively?
+
+Do you support the US rejoining the Paris Climate Agreement?
+
+MON:
 
 WED:
-X What are the top 3 reasons you voted for your candidate for president?
 
 THURS:
 Who would be your ideal candidate for president in 2024?
@@ -18,8 +21,26 @@ Who would be your ideal candidate for president in 2024?
 
 What is the most inhumane atrocity in the present times?
 
+Why did wearing masks become a party issue?  (Multi-select)
+	Trump wasn't wearing a mask
+	Trump said not to wear masks
+	Distrust of the CDC
+	The media praised some protests while condemning others
+	Masks are a natural threat to liberty
+	Masks are a symbol for self-censorship
+
+How can we end political partisanship in America? (Multi-select)
+	Elect moderate candidates
+	End Cancel Culture
+	Practice "positive politics" when having political conversations
+	Stop supporting political violence
+	Get the two sides together over a peace pipe
+	I don't see an easy solution
 
 Electoral College
+
+What do you estimate Trump's odds of winning the election to be?
+
 
 Do you support Three Strikes You're Out?
 
@@ -47,15 +68,6 @@ What are the primary causes of racism?
 
 Who is your biggest celebrity crush?  (Or political, or "What celebrity do you have a secret crush on?")
 
-
-X Will Trump concede the election if he loses?
-
-X Will the Democrats steal the election with bogus votes?
-
-X If Biden is elected, do you feel he will shut down America due to the Covid 19 Virus?
-
-
-
 How long will it take to find out the election result?
 
 Will there be a peaceful transition of power
@@ -75,8 +87,6 @@ Do you plan to fly anywhere before the end of the year?
 Should doctors and medical offices be required to post their prices, so patients know what they're going to pay?
 
 Should we subsidize American manufacturing to rebuild our manufacturing industry?
-
-X How are you celebrating Halloween this year?
 
 How long did China know about the Covid outbreak before telling the rest of the world?
 
@@ -240,6 +250,8 @@ Who do you think would do a better job protecting the country from the Coronavir
  - Trump
  - Biden
 
+Will Congress pass a bill for a second COVID-19 stimulus package?
+
 Have you ever travelled outside the country?
 
 
@@ -381,6 +393,21 @@ Blog:
 
 SHARED POLLS:
 
+X Do humans have free will, or is it an illusion?
+
+X Should we ban electronic voting machines?
+
+X How many firearms do you own?
+
+X What are the top 3 reasons you voted for your candidate for president?
+
+X Will Trump concede the election if he loses?
+
+X Will the Democrats steal the election with bogus votes?
+
+X If Biden is elected, do you feel he will shut down America due to the Covid 19 Virus?
+
+X How are you celebrating Halloween this year?
 
 X Do you consider this to be the most important presidential election of your lifetime?
 

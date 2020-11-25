@@ -240,8 +240,9 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 							condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
 	pr("calcRankedChoiceVoting")
 
-	pollTallyResults := make(PollTallyResults, numOptions)
-	extraTallyInfo	 := make(ExtraTallyInfo, 0)
+	pollTallyResults   := make(PollTallyResults, numOptions)
+	extraTallyInfo	   := make(ExtraTallyInfo, 0)
+	mostVotesForOption := make(PollTallyResults, numOptions)
 
 	type UserRankedVotes struct {
 		VoteOptions	[]int64
@@ -271,23 +272,30 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	}
 	check(rows.Err())
 
+	/*
+
 	// TODO: sort, return, and display userRankedVotes - # of each ranking.
 
-/*
+
 	//prVal("  userRankedVotes", userRankedVotes)
 
 	rawRankedVotes := make(map[string]int)
 	pr("==================================================================================")
 	pr("  Calculating raw ranked votes:")
+	prVal("  article.PollOptionData.Options", article.PollOptionData.Options)
 	for u, userRankedVote := range userRankedVotes {
-		prVal("   u", u)
+		prVal("  u", u)
+		prVal("  userRankedVote", userRankedVote)
 
 		// Turn ranked vote into a string description
 		rankedVoteDescription := ""
 		for r := int64(1); r < int64(10); r++ {
+			prVal("  r", r)
+			prVal("  userRankedVote.VoteRanks", userRankedVote.VoteRanks)
+
 			for _, rank := range userRankedVote.VoteRanks {
 				if rank == r {
-					rankedVoteDescription = rankedVoteDescription + article.PollOptionData.Options[r] + ", "
+					rankedVoteDescription = rankedVoteDescription + article.PollOptionData.Options[r-1] + ", "
 				}
 			}
 		}// ^^ TODO: rework / clean up / debug this code!
@@ -302,11 +310,14 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	for k, v := range rawRankedVotes {
 		prf("  %40s -> %d", k, v)
 	}
-*/
+
+	*/
+
 	// Do the ranked voting algorithm.
 	eliminatedVoteOptions := make([]int64, 0)
 	round := 1
 	done := false
+
 	rankedVotingLoop: for {
 		message := ""
 
@@ -319,7 +330,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 			for r, rank := range userRankedVote.VoteRanks {
 				option := userRankedVote.VoteOptions[r]
 
-				// ...Based on the candidates still available.
+				// ...(Skip eliminated options).
 				if contains_int64(eliminatedVoteOptions, option) {
 					continue
 				}
@@ -360,6 +371,11 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 			}
 		}
 
+		// Accumulate the most votes for each option (based on all the ranked vote runoff rounds).
+		for i, pollTallyResult := range pollTallyResults {
+			mostVotesForOption[i].Count = max_int(mostVotesForOption[i].Count, pollTallyResult.Count)
+		}
+
 		prf("Round %d results:", round)
 		for option, pollTallyResult := range pollTallyResults {
 			if contains_int64(eliminatedVoteOptions, int64(option)) {
@@ -369,7 +385,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 			prf("\tOption %d\tCount %d\tPercentage %f", option, pollTallyResult.Count, pollTallyResult.Percentage)
 		}
 
-		// Once a vote option has the majority, we have found a winner.  (Should we skip this?  Yes, I think!  Just a dumb hand-counting optimization to save time.)
+		// Once a vote option has the majority, we have found a winner.  (We need this check, so we know when we're done.)
 		for i := range pollTallyResults {
 			if pollTallyResults[i].Percentage > 50.0 /*&& !viewRankedVoteRunoff*/ {
 				if viewRankedVoteRunoff {
@@ -448,7 +464,9 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		if viewRankedVoteRunoff {
 			var pollTallyInfo PollTallyInfo
 			pollTallyInfo.Stats = make(PollTallyResults, len(pollTallyResults))
-			copy(pollTallyInfo.Stats, pollTallyResults)
+
+			copy(pollTallyInfo.Stats, pollTallyResults)  // Copy pollTallyResults into Stats.
+
 			pollTallyInfo.Header = "Ranked Vote Runoff - Pass " + int_to_str(round)
 			pollTallyInfo.Footer = message
 
@@ -493,18 +511,31 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		round++
 	}
 
-	pr("Check 3")
-	for x, _ := range extraTallyInfo {
-		for option, _ := range extraTallyInfo[x].Stats {
-			if extraTallyInfo[x].Stats[option].Skip {
-				prVal("  SKIPPING OPTION", option)
-			} else {
-				prVal("  Count is ", extraTallyInfo[x].Stats[option].Count)
+	if flags.debug != "" {
+		pr("Check 3")
+		for x, _ := range extraTallyInfo {
+			for option, _ := range extraTallyInfo[x].Stats {
+				if extraTallyInfo[x].Stats[option].Skip {
+					prVal("  SKIPPING OPTION", option)
+				} else {
+					prVal("  Count is ", extraTallyInfo[x].Stats[option].Count)
+				}
 			}
 		}
 	}
 
-	return pollTallyResults, extraTallyInfo
+	sum := 0
+	for i := range mostVotesForOption {
+		sum += mostVotesForOption[i].Count
+	}
+	if sum > 0 {
+		invDividendPercent := 100.0 / float32(sum)
+		for i := range mostVotesForOption {
+			mostVotesForOption[i].Percentage = float32(mostVotesForOption[i].Count) * invDividendPercent
+		}
+	} // otherwise, should default to 0.0
+
+	return mostVotesForOption, extraTallyInfo  // We return mostVotesForOption as pollTallyResults, because that summarizes the votes the best.  Winners still win, 3rd party votes are displayed.
 }
 
 // Calcs the poll tally.  If it's a ranked vote with viewRankedVoteRunoff, return the extraTallyInfo as well.

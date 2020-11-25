@@ -57,13 +57,13 @@
 										<td colspan=3><h5><b>Results below:</b></h4></td>
 									{{ end }}
 								</tr>
-								{{ template "PollTallyResults" $article.PollTallyInfo }}
-
 								{{ if or .ViewDemographics .ViewRankedVoteRunoff }}
 									{{ range $i, $pollTallyInfo := .ExtraTallyInfo }}
 										<tr><td colspan=3><br></td></tr>
 										{{ template "PollTallyResults" $pollTallyInfo }}
 									{{ end }}
+								{{ else }}
+									{{ template "PollTallyResults" $article.PollTallyInfo }}
 								{{ end }}
 								<tr></td>
 							</table>
