@@ -21,7 +21,12 @@
 
 					<tr valign="top">
 						<td class="title" style="padding-left: 5px;">
-							{{$article.Title}}
+							{{ if .ViewPollComparison }}
+								Comparing the poll <i>{{.ArticleB.Title}}</i>...
+								<br>...to <i>{{$article.Title}}</i>
+							{{ else }}
+								{{$article.Title}}
+							{{ end }}
 						</td>
 					</tr>
 
@@ -57,7 +62,7 @@
 										<td colspan=3><h5><b>Results below:</b></h4></td>
 									{{ end }}
 								</tr>
-								{{ if or .ViewDemographics .ViewRankedVoteRunoff }}
+								{{ if or .ViewDemographics .ViewRankedVoteRunoff .ViewPollComparison }}
 									{{ range $i, $pollTallyInfo := .ExtraTallyInfo }}
 										<tr><td colspan=3><br></td></tr>
 										{{ template "PollTallyResults" $pollTallyInfo }}
@@ -87,7 +92,21 @@
 									{{ end }}
 								</select>
 							{{ else }}
-								Demographic breakdown viewable once poll reaches 5 or more votes.  There are currently {{ $article.PollTallyInfo.TotalVotes }}.  Share to get more votes!
+								Demographic Breakdown and Cross-Poll Comparison viewable once poll reaches 5 or more votes.  There are currently {{ $article.PollTallyInfo.TotalVotes }}.  Share to get more votes!
+							{{ end }}
+							<br><br>
+							{{ if gt (len .ComparablePolls) 0 }}
+								<select name="compareToPoll" class="btn btn-vote-dropdown-red" style="font-family: Verdana;"
+										onchange="location.href='/viewPollResults/?postId='+this.value+'&compareToPoll={{$article.Id}}';">
+									<option value="-" selected>Compare to Another Poll</option>
+									{{ range $k, $v := .ComparablePolls }}
+										<option value="{{$k}}">{{$v}}</option>
+									{{ end }}
+								</select>
+								<br><br>
+								<div>
+									<input type="submit" onclick="location.href='/viewPollResults/?postId={{.PollIdB}}&compareToPoll={{$article.Id}}';" value="Switch Rows, Colums" class="btn btn-default btn-green">
+								</div>
 							{{ end }}
 							<br><br>
 							{{ if .UserVoteString }}

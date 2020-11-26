@@ -1,10 +1,155 @@
-./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=439721 -dryRun=false -emailTarget=test -emailSubject="Do humans have free will, or is it an illusion?"
+./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=183079 -dryRun=false -emailTarget=test -emailSubject="What is your opinion of the Mainstream Media?"
 
 
 Leave your comments & cast your vote! https://votezilla.news/article/?postId=431635&changeVote=true#vote
 
 Congrats to user @HappyGram for being selected for the Poll Question of the Day!
 
+
+
+TOMORROW:
+Do you trust the mainstream media?
+
+POLLS:
+
+Are you concerned about national debt?
+
+What is your #1 political concern?
+
+How can we fix police brutality?
+
+Is America in decline?  (Or the West)
+
+Re: do u personally know anyone who has died of Covid-19?
+  - I think it can be very useful to collaborate official statistics with anecdotal evidence.  Please answer this poll if you can...
+
+What is your favorite animal
+   pet
+
+Does free will exist?
+
+Is time travel possible?
+
+Will humans colonize space within our lifetimes?
+
+Is European Socialism good or bad?
+
+Should Trump get a legal extensions due to his legal team getting harassed and quitting?
+
+Who would be your dream candidate in 2024?
+
+Is the U.S. overpopulated, underpopulated, or neither?
+
+Is Capitalism good or evil?
+Is European Socialism good or evil?
+
+How long will it take to find out the election result?
+
+Will there be a peaceful transition of power
+
+Should we wait to count the votes?
+
+ Is the Coronavirus under control in the U.S.?
+
+Electoral college
+
+Favorite Simpson's character
+
+Shoudl doctors and medical offices be required to post their prices, so patients know what they're going to pay?
+Should we subsidize American manufacturing to rebuild our manufacturing industry?
+
+How are you celebrating Halloween this year?
+
+How long did China know about the Covid outbreak before telling the rest of the world?
+
+Is Western Society in decline?
+
+Who won the debate last night? (10/22)
+
+Shutting down the country: Is the Cure Worse than the Disease
+
+Do you support Universal Healthcare?
+
+Do you support a national $15 Minimum Wage?
+ S, U, It should be up to the states
+
+Does Big Tech have too much power?
+
+Post about trump 4d chess
+
+Should the government encourage herd immunity?
+
+Should the government taxes tobacco, should it also tax fatty foods, sugar, or red meat?
+
+Should prisoners have the right to vote?
+
+What should be the legal drinking age?
+
+What should be the voting age?
+
+What should be the age of consent?
+
+Do you approve of Fauci's job handling the Coronavirus?
+
+Should we pass a law preventing cruelty to livestock?
+
+Does the US have a "rape culture?"
+
+Do you support the tearing down of statues?
+
+How do you define "racism?"
+
+For the single people: Are you interested in getting married?
+
+Will there be a civil war?
+
+What is your stance on abortion? (multiselect)
+ Pro-life, pro choice, prolife or pro open to a compromise: no abortions after 3 months, always allow abortions in case of rape or health risks
+
+How many months of paid leave should women get for pregnancy?
+
+Where do you identify yourself on the spectrum of gender rights? (multiselect)
+ - women's rights
+ - feminist
+ - men's rights
+ - mgtow
+ - ____
+
+Does the U.S. have a rap culture?
+
+On polls, start over button at the bottom for poll clicking ui (like Add Option...)
+
+I'm building an alt platform, and y'all are invited! It's called Votezilla, and it's about creating and voting on polls, sharing news, and positive political discussion... without all the censorship.  Check it out: http://votezilla.news
+
+
+What is your stance on gun control?
+
+What is your stance on abortion?
+
+What should be the legal age of consent?
+
+Was there a conspiracy in the death of JFK?
+
+Do you agree with the Electoral College?
+
+Rate each president 1-10:
+  Trump
+  Obama
+  Bush
+  Clinton
+  Lincoln
+  Washington
+
+Do you support charter schools?
+
+Was the Moon Landing faked?
+
+Which country poses the greatest threat to the United States?
+  China
+  Russia
+  Iran
+  N Korea
+  No country poses a threat
 
 
 How has Covid affected you, both positively and negatively?

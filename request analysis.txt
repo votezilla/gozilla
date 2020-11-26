@@ -1,0 +1,89 @@
+On 11/24/2020 8:00PM:
+
+All Home Requests or /news:
+
+vz=# select count(*) from vz.request where  userid <> -1 and userid <> 5 and (path = '' or path = '/' or path like '%news%');
+ count
+-------
+  2018
+(1 row)
+
+All View Poll Results
+vz=# select count(*) from vz.request where  userid <> -1 and userid <> 5 and path like '%viewPollResults%';
+ count
+-------
+  3205
+(1 row)
+
+Split By Demographic:
+vz=# select count(*) from vz.request where  userid <> -1 and userid <> 5 and path like '%viewPollResults%' and rawQuery like '%splitByDemographic%';
+ count
+-------
+   171
+(1 row)
+
+Ranked Vote Runoff:
+vz=# select count(*) from vz.request where  userid <> -1 and userid <> 5 and path like '%viewPollResults%' and rawQuery like '%viewRankedVoteRunoff%';
+ count
+-------
+   208
+(1 row)
+
+
+Each path:
+select path, count(*) from vz.request where  userid <> -1 and userid <> 5 group by 1 order by 1;
+                                                  path                                                   | count
+---------------------------------------------------------------------------------------------------------+-------
+                                                                                                         |   299
+ /                                                                                                       |   271
+ /activity/                                                                                              |    89
+ /ajaxCheckForNotifications/                                                                             | 14960
+ /ajaxCreateComment/                                                                                     |   460
+ /ajaxExpandComment/                                                                                     |    50
+ /ajaxPollVote/                                                                                          |  2291
+ /ajaxScrapeImageURLs/                                                                                   |    94
+ /ajaxScrapeTitle/                                                                                       |    24
+ /ajaxVote/                                                                                              |   930
+ /article/                                                                                               |  2157
+ /create/                                                                                                |   173
+ /createLink/                                                                                            |   172
+ /createPoll/                                                                                            |   161
+ /emailPreference/                                                                                       |   152
+ /exportSubs/                                                                                            |     1
+ /history/                                                                                               |   214
+ /login/                                                                                                 |   114
+ /loginRequired/                                                                                         |    12
+ /loginSignup/                                                                                           |     3
+ /logout/                                                                                                |    38
+ /news/                                                                                                  |  1448
+ /register/                                                                                              |   190
+ /registerDetails/                                                                                       |   765
+ /user                                                                                                   |     2
+ /viewPollResults/                                                                                       |  3205
+
+
+
+// When articles where clicked on, # of each type of article (news, polls, links):
+
+select count(*) from vz.newspost where id in (select split_part(substring(rawQuery, 8), '&', 1)::bigint from vz.request where  userid <> -1 and userid <> 5 and path = '/article/');
+ count
+-------
+    11
+(1 row)
+
+vz=# select count(*) from vz.pollpost where id in (select split_part(substring(rawQuery, 8), '&', 1)::bigint from vz.request where  userid <> -1 and userid <> 5 and path = '/article/');
+ count
+-------
+    95
+(1 row)
+
+vz=# select count(*) from vz.linkpost where id in (select split_part(substring(rawQuery, 8), '&', 1)::bigint from vz.request where  userid <> -1 and userid <> 5 and path = '/article/');
+ count
+-------
+   101
+(1 row)
+
+
+
+
+select email from vz.user where id in (select userid from vz.request where  userid <> -1 and userid <> 5 and path like '%viewPollResults%' and rawQuery like '%splitByDemographic%');

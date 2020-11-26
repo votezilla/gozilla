@@ -147,6 +147,22 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 	font-size: 20px;
 }
 
+#override .btn-vote-dropdown-red {
+	color: #fff;
+	background-color: #ff0000;
+	border-color: #ff0000;
+	cursor: pointer;
+	font-size: 20px;
+}
+#override .btn-vote-dropdown-red:active {
+	color: #fff;
+	background-color: #ff0000;
+	box-shadow: 0 3px 8px rgba(255, 0, 0, .4);
+	border-color: #ffb762;
+	cursor: pointer;
+	font-size: 20px;
+}
+
 #override .btn-white {
 	background-color: white;
 	background: white !important;

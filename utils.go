@@ -109,9 +109,10 @@ func ternary_str(b bool, s1 string, s2 string) 	string 	{ if b { return s1 } els
 func bool_to_str(b bool) string { return ternary_str(b, "true", "false") }
 func str_to_bool(s string) bool { return s == "true" }
 func coalesce_str(s1 string, s2 string) string { if s1 != "" { return s1 } else { return s2 } }
-func str_to_int64(s string) int64 { i, err := strconv.ParseInt(s, 10, 64); check(err); return i }
 func str_to_int(s string) int { i, err := strconv.Atoi(s); check(err); return i }
+func str_to_int64(s string) int64 { i, err := strconv.ParseInt(s, 10, 64); check(err); return i }
 func int_to_str(i int) string { return strconv.Itoa(i) }
+func int64_to_str(i int64) string { return strconv.FormatInt(i, 10) }
 
 // Truncate and add "..." if text is longer than maxLength.
 func ellipsify(s string, maxLength int) string {

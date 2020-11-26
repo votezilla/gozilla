@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/lib/pq"
@@ -161,7 +162,7 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 		pq.Array(voteAmounts))
 
 	// Tally the poll tally results, and cache them in the db.
-	pollTallyResults , _:= calcPollTally(pollId, pollOptionData, false, false, "", Article{})
+	pollTallyResults , _:= calcPollTally(pollId, pollOptionData, false, false, false, "", Article{})
 
 	//prVal("pollTallyResults", pollTallyResults)
 
@@ -193,13 +194,15 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 // calc poll tally
 //
 //////////////////////////////////////////////////////////////////////////////
-func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff, canSelectMultipleOptions bool, condition string) PollTallyResults {
+func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff, viewPollComparison, canSelectMultipleOptions bool, condition string) PollTallyResults {
 	pollTallyResults := make(PollTallyResults, numOptions)
 
 	// Get the votes from the database.
-	joinStr := ternary_str(viewDemographics, " JOIN $$User u ON v.UserId = u.Id ", "")
-
-	rows := DbQuery("SELECT v.VoteOptionIds FROM $$PollVote v" + joinStr + " WHERE PollId = $1::bigint" + condition, pollId)
+	rows := DbQuery(
+		"SELECT v.VoteOptionIds FROM $$PollVote v" +
+		ternary_str(viewDemographics, " JOIN $$User u ON v.UserId = u.Id ", "") +
+		ternary_str(viewPollComparison, " JOIN $$PollVote v2 ON v.UserId = v2.UserId ", "") +
+		" WHERE v.PollId = $1::bigint" + condition, pollId)
 	defer rows.Close()
 	for rows.Next() {
 		var voteOptions []int64	// This is the only type possible for scanning into an array of ints.
@@ -236,7 +239,7 @@ func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRanked
 	return pollTallyResults
 }
 
-func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff bool,
+func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff, viewPollComparison bool,
 							condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
 	pr("calcRankedChoiceVoting")
 
@@ -253,9 +256,10 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	userRankedVotes := make([]UserRankedVotes, 0)
 
 	// Get the votes from the database.
-	joinStr := ternary_str(viewDemographics, " JOIN $$User u ON v.UserId = u.Id ", "")
-
-	rows := DbQuery("SELECT v.VoteOptionIds, v.VoteAmounts FROM $$PollVote v " + joinStr + " WHERE PollId = $1::bigint" + condition, pollId)
+	rows := DbQuery("SELECT v.VoteOptionIds, v.VoteAmounts FROM $$PollVote v " +
+		ternary_str(viewDemographics, " JOIN $$User u ON v.UserId = u.Id ", "") +
+		ternary_str(viewPollComparison, " JOIN $$PollVote v2 ON v.UserId = v2.UserId ", "") +
+		" WHERE v.PollId = $1::bigint" + condition, pollId)
 	defer rows.Close()
 	for rows.Next() {
 		var voteOptions, voteRanks []int64	// []int64 is the only type possible for scanning into an array of ints.
@@ -539,7 +543,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 }
 
 // Calcs the poll tally.  If it's a ranked vote with viewRankedVoteRunoff, return the extraTallyInfo as well.
-func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics, viewRankedVoteRunoff bool, condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
+func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics, viewRankedVoteRunoff, viewPollComprison bool, condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
 	prf("calcPollTally %d %v", pollId, pollOptionData)
 
 	numOptions := len(pollOptionData.Options)
@@ -548,12 +552,12 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics
 	extraTallyInfo := make(ExtraTallyInfo, 0)
 
 	if (!pollOptionData.RankedChoiceVoting) { // Regular single or multi-select voting
-		pollTallyResults = calcSimpleVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, pollOptionData.CanSelectMultipleOptions, condition)
+		pollTallyResults = calcSimpleVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, viewPollComprison, pollOptionData.CanSelectMultipleOptions, condition)
 
 		assert(len(pollOptionData.Options) == len(pollTallyResults))
 
 	} else { // RankedChoiceVoting
-		pollTallyResults, extraTallyInfo = calcRankedChoiceVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, condition, article)
+		pollTallyResults, extraTallyInfo = calcRankedChoiceVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, viewPollComprison, condition, article)
 	}
 
 	return pollTallyResults, extraTallyInfo
@@ -579,11 +583,15 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	splitByDemographic	:= parseUrlParam(r, "splitByDemographic")
 	viewDemographics	:= splitByDemographic != ""
 	viewRankedVoteRunoff:= str_to_bool(parseUrlParam(r, "viewRankedVoteRunoff"))
+	compareToPoll		:= parseUrlParam(r, "compareToPoll")
+	viewPollComparison	:= compareToPoll != ""
 
 	prVal("reqPostId", reqPostId)
 	prVal("viewDemographics", viewDemographics)
 	prVal("viewRankedVoteRunoff", viewRankedVoteRunoff)
 	prVal("splitByDemographic", splitByDemographic)
+	prVal("compareToPoll", compareToPoll)
+	prVal("viewPollComparison", viewPollComparison)
 
 	postId, err := strconv.ParseInt(reqPostId, 10, 64) // Convert from string to int64.
 	if err != nil {
@@ -605,7 +613,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	// Tally the vote stats
 	var extraTallyInfo ExtraTallyInfo
 	article.PollTallyInfo.Stats, extraTallyInfo =
-		calcPollTally(postId, article.PollOptionData, false, viewRankedVoteRunoff, "", article)
+		calcPollTally(postId, article.PollOptionData, false, viewRankedVoteRunoff, false, "", article)
 
 	article.PollTallyInfo.TotalVotes = 0
 	for i := 0; i < len(article.PollTallyInfo.Stats); i++ {
@@ -615,6 +623,9 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	prVal("article.PollTallyInfo.TotalVotes", article.PollTallyInfo.TotalVotes)
 
 	article.PollTallyInfo.SetArticle(&article)
+
+	pollIdB := int64(-1)
+	articleB := Article{}
 
 	// Tally the demographic vote stats
 	prVal("XXX viewDemographics", viewDemographics)
@@ -672,20 +683,66 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				condition = " AND u." + column + " = '" + option[0] + "' "
 			}
-			extraTallyInfo[o].Stats, _ = calcPollTally(postId, article.PollOptionData, viewDemographics, false, condition, article)
 			extraTallyInfo[o].Header = option[1]
+			extraTallyInfo[o].Stats, _ = calcPollTally(postId, article.PollOptionData, viewDemographics, false, false, condition, article)
+		}
+	} else if viewPollComparison {
+		if compareToPoll != "" {
+			pollIdB, err = strconv.ParseInt(compareToPoll, 10, 64) // Convert from string to int64.
+			if err != nil {
+				pr("error B")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
 
-		// Trim demographics that have no votes.
-		for i := len(extraTallyInfo) - 1; i >= 0; i-- {
-			totalCount := 0
+		articleB, err = fetchArticle(pollIdB, userId)
+		if err != nil {
+			pr("error C")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-			for j := 0; j < len(extraTallyInfo[i].Stats); j++ {
-				totalCount += extraTallyInfo[i].Stats[j].Count
-			}
-			if totalCount == 0 {
-				extraTallyInfo = append(extraTallyInfo[:i], extraTallyInfo[i+1:]...)
-			}
+		prVal("articleB", articleB)
+
+		// Fetch the pollOptionData for poll B.
+		var pollOptionDataB PollOptionData
+		DoQuery(
+			func(rows *sql.Rows) {
+				var pollOptionJson	string
+				err := rows.Scan(&pollOptionJson)
+				check(err)
+
+				assert(len(pollOptionJson) > 0)
+				check(json.Unmarshal([]byte(pollOptionJson), &pollOptionDataB))
+			},
+			"SELECT PollOptionData FROM $$PollPost WHERE Id = $1::bigint",
+				pollIdB,
+		)
+		prVal("  pollOptionDataB", pollOptionDataB)
+		prVal("  PollOptionDataB.Options", pollOptionDataB.Options)
+
+		extraTallyInfo = make([]PollTallyInfo, len(pollOptionDataB.Options))
+		for i, optionB := range pollOptionDataB.Options {
+			extraTallyInfo[i].Header = "Those who voted '" + optionB + "' also voted:"
+			extraTallyInfo[i].Stats, _ = calcPollTally(
+				postId, article.PollOptionData,
+				false, false, true,
+				" AND v2.PollId = " + int64_to_str(pollIdB) + " AND " + int_to_str(i) + " = ANY(v2.VoteOptionIds)",
+				article,
+			)
+		}
+	}
+
+	// Trim demographics / poll comparision options that have no votes.
+	for i := len(extraTallyInfo) - 1; i >= 0; i-- {
+		totalCount := 0
+
+		for j := 0; j < len(extraTallyInfo[i].Stats); j++ {
+			totalCount += extraTallyInfo[i].Stats[j].Count
+		}
+		if totalCount == 0 {
+			extraTallyInfo = append(extraTallyInfo[:i], extraTallyInfo[i+1:]...)
 		}
 	}
 
@@ -711,6 +768,23 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		userVoteString = strings.Join(userVotedOptions, ", ")
 	}
+
+	// Make comparable polls labels:
+	comparablePolls := make(map[int64]string, 0)
+	DoQuery(
+		func(rows *sql.Rows) {
+			var pollIdB		int64
+			var pollTitleB	string
+
+			err := rows.Scan(&pollIdB, &pollTitleB)
+			check(err)
+
+			comparablePolls[pollIdB] = pollTitleB
+		},
+		"SELECT PollIdB, TitleB FROM " + kLinkedPollsView + " WHERE PollidA = $1 ORDER BY Count DESC;",
+			postId,
+	)
+	prVal("comparablePolls", comparablePolls)
 
 	// Suggested polls for further voting - on the sidebar.
 	polls := fetchSuggestedPolls(userId, postId)
@@ -740,9 +814,13 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		MoreArticlesFromThisSource	[]Article
 		CommentPrompt				string
 		DemographicLabels			map[string]string
+		ComparablePolls				map[int64]string
 		ViewDemographics			bool
 		ViewRankedVoteRunoff		bool
+		ViewPollComparison			bool
 		ExtraTallyInfo				ExtraTallyInfo
+		PollIdB						int64
+		ArticleB					Article
 	}{
 		PageArgs:					pa,
 		Username:					username,
@@ -760,9 +838,13 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		UserVoteString:				userVoteString,
 		CommentPrompt:				"Start a discussion, or explain why you voted for " + userVoteString + ".",
 		DemographicLabels:			demographicLabels,
+		ComparablePolls:			comparablePolls,
 		ViewDemographics:			viewDemographics,
 		ViewRankedVoteRunoff:		viewRankedVoteRunoff,
+		ViewPollComparison:			viewPollComparison,
 		ExtraTallyInfo:				extraTallyInfo,
+		PollIdB:					pollIdB,
+		ArticleB:					articleB,
 	}
 
 	executeTemplate(w, kViewPollResults, viewPollArgs)

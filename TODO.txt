@@ -11,7 +11,7 @@ SET timezone TO 'US/Pacific';
 (  HOW TO SEND DAILY EMAILS:
 
 Linux:
-   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=418901 -dryRun=false -emailTarget=test -emailSubject="Silly Poll Sunday: Does PINEAPPLE belong on PIZZA?!"
+   ./gozilla $(< ~/flags.txt) -dailyEmail=true -featuredArticleId=443292,443293 -dryRun=false -emailTarget=test -emailSubject="Double-poll Thanksgiving Turkey Day"
 
 
 )
@@ -93,6 +93,8 @@ C - Messages / marketing - try playing up the direct democracy angle a little.
 C - 'Welcome to Votezilla: a censorship-free...' - only n to be on /news, not subcategories ?
 
 C 5 - prompt user to leave comment after viewing an article.
+
+C - user should not lose comment if they place it before they've logged in.
 
 ---
 

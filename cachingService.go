@@ -14,6 +14,10 @@ import (
 	"time"
 )
 
+const (
+	kLinkedPollsView = "linkedpollsview"
+)
+
 func materializeNewsView(newsCycle int) {
 	pr("Materializing News Query")
 
@@ -52,6 +56,31 @@ func refreshNewsView(newsCycle int) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+func refreshLinkedPolls() {
+	viewExists := viewExists(kLinkedPollsView)
+
+	if viewExists {
+		DbExec("REFRESH MATERIALIZED VIEW " + kLinkedPollsView)
+	} else {
+		DbExec(
+		   `CREATE MATERIALIZED VIEW ` + kLinkedPollsView + ` AS
+				SELECT
+					a.pollid AS PollIdA,
+					b.pollid AS PollIdB,
+					c.title AS TitleA,
+					d.title AS TitleB,
+					COUNT(a.userid)
+				FROM $$PollVote a
+				JOIN $$PollVote b ON a.userid = b.userid and a.pollid <> b.pollid
+				JOIN $$PollPost c ON a.pollid = c.id
+				JOIN $$PollPost d ON b.pollid = d.id
+				GROUP BY 1, 2, 3, 4
+				HAVING COUNT(a.userid) >= 5
+				ORDER BY 1, 2;`)
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
 //
 // caching service - On startup, and every 1 minute, materializes the expensive
 //                (and non-user) part of the posts / articles query, and stores
@@ -76,6 +105,8 @@ func CachingService() {
 		DbTrackOpenConnections()
 
 		if numRepetitions >= 3 {
+			refreshLinkedPolls()
+
 			pr("Sleeping 1 minute...")
 			time.Sleep(1 * time.Minute)
 		}

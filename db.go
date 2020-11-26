@@ -90,7 +90,7 @@ func DbInsert(query string, values ...interface{}) int64 {
 // Panics on error.
 func DbQuery(query string, values ...interface{}) *sql.Rows {
 	query = replaceSchema(query)
-	//prf("DbQuery query:%s %#v", query, values)
+	prf("DbQuery query:%s %#v", query, values)
 
 	rows, err := db.Query(query, values...)
 	check(err)
