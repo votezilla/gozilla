@@ -777,13 +777,14 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		func(rows *sql.Rows) {
 			var pollIdB		int64
 			var pollTitleB	string
+			var count		int
 
-			err := rows.Scan(&pollIdB, &pollTitleB)
+			err := rows.Scan(&pollIdB, &pollTitleB, &count)
 			check(err)
 
-			comparablePolls[pollIdB] = pollTitleB
+			comparablePolls[pollIdB] = pollTitleB + " (" + int_to_str(count) + ")"
 		},
-		"SELECT PollIdB, TitleB FROM " + kLinkedPollsView + " WHERE PollidA = $1 ORDER BY Count DESC;",
+		"SELECT PollIdB, TitleB, Count FROM " + kLinkedPollsView + " WHERE PollidA = $1 ORDER BY Count DESC;",
 			comparablePollId,
 	)
 	prVal("comparablePolls", comparablePolls)
