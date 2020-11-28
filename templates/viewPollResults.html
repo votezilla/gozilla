@@ -96,7 +96,7 @@
 							{{ end }}
 							<br><br>
 							{{ if gt (len .ComparablePolls) 0 }}
-								<select name="compareToPoll" class="btn btn-vote-dropdown-red" style="font-family: Verdana;"
+								<select name="compareToPoll" class="btn btn-vote-dropdown-red" style="font-family: Verdana; max-width: 300px;"
 										onchange="location.href='/viewPollResults/?postId='+this.value+'&compareToPoll={{$article.Id}}';">
 									<option value="-" selected>Compare to Another Poll</option>
 									{{ range $k, $v := .ComparablePolls }}
