@@ -94,19 +94,25 @@
 							{{ else }}
 								Demographic Breakdown and Cross-Poll Comparison viewable once poll reaches 5 or more votes.  There are currently {{ $article.PollTallyInfo.TotalVotes }}.  Share to get more votes!
 							{{ end }}
-							<br><br>
 							{{ if gt (len .ComparablePolls) 0 }}
+								<br><br>
 								<select name="compareToPoll" class="btn btn-vote-dropdown-red" style="font-family: Verdana; max-width: 300px;"
-										onchange="location.href='/viewPollResults/?postId='+this.value+'&compareToPoll={{$article.Id}}';">
+										onchange="location.href='/viewPollResults/?postId='+this.value+'&compareToPoll={{.ComparablePollId}}';">
 									<option value="-" selected>Compare to Another Poll</option>
 									{{ range $k, $v := .ComparablePolls }}
 										<option value="{{$k}}">{{$v}}</option>
 									{{ end }}
 								</select>
+								{{ if ne .PollIdB -1 }}
+									<br><br>
+									<div>
+										<input type="submit" onclick="location.href='/viewPollResults/?postId={{.PollIdB}}&compareToPoll={{$article.Id}}';" value="Switch Rows, Colums" class="btn btn-default btn-green">
+									</div>
+								{{ end }}
+							{{ end }}
+							{{ if or .ViewDemographics .ViewRankedVoteRunoff .ViewPollComparison }}
 								<br><br>
-								<div>
-									<input type="submit" onclick="location.href='/viewPollResults/?postId={{.PollIdB}}&compareToPoll={{$article.Id}}';" value="Switch Rows, Colums" class="btn btn-default btn-green">
-								</div>
+								<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}';" value="Back to Poll" class="btn btn-default btn-orange">
 							{{ end }}
 							<br><br>
 							{{ if .UserVoteString }}

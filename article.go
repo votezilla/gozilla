@@ -149,6 +149,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		ArticleGroups				[]ArticleGroup
 		MoreArticlesFromThisSource	[]Article
 		CommentPrompt				string
+		FocusOnTopComment			bool
 	}{
 		FrameArgs:					fa,
 		Article:					article,
@@ -158,6 +159,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		ArticleGroups:				articleGroups,
 		MoreArticlesFromThisSource:	moreArticles,
 		CommentPrompt:				"Add a comment to start a conversation!",
+		FocusOnTopComment:			true,
 	}
 
 	executeTemplate(w, kArticle, articleArgs)

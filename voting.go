@@ -770,6 +770,8 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Make comparable polls labels:
+	comparablePollId := ternary_int64(pollIdB != -1, pollIdB, postId)  // Because of the row-col switching, this fixes what to compare to next.
+
 	comparablePolls := make(map[int64]string, 0)
 	DoQuery(
 		func(rows *sql.Rows) {
@@ -782,7 +784,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 			comparablePolls[pollIdB] = pollTitleB
 		},
 		"SELECT PollIdB, TitleB FROM " + kLinkedPollsView + " WHERE PollidA = $1 ORDER BY Count DESC;",
-			postId,
+			comparablePollId,
 	)
 	prVal("comparablePolls", comparablePolls)
 
@@ -813,6 +815,8 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		HeadComment					Comment
 		MoreArticlesFromThisSource	[]Article
 		CommentPrompt				string
+		FocusOnTopComment			bool
+
 		DemographicLabels			map[string]string
 		ComparablePolls				map[int64]string
 		ViewDemographics			bool
@@ -821,6 +825,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		ExtraTallyInfo				ExtraTallyInfo
 		PollIdB						int64
 		ArticleB					Article
+		ComparablePollId			int64
 	}{
 		PageArgs:					pa,
 		Username:					username,
@@ -837,6 +842,8 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		MoreArticlesFromThisSource: polls,
 		UserVoteString:				userVoteString,
 		CommentPrompt:				"Start a discussion, or explain why you voted for " + userVoteString + ".",
+		FocusOnTopComment:			!(viewDemographics || viewRankedVoteRunoff || viewPollComparison),
+
 		DemographicLabels:			demographicLabels,
 		ComparablePolls:			comparablePolls,
 		ViewDemographics:			viewDemographics,
@@ -845,6 +852,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		ExtraTallyInfo:				extraTallyInfo,
 		PollIdB:					pollIdB,
 		ArticleB:					articleB,
+		ComparablePollId:			comparablePollId,
 	}
 
 	executeTemplate(w, kViewPollResults, viewPollArgs)

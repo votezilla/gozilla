@@ -251,7 +251,9 @@
 	// Source: https://stackoverflow.com/questions/38588346/anchor-a-tags-not-working-in-chrome-when-using
 	$(function() {
 		// Set focus to leaving a top-level comment, for general articles or polls.
-		$('#text_-1').focus();
+		{{ if .FocusOnTopComment }}
+			$('#text_-1').focus();
+		{{ end }}
 
         var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
         if (window.location.hash && isChrome) {

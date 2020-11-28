@@ -22,6 +22,9 @@ B - 3 - "Share a news article, video, or other interesting link" ++ -> top of /n
   "Create a poll question relating to politics or any other topic you find interesting"
   (Where it says "Share to get more votes!")
 
+Focus on top if any kind of poll analysis was done.
+
+Poll analysis back button.
 
 
 WORKING ON:
