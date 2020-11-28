@@ -22,8 +22,8 @@
 					<tr valign="top">
 						<td class="title" style="padding-left: 5px;">
 							{{ if .ViewPollComparison }}
-								Comparing the poll <i>{{.ArticleB.Title}}</i>...
-								<br>...to <i>{{$article.Title}}</i>
+								Comparing the poll <a href='/viewPollResults/?postId={{.ArticleB.Id}}'><i>{{.ArticleB.Title}}</i></a>...
+								<br>...to <a href='/viewPollResults/?postId={{$article.Id}}'><i>{{$article.Title}}</i></a>
 							{{ else }}
 								{{$article.Title}}
 							{{ end }}
