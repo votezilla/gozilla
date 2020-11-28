@@ -112,7 +112,7 @@
 							{{ end }}
 							{{ if or .ViewDemographics .ViewRankedVoteRunoff .ViewPollComparison }}
 								<br><br>
-								<input type="submit" onclick="location.href='/viewPollResults/?postId={{$article.Id}}';" value="Back to Poll" class="btn btn-default btn-orange">
+								<input type="submit" onclick="location.href='/viewPollResults/?postId={{.ComparablePollId}}';" value="Back to Poll" class="btn btn-default btn-orange">
 							{{ end }}
 							<br><br>
 							{{ if .UserVoteString }}
