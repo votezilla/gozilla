@@ -1,4 +1,5 @@
 PUSH & TEST ON SERVER:
+:) - 13 - Comparative polls now working
 
 NOTES:
 Postgres copy-paste to initiate:

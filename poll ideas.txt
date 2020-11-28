@@ -1,4 +1,4 @@
-./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=183079 -dryRun=false -emailTarget=test -emailSubject="What is your opinion of the Mainstream Media?"
+./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=444412 -dryRun=false -emailTarget=test -emailSubject="Can movie theaters survive the Covid-19 lockdowns?"
 
 
 Leave your comments & cast your vote! https://votezilla.news/article/?postId=431635&changeVote=true#vote
@@ -8,7 +8,8 @@ Congrats to user @HappyGram for being selected for the Poll Question of the Day!
 
 
 TOMORROW:
-Do you trust the mainstream media?
+
+Share news: about Optmus Amos.
 
 POLLS:
 
@@ -613,3 +614,5 @@ X Will this election be decided by the Supreme Court?
 
 
 X Will President Trump concede if he loses the election?
+
+X Do you trust the mainstream media?
