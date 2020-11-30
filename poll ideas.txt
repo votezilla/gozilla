@@ -1,4 +1,4 @@
-./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=444412 -dryRun=false -emailTarget=test -emailSubject="Can movie theaters survive the Covid-19 lockdowns?"
+./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=445020 -dryRun=false -emailTarget=test -emailSubject="Would European Socialism work in America?"
 
 
 Leave your comments & cast your vote! https://votezilla.news/article/?postId=431635&changeVote=true#vote
