@@ -6,12 +6,11 @@
 	<a href="{{$firstArticle.Url}}"> <!-- Note: using $article.Url is valid as long as this is a poll.  Not valid for articles. -->
 		<img src='https://votezilla.news/static/votezilla-logo/votezilla-6-email.png' alt="" style="display:block; width: 80%; max-width: 512px; margin: 0 auto;" >
 	</a>
+<!--
 	<br>
-	<div style="align:left; font-size:20px;">Wow, what a close election!  (Votezilla predicted a close election, did we not?)  Probably closer than anyone would have wished for.  Yet here we are.</div>
+	<div style="align:left; font-size:20px;">With unprecedented closures and rapidly delining profits due to Covid-19 lockdowns, as well as pressure from streaming services, will movie theaters survive?</div>
 	<br>
-	<div style="align:left; font-size:20px;">We've got a double-whammy of excitement today.  We're going to attempt to predict the election by accumulating everyone's guesses as to who will win each swing state.  Buckle up, cause it's a Double-Poll Post-Election Wednesday!</div>
-	<br>
-
+-->
 	{{ range $_, $article := .Polls }}
 		<table width="100%">
 			<tr>
@@ -59,6 +58,9 @@
 		</a>
 		<br>
 	{{ end }}
+	<br>
+<!--	<div style="align:left; font-size:20px;">P.S. I updated how Votezilla displays results for Ranked Voting Polls, so that 3rd party votes are more accurately represented.  You can see it in action for the Presidential polling results.
+	(Since the ranked voting algorithm goes over multiple rounds, eliminates the candidate with the fewest votes, and redistributes their votes accordingly, it was displaying 0 for all candidates that didn't place 1st or 2nd.  I now display the max # of votes a candidate had at any round, which better represents 3rd party candidates, while accurately reporting the total number of votes the 1st and 2nd place candidates got.)  Stay thirsty, my friends!</div>-->
 	<br>
 	<div style="font-family: 'Trebuchet MS'; font: small/ 1.5 Arial,Helvetica,sans-serif;">
 		{{ if .UnsubscribeLink }}
