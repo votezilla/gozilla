@@ -178,6 +178,12 @@ func dailyEmail() {
 				case "daily":
 					query = query + ` AND COALESCE(EmailPreference, '') IN ('', 'Daily', 'Test')`
 					break;
+				case "weekly":
+					query = query + ` AND COALESCE(EmailPreference, '') IN ('', 'Weekly')`
+					break;
+				case "monthly":
+					query = query + ` AND COALESCE(EmailPreference, '') IN ('', 'Monthly')`
+					break;
 				case "test":
 					query = query + ` AND COALESCE(EmailPreference, '') = 'Test'`
 					break;
