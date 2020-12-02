@@ -30,6 +30,8 @@ type PollTallyInfo struct {
 	GetArticle	func() Article
 }
 
+type RawRankedVotes map[string]int
+
 func (i *PollTallyInfo) SetArticle(pArticle *Article) {
 	(*i).Article = pArticle
 	(*i).GetArticle = func() Article {
@@ -162,7 +164,7 @@ func ajaxPollVote(w http.ResponseWriter, r *http.Request) {
 		pq.Array(voteAmounts))
 
 	// Tally the poll tally results, and cache them in the db.
-	pollTallyResults , _:= calcPollTally(pollId, pollOptionData, false, false, false, "", Article{})
+	pollTallyResults , _, _ := calcPollTally(pollId, pollOptionData, false, false, false, "", Article{})
 
 	//prVal("pollTallyResults", pollTallyResults)
 
@@ -240,7 +242,7 @@ func calcSimpleVoting(pollId int64, numOptions int, viewDemographics, viewRanked
 }
 
 func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, viewRankedVoteRunoff, viewPollComparison bool,
-							condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
+							condition string, article Article) (PollTallyResults, ExtraTallyInfo, RawRankedVotes) {
 	pr("calcRankedChoiceVoting")
 
 	pollTallyResults   := make(PollTallyResults, numOptions)
@@ -276,7 +278,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	}
 	check(rows.Err())
 
-	/*
+
 
 	// TODO: sort, return, and display userRankedVotes - # of each ranking.
 
@@ -284,38 +286,37 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	//prVal("  userRankedVotes", userRankedVotes)
 
 	rawRankedVotes := make(map[string]int)
-	pr("==================================================================================")
-	pr("  Calculating raw ranked votes:")
-	prVal("  article.PollOptionData.Options", article.PollOptionData.Options)
-	for u, userRankedVote := range userRankedVotes {
-		prVal("  u", u)
-		prVal("  userRankedVote", userRankedVote)
+	if len(article.PollOptionData.Options) > 0 {
+		pr("==================================================================================")
+		pr("  Calculating raw ranked votes:")
+		prVal("  article.PollOptionData.Options", article.PollOptionData.Options)
+		for u, userRankedVote := range userRankedVotes {
+			prVal("  u", u)
+			prVal("  userRankedVote", userRankedVote)
 
-		// Turn ranked vote into a string description
-		rankedVoteDescription := ""
-		for r := int64(1); r < int64(10); r++ {
-			prVal("  r", r)
-			prVal("  userRankedVote.VoteRanks", userRankedVote.VoteRanks)
+			// Turn ranked vote into a string description
+			rankedVoteDescription := ""
+			for r := int64(1); r < int64(10); r++ {
+				prVal("  r", r)
+				prVal("  userRankedVote.VoteRanks", userRankedVote.VoteRanks)
 
-			for _, rank := range userRankedVote.VoteRanks {
-				if rank == r {
-					rankedVoteDescription = rankedVoteDescription + article.PollOptionData.Options[r-1] + ", "
+				for _, rank := range userRankedVote.VoteRanks {
+					if rank == r {
+						rankedVoteDescription = rankedVoteDescription + "#" + int64_to_str(r) + "=" + article.PollOptionData.Options[r-1] + ", "
+					}
 				}
 			}
-		}// ^^ TODO: rework / clean up / debug this code!
+			rankedVoteDescription = rankedVoteDescription[:len(rankedVoteDescription)-2]  // Remove last ", "
+			prVal("rankedVoteDescription", rankedVoteDescription)
 
-		rawRankedVotes[rankedVoteDescription]++
+			rawRankedVotes[rankedVoteDescription]++
+		}
 	}
-
-	//prVal("  rawRankedVotes", rawRankedVotes)
-
 	pr("  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. ")
 	pr("  rawRankedVotes:")
 	for k, v := range rawRankedVotes {
 		prf("  %40s -> %d", k, v)
 	}
-
-	*/
 
 	// Do the ranked voting algorithm.
 	eliminatedVoteOptions := make([]int64, 0)
@@ -539,17 +540,30 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 		}
 	} // otherwise, should default to 0.0
 
-	return mostVotesForOption, extraTallyInfo  // We return mostVotesForOption as pollTallyResults, because that summarizes the votes the best.  Winners still win, 3rd party votes are displayed.
+	return mostVotesForOption, extraTallyInfo, rawRankedVotes  // We return mostVotesForOption as pollTallyResults, because that summarizes the votes the best.  Winners still win, 3rd party votes are displayed.
+}
+
+// Trim zeros from pollTallyResults.
+func trimZeroStats(pollTallyResults PollTallyResults) {
+	prVal("<< trimZeroStats pollTallyResults", pollTallyResults)
+	for i, _ := range pollTallyResults {
+		// Trim zero, unless it's one of the first 2 options or we're showing an option being eliminated during a rankedVoteRunoff.
+		if i > 1 && pollTallyResults[i].Count == 0 && !pollTallyResults[i].Worst {
+			pollTallyResults[i].Skip = true
+		}
+	}
+	prVal(">> trimZeroStats pollTallyResults", pollTallyResults)
 }
 
 // Calcs the poll tally.  If it's a ranked vote with viewRankedVoteRunoff, return the extraTallyInfo as well.
-func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics, viewRankedVoteRunoff, viewPollComprison bool, condition string, article Article) (PollTallyResults, ExtraTallyInfo) {
+func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics, viewRankedVoteRunoff, viewPollComprison bool, condition string, article Article) (PollTallyResults, ExtraTallyInfo, RawRankedVotes) {
 	prf("calcPollTally %d %v", pollId, pollOptionData)
 
 	numOptions := len(pollOptionData.Options)
 
 	pollTallyResults := make(PollTallyResults, numOptions)
 	extraTallyInfo := make(ExtraTallyInfo, 0)
+	rawRankedVotes := make(RawRankedVotes, 0)
 
 	if (!pollOptionData.RankedChoiceVoting) { // Regular single or multi-select voting
 		pollTallyResults = calcSimpleVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, viewPollComprison, pollOptionData.CanSelectMultipleOptions, condition)
@@ -557,10 +571,15 @@ func calcPollTally(pollId int64, pollOptionData PollOptionData, viewDemographics
 		assert(len(pollOptionData.Options) == len(pollTallyResults))
 
 	} else { // RankedChoiceVoting
-		pollTallyResults, extraTallyInfo = calcRankedChoiceVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, viewPollComprison, condition, article)
+		pollTallyResults, extraTallyInfo, rawRankedVotes = calcRankedChoiceVoting(pollId, numOptions, viewDemographics, viewRankedVoteRunoff, viewPollComprison, condition, article)
 	}
 
-	return pollTallyResults, extraTallyInfo
+	trimZeroStats(pollTallyResults)
+	for i, _ := range extraTallyInfo {
+		trimZeroStats(extraTallyInfo[i].Stats)
+	}
+
+	return pollTallyResults, extraTallyInfo, rawRankedVotes
 }
 
 
@@ -612,7 +631,8 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Tally the vote stats
 	var extraTallyInfo ExtraTallyInfo
-	article.PollTallyInfo.Stats, extraTallyInfo =
+	var rawRankedVotes RawRankedVotes
+	article.PollTallyInfo.Stats, extraTallyInfo, rawRankedVotes =
 		calcPollTally(postId, article.PollOptionData, false, viewRankedVoteRunoff, false, "", article)
 
 	article.PollTallyInfo.TotalVotes = 0
@@ -684,7 +704,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 				condition = " AND u." + column + " = '" + option[0] + "' "
 			}
 			extraTallyInfo[o].Header = option[1]
-			extraTallyInfo[o].Stats, _ = calcPollTally(postId, article.PollOptionData, viewDemographics, false, false, condition, article)
+			extraTallyInfo[o].Stats, _, _ = calcPollTally(postId, article.PollOptionData, viewDemographics, false, false, condition, article)
 		}
 	} else if viewPollComparison {
 		if compareToPoll != "" {
@@ -725,7 +745,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		extraTallyInfo = make([]PollTallyInfo, len(pollOptionDataB.Options))
 		for i, optionB := range pollOptionDataB.Options {
 			extraTallyInfo[i].Header = "Those who voted '" + optionB + "' also voted:"
-			extraTallyInfo[i].Stats, _ = calcPollTally(
+			extraTallyInfo[i].Stats, _, _ = calcPollTally(
 				postId, article.PollOptionData,
 				false, false, true,
 				" AND v2.PollId = " + int64_to_str(pollIdB) + " AND " + int_to_str(i) + " = ANY(v2.VoteOptionIds)",
@@ -827,6 +847,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		PollIdB						int64
 		ArticleB					Article
 		ComparablePollId			int64
+		RawRankedVotes				RawRankedVotes
 	}{
 		PageArgs:					pa,
 		Username:					username,
@@ -854,6 +875,7 @@ func viewPollResultsHandler(w http.ResponseWriter, r *http.Request) {
 		PollIdB:					pollIdB,
 		ArticleB:					articleB,
 		ComparablePollId:			comparablePollId,
+		RawRankedVotes:				rawRankedVotes,
 	}
 
 	executeTemplate(w, kViewPollResults, viewPollArgs)

@@ -17,7 +17,7 @@ import (
 ///////////////////////////////////////////////////////////////////////////////
 func ajaxCheckForNotifications(w http.ResponseWriter, r *http.Request) {
 	if !flags.checkForNotifications{
-		serveErrorMsg(w, "Flag CheckForNotifications disabled")
+		serveHtml(w, "Flag CheckForNotifications disabled")
 		return
 	}
 

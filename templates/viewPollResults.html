@@ -43,12 +43,24 @@
 					<tr>
 						<td align="left" style="width: 100%; padding-left:5px;">
 							<table width=100%>
+								{{ if .ViewRankedVoteRunoff }}
+								<tr><td><b>Raw Ranked Choice Votes:</b></td></tr>
+								<tr><td>
+									<table style="border: 1px solid black; border-collapse: true;">
+									{{ range $rankedVoteLabel, $count := .RawRankedVotes }}
+										<tr><td style="border: 1px solid black; padding: 5px;">{{ $rankedVoteLabel }}</td><td style="border: 1px solid black; padding: 5px;">{{ $count }}</td></tr>
+									{{ end }}
+									</table>
+								</td></tr>
 								<tr></tr>
+								<tr></tr>
+								{{ end }}
 								<tr>
 									{{ if $poll.RankedChoiceVoting }}
+										<tr></tr>
 										<tr><td align="left">
 											<span class="rankedVoteIntro">
-												<i><b>Ranked Vote:</b> Results:</i>
+												<b>Ranked Vote:</b> Results:
 											</span>
 											<br>
 										</td></tr>

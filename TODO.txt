@@ -41,6 +41,13 @@ A - create Blog or Discussion, and encourage contest ppl to create a Blog post. 
 B - 3 - Sharable link - click on to add to clipboard, link to /article (not /viewPollResults)
         FB share example: https://developers.facebook.com/docs/sharing/reference/share-dialog/
 
+
+C - 3 - Ranked voting - add printing of # of votes for each ranking order.
+        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
+
+
+
+
 [] 10/15 - Test with neighbor Jim
 
 
@@ -53,9 +60,6 @@ v
 
 LAUNCH FEATURE SHORTLIST:
 --- MUST HAVE
-
-C - 3 - Ranked voting - add printing of # of votes for each ranking order.
-        (Search for "TODO: sort, return, and display userRankedVotes - # of each ranking.")
 
 B - ++ description/commentary ("share your thoughts about this article") to Share Link
 
