@@ -300,10 +300,17 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 				prVal("  r", r)
 				prVal("  userRankedVote.VoteRanks", userRankedVote.VoteRanks)
 
-				for _, rank := range userRankedVote.VoteRanks {
+				found := false
+				for voteIdx, rank := range userRankedVote.VoteRanks {
 					if rank == r {
-						rankedVoteDescription = rankedVoteDescription + "#" + int64_to_str(r) + "=" + article.PollOptionData.Options[r-1] + ", "
+						rankedVoteDescription = rankedVoteDescription + "#" + int64_to_str(r) + "=" + article.PollOptionData.Options[voteIdx] + ", "
+						found = true
+						break
 					}
+				}
+
+				if !found {
+					break
 				}
 			}
 			rankedVoteDescription = rankedVoteDescription[:len(rankedVoteDescription)-2]  // Remove last ", "
