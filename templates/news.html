@@ -154,6 +154,68 @@
 				{{ end }}
 				">
 				{{ range $j, $article := $articleCol }}
+				    {{ if (and ($.Category) (eq $aaa 0) (eq $i 1) (eq $j 1)) }}
+						<div class="softBorder">
+							<!-- <Sheeple -->
+							<div style="
+								background-color:white;
+								border:solid 0px red;
+								border:solid 1px #898888;
+								font-family:'Trebuchet MS';
+								margin:0 auto;
+								margin-top: 0px;
+								width:100%;
+								max-width:400px;
+								">
+								<div style="text-align:left; color: #50abe4; margin: 5px;">
+									Sponsored
+								</div>
+								<div style="font-family: 'Trebuchet MS'; font: small/ 1.5 Arial,Helvetica,sans-serif;">
+									The best gift ewe can give for the holidays is quality time together. &nbsp;Enjoy it with Sheeple!
+									<!--<br><br><i>Enjoy <b>20% off</b>, NOW until Cyber Monday!</i>-->
+								</div>
+								<a href="http://bit.ly/SheePLe">
+										<img src="http://votezilla.news/static/sheeple/X2.jpg" style="width: 400px;" alt="">
+								</a>
+
+								<div style="
+											background-color:#f1f1f1;
+											font-family:'Trebuchet MS';
+											margin-top: 0px;
+											max-width:400px;
+											">
+
+									<span style="display: table-cell; height: 85px; vertical-align: middle; width: 220px; margin: 10px; display:inline-block; width: 220px; display: table-cell; ">
+												  SHEEPLE: Fun Family Party Game for 3-12 Players
+									</span>
+									<span style="display: table-cell; height: 85px; vertical-align: middle; width: 220px; width: 230px;">
+									  <a href="http://bit.ly/SheePLe">
+										<span style="
+													background-color: rgb(0,81,255);
+													background: linear-gradient(0deg, rgb(0,81,255)  0%, rgb(0,255,255) 100%) !important;
+													border-radius:10px;
+													border: 1px solid #fff !important;
+													color:white;
+													display:inline-block;
+													font-size:18px;
+													font-weight:bold;
+													padding:10px;
+													text-align:center;
+													width:150px;
+													min-height: 40px;
+													vertical-align: middle;
+													width: 150px;
+													padding: 10px;
+													">
+											LEARN MORE
+										</span>
+									  </a>
+									</span>
+								</div>
+							</div>
+							<!-- Sheeple> -->
+						</div>
+					{{ end }}
 					{{ if ne $article.Size -1 }} {{/*-1 = skip the article*/}}
 						{{ if and (eq $article.Size 1) (not $article.IsPoll) }} {{/*LARGE ARTICLE SIZE... alt logic: and (eq $article.Size 1) (not $article.IsPoll)*/}}
 							{{ if not $article.IsPoll }}

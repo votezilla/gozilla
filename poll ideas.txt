@@ -1,4 +1,9 @@
-./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=445020 -dryRun=false -emailTarget=test -emailSubject="Would European Socialism work in America?"
+./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=447702 -dryRun=false -emailTarget=test -emailSubject="Should schools be re-opened?"
+
+\connect vz
+SET client_encoding = 'UTF8';
+SET timezone TO 'US/Pacific';
+
 
 
 Leave your comments & cast your vote! https://votezilla.news/article/?postId=431635&changeVote=true#vote

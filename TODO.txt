@@ -26,6 +26,9 @@ Focus on top if any kind of poll analysis was done.
 
 Poll analysis back button.
 
+Comparing poll to the correct one, when you compare multiple polls in a row.
+
+Sheeple ads on Votezilla /news and sidebar.
 
 WORKING ON:
 
