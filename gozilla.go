@@ -37,6 +37,7 @@ const (
 	kLoginFB = "loginFB"
 	kLoginRequired = "loginRequired"	// Prompt to log in / sign in if required from user action.
 	kLoginSignup = "loginSignup"		// User clicks on log in / sign in button
+	kMaps = "maps"
 	kNews = "news"
 	kNewsSources = "newsSources"
 	kNuForm = "nuForm"
@@ -259,6 +260,9 @@ func parseTemplateFiles() {
 
 	// Javascript snippets
 	//tDefineTemplate(kRegisterDetailsScript, "registerDetailsScript")  // TODO: find a new home for this.  Just add to registerDetails(?)
+
+	// Maps
+	hDefineTemplate(kMaps, 			"maps")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -312,6 +316,7 @@ func SetupWebHandlers() *http.ServeMux {
 	mux.HandleFunc("/loginRequired/",			hwrap(loginRequiredHandler))
 	mux.HandleFunc("/loginSignup/",          	hwrap(loginSignupHandler))
 	mux.HandleFunc("/logout/",         			hwrap(logoutHandler))
+	mux.HandleFunc("/maps/",         			hwrap(mapsHandler))
 	mux.HandleFunc("/polls/",           		hwrap(pollsHandler))
 	mux.HandleFunc("/news/",           			hwrap(newsHandler))
 	mux.HandleFunc("/register/",       			hwrap(registerHandler))

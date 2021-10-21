@@ -1,4 +1,3 @@
-// gozilla.go
 package main
 
 import (

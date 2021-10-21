@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Sushi Finder</title>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+	<meta charset="utf-8">
+	<style>
+		/* Always set the map height explicitly to define the size of the div
+		 * element that contains the map. */
+		#map {
+			height: 100%;
+			background-color: grey;
+		}
+
+		/* Optional: Makes the sample page fill the window. */
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		/* Styling for an info pane that slides out from the left.
+		 * Hidden by default. */
+		#panelContainer {
+			height: 100%;
+			width: null;
+			background-color: white;
+			position: fixed;
+			z-index: 1;
+			overflow-x: hidden;
+			transition: all .2s ease-out;
+		}
+		#panel {
+			height: 90%;
+			width: null;
+			background-color: white;
+			position: fixed;
+			z-index: 1;
+			overflow-x: hidden;
+			transition: all .2s ease-out;
+		}
+
+		.open {
+			width: 250px;
+		}
+
+		/* Styling for place details */
+
+		.hero {
+			width: 100%;
+			height: auto;
+			max-height: 166px;
+			display: block;
+		}
+
+		.place,
+		p {
+			font-family: 'open sans', arial, sans-serif;
+			padding-left: 18px;
+			padding-right: 18px;
+		}
+
+		.details {
+			color: darkslategrey;
+		}
+
+		a {
+			text-decoration: none;
+			color: cadetblue;
+		}
+
+		.red-label {
+			color: red;
+			font-size: 20px;
+			background: white;
+		}
+
+		.light-red-label {
+			color: lightred;
+			font-size: 20px;
+			background: white;
+		}
+
+		.blue-label {
+			color: blue;
+			font-size: 20px;
+			background: white;
+		}
+
+		.light-blue-label {
+			color: 0x88f;
+			font-size: 20px;
+			background: white;
+		}
+
+		.green-label {
+			color: black;
+			font-size: 20px;
+			background: white;
+		}
+
+		.neutral-label {
+			color: black;
+			font-size: 20px;
+			background: white;
+		}
+
+		.controls {
+			width: 1000px;
+			height: 32px;
+		}
+
+
+
+
+		#description {
+		  font-family: Roboto;
+		  font-size: 15px;
+		  font-weight: 300;
+		}
+
+		#infowindow-content .title {
+		  font-weight: bold;
+		}
+
+		#infowindow-content {
+		  display: none;
+		}
+
+		#map #infowindow-content {
+		  display: inline;
+		}
+
+		.pac-card {
+		  background-color: #fff;
+		  border: 0;
+		  border-radius: 2px;
+		  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+		  margin: 10px;
+		  padding: 0 0.5em;
+		  font: 400 18px Roboto, Arial, sans-serif;
+		  overflow: hidden;
+		  font-family: Roboto;
+		  padding: 0;
+		}
+
+		#pac-container {
+		  padding-bottom: 12px;
+		  margin-right: 12px;
+		}
+
+		.pac-controls {
+		  display: inline-block;
+		  padding: 5px 11px;
+		}
+
+		.pac-controls label {
+		  font-family: Roboto;
+		  font-size: 13px;
+		  font-weight: 300;
+		}
+
+		#pac-input {
+		  background-color: #fff;
+		  font-family: Roboto;
+		  font-size: 15px;
+		  font-weight: 300;
+		  margin-left: 12px;
+		  padding: 0 11px 0 13px;
+		  text-overflow: ellipsis;
+		  width: 400px;
+		}
+
+		#pac-input:focus {
+		  border-color: #4d90fe;
+		}
+
+		#pac-button {
+		}
+
+		#title {
+		  color: #fff;
+		  background-color: #4d90fe;
+		  font-size: 25px;
+		  font-weight: 500;
+		  padding: 6px 12px;
+		}
+
+		#target {
+		  width: 345px;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="panelContainer">
+		<!-- Search bar -->
+		<input
+		  id="pac-input"
+		  class="controls"
+		  type="text"
+		  placeholder="Search Box"
+		/>
+		<input id="pac-button" type="button" value="Search" onClick="doMapSearch()"/>
+
+		<!-- The slide-out panel for showing place details -->
+		<div id="panel"></div>
+	</div>
+
+
+	<!-- Map appears here -->
+	<div id="map"></div>
+
+	<script>
+		/* Note: This example requires that you consent to location sharing when
+		 * prompted by your browser. If you see the error "Geolocation permission
+		 * denied.", it means you probably did not give permission for the browser * to locate you. */
+		let pos;
+		let map;
+		let bounds;
+		let infoWindow;
+		let currentInfoWindow;
+		let service;
+		let infoPane;
+		let markers = new Array();
+
+		function initMap() {
+			// Initialize variables
+			bounds = new google.maps.LatLngBounds();
+			infoWindow = new google.maps.InfoWindow;
+			currentInfoWindow = infoWindow;
+
+			infoPane = document.getElementById('panel');
+		}
+
+		function doMapSearch() {
+			// clear markers
+			map = null;
+
+			// Try HTML5 geolocation
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(position => {
+					pos = {
+						lat: position.coords.latitude,
+						lng: position.coords.longitude
+					};
+					map = new google.maps.Map(document.getElementById('map'), {
+						center: pos,
+						zoom: 15
+					});
+					bounds.extend(pos);
+
+					infoWindow.setPosition(pos);
+					infoWindow.setContent('Location found.');
+					infoWindow.open(map);
+					map.setCenter(pos);
+
+					// Call Places Nearby Search on user's location
+					getNearbyPlaces(pos);
+				}, () => {
+					// Browser supports geolocation, but user has denied permission
+					handleLocationError(true, infoWindow);
+				});
+			} else {
+				// Browser doesn't support geolocation
+				handleLocationError(false, infoWindow);
+			}
+		}
+
+		// Handle a geolocation error
+		function handleLocationError(browserHasGeolocation, infoWindow) {
+			// Set default location to Sydney, Australia
+			pos = { lat: -33.856, lng: 151.215 };
+			map = new google.maps.Map(document.getElementById('map'), {
+				center: pos,
+				zoom: 15
+			});
+
+			// Display an InfoWindow at the map center
+			infoWindow.setPosition(pos);
+			infoWindow.setContent(browserHasGeolocation ?
+				'Geolocation permissions denied. Using default location.' :
+				'Error: Your browser doesn\'t support geolocation.');
+			infoWindow.open(map);
+			currentInfoWindow = infoWindow;
+
+			// Call Places Nearby Search on the default location
+			getNearbyPlaces(pos);
+		}
+
+		// Perform a Places Nearby Search Request
+		function getNearbyPlaces(position) {
+			let request = {
+				location: position,
+				rankBy: google.maps.places.RankBy.DISTANCE,
+				keyword: document.getElementById('pac-input').value //'coffee'//'sushi'
+			};
+
+			service = new google.maps.places.PlacesService(map);
+			service.nearbySearch(request, nearbyCallback);
+		}
+
+		// Handle the results (up to 20) of the Nearby Search
+		function nearbyCallback(results, status) {
+			if (status == google.maps.places.PlacesServiceStatus.OK) {
+				createMarkers(results);
+			}
+		}
+
+		// Returns the score (1 = liberal, 5 = conservative), or -1 if not known.
+		function getScore(place) {
+			var score = -1.0;
+
+			let key = place.name.toLowerCase();
+			if (key in dict) {
+				score = dict[key];
+			}
+
+			return score;
+		}
+
+		function addMarker(marker) {
+			markers.push(marker);
+		}
+
+		function clearMarkers() {
+			for (var i = 0; i < markers.length; i++) {
+				markers[i].setMap(null);
+			}
+			markers.length = 0;
+		}
+
+		// Set markers at the location of each place result
+		function createMarkers(places) {
+			places.forEach(place => {
+				var score = getScore(place);
+
+				var pictureLabel = document.createElement("img");
+				var label_class;
+
+				if (score < 0.0) {
+	        		pictureLabel.src = "/static/maps/green-marker.png";
+	        		label_class = "green-label";
+				} else if (score < 2.5) { // Note that 2.61 is the average rating.
+					pictureLabel.src = "/static/maps/blue-marker.png";
+					label_class = "blue-label";
+				} else if (score < 3.5) {
+					pictureLabel.src = "/static/maps/neutral-marker.png";
+					label_class = "neutral-label";
+				} else {
+					pictureLabel.src = "/static/maps/red-marker.png";
+					label_class = "red-label";
+				}
+
+				// works, plain black text
+				 var marker = new MarkerWithLabel({
+				   position: place.geometry.location,
+				   map: map,
+				   labelContent: place.name,
+				   labelAnchor: new google.maps.Point(12, -22),
+				   labelClass: label_class,
+				 });
+				 marker.url = "/static/maps/green-marker.png";
+
+				let marker2 = new google.maps.Marker({
+					map: map,
+					position: place.geometry.location,
+					title: place.name,
+					icon: {
+					    url: pictureLabel.src,
+  					}
+				});
+
+				addMarker(marker);
+				addMarker(marker2);
+
+
+				/* TODO: Step 4B: Add click listeners to the markers */
+				// Add click listener to each marker
+				google.maps.event.addListener(marker, 'click', () => {
+					let request = {
+						placeId: place.place_id,
+						fields: ['name', 'formatted_address', 'geometry', 'rating',
+							'website', 'photos']
+					};
+
+					/* Only fetch the details of a place when the user clicks on a marker.
+					 * If we fetch the details for all place results as soon as we get
+					 * the search response, we will hit API rate limits. */
+					service.getDetails(request, (placeResult, status) => {
+						showDetails(placeResult, marker, status)
+					});
+				});
+				google.maps.event.addListener(marker2, 'click', () => {
+					let request = {
+						placeId: place.place_id,
+						fields: ['name', 'formatted_address', 'geometry', 'rating',
+							'website', 'photos']
+					};
+
+					/* Only fetch the details of a place when the user clicks on a marker.
+					 * If we fetch the details for all place results as soon as we get
+					 * the search response, we will hit API rate limits. */
+					service.getDetails(request, (placeResult, status) => {
+						showDetails(placeResult, marker, status)
+					});
+				});
+
+				// Adjust the map bounds to include the location of this marker
+				bounds.extend(place.geometry.location);
+			});
+			/* Once all the markers have been placed, adjust the bounds of the map to
+			 * show all the markers within the visible area. */
+			map.fitBounds(bounds);
+		}
+
+		function clearMarkers() {
+
+		}
+
+		/* TODO: Step 4C: Show place details in an info window */
+		// Builds an InfoWindow to display details above the marker
+		function showDetails(placeResult, marker, status) {
+			if (status == google.maps.places.PlacesServiceStatus.OK) {
+				let placeInfowindow = new google.maps.InfoWindow();
+
+				let rating = "None";
+				if (placeResult.rating)
+					rating = placeResult.rating;
+
+				let score = getScore(placeResult);
+
+				if (score < 0.0) {
+					color = "green";
+				} else if (score < 2.5) { // Note that 2.61 is the average rating.
+					color = "blue";
+				} else if (score < 3.5) {
+					color = "black";
+				} else {
+					color = "red";
+				}
+
+				var score_text;
+				if (score < 0.0) {
+					score_text = "unknown / small business";
+				} else {
+					if (score < 1.5) {
+						score_text = score + " (liberal)";
+					} else if (score < 2.5) {
+						score_text = score + " (lean liberal)";
+					} else if (score < 3.5) {
+						score_text = score + " (neutral)";
+					} else if (score < 4.5) {
+						score_text = score + " (lean conservative)";
+					} else {
+						score_text = score + " (conservative)";
+					}
+				}
+
+				placeInfowindow.setContent(
+					'<div><strong><font color=' + color + '>' + placeResult.name + '</font></strong><br>' +
+					'Political Score: ' + score_text + '<br>' +
+					'Star Rating: ' + rating + '</div>');
+				placeInfowindow.open(marker.map, marker);
+				currentInfoWindow.close();
+				currentInfoWindow = placeInfowindow;
+
+				showPanel(placeResult);
+			} else {
+				console.log('showDetails failed: ' + status);
+			}
+		}
+
+		/* TODO: Step 4D: Load place details in a sidebar */
+		// Displays place details in a sidebar
+		function showPanel(placeResult) {
+			// If infoPane is already open, close it
+			if (infoPane.classList.contains("open")) {
+				infoPane.classList.remove("open");
+			}
+
+			// Clear the previous details
+			while (infoPane.lastChild) {
+				infoPane.removeChild(infoPane.lastChild);
+			}
+
+			/* TODO: Step 4E: Display a Place Photo with the Place Details */
+			// Add the primary photo, if there is one
+			if (placeResult.photos) {
+				let firstPhoto = placeResult.photos[0];
+				let photo = document.createElement('img');
+				photo.classList.add('hero');
+				photo.src = firstPhoto.getUrl();
+				infoPane.appendChild(photo);
+			}
+
+			// Add place details with text formatting
+			let name = document.createElement('h1');
+			name.classList.add('place');
+			name.textContent = placeResult.name;
+			infoPane.appendChild(name);
+			if (placeResult.rating) {
+				// Political Rating
+				let prating = document.createElement('p');
+				prating.classList.add('details');
+				prating.textContent = `Political Rating: ${getScore(placeResult)} \u272e`;
+				infoPane.appendChild(prating);
+
+				// Star rating
+				let rating = document.createElement('p');
+				rating.classList.add('details');
+				rating.textContent = `Star Rating: ${placeResult.rating} \u272e`;
+				infoPane.appendChild(rating);
+			}
+			let address = document.createElement('p');
+			address.classList.add('details');
+			address.textContent = placeResult.formatted_address;
+			infoPane.appendChild(address);
+			if (placeResult.website) {
+				let websitePara = document.createElement('p');
+				let websiteLink = document.createElement('a');
+				let websiteUrl = document.createTextNode(placeResult.website);
+				websiteLink.appendChild(websiteUrl);
+				websiteLink.title = placeResult.website;
+				websiteLink.href = placeResult.website;
+				websitePara.appendChild(websiteLink);
+				infoPane.appendChild(websitePara);
+			}
+
+			// Open the infoPane
+			infoPane.classList.add("open");
+		}
+
+
+		// This example adds a search box to a map, using the Google Place Autocomplete
+		// feature. People can enter geographical searches. The search box will return a
+		// pick list containing a mix of places and predicted search terms.
+		// This example requires the Places library. Include the libraries=places
+		// parameter when you first load the API. For example:
+		// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+		function initAutocomplete() {
+		  //initMap(); // ADDED
+
+		  const map = new google.maps.Map(document.getElementById("map"), {
+			center: { lat: -33.8688, lng: 151.2195 },
+			zoom: 13,
+			mapTypeId: "roadmap",
+		  });
+		  // Create the search box and link it to the UI element.
+		  const input = document.getElementById("pac-input");
+
+		  getNearbyPlaces(input);
+
+		  const searchBox = new google.maps.places.SearchBox(input);
+
+		  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+		  // Bias the SearchBox results towards current map's viewport.
+		  map.addListener("bounds_changed", () => {
+			searchBox.setBounds(map.getBounds());
+		  });
+
+		  let markers = [];
+
+		  // Listen for the event fired when the user selects a prediction and retrieve
+		  // more details for that place.
+		  searchBox.addListener("places_changed", () => {
+			const places = searchBox.getPlaces();
+
+			if (places.length == 0) {
+			  return;
+			}
+
+			// Clear out the old markers. (TODO: copy this.)
+			markers.forEach((marker) => {
+			  marker.setMap(null);
+			});
+			markers = [];
+
+			// For each place, get the icon, name and location.
+			const bounds = new google.maps.LatLngBounds();
+
+			places.forEach((place) => {
+			  if (!place.geometry || !place.geometry.location) {
+				console.log("Returned place contains no geometry");
+				return;
+			  }
+
+			  const icon = {
+				url: place.icon,
+				size: new google.maps.Size(71, 71),
+				origin: new google.maps.Point(0, 0),
+				anchor: new google.maps.Point(17, 34),
+				scaledSize: new google.maps.Size(25, 25),
+			  };
+
+			  // Create a marker for each place.
+			  markers.push(
+				new google.maps.Marker({
+				  map,
+				  icon,
+				  title: place.name,
+				  position: place.geometry.location,
+				})
+			  );
+			  if (place.geometry.viewport) {
+				// Only geocodes have viewport.
+				bounds.union(place.geometry.viewport);
+			  } else {
+				bounds.extend(place.geometry.location);
+			  }
+			});
+			map.fitBounds(bounds);
+		  });
+		}
+	</script>
+
+	<script src="/static/maps/data.js"></script>
+
+	<script src="https://unpkg.com/@googlemaps/markerwithlabel/dist/index.min.js"></script>
+
+
+	<!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+	{{ if .MapsAutoComplete }}
+		<!-- This works and is the auto-complete code.  TODO: port my code over to the auto-complete code, which works. -->
+		<script
+			src="https://maps.googleapis.com/maps/api/js?key={{.MapsApiKey}}&callback=initAutocomplete&libraries=places&v=weekly"
+			async
+		></script>
+	{{ else }}
+		<!-- This works and is my code: -->
+		<script async defer
+			src="https://maps.googleapis.com/maps/api/js?key={{.MapsApiKey}}&libraries=places&callback=initMap">
+		</script>
+	{{ end }}
+</body>
+
+</html>

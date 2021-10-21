@@ -46,6 +46,8 @@ var (
 		newSubs					string
 		customEmails			string
 		businessEmail			string
+		mapsApiKey				string
+		mapsAutoComplete		bool
 	}
 )
 
@@ -85,7 +87,6 @@ func parseCommandLineFlags() {
 	flag.BoolVar(&flags.testEmail, "testEmail", false, "Send a test email and exit")
 	flag.BoolVar(&flags.dailyEmail, "dailyEmail", false, "Send the daily email and exit")
 
-
 	flag.StringVar(&flags.businessEmail, "businessEmail", "", "")
 	flag.StringVar(&flags.smtpServer, "smtpServer", "", "")
 	flag.StringVar(&flags.smtpUsername, "smtpUsername", "", "")
@@ -98,6 +99,8 @@ func parseCommandLineFlags() {
 	flag.StringVar(&flags.customEmails, "customEmails", "", "Custom email list to send to")
 	flag.StringVar(&flags.newSubs, "newSubs", "", "Newsletter subscribers (who are not yet uers) - comma-separated email list")
 
+	flag.StringVar(&flags.mapsApiKey, "mapsApiKey", "", "Maps Api Key")
+	flag.BoolVar(&flags.mapsAutoComplete, "mapsAutoComplete", false, "Maps Auto-complete")
 
 	prVal("Command Line Args", os.Args)
 
