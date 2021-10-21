@@ -286,7 +286,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	//prVal("  userRankedVotes", userRankedVotes)
 
 	rawRankedVotes := make(map[string]int)
-	if len(article.PollOptionData.Options) > 0 {
+/*	if len(article.PollOptionData.Options) > 0 {
 		pr("==================================================================================")
 		pr("  Calculating raw ranked votes:")
 		prVal("  article.PollOptionData.Options", article.PollOptionData.Options)
@@ -324,7 +324,7 @@ func calcRankedChoiceVoting(pollId int64, numOptions int, viewDemographics, view
 	for k, v := range rawRankedVotes {
 		prf("  %40s -> %d", k, v)
 	}
-
+*/
 	// Do the ranked voting algorithm.
 	eliminatedVoteOptions := make([]int64, 0)
 	round := 1

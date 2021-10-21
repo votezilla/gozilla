@@ -633,7 +633,10 @@ func queryArticles(qp ArticleQueryParams) (articles []Article) {
 
 		// Check for articles with duplicate id's.  When polls have duplicate id's, it causes voting bugs!!!
 		_, found = checkForDupId[id]
-		assertMsg(!found, fmt.Sprintf("Found post with duplicate id: %d", id))
+		if found {
+			prf("Found post with duplicate id: %d!!!", id)
+			continue
+		}
 		checkForDupId[id] = true
 
 		articles = append(articles, newArticle)
