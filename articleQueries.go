@@ -781,6 +781,7 @@ func fetchArticlesPostedByUser(creatorUserId, voterUserId int64, maxArticles int
 //
 // fetch articles not posted by a user.
 //   category - optional, can provide "" to skip.
+//   withinElapsedMilliseconds - if < 0, omit from query.
 //
 //////////////////////////////////////////////////////////////////////////////
 func fetchArticlesNotPostedByUser(userId int64, maxArticles, withinElapsedMilliseconds int) ([]Article) {

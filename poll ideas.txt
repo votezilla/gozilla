@@ -1,4 +1,6 @@
-./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=447702 -dryRun=false -emailTarget=test -emailSubject="Should schools be re-opened?"
+./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=459304 -dryRun=false -emailTarget=test -emailSubject="Will the new vaccines coming out end the Covid Pandemic?"
+
+
 
 \connect vz
 SET client_encoding = 'UTF8';
@@ -11,11 +13,22 @@ Share news: about Optmus Amos.
 
 POLLS:
 
+Is the United States already in a 'cold civil war'?
+
+Who should Trump pardon?
+
+Do you support the Death Penalty?
+
+Should outdoor dining be allowed for restaurants?
+
+[] Turn this into a poll - How can we fix police brutality?:
+	Ian Schreiber
+	Well, the whole 'defund the police' thing, if taken in context and not just from a knee-jerk reaction to a slogan, has some viable suggestions: go ahead and train police for things like stopping a violent crime in progress but treat it as a smaller team of specialists for that, and reroute other calls (medical, psychological, social work, documentation of crime after the fact, etc.) to other specialists like paramedics, psychologists, social workers, and so on, so that police can focus on policing and not have to bring guns and anti-violence training to situations where that kind of thing is clearly inappropriate and exacerbatory.
+	Other ideas I've seen floated are legislative in nature, like getting rid of qualified immunity so that individual 'problem' officers and their departments can be held accountable; weakening police unions so that they can still collectively bargain but also make it possible to actually fire bad-apple cops; and frankly it'd be nice if police departments themselves would have to foot the bill for the (often many and expensive) settlements for when cops cause damage, instead of those judgments getting paid for by the state budget - i.e. if your department gets successfully sued for $3M for a wrongful-death suit because one of your own got a little too trigger-happy on a routine call, that comes directly out of your department's operating budget, and if you wanted new equipment, too bad, hold a bake sale.
+
 Are you concerned about national debt?
 
 What is your #1 political concern?
-
-How can we fix police brutality?
 
 Is America in decline?  (Or the West)
 
@@ -24,8 +37,6 @@ Re: do u personally know anyone who has died of Covid-19?
 
 What is your favorite animal
    pet
-
-Does free will exist?
 
 Is time travel possible?
 
@@ -141,7 +152,7 @@ Do you support charter schools?
 
 Was the Moon Landing faked?
 
-Which country poses the greatest threat to the United States?
+X Which country poses the greatest threat to the United States?
   China
   Russia
   Iran

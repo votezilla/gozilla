@@ -34,6 +34,8 @@ WORKING ON:
 
 - now:
 
+[] fix focus issue (on Chrome at least) where you leave a comment and it doesn't focus there.
+
 A - create Blog or Discussion, and encourage contest ppl to create a Blog post. Ask Jamie or Dylan if they can add their posts to vz (or if too much hassle, I c do I for them?)
 
 - later:

@@ -151,6 +151,7 @@
 				console.log("r.Text: " + r.Text);
 
 				$(`#comment_${commentId}`).html(r.Text);
+				$(`#expand_${commentId}`).remove(); // Hide 'expand...' anchor after expanding.
 			},
 			error:   function(r) { console.log("AJAX - error"); }
 		});

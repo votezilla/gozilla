@@ -215,6 +215,8 @@ func fetchRecentComments(notUserId int64, numComments int, withinElapsedMillisec
 ///////////////////////////////////////////////////////////////////////////////
 func fetchActivity(userId int64, withinElapsedMilliseconds int) (allArticles []Article, messages []string, links []string, unvisited []bool) {
 
+	// <-- Incr to unlimited time, just cap length of results to a fixed amount.
+
 	pr("Get articles shared by user")
 	{
 		articles := fetchArticlesNotPostedByUser(userId, 50, withinElapsedMilliseconds)
@@ -307,9 +309,10 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId, username := GetSessionInfo(w, r)
 
-	const oneMonth = 1000 * 60 * 60 * 24 * 30  // Calc milliseconds per month
+	//const oneMonth = 1000 * 60 * 60 * 24 * 30  // Calc milliseconds per month
+	const noTimeLimit = -1;
 
-	allArticles, messages, links, unvisited := fetchActivity(userId, oneMonth)
+	allArticles, messages, links, unvisited := fetchActivity(userId, noTimeLimit)
 
 	// Create a list order, and sort the activities by date, indirectly, via the list order.
 	assert(len(allArticles) == len(messages))
