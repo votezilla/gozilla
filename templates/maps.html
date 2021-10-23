@@ -25,7 +25,6 @@
 		 * Hidden by default. */
 		#panelContainer {
 			height: 100%;
-			width: null;
 			background-color: white;
 			position: fixed;
 			z-index: 1;
@@ -42,8 +41,21 @@
 			transition: all .2s ease-out;
 		}
 
-		.open {
-			width: 250px;
+		@media screen and (min-width:750px) { /* LARGE DEVICES */
+			.open {
+				width: 250px;
+			}
+			#panelContainer {
+				width: 250px;
+			}
+		}
+		@media screen and (max-width:750px) { /* SMALL DEVICES */
+			.open {
+				width: 166px;
+			}
+			#panelContainer {
+				width: 166px;
+			}
 		}
 
 		/* Styling for place details */
@@ -167,17 +179,34 @@
 		  font-family: Roboto;
 		  font-size: 15px;
 		  font-weight: 300;
-		  margin-left: 12px;
+		  margin: 8px;
 		  padding: 0 11px 0 13px;
 		  text-overflow: ellipsis;
-		  width: 400px;
 		}
+		@media screen and (min-width:750px) { /* LARGE DEVICES */
+			#pac-input {
+				width: 205px;
+			}
+		}
+		@media screen and (max-width:750px) { /* SMALL DEVICES */
+			#pac-input {
+				width: 120px;
+			}
+		}
+
 
 		#pac-input:focus {
 		  border-color: #4d90fe;
 		}
 
 		#pac-button {
+		  border-color: green;
+		  background-color: #fff;
+		  font-family: Roboto;
+		  font-size: 15px;
+		  font-weight: 300;
+		  margin: 8px;
+		  padding: 0 11px 0 13px;
 		}
 
 		#title {
@@ -204,6 +233,7 @@
 		  placeholder="Search Box"
 		  onClick="doMapSearch()"
 		/>
+		<br>
 		<input id="pac-button" type="button" value="Search" onClick="doMapSearch()"/>
 
 		<!-- The slide-out panel for showing place details -->
@@ -338,7 +368,7 @@
 
 
 			/* TODO: Trying to get text search to work, so you can search for something in a different location.
-			
+
 			var req = new XMLHttpRequest();
 			req.open('GET', 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants%20in%20Grants%20Pass%Oregon&key={{.MapsApiKey}}');
 			//req.send();
