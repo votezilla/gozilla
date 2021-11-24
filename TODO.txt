@@ -12,9 +12,11 @@ SET timezone TO 'US/Pacific';
 (  HOW TO SEND DAILY EMAILS:
 
 Linux:
-   ./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=675491 -dryRun=false -emailTarget=test -emailSubject="Do you support the vaccine mandate?"
+   ./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=676391 -dryRun=false -emailTarget=test -emailSubject="With the world falling apart, what are the smartest assets to own right now?"
+)
 
-
+(  UPDATING A POLL TITLE:
+   explain update vz.pollpost set title = 'With the world falling apart, what are the smartest assets to own right now?' where id=676391;
 )
 
 JUST FIXED:

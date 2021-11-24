@@ -347,7 +347,6 @@ func ImageService() {
 		 FROM $$LinkPost
 		 WHERE 0 <= ThumbnailStatus AND ThumbnailStatus < %d
 		   AND UrlToImage <> ''
-		   AND Created > now() - interval '2 weeks'
 		 ORDER BY Created DESC
 		 LIMIT %d;`,
 
@@ -363,7 +362,6 @@ func ImageService() {
 		 FROM $$PollPost
 		 WHERE 0 <= ThumbnailStatus AND ThumbnailStatus < %d
 		   AND UrlToImage <> ''
-		   AND Created > now() - interval '2 weeks'
 		 ORDER BY Created DESC
 		 LIMIT %d;`,
 	}
@@ -375,6 +373,7 @@ func ImageService() {
 	}
 	prVal("fetchImagesToDownsampleQuery[0]", fetchImagesToDownsampleQuery[0])
 	prVal("fetchImagesToDownsampleQuery[1]", fetchImagesToDownsampleQuery[1])
+	prVal("fetchImagesToDownsampleQuery[2]", fetchImagesToDownsampleQuery[2])
 
 
 	pr("========================================")
