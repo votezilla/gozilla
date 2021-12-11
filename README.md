@@ -1,6 +1,6 @@
 Welcome to Votezilla: an open-source social network based on creating polls, ranked voting, sharing news, and fostering positive political discussion. "Get a million people together, and the Berlin Wall crumbles."
 
-votezilla.news
+www.votezilla.news
 
 Politics is broken in many ways. Democracy is in danger of being eradicated by big tech companies and the mainstream media who purposely silence those who do not agree with their political views. Polls are rigged, and mainstream media lies and cover ups the truth. Votezilla is an app and a movement to fix that. At www.votezilla.news, anyone can join for free, vote on existing polls, add options to existing polls, create their own poll, and comment on news articles. The app has been launched and is now ready for everyone to vote, interact, connect with others and have a little fun.
 
