@@ -9,17 +9,12 @@
 package main
 
 import (
-//	"errors"
+	"database/sql"
 	"fmt"
-//	"github.com/puerkitobio/goquery"
-//	"github.com/rubenfonseca/fastimage"
-//	"io"
 	"io/ioutil"
 	"net/url"
-//	"os"
-//	"path/filepath"
-//	"sort"
-	"strconv"
+	"path/filepath"
+	"os"
 	"strings"
 	"time"
 	"willnorris.com/go/imageproxy"
@@ -260,14 +255,14 @@ func downsamplePostImage(url string, currentStatus, id int, c chan DownsampleRes
 
 	if currentStatus < image_DownsampledV2 {
 		// Small thumbnail - a
-		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "a", "jpeg", 160, 116)
+		err = downsampleImage(bytes, url, "thumbnails", int_to_str(id) + "a", "jpeg", 160, 116)
 		if err != nil {
 			prVal("# A downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
 			return
 		}
 		// Small thumbnail - b
-		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "b", "jpeg", 160, 150)
+		err = downsampleImage(bytes, url, "thumbnails", int_to_str(id) + "b", "jpeg", 160, 150)
 		if err != nil {
 			prVal("# B downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
@@ -276,7 +271,7 @@ func downsamplePostImage(url string, currentStatus, id int, c chan DownsampleRes
 	}
 	if currentStatus < image_DownsampledV3 {
 		// Large Thumbnail - c
-		err = downsampleImage(bytes, url, "thumbnails", strconv.Itoa(id) + "c", "jpeg", 570, -1)
+		err = downsampleImage(bytes, url, "thumbnails", int_to_str(id) + "c", "jpeg", 570, -1)
 		if err != nil {
 			prVal("# C downsamplePostImage called downsampleImage and then encountered some error", err.Error())
 			c <- DownsampleResult{id, url, err}
@@ -305,7 +300,7 @@ func removeItem(s []int, item int) []int {
 // fetch post urls ids - Given a query, fetch the database for posts' urls and ids.
 //
 //////////////////////////////////////////////////////////////////////////////
-func fetchPostIds2Urls(query string) (ids2urls map[int]UrlStatus) { //(urls []string, ids []int){
+func fetchPostIds2Urls(query string) (ids2urls map[int]UrlStatus) {
 	pr("fetchPostUrlIds")
 
 	ids2urls = make(map[int]UrlStatus)
@@ -331,11 +326,36 @@ func fetchPostIds2Urls(query string) (ids2urls map[int]UrlStatus) { //(urls []st
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// delete all thumbnails corresponding to post id.
+//
+//////////////////////////////////////////////////////////////////////////////
+func deleteThumbnailId(id int) {
+	// Delete thumbnail files starting with this id,
+	// e.g. id=1000 would delete 1000a.jpeg, 1000b.jpeg, 1000c.jpeg.
+	files, err := filepath.Glob("./static/thumbnails/" + int_to_str(id) + "?.jpeg")
+	check(err)
+
+	prVal("num files in glob", len(files))
+
+	if err != nil {
+		panic(err)
+	}
+	for _, f := range files {
+		prVal("Deleting file", f)
+		check(os.Remove(f))
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // image service - Continually checks for new images to shrink.  Images must be shrunk
 //				  to thumbnail size for faster webpage loads.
 //
 //////////////////////////////////////////////////////////////////////////////
 func ImageService() {
+	//deleteThumbnailId(2);
+	//return;
+
 /*	if flags.mode == "fetchNewsSourceIcons" {
 		for newsSource, imageUrl := range newsSourceIcons {
 			check(downsampleImage(imageUrl, "newsSourceIcons", newsSource, "png", 16, 16))
@@ -381,6 +401,45 @@ func ImageService() {
 	pr("========================================\n")
 
 	for { // Infinite loop
+
+		// 	Delete news thumbnails more than 2 weeks old, so we don't run out of hard disk space.
+		pr("Deleting old news thumbnails pass");
+		for {
+			pr("Next Image Deletion Loop");
+
+			numImagesDeleted := 0
+
+			DoQuery(
+				func(rows *sql.Rows) {
+					var id int
+
+					err := rows.Scan(&id)
+					check(err)
+
+					prVal("id", id);
+
+					deleteThumbnailId(id);
+
+					DbExec("UPDATE $$NewsPost SET ThumbnailStatus=0 WHERE Id = $1::bigint", id)
+
+					numImagesDeleted++
+
+				},
+				`SELECT Id FROM $$NewsPost
+				 WHERE ThumbnailStatus > 0
+				   AND UrlToImage <> ''
+				   AND Created <= now() - interval '2 weeks'
+				 ORDER BY COALESCE(PublishedAt, Created)
+				 LIMIT 100000;`,
+			)
+
+			prVal("numImagesDeleted", numImagesDeleted);
+
+			if numImagesDeleted == 0 {
+				break
+			}
+		}
+
 		numImageProcessAttempts := 0
 
 		// Downsample news images
@@ -494,6 +553,7 @@ func ImageService() {
 
 		// Sleep when there are no records to process.
 		if numImageProcessAttempts == 0 {
+			pr("Sleep 10 seconds")
 			time.Sleep(10 * time.Second)
 		}
 	}

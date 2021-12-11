@@ -295,7 +295,7 @@ func (qp ArticleQueryParams) createBaseQuery() string {
 	}
 
 	if qp.maxArticles > 0 {
-		query += "\nLIMIT " + strconv.Itoa(qp.maxArticles)
+		query += "\nLIMIT " + int_to_str(qp.maxArticles)
 	}
 
 	if qp.addSemicolon {
