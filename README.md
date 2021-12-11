@@ -17,4 +17,4 @@ Get a million people together, and the Berlin Wall crumbles.
 
 Let’s be the change we all want to see…
 
-https://votezilla.news
+www.votezilla.news
