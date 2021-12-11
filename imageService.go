@@ -428,7 +428,7 @@ func ImageService() {
 				`SELECT Id FROM $$NewsPost
 				 WHERE ThumbnailStatus > 0
 				   AND UrlToImage <> ''
-				   AND Created <= now() - interval '2 weeks'
+				   AND COALESCE(PublishedAt, Created) <= now() - interval '2 weeks'
 				 ORDER BY COALESCE(PublishedAt, Created)
 				 LIMIT 100000;`,
 			)
