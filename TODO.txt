@@ -1,6 +1,3 @@
-PUSH & TEST ON SERVER:
-:) - 13 - Comparative polls now working
-
 NOTES:
 Postgres copy-paste to initiate:
 
@@ -12,7 +9,7 @@ SET timezone TO 'US/Pacific';
 (  HOW TO SEND DAILY EMAILS:
 
 Linux:
-   ./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=676391 -dryRun=false -emailTarget=test -emailSubject="With the world falling apart, what are the smartest assets to own right now?"
+   ./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId=678208 -dryRun=false -emailTarget=test -emailSubject="Do you support or oppose mail-in voting?"
 )
 
 (  UPDATING A POLL TITLE:

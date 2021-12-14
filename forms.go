@@ -15,6 +15,7 @@ type Attributes map[string]string
 const (
 	kNuField = "nuField"
 	kNuCheckbox = "nuCheckbox"
+	kNuTextarea = "nuTextarea"
 	kOther = "other_"  // Prefix to field name for "other" fields.
 )
 
@@ -148,6 +149,8 @@ type Field struct {
 	Style			string
 	Length			int
 	MaxLength		int
+	Rows			int			// for textarea
+	Cols			int			// for textarea
 
 	Html			func() string // Closure that outputs the html of this field
 	HtmlRow			func() string // Closure that outputs the html of this field's entire table row
@@ -380,7 +383,21 @@ func makeTextField(name, label, placeholder string, inputLength, minLength, maxL
 		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength, fieldNameForErrors))
 	}
 
-//	prVal("makeTextField Type", f.Type)
+	return &f
+}
+
+func makeTextareaField(name, label, placeholder string, minLength, maxLength, rows, cols int, fieldNameForErrors string) *Field {
+	f := Field{Name: name, Type: "textarea", Label: label, Placeholder: placeholder, Rows: rows, Cols: cols}
+	f.Type = "textarea"
+	f.Classes = kNuField
+
+	if minLength > 0 {
+		f.Validators = append(f.Validators, requiredValidator(fieldNameForErrors))
+	}
+
+	if minLength > 0 || maxLength != -1 {
+		f.Validators = append(f.Validators, minMaxLengthValidator(minLength, maxLength, fieldNameForErrors))
+	}
 
 	return &f
 }
@@ -488,6 +505,13 @@ func nuSelectField(name, placeholder string, optionKeyValues OptionData, startAt
 	f.Required	 = required
 	f.HasOther	 = hasOther
 	f.Skippable	 = skippable
+
+	return f
+}
+
+func nuTextareaField(name, label, placeholder string, minLength, maxLength, rows, cols int, fieldNameForErrors string) *Field {
+	f := makeTextareaField(name, label, placeholder, minLength, maxLength, rows, cols, fieldNameForErrors)
+	f.Classes = kNuField + " " + kNuTextarea
 
 	return f
 }

@@ -236,6 +236,9 @@ input[type=\"submit\"] { font-family:Verdana, Geneva, sans-serif; }
 	outline: none;
 	box-shadow: 0px 0px 5px 1px #0066ff;
 }
+.nuTextarea {
+	height: 466px !important;
+}
 .nuBtn{
 	border-radius: 2rem;
 	width:250px;

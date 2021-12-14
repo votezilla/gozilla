@@ -257,7 +257,7 @@ func createPollHandler(w http.ResponseWriter, r *http.Request) {
 func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 	pr("createBlogHandler")
 
-	const kBlogVal = "blogVal"
+	const kBlog = "blog"
 
 	userId := GetSession(w, r)
 	if userId == -1 { // Secure cookie not found.  Either session expired, or someone is hacking.
@@ -272,26 +272,23 @@ func createBlogHandler(w http.ResponseWriter, r *http.Request) {
 	form := makeForm(
 		nuTextField(kTitle, "Your blog post title...", 50, 12, 255, "blog title"),
 		nuSelectField(kCategory, "Select Category", newsCategoryInfo.CategorySelect, true, true, false, false, "Please select a blog category"),
-		nuHiddenField(kBlogVal, ""),  // Hidden field that gets the value from the blog.  Because there is JS required to get blog value.
+		nuTextareaField(kBlog, "Blog Entry:", "Enter your blog thoughts here...", 20, 65536, 120, 120, "blog article"),  // Hidden field that gets the value from the blog.  Because there is JS required to get blog value.
 	)
-
-	form.field(kBlogVal).addFnValidator(requiredValidator("blog article"))
-	form.field(kBlogVal).addFnValidator(minMaxLengthValidator(12, 40000, "blog article"))
 
 	if r.Method == "POST" && form.validateData(r) {
 		prVal("Valid form!!", form)
 
 		prVal(kTitle, form.val(kTitle))
-		prVal(kBlogVal, form.val(kBlogVal))
+		prVal(kBlog, form.val(kBlog))
 
 		// Update the user record with registration details.
 		blogPostId := DbInsert(
-			`INSERT INTO $$LinkPost(UserId, Title, Category, Blog)
+			`INSERT INTO $$BlogPost(UserId, Title, Category, Blog)
 			 VALUES($1::bigint, $2, $3, $4) returning id;`,
 			userId,
 			form.val(kTitle),
 			form.val(kCategory),
-			form.val(kBlogVal))
+			form.val(kBlog))
 
 		// Have user like their own blogs by default.
 		voteUpDown(blogPostId, userId, true, true, false)

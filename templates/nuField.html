@@ -17,6 +17,14 @@
 	>
 {{end}}
 
+{{define "textareaField"}}
+	<textarea name="{{.Name}}" value="{{.Value}}" placeholder="{{.Placeholder}}" rows="{{.Rows}}" cols="{{.Cols}}"
+		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
+		{{- if .Id }} id="{{.Id}}"{{ end }}
+		{{- template "attributes" .Attributes }}
+	></textarea>
+{{end}}
+
 {{define "checkboxField"}}
 	<div style="font-size: 18px;"><input type=checkbox name="{{.Name}}" value="true"
 		{{- if .Classes }} class="{{.Classes}}"{{ end -}}
@@ -61,12 +69,13 @@
 {{define "field"}}
 	<!--<label class="nuLabel">{{.}} {{.Name}} {{.Type}}</label>-->
 
-	{{- if eq .Type "checkbox" -}}	  {{ template "checkboxField" . }}
-	{{- else if eq .Type "select" -}} {{ template "selectField" . }}
-	{{- else if eq .Type "other" -}}  {{ template "otherField" . }}
-	{{- else -}}				 	  {{ template "inputField" . }}
+	{{- if eq .Type "checkbox" -}}	    {{ template "checkboxField" . }}
+	{{- else if eq .Type "select" -}}   {{ template "selectField" . }}
+	{{- else if eq .Type "other" -}}    {{ template "otherField" . }}
+	{{- else if eq .Type "textarea" -}} {{ template "textareaField" . }}
+	{{- else -}}				 	    {{ template "inputField" . }}
 	{{- end -}}
-	{{if .Error}}<label class="error">{{.Error}}</label>{{end -}}
+	{{if .Error}}<label class="error"> {{.Error}}</label>{{end -}}
 	{{if .Subtext}}<p class="nuFieldSubtext">{{.Subtext}}</p>{{end -}}
 
 {{end}}

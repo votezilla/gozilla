@@ -2,75 +2,19 @@
 
 {{template "formHeader" "Create blog post for"}}
 
-<div><form method=POST onsubmit="return fetchBlogData(event)">
-
+{{ template "beginForm" .Form }}
 	{{ $f := .Form.FieldMap }}
 	{{ template "field" $f.title -}}
-	<p>
-	<div id="editor-container" style="height:200px;"></div>
-	{{ template "field" $f.blogVal -}}
-	<div id="new-comment-html">new-comment-html</div>
-	<p>
-	<p id="thumbnailLabel" style="margin-top: 1rem; display: none;">Choose Thumbnail:</p>
-	<div style="overflow: visible; width: 100%;">
-		<div id="image_container"></div>
-	</div>
-	<p>
+	{{ template "field" $f.blog -}}
 	{{ template "field" $f.category -}}
 	<div>
-		<input type="submit" class="nuBtn btn btn-vote center">
-			Create Blog Post
-		</input>
+		<p>
+		{{ template "button" "Share Blog Post" }}
 	</div>
 	<br>
-</form></div>
+{{ template "endForm" }}
 
-<!--<br>
-<input type=button name="Add comment" value="Add comment"></input>
--->
 
-<script>
-var quill;
-
-// Here's a bunch of code to support rich text via the Quill editor library.
-$(document).ready(function() {
-	quill = new Quill('#editor-container', {
-		modules: {
-			toolbar: [
-				[{ header: [1, 2, false] }],
-				['bold', 'italic', 'underline'],
-				['image', 'code-block']  // TODO: add images to blog posts
-				//['code-block']
-			]
-		},
-		placeholder: 'Create a blog post...',
-		theme: 'snow'  // or 'bubble'
-	});
-
-	var $editor = $('#editor-container');
-});
-
-function fetchBlogData(e) {
-	//e.preventDefault();
-
-	console.log(quill.getContents());
-
-	console.log(quill.root.innerHTML);
-
-	// Store the value in a hidden field before submit.
-	$('input[name="blogVal"]').val(quill.getContents());
-
-	//$('input[name="blogVal"]').val(quill.getContents());
-	//$('input[name="blogVal"]').val(quill.root.innerHTML);
-
-	alert(JSON.stringify(quill.getContents(), undefined, 2));
-
-	// TODO: ^^ quill.setContents from the hidden form data that comes in.  - https://quilljs.com/docs/api/#getcontents
-
-	// TODO: ^^ Then use go-render-quill to render the deltas as HTML.  - https://godoc.org/github.com/dchenk/go-render-quill#example-package
-}
-
-</script>
 
 {{end}}
 

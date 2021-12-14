@@ -5,6 +5,19 @@
 
 	<div class="softBorder">
 
+		{{ if .Admin }}
+			To test daily email:
+			<br><br>
+			./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId={{$article.Id}} -dryRun=false
+			   -emailTarget=test -emailSubject="{{$article.Title}}"
+			<br><br>
+			To submit daily email:
+			<br><br>
+			./gozilla $(< ~/flags2.txt) -dailyEmail=true -featuredArticleId={{$article.Id}} -dryRun=false
+			   -emailTarget=daily -emailSubject="{{$article.Title}}"
+			<br><br>
+		{{ end }}
+
 		<a href="{{$article.Url}}" target="_blank" class="storylink">
 			<img src="{{$article.UrlToImage}}" width="100%">
 		</a>
@@ -41,7 +54,7 @@
 				</td>
 			</tr>
 
-			<a id="vote" href="#"> <!-- Anchor so user sees the poll. -->		
+			<a id="vote" href="#"> <!-- Anchor so user sees the poll. -->
 			<tr valign="top">
 				<td class="title" style="padding-left: 5px;">
 					{{ template "PollForm" $article }}

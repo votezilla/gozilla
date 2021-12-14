@@ -82,7 +82,8 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, username := GetSessionInfo(w, r)
+	userId := GetSession(w, r)
+	userData := GetUserData(userId)
 
 	// TODO_REFACTOR: unify articles and posts in database.
 	article, err := fetchArticle(postId, userId)
@@ -134,7 +135,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	//prVal("downcommentvotes", downcommentvotes)
 
 	// Render the news articles.
-	fa := makeFrameArgs2(r, article.Title, "", "news", userId, username, upvotes, downvotes)
+	fa := makeFrameArgs2(r, article.Title, "", "news", userId, userData.Username, upvotes, downvotes)
 	fa.Metadata["og:image"] = article.UrlToImage
 	fa.Metadata["og:description"] = article.Description
 
@@ -150,6 +151,8 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		MoreArticlesFromThisSource	[]Article
 		CommentPrompt				string
 		FocusOnTopComment			bool
+		ShowAdminCommands			bool
+		Admin						bool
 	}{
 		FrameArgs:					fa,
 		Article:					article,
@@ -160,6 +163,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		MoreArticlesFromThisSource:	moreArticles,
 		CommentPrompt:				"Add a comment to start a conversation!",
 		FocusOnTopComment:			true,
+		Admin:						userData.Admin,
 	}
 
 	executeTemplate(w, kArticle, articleArgs)

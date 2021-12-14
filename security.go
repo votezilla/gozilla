@@ -18,6 +18,7 @@ type UserData struct {
 	Email		string
 	Username	string
 	Name		string
+	Admin		bool
 }
 
 var (
@@ -243,9 +244,9 @@ func GetSessionInfo(w http.ResponseWriter, r *http.Request) (userId int64, usern
 }
 
 func GetUserData(userId int64) (userData UserData) {
-	rows := DbQuery("SELECT Email, Username, COALESCE(Name, '') FROM $$User WHERE Id = $1::bigint;", userId)
+	rows := DbQuery("SELECT Email, Username, COALESCE(Name, ''), Admin FROM $$User WHERE Id = $1::bigint;", userId)
 	if rows.Next() {
-		err := rows.Scan(&userData.Email, &userData.Username, &userData.Name)
+		err := rows.Scan(&userData.Email, &userData.Username, &userData.Name, &userData.Admin)
 		check(err)
 	}
 	check(rows.Err())

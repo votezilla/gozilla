@@ -47,7 +47,9 @@ CREATE TABLE vz.User (
     -- PREFERENCES:
     EmailPreference      TEXT,
 
-    Ip              TEXT
+    Ip              TEXT,
+
+    Admin	    BOOL DEFAULT False
 );
 
 CREATE TABLE vz.NewSub (		-- Newletter Subscriber
